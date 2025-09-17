@@ -1,0 +1,28 @@
+<div class="container" id="upload-container" *ngIf="!isLoading">
+    <h1>LE1 Form Document Upload</h1>
+    <h3>Upload Your Documents</h3>
+    <p>Please upload the relevant files. The system will extract the data and pre-fill the form for you.</p>
+
+    <div class="upload-area">
+        <label for="tax-summary-file">Tax Computation Summary (Part A & B)</label>
+        <input type="file" accept="image/*, .pdf" #taxFile>
+    </div>
+
+    <div class="upload-area">
+        <label for="shareholder-file">Shareholder & Officer Details (Attachments C3, C4, C5)</label>
+        <input type="file" accept="image/*, .pdf" #shareholderFile>
+    </div>
+
+    <div class="upload-area">
+        <label for="financials-file">Financial Statements (Attachment C9)</label>
+        <input type="file" accept="image/*, .pdf" #financialsFile>
+    </div>
+
+    <button class="btn" (click)="processFiles(taxFile, shareholderFile, financialsFile)">Process Documents</button>
+</div>
+
+<div id="loader" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <h2>Processing documents...</h2>
+    <p>This may take a moment. Please wait.</p>
+</div>

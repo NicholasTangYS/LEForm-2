@@ -1,0 +1,777 @@
+<nav class="sidebar">
+    <h2>LE1 Form Sections</h2>
+    <ul>
+        <li><a href="#form/part-a">Part A: Basic Particulars</a></li>
+        <li><a href="#form/part-b">Part B: Tax Computation</a></li>
+        <li><a href="#form/part-c">Part C: Entity Details</a></li>
+        <li><a href="#form/part-d">Part D: CbC Reporting</a></li>
+        <li><a href="#form/declaration">Declaration</a></li>
+        <li><a href="#form/attachment-c3">Att. C3: Compliance Officers</a></li>
+        <li><a href="#form/attachment-c4">Att. C4: Major Shareholders</a></li>
+        <li><a href="#form/attachment-c5">Att. C5: Beneficial Owners</a></li>
+        <li><a href="#form/attachment-c9">Att. C9: Financial Particulars</a></li>
+        <li><a href="#form/attachment-c10">Att. C10: Subsidiaries</a></li>
+        <li><a href="#form/attachment-c11">Att. C11: Payments Received</a></li>
+    </ul>
+</nav>
+<main class="main-content">
+    <h1>Borang LE1 - Data Entry</h1>
+    <p>Fill in the details and click "Generate PDF" to download the completed form.</p>
+    <form id="le1-form" [formGroup]="le1Form" (ngSubmit)="generatePdf()">
+
+        <!-- Part A: Basic Particulars -->
+
+        <fieldset id="part-a">
+            <legend>Part A: Basic Particulars</legend>
+            <label for="Year_of_Assessment_1">Year of Assessment:</label>
+            <input style="width: 2%;" type="text" id="Year_of_Assessment_1" formControlName="Year_of_Assessment_1" maxlength="1"
+                size="1" >
+            <input style="width: 2%;" type="text" id="Year_of_Assessment_2" formControlName="Year_of_Assessment_2" maxlength="1"
+                size="1" >
+            <input style="width: 2%;" type="text" id="Year_of_Assessment_3" formControlName="Year_of_Assessment_3" maxlength="1"
+                size="1" >
+            <input style="width: 2%;" type="text" id="Year_of_Assessment_4" formControlName="Year_of_Assessment_4" maxlength="1"
+                size="1" >
+
+            <label for="Company_Name">Company Name:</label>
+            <input type="text" id="Company_Name" formControlName="Company_Name">
+
+            <label for="Company_Address_Line1">Address Line 1:</label>
+            <input type="text" id="Company_Address_Line1" formControlName="Company_Address_Line1">
+
+            <label for="Company_Address_Line2">Address Line 2:</label>
+            <input type="text" id="Company_Address_Line2" formControlName="Company_Address_Line2">
+            <div  style="display: flex;justify-content: space-between;">
+                <div style="width: 25%;">
+                    <label for="Postcode">Postcode:</label>
+                    <input type="text" id="Postcode" formControlName="Postcode">
+                </div>
+
+                <div style="width: 25%;">
+                    <label for="City">City:</label>
+                    <input type="text" id="City" formControlName="City">
+                </div>
+
+                <div style="width: 25%;">
+                    <label for="State">State:</label>
+                    <input type="text" id="State" formControlName="State">
+                </div>
+
+            </div>
+
+
+            <label for="Company_Registration_No">Registration No:</label>
+            <input type="text" id="Company_Registration_No" formControlName="Company_Registration_No">
+
+            <label for="Company_TIN_LE">Company TIN:</label>
+            <input type="text" id="Company_TIN_LE" formControlName="Company_TIN_LE">
+
+            <label for="TIN_C_or_PT">TIN C/PT (if any):</label>
+            <input type="text" id="TIN_C_or_PT" formControlName="TIN_C_or_PT">
+
+            <label for="Employer_TIN">Employer TIN:</label>
+            <input type="text" id="Employer_TIN" formControlName="Employer_TIN">
+
+            <label for="Incorp_date_day">Incorporation Date (DD/MM/YYYY):</label>
+            <div style="display: flex; gap: 5px; align-items: center;border-radius: 5px;
+    border: 1px solid #ccc; padding:5px; margin-bottom: 10px;">
+                <input style="width:4%" type="number" id="Incorp_date_day" formControlName="Incorp_date_day" size="2"> /
+                <input style="width:4%" type="number" id="Incorp_date_month" formControlName="Incorp_date_month" size="2"> /
+                <input style="width:8%" type="number" id="Incorp_date_year" formControlName="Incorp_date_year" size="4">
+            </div>
+
+            <label for="Telephone_no">Telephone No:</label>
+            <input type="text" id="Telephone_no" formControlName="Telephone_no">
+
+            <label for="Email">Email:</label>
+            <div style="margin-bottom: 10px;">
+                <input type="email" id="Email" formControlName="Email">
+            </div>
+
+            <label for="Change_of_Accounting_Period_No">Change of Accounting Period:</label>
+            <div style="display: flex;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                margin-bottom: 10px;
+                padding: 5px;">
+                <input type="radio" id="Change_of_Accounting_Period_No_Yes" formControlName="Change_of_Accounting_Period_No"
+                    value="1">
+                <label for="Record_keeping_Yes">Yes</label>
+                <input type="radio" id="Change_of_Accounting_Period_No" formControlName="Change_of_Accounting_Period_No" value="2">
+                <label for="Record_keeping_No">No</label>
+            </div>
+
+            <label for="Types_of_exchange_of_accounting_periods">Types of exchange of accounting periods:</label>
+            <div style="display: flex;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                margin-bottom: 10px;
+                padding: 5px;">
+                <input type="radio" id="Types_of_exchange_of_accounting_periods_1"
+                    formControlName="Types_of_exchange_of_accounting_periods" value="1">
+                <label for="Record_keeping_Yes">Shortened period</label>
+                <input type="radio" id="Types_of_exchange_of_accounting_periods_2"
+                    formControlName="Types_of_exchange_of_accounting_periods" value="2">
+                <label for="Record_keeping_No">Extended period</label>
+            </div>
+
+            <label>Accounting Period:</label>
+            <div style="display: flex; gap: 5px; align-items: center;border-radius: 5px;
+    border: 1px solid #ccc; padding:5px; justify-content: space-between;
+    margin-bottom: 10px;">
+                <label for="Accounting_Period_From_Day">From (DD/MM/YYYY):</label>
+                <input style="width:4%" type="number" id="Accounting_Period_From_Day" formControlName="Accounting_Period_From_Day"
+                    size="2"> /
+                <input style="width:4%" type="number" id="Accounting_Period_From_Month"
+                    formControlName="Accounting_Period_From_Month" size="2"> /
+                <input style="width:8%" type="number" id="Accounting_Period_From_Year"
+                    formControlName="Accounting_Period_From_Year" size="4">
+                <!-- split border Line -->
+                <span></span>
+                <label for="Accounting_Period_To_Day">To (DD/MM/YYYY):</label>
+                <input style="width:4%" type="number" id="Accounting_Period_To_Day" formControlName="Accounting_Period_To_Day"
+                    size="2"> /
+                <input style="width:4%" type="number" id="Accounting_Period_To_Month" formControlName="Accounting_Period_To_Month"
+                    size="2"> /
+                <input style="width:8%" type="number" id="Accounting_Period_To_Year" formControlName="Accounting_Period_To_Year"
+                    size="4">
+            </div>
+
+            <label>Basis Period:</label>
+            <div style="display: flex; gap: 5px; align-items: center;border-radius: 5px;
+    border: 1px solid #ccc; padding:5px;justify-content: space-between;
+    margin-bottom: 10px;">
+                <label for="Basis_Period_From_Day">From (DD/MM/YYYY):</label>
+                <input style="width:4%" type="number" id="Basis_Period_From_Day" formControlName="Basis_Period_From_Day" size="2">
+                /
+                <input style="width:4%" type="number" id="Basis_Period_From_Month" formControlName="Basis_Period_From_Month"
+                    size="2"> /
+                <input style="width:8%" type="number" id="Basis_Period_From_Year" formControlName="Basis_Period_From_Year"
+                    size="4">
+                <label for="Basis_Period_To_Day">To (DD/MM/YYYY):</label>
+                <input style="width:4%" type="number" id="Basis_Period_To_Day" formControlName="Basis_Period_To_Day" size="2">
+                /
+                <input style="width:4%" type="number" id="Basis_Period_To_Month" formControlName="Basis_Period_To_Month" size="2">
+                /
+                <input style="width:8%" type="number" id="Basis_Period_To_Year" formControlName="Basis_Period_To_Year" size="4">
+            </div>
+
+            <label for="FS_in_Foreign_Currency_Yes">FS in Foreign Currency:</label>
+            <div style="display: flex;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                margin-bottom: 10px;
+                padding: 5px;">
+                <input type="radio" id="FS_in_Foreign_Currency_Yes" formControlName="FS_in_Foreign_Currency_Yes" value="1">
+                <label for="FS_in_Foreign_Currency_Yes">Yes</label>
+                <input type="radio" id="FS_in_Foreign_Currency_No" formControlName="FS_in_Foreign_Currency_Yes" value="2">
+                <label for="FS_in_Foreign_Currency_No">No</label>
+            </div>
+
+            <label for="Currency_Reported">Currency Reported:</label>
+            <input type="text" id="Currency_Reported" formControlName="Currency_Reported">
+
+            <label for="Currency_Exchange_Rate">Currency Exchange Rate:</label>
+            <input type="text" id="Currency_Exchange_Rate" formControlName="Currency_Exchange_Rate">
+
+            <label for="Record_keeping">Record keeping:</label>
+            <div style="display: flex;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                margin-bottom: 10px;
+                padding: 5px;">
+                <input type="radio" id="Record_keeping_Yes" formControlName="Record_keeping" value="1">
+                <label for="Record_keeping_Yes">Yes</label>
+                <input type="radio" id="Record_keeping_No" formControlName="Record_keeping" value="2">
+                <label for="Record_keeping_No">No</label>
+            </div>
+
+            <label for="Business_Status_In_Operation">Business Status:</label>
+            <div style="display: flex;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                margin-bottom: 10px;
+                padding: 5px;">
+                <input type="radio" id="Business_Status_In_Operation" formControlName="Business_Status_In_Operation" value="1">
+                <label for="Business_Status_In_Operation">In Operation</label>
+                <input type="radio" id="Business_Status_Dormant" formControlName="Business_Status_In_Operation" value="2">
+                <label for="Business_Status_Dormant">Dormant</label>
+                <input type="radio" id="Business_Status_Winding" formControlName="Business_Status_In_Operation" value="3">
+                <label for="Business_Status_winding">In the process of winding-up</label>
+            </div>
+
+            <label for="Type_of_Labuan_entity">Type of Labuan entity:</label>
+            <div style="display: flex;
+    flex-wrap: wrap;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    padding: 5px;">
+
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Type_of_Labuan_entity_1" formControlName="Type_of_Labuan_entity" value="1">
+                    <label for="Type_of_Labuan_entity_1">Labuan Company</label>
+                </div>
+
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Type_of_Labuan_entity_2" formControlName="Type_of_Labuan_entity" value="2">
+                    <label for="Type_of_Labuan_entity_2">Labuan Foundation</label>
+                </div>
+
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Type_of_Labuan_entity_3" formControlName="Type_of_Labuan_entity" value="3">
+                    <label for="Type_of_Labuan_entity_3">Labuan Islamic Foundation</label>
+                </div>
+
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Type_of_Labuan_entity_4" formControlName="Type_of_Labuan_entity" value="4">
+                    <label for="Type_of_Labuan_entity_4">Labuan Islamic partnership</label>
+                </div>
+
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Type_of_Labuan_entity_5" formControlName="Type_of_Labuan_entity" value="5">
+                    <label for="Type_of_Labuan_entity_5">Labuan limited partnership</label>
+                </div>
+
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Type_of_Labuan_entity_6" formControlName="Type_of_Labuan_entity" value="6">
+                    <label for="Type_of_Labuan_entity_6">Labuan Limited Liability Partnership</label>
+                </div>
+
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Type_of_Labuan_entity_7" formControlName="Type_of_Labuan_entity" value="7">
+                    <label for="Type_of_Labuan_entity_7">Labuan Islamic trust</label>
+                </div>
+
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Type_of_Labuan_entity_8" formControlName="Type_of_Labuan_entity" value="8">
+                    <label for="Type_of_Labuan_entity_8">Labuan trust</label>
+                </div>
+
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Type_of_Labuan_entity_9" formControlName="Type_of_Labuan_entity" value="9">
+                    <label for="Type_of_Labuan_entity_9">Malaysian Islamic bank licensee</label>
+                </div>
+
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Type_of_Labuan_entity_10" formControlName="Type_of_Labuan_entity" value="10">
+                    <label for="Type_of_Labuan_entity_10">Malaysian bank licensee</label>
+                </div>
+
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Type_of_Labuan_entity_11" formControlName="Type_of_Labuan_entity" value="11">
+                    <label for="Type_of_Labuan_entity_11">Any Labuan financial institutions</label>
+                </div>
+
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Type_of_Labuan_entity_12" formControlName="Type_of_Labuan_entity" value="12">
+                    <label for="Type_of_Labuan_entity_12">Any person declared by the Minister to be a Labuan
+                        entity</label>
+                </div>
+
+            </div>
+
+            <label for="Incorp_under">Incorp under:</label>
+            <div style="display: flex;
+    flex-wrap: wrap;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    padding: 5px;">
+
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Incorp_under_1" formControlName="Incorp_under" value="1">
+                    <label for="Incorp_under_1">Labuan Companies
+                        Act 1990</label>
+                </div>
+
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Incorp_under_2" formControlName="Incorp_under" value="2">
+                    <label for="Incorp_under_2">Labuan Foundations
+                        Act 2010</label>
+                </div>
+
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Incorp_under_3" formControlName="Incorp_under" value="3">
+                    <label for="Incorp_under_3">Labuan Trusts Act 1996</label>
+                </div>
+
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Incorp_under_4" formControlName="Incorp_under" value="4">
+                    <label for="Incorp_under_4">Labuan Limited Partnerships and Limited Liability Partnerships Act
+                        2010</label>
+                </div>
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Incorp_under_5" formControlName="Incorp_under" value="5">
+                    <label for="Incorp_under_5">Labuan Financial Services and Securities Act 2010</label>
+                </div>
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Incorp_under_6" formControlName="Incorp_under" value="6">
+                    <label for="Incorp_under_6">Labuan Islamic Financial Services and Securities Act 2010</label>
+                </div>
+
+
+
+            </div>
+        </fieldset>
+
+        <!-- Part B: Tax Computation -->
+        <fieldset id="part-b">
+            <legend>Part B: Tax Computation</legend>
+
+            <h4>B1: Particulars of Labuan Business Activity</h4>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Activity Code</th>
+                        <th>Core Income (1=Y, 2=N)</th>
+                        <th>Status (1=Active
+                            2=Dormant)</th>
+                        <th>No. of Employees</th>
+                        <th>OpEx (RM)</th>
+                        <th>Substantive (1=Y, 2=N)</th>
+                        <th>Net Loss (RM)</th>
+                        <th>Net Profit (RM)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Row 1 -->
+                    <tr>
+                        <td><input type="text" formControlName="B1_Activities_0_Business_Activity_Code"></td>
+                        <td><input type="text" formControlName="B1_Activities_0_Core_Income_Activity_Yes"></td>
+                        <td><input type="text" formControlName="B1_Activities_0_Business_Activity_Status_Active"></td>
+                        <td><input type="number" formControlName="B1_Activities_0_No_of_Employees"></td>
+                        <td><input type="text" formControlName="B1_Activities_0_Annual_Operating_Expenditure"></td>
+                        <td><input type="text" formControlName="B1_Activities_0_Comply_Substantive_Yes"></td>
+                        <td><input type="text" formControlName="B1_Activities_0_Amount_of_Net_Loss"></td>
+                        <td><input type="text" formControlName="B1_Activities_0_Net_Profits_ex_IP"></td>
+                    </tr>
+                    <!-- Row 2 -->
+                    <tr>
+                        <td><input type="text" formControlName="B1_Activities_1_Business_Activity_Code"></td>
+                        <td><input type="text" formControlName="B1_Activities_1_Core_Income_Activity_Yes"></td>
+                        <td><input type="text" formControlName="B1_Activities_1_Business_Activity_Status_Active"></td>
+                        <td><input type="number" formControlName="B1_Activities_1_No_of_Employees"></td>
+                        <td><input type="text" formControlName="B1_Activities_1_Annual_Operating_Expenditure"></td>
+                        <td><input type="text" formControlName="B1_Activities_1_Comply_Substantive_Yes"></td>
+                        <td><input type="text" formControlName="B1_Activities_1_Amount_of_Net_Loss"></td>
+                        <td><input type="text" formControlName="B1_Activities_1_Net_Profits_ex_IP"></td>
+                    </tr>
+                    <!-- Row 3 -->
+                    <tr>
+                        <td><input type="text" formControlName="B1_Activities_2_Business_Activity_Code"></td>
+                        <td><input type="text" formControlName="B1_Activities_2_Core_Income_Activity_Yes"></td>
+                        <td><input type="text" formControlName="B1_Activities_2_Business_Activity_Status_Active"></td>
+                        <td><input type="number" formControlName="B1_Activities_2_No_of_Employees"></td>
+                        <td><input type="text" formControlName="B1_Activities_2_Annual_Operating_Expenditure"></td>
+                        <td><input type="text" formControlName="B1_Activities_2_Comply_Substantive_Yes"></td>
+                        <td><input type="text" formControlName="B1_Activities_2_Amount_of_Net_Loss"></td>
+                        <td><input type="text" formControlName="B1_Activities_2_Net_Profits_ex_IP"></td>
+                    </tr>
+                    <!-- Row 4 -->
+                    <tr>
+                        <td><input type="text" formControlName="B1_Activities_3_Business_Activity_Code"></td>
+                        <td><input type="text" formControlName="B1_Activities_3_Core_Income_Activity_Yes"></td>
+                        <td><input type="text" formControlName="B1_Activities_3_Business_Activity_Status_Active"></td>
+                        <td><input type="number" formControlName="B1_Activities_3_No_of_Employees"></td>
+                        <td><input type="text" formControlName="B1_Activities_3_Annual_Operating_Expenditure"></td>
+                        <td><input type="text" formControlName="B1_Activities_3_Comply_Substantive_Yes"></td>
+                        <td><input type="text" formControlName="B1_Activities_3_Amount_of_Net_Loss"></td>
+                        <td><input type="text" formControlName="B1_Activities_3_Net_Profits_ex_IP"></td>
+                    </tr>
+                    <!-- Row 5 -->
+                    <tr>
+                        <td><input type="text" formControlName="B1_Activities_4_Business_Activity_Code"></td>
+                        <td><input type="text" formControlName="B1_Activities_4_Core_Income_Activity_Yes"></td>
+                        <td><input type="text" formControlName="B1_Activities_4_Business_Activity_Status_Active"></td>
+                        <td><input type="number" formControlName="B1_Activities_4_No_of_Employees"></td>
+                        <td><input type="text" formControlName="B1_Activities_4_Annual_Operating_Expenditure"></td>
+                        <td><input type="text" formControlName="B1_Activities_4_Comply_Substantive_Yes"></td>
+                        <td><input type="text" formControlName="B1_Activities_4_Amount_of_Net_Loss"></td>
+                        <td><input type="text" formControlName="B1_Activities_4_Net_Profits_ex_IP"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Other Part B fields -->
+            <label for="B2_Total_Net_Profits">B2: Total Net Profits (RM):</label>
+            <input type="text" id="B2_Total_Net_Profits" formControlName="B2_Total_Net_Profits">
+            <label for="B6_Tax_Payable">B6: Tax Payable (MYR):</label>
+            <input type="text" id="B6_Tax_Payable" formControlName="B6_Tax_Payable">
+        </fieldset>
+
+        <!-- Part C, D, etc. -->
+        <fieldset id="part-c">
+            <legend>Part C: Particulars of Labuan Entity</legend>
+            <label for="C1_Correspondence_Address_line1">Correspondence Address Line 1:</label>
+            <input type="text" id="C1_Correspondence_Address_line1" formControlName="C1_Correspondence_Address_line1">
+
+            <label for="C1_Postcode">Correspondence Postcode:</label>
+            <input type="text" id="C1_Postcode" formControlName="C1_Postcode">
+
+            <label for="C1_City">Correspondence City:</label>
+            <input type="text" id="C1_City" formControlName="C1_City">
+
+            <label for="C6a_Has_Related_Company">Has Related Company (1=Yes, 2=No):</label>
+            <input type="text" id="C6a_Has_Related_Company" formControlName="C6a_Has_Related_Company">
+        </fieldset>
+
+        <!-- Part D: CbC Reporting -->
+        <fieldset id="part-d">
+            <legend>Part D: Particulars Of Country-By-Country Reporting</legend>
+            <label for="D1_Subject_to_CbCR">Subject to CbCR (1=Yes, 2=No):</label>
+            <input type="text" id="D1_Subject_to_CbCR" formControlName="D1_Subject_to_CbCR">
+
+            <label for="D2_Reporting_Entity_Status">Reporting Status (1=Reporting, 2=Non-reporting):</label>
+            <input type="text" id="D2_Reporting_Entity_Status" formControlName="D2_Reporting_Entity_Status">
+        </fieldset>
+
+        <!-- Part E: Reporting Entity -->
+        <fieldset id="part-e">
+            <legend>Part E: Reporting Entity</legend>
+            <label for="E1_MNE_Group_Name">MNE Group Name:</label>
+            <input type="text" id="E1_MNE_Group_Name" formControlName="E1_MNE_Group_Name">
+        </fieldset>
+
+        <!-- Part F: Non-Reporting Entity -->
+        <fieldset id="part-f">
+            <legend>Part F: Non-Reporting Entity</legend>
+            <label for="F1_Reporting_Entity_Name">Reporting Entity Name:</label>
+            <input type="text" id="F1_Reporting_Entity_Name" formControlName="F1_Reporting_Entity_Name">
+        </fieldset>
+
+        <!-- Declaration -->
+        <fieldset id="declaration">
+            <legend>Declaration</legend>
+            <label for="Declarant_Name">Declarant Name:</label>
+            <input type="text" id="Declarant_Name" formControlName="Declarant_Name">
+
+            <label for="Declarant_ID_Passport">Declarant ID/Passport:</label>
+            <input type="text" id="Declarant_ID_Passport" formControlName="Declarant_ID_Passport">
+
+            <label for="Declaration_Date_Day">Declaration Date (DD/MM/YYYY):</label>
+            <input type="text" id="Declaration_Date_Day" formControlName="Declaration_Date_Day" size="2"> /
+            <input type="text" id="Declaration_Date_Month" formControlName="Declaration_Date_Month" size="2"> /
+            <input type="text" id="Declaration_Date_Year" formControlName="Declaration_Date_Year" size="4">
+        </fieldset>
+
+        <!-- Attachment C3: Compliance Officers -->
+        <fieldset id="attachment-c3">
+            <legend>Attachment C3: Compliance Officers</legend>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Designation</th>
+                        <th>TIN</th>
+                        <th>Salary/Bonus (RM)</th>
+                        <th>Fees (RM)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Row 1 -->
+                    <tr>
+                        <td><input type="text" formControlName="Compliance_Officers_0_Name"></td>
+                        <td><input type="text" formControlName="Compliance_Officers_0_Designation"></td>
+                        <td><input type="text" formControlName="Compliance_Officers_0_TIN"></td>
+                        <td><input type="text" formControlName="Compliance_Officers_0_Salary_Bonus"></td>
+                        <td><input type="text" formControlName="Compliance_Officers_0_Fees_Commission_Allowances"></td>
+                    </tr>
+                    <!-- Row 2 -->
+                    <tr>
+                        <td><input type="text" formControlName="Compliance_Officers_1_Name"></td>
+                        <td><input type="text" formControlName="Compliance_Officers_1_Designation"></td>
+                        <td><input type="text" formControlName="Compliance_Officers_1_TIN"></td>
+                        <td><input type="text" formControlName="Compliance_Officers_1_Salary_Bonus"></td>
+                        <td><input type="text" formControlName="Compliance_Officers_1_Fees_Commission_Allowances"></td>
+                    </tr>
+                    <!-- Row 3 -->
+                    <tr>
+                        <td><input type="text" formControlName="Compliance_Officers_2_Name"></td>
+                        <td><input type="text" formControlName="Compliance_Officers_2_Designation"></td>
+                        <td><input type="text" formControlName="Compliance_Officers_2_TIN"></td>
+                        <td><input type="text" formControlName="Compliance_Officers_2_Salary_Bonus"></td>
+                        <td><input type="text" formControlName="Compliance_Officers_2_Fees_Commission_Allowances"></td>
+                    </tr>
+                    <!-- Row 4 -->
+                    <tr>
+                        <td><input type="text" formControlName="Compliance_Officers_3_Name"></td>
+                        <td><input type="text" formControlName="Compliance_Officers_3_Designation"></td>
+                        <td><input type="text" formControlName="Compliance_Officers_3_TIN"></td>
+                        <td><input type="text" formControlName="Compliance_Officers_3_Salary_Bonus"></td>
+                        <td><input type="text" formControlName="Compliance_Officers_3_Fees_Commission_Allowances"></td>
+                    </tr>
+                    <!-- Row 5 -->
+                    <tr>
+                        <td><input type="text" formControlName="Compliance_Officers_4_Name"></td>
+                        <td><input type="text" formControlName="Compliance_Officers_4_Designation"></td>
+                        <td><input type="text" formControlName="Compliance_Officers_4_TIN"></td>
+                        <td><input type="text" formControlName="Compliance_Officers_4_Salary_Bonus"></td>
+                        <td><input type="text" formControlName="Compliance_Officers_4_Fees_Commission_Allowances"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
+
+        <!-- Attachment C4: Major Shareholders -->
+        <fieldset id="attachment-c4">
+            <legend>Attachment C4: Major Shareholders</legend>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Country (Code)</th>
+                        <th>TIN</th>
+                        <th>Shareholding (%)</th>
+                        <th>Dividends (RM)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Row 1 -->
+                    <tr>
+                        <td><input type="text" formControlName="Major_Shareholders_0_Name_of_Shareholder_Partner"></td>
+                        <td><input type="text" formControlName="Major_Shareholders_0_Country_of_Origin"></td>
+                        <td><input type="text" formControlName="Major_Shareholders_0_TIN"></td>
+                        <td><input type="text" formControlName="Major_Shareholders_0_Direct_Shareholding_Percentage"></td>
+                        <td><input type="text" formControlName="Major_Shareholders_0_Dividends_Received_in_Basis_Period"></td>
+                    </tr>
+                    <!-- Row 2 -->
+                    <tr>
+                        <td><input type="text" formControlName="Major_Shareholders_1_Name_of_Shareholder_Partner"></td>
+                        <td><input type="text" formControlName="Major_Shareholders_1_Country_of_Origin"></td>
+                        <td><input type="text" formControlName="Major_Shareholders_1_TIN"></td>
+                        <td><input type="text" formControlName="Major_Shareholders_1_Direct_Shareholding_Percentage"></td>
+                        <td><input type="text" formControlName="Major_Shareholders_1_Dividends_Received_in_Basis_Period"></td>
+                    </tr>
+                    <!-- Row 3 -->
+                    <tr>
+                        <td><input type="text" formControlName="Major_Shareholders_2_Name_of_Shareholder_Partner"></td>
+                        <td><input type="text" formControlName="Major_Shareholders_2_Country_of_Origin"></td>
+                        <td><input type="text" formControlName="Major_Shareholders_2_TIN"></td>
+                        <td><input type="text" formControlName="Major_Shareholders_2_Direct_Shareholding_Percentage"></td>
+                        <td><input type="text" formControlName="Major_Shareholders_2_Dividends_Received_in_Basis_Period"></td>
+                    </tr>
+                    <!-- Row 4 -->
+                    <tr>
+                        <td><input type="text" formControlName="Major_Shareholders_3_Name_of_Shareholder_Partner"></td>
+                        <td><input type="text" formControlName="Major_Shareholders_3_Country_of_Origin"></td>
+                        <td><input type="text" formControlName="Major_Shareholders_3_TIN"></td>
+                        <td><input type="text" formControlName="Major_Shareholders_3_Direct_Shareholding_Percentage"></td>
+                        <td><input type="text" formControlName="Major_Shareholders_3_Dividends_Received_in_Basis_Period"></td>
+                    </tr>
+                    <!-- Row 5 -->
+                    <tr>
+                        <td><input type="text" formControlName="Major_Shareholders_4_Name_of_Shareholder_Partner"></td>
+                        <td><input type="text" formControlName="Major_Shareholders_4_Country_of_Origin"></td>
+                        <td><input type="text" formControlName="Major_Shareholders_4_TIN"></td>
+                        <td><input type="text" formControlName="Major_Shareholders_4_Direct_Shareholding_Percentage"></td>
+                        <td><input type="text" formControlName="Major_Shareholders_4_Dividends_Received_in_Basis_Period"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
+
+        <!-- Attachment C5: Beneficial Owners -->
+        <fieldset id="attachment-c5">
+            <legend>Attachment C5: Beneficial Owners</legend>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>TIN</th>
+                        <th>Shareholding (%)</th>
+                        <th>Salary/Bonus (RM)</th>
+                        <th>Dividends (RM)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Row 1 -->
+                    <tr>
+                        <td><input type="text" formControlName="Beneficial_Owners_0_Name"></td>
+                        <td><input type="text" formControlName="Beneficial_Owners_0_TIN"></td>
+                        <td><input type="text" formControlName="Beneficial_Owners_0_Shareholding_Percentage"></td>
+                        <td><input type="text" formControlName="Beneficial_Owners_0_Salary_Bonus"></td>
+                        <td><input type="text" formControlName="Beneficial_Owners_0_Dividends_Received_in_Basis_Period"></td>
+                    </tr>
+                    <!-- Row 2 -->
+                    <tr>
+                        <td><input type="text" formControlName="Beneficial_Owners_1_Name"></td>
+                        <td><input type="text" formControlName="Beneficial_Owners_1_TIN"></td>
+                        <td><input type="text" formControlName="Beneficial_Owners_1_Shareholding_Percentage"></td>
+                        <td><input type="text" formControlName="Beneficial_Owners_1_Salary_Bonus"></td>
+                        <td><input type="text" formControlName="Beneficial_Owners_1_Dividends_Received_in_Basis_Period"></td>
+                    </tr>
+                    <!-- Row 3 -->
+                    <tr>
+                        <td><input type="text" formControlName="Beneficial_Owners_2_Name"></td>
+                        <td><input type="text" formControlName="Beneficial_Owners_2_TIN"></td>
+                        <td><input type="text" formControlName="Beneficial_Owners_2_Shareholding_Percentage"></td>
+                        <td><input type="text" formControlName="Beneficial_Owners_2_Salary_Bonus"></td>
+                        <td><input type="text" formControlName="Beneficial_Owners_2_Dividends_Received_in_Basis_Period"></td>
+                    </tr>
+                    <!-- Row 4 -->
+                    <tr>
+                        <td><input type="text" formControlName="Beneficial_Owners_3_Name"></td>
+                        <td><input type="text" formControlName="Beneficial_Owners_3_TIN"></td>
+                        <td><input type="text" formControlName="Beneficial_Owners_3_Shareholding_Percentage"></td>
+                        <td><input type="text" formControlName="Beneficial_Owners_3_Salary_Bonus"></td>
+                        <td><input type="text" formControlName="Beneficial_Owners_3_Dividends_Received_in_Basis_Period"></td>
+                    </tr>
+                    <!-- Row 5 -->
+                    <tr>
+                        <td><input type="text" formControlName="Beneficial_Owners_4_Name"></td>
+                        <td><input type="text" formControlName="Beneficial_Owners_4_TIN"></td>
+                        <td><input type="text" formControlName="Beneficial_Owners_4_Shareholding_Percentage"></td>
+                        <td><input type="text" formControlName="Beneficial_Owners_4_Salary_Bonus"></td>
+                        <td><input type="text" formControlName="Beneficial_Owners_4_Dividends_Received_in_Basis_Period"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
+
+        <!-- Attachment C9: Financial Particulars -->
+        <fieldset id="attachment-c9">
+            <legend>Attachment C9: Financial Particulars</legend>
+            <div class="form-grid">
+                <div class="form-column">
+                    <h4>Profit & Loss</h4>
+                    <label>Sales / Turnover:</label>
+                    <input type="text" formControlName="Financial_Particulars_Pnl_Sales_Turnover">
+                    <label>Gross Profit/Loss:</label>
+                    <input type="text" formControlName="Financial_Particulars_Pnl_Gross_Profit_Loss">
+                    <label>Net Profit/Loss:</label>
+                    <input type="text" formControlName="Financial_Particulars_Pnl_Net_Profit_Loss">
+                </div>
+                <div class="form-column">
+                    <h4>Assets</h4>
+                    <label>Total Non-Current Assets:</label>
+                    <input type="text" formControlName="Financial_Particulars_Fp_Total_Non_Current_Assets">
+                    <label>Total Current Assets:</label>
+                    <input type="text" formControlName="Financial_Particulars_Fp_Total_Current_Assets">
+                    <label>Total Assets:</label>
+                    <input type="text" formControlName="Financial_Particulars_Fp_Total_Assets">
+                </div>
+                <div class="form-column">
+                    <h4>Liabilities & Equity</h4>
+                    <label>Total Current Liabilities:</label>
+                    <input type="text" formControlName="Financial_Particulars_Fp_Total_Current_Liabilities">
+                    <label>Total Liabilities:</label>
+                    <input type="text" formControlName="Financial_Particulars_Fp_Total_Liabilities">
+                    <label>Total Equity:</label>
+                    <input type="text" formControlName="Financial_Particulars_Fp_Total_Equity">
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Attachment C10: Subsidiaries or Related Entities -->
+        <fieldset id="attachment-c10">
+            <legend>Attachment C10: Subsidiaries or Related Entities</legend>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Registration No.</th>
+                        <th>TIN</th>
+                        <th>Transactions (1=Y, 2=N)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Row 1 -->
+                    <tr>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_0_Name"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_0_Registration_No"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_0_TIN"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_0_Have_Transactions"></td>
+                    </tr>
+                    <!-- Row 2 -->
+                    <tr>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_1_Name"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_1_Registration_No"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_1_TIN"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_1_Have_Transactions"></td>
+                    </tr>
+                    <!-- Row 3 -->
+                    <tr>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_2_Name"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_2_Registration_No"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_2_TIN"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_2_Have_Transactions"></td>
+                    </tr>
+                    <!-- Row 4 -->
+                    <tr>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_3_Name"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_3_Registration_No"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_3_TIN"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_3_Have_Transactions"></td>
+                    </tr>
+                    <!-- Row 5 -->
+                    <tr>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_4_Name"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_4_Registration_No"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_4_TIN"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_4_Have_Transactions"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
+
+        <!-- Attachment C11: Payments Received from Malaysian Residents -->
+        <fieldset id="attachment-c11">
+            <legend>Attachment C11: Payments Received from Malaysian Residents</legend>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Payer Name</th>
+                        <th>Payer TIN</th>
+                        <th>Payment Type</th>
+                        <th>Amount (RM)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Row 1 -->
+                    <tr>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_0_Name_of_taxpayer"></td>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_0_TIN"></td>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_0_Type_of_payment_received">
+                        </td>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_0_Amount"></td>
+                    </tr>
+                    <!-- Row 2 -->
+                    <tr>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_1_Name_of_taxpayer"></td>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_1_TIN"></td>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_1_Type_of_payment_received">
+                        </td>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_1_Amount"></td>
+                    </tr>
+                    <!-- Row 3 -->
+                    <tr>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_2_Name_of_taxpayer"></td>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_2_TIN"></td>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_2_Type_of_payment_received">
+                        </td>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_2_Amount"></td>
+                    </tr>
+                    <!-- Row 4 -->
+                    <tr>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_3_Name_of_taxpayer"></td>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_3_TIN"></td>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_3_Type_of_payment_received">
+                        </td>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_3_Amount"></td>
+                    </tr>
+                    <!-- Row 5 -->
+                    <tr>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_4_Name_of_taxpayer"></td>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_4_TIN"></td>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_4_Type_of_payment_received">
+                        </td>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_4_Amount"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
+
+        <button type="submit">Generate PDF</button>
+    </form>
+</main>
