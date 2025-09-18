@@ -1,6 +1,6 @@
 // src/app/form/form.component.ts
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
@@ -11,7 +11,7 @@ import { saveAs } from 'file-saver';
 @Component({
   selector: 'app-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HttpClientModule],
+  imports: [CommonModule, ReactiveFormsModule,RouterModule , HttpClientModule],
   templateUrl: './form.component.html',
   styleUrls: ['./form.component.scss']
 })
@@ -26,7 +26,370 @@ export class FormComponent implements OnInit {
     private http: HttpClient
   ) {
     // Initialize an empty form group. It will be populated dynamically.
-    this.le1Form = this.fb.group({});
+    this.le1Form = this.fb.group({
+      // Part A: Basic Particulars
+      Year_of_Assessment_1: [''],
+      Year_of_Assessment_2: [''],
+      Year_of_Assessment_3: [''],
+      Year_of_Assessment_4: [''],
+      Company_Name: [''],
+      Company_Address_Line1: [''],
+      Company_Address_Line2: [''],
+      Postcode: [''],
+      City: [''],
+      State: [''],
+      Company_Registration_No: [''],
+      Company_TIN_LE: [''],
+      TIN_C_or_PT: [''],
+      Employer_TIN: [''],
+      Incorp_date_day: [''],
+      Incorp_date_month: [''],
+      Incorp_date_year: [''],
+      Telephone_no: [''],
+      Email: [''],
+      Change_of_Accounting_Period_No: [''],
+      Types_of_exchange_of_accounting_periods: [''],
+      Accounting_Period_From_Day: [''],
+      Accounting_Period_From_Month: [''],
+      Accounting_Period_From_Year: [''],
+      Accounting_Period_To_Day: [''],
+      Accounting_Period_To_Month: [''],
+      Accounting_Period_To_Year: [''],
+      Basis_Period_From_Day: [''],
+      Basis_Period_From_Month: [''],
+      Basis_Period_From_Year: [''],
+      Basis_Period_To_Day: [''],
+      Basis_Period_To_Month: [''],
+      Basis_Period_To_Year: [''],
+      FS_in_Foreign_Currency_Yes: [''],
+      Currency_Reported: [''],
+      Currency_Exchange_Rate: [''],
+      Record_keeping: [''],
+      Business_Status_In_Operation: [''],
+      Type_of_Labuan_entity: [''],
+      Incorp_under: [''],
+
+      // Part B: Tax Computation
+      // B1 Row 1
+      B1_Activities_0_Business_Activity_Code: [''],
+      B1_Activities_0_Core_Income_Activity_Yes: [''],
+      B1_Activities_0_Business_Activity_Status_Active: [''],
+      B1_Activities_0_No_of_Employees: [''],
+      B1_Activities_0_Annual_Operating_Expenditure: [''],
+      B1_Activities_0_Comply_Substantive_Yes: [''],
+      B1_Activities_0_Amount_of_Net_Loss: [''],
+      B1_Activities_0_Net_Profits_ex_IP: [''],
+      // B1 Row 2
+      B1_Activities_1_Business_Activity_Code: [''],
+      B1_Activities_1_Core_Income_Activity_Yes: [''],
+      B1_Activities_1_Business_Activity_Status_Active: [''],
+      B1_Activities_1_No_of_Employees: [''],
+      B1_Activities_1_Annual_Operating_Expenditure: [''],
+      B1_Activities_1_Comply_Substantive_Yes: [''],
+      B1_Activities_1_Amount_of_Net_Loss: [''],
+      B1_Activities_1_Net_Profits_ex_IP: [''],
+      // B1 Row 3
+      B1_Activities_2_Business_Activity_Code: [''],
+      B1_Activities_2_Core_Income_Activity_Yes: [''],
+      B1_Activities_2_Business_Activity_Status_Active: [''],
+      B1_Activities_2_No_of_Employees: [''],
+      B1_Activities_2_Annual_Operating_Expenditure: [''],
+      B1_Activities_2_Comply_Substantive_Yes: [''],
+      B1_Activities_2_Amount_of_Net_Loss: [''],
+      B1_Activities_2_Net_Profits_ex_IP: [''],
+      // B1 Row 4
+      B1_Activities_3_Business_Activity_Code: [''],
+      B1_Activities_3_Core_Income_Activity_Yes: [''],
+      B1_Activities_3_Business_Activity_Status_Active: [''],
+      B1_Activities_3_No_of_Employees: [''],
+      B1_Activities_3_Annual_Operating_Expenditure: [''],
+      B1_Activities_3_Comply_Substantive_Yes: [''],
+      B1_Activities_3_Amount_of_Net_Loss: [''],
+      B1_Activities_3_Net_Profits_ex_IP: [''],
+      // B1 Row 5
+      B1_Activities_4_Business_Activity_Code: [''],
+      B1_Activities_4_Core_Income_Activity_Yes: [''],
+      B1_Activities_4_Business_Activity_Status_Active: [''],
+      B1_Activities_4_No_of_Employees: [''],
+      B1_Activities_4_Annual_Operating_Expenditure: [''],
+      B1_Activities_4_Comply_Substantive_Yes: [''],
+      B1_Activities_4_Amount_of_Net_Loss: [''],
+      B1_Activities_4_Net_Profits_ex_IP: [''],
+      // Other Part B fields
+      B2_Total_Net_Profits: [''],
+      B6_Tax_Payable: [''],
+
+      // Part C: Entity Details
+      C1_Correspondence_Address_line1: [''],
+      C1_Postcode: [''],
+      C1_City: [''],
+      C6a_Has_Related_Company: [''],
+
+      // Part D: CbC Reporting
+      D1_Subject_to_CbCR: [''],
+      D2_Reporting_Entity_Status: [''],
+
+      // Part E: Reporting Entity
+      E1_MNE_Group_Name: [''],
+
+      // Part F: Non-Reporting Entity
+      F1_Reporting_Entity_Name: [''],
+
+      // Declaration
+      Declarant_Name: [''],
+      Declarant_ID_Passport: [''],
+      Declaration_Date_Day: [''],
+      Declaration_Date_Month: [''],
+      Declaration_Date_Year: [''],
+
+      // Attachment C3: Compliance Officers
+      // C3 Row 1
+      Compliance_Officers_0_Name: [''],
+      Compliance_Officers_0_Claim_PUA_419_2011: [''],
+      Compliance_Officers_0_Designation: [''],
+      Compliance_Officers_0_Address: [''],
+      Compliance_Officers_0_ID_Passport_No: [''],
+      Compliance_Officers_0_Date_of_Birth: [''],
+      Compliance_Officers_0_TIN: [''],
+      Compliance_Officers_0_Telephone_No: [''],
+      Compliance_Officers_0_Salary_Bonus: [''],
+      Compliance_Officers_0_Fees_Commission_Allowances: [''],
+      Compliance_Officers_0_Total_Loan_to_Officer: [''],
+      Compliance_Officers_0_Total_Loan_from_Officer: [''],
+      // C3 Row 2
+      Compliance_Officers_1_Name: [''],
+      Compliance_Officers_1_Claim_PUA_419_2011: [''],
+      Compliance_Officers_1_Designation: [''],
+      Compliance_Officers_1_Address: [''],
+      Compliance_Officers_1_ID_Passport_No: [''],
+      Compliance_Officers_1_Date_of_Birth: [''],
+      Compliance_Officers_1_TIN: [''],
+      Compliance_Officers_1_Telephone_No: [''],
+      Compliance_Officers_1_Salary_Bonus: [''],
+      Compliance_Officers_1_Fees_Commission_Allowances: [''],
+      Compliance_Officers_1_Total_Loan_to_Officer: [''],
+      Compliance_Officers_1_Total_Loan_from_Officer: [''],
+      // C3 Row 3
+      Compliance_Officers_2_Name: [''],
+      Compliance_Officers_2_Claim_PUA_419_2011: [''],
+      Compliance_Officers_2_Designation: [''],
+      Compliance_Officers_2_Address: [''],
+      Compliance_Officers_2_ID_Passport_No: [''],
+      Compliance_Officers_2_Date_of_Birth: [''],
+      Compliance_Officers_2_TIN: [''],
+      Compliance_Officers_2_Telephone_No: [''],
+      Compliance_Officers_2_Salary_Bonus: [''],
+      Compliance_Officers_2_Fees_Commission_Allowances: [''],
+      Compliance_Officers_2_Total_Loan_to_Officer: [''],
+      Compliance_Officers_2_Total_Loan_from_Officer: [''],
+      // C3 Row 4
+      Compliance_Officers_3_Name: [''],
+      Compliance_Officers_3_Claim_PUA_419_2011: [''],
+      Compliance_Officers_3_Designation: [''],
+      Compliance_Officers_3_Address: [''],
+      Compliance_Officers_3_ID_Passport_No: [''],
+      Compliance_Officers_3_Date_of_Birth: [''],
+      Compliance_Officers_3_TIN: [''],
+      Compliance_Officers_3_Telephone_No: [''],
+      Compliance_Officers_3_Salary_Bonus: [''],
+      Compliance_Officers_3_Fees_Commission_Allowances: [''],
+      Compliance_Officers_3_Total_Loan_to_Officer: [''],
+      Compliance_Officers_3_Total_Loan_from_Officer: [''],
+      // C3 Row 5
+      Compliance_Officers_4_Name: [''],
+      Compliance_Officers_4_Claim_PUA_419_2011: [''],
+      Compliance_Officers_4_Designation: [''],
+      Compliance_Officers_4_Address: [''],
+      Compliance_Officers_4_ID_Passport_No: [''],
+      Compliance_Officers_4_Date_of_Birth: [''],
+      Compliance_Officers_4_TIN: [''],
+      Compliance_Officers_4_Telephone_No: [''],
+      Compliance_Officers_4_Salary_Bonus: [''],
+      Compliance_Officers_4_Fees_Commission_Allowances: [''],
+      Compliance_Officers_4_Total_Loan_to_Officer: [''],
+      Compliance_Officers_4_Total_Loan_from_Officer: [''],
+
+      // Attachment C4: Major Shareholders
+      // C4 Row 1
+      Major_Shareholders_0_Name_of_Shareholder_Partner: [''],
+      Major_Shareholders_0_Address: [''],
+      Major_Shareholders_0_ID_Passport_Reg_No: [''],
+      Major_Shareholders_0_Date_of_Birth: [''],
+      Major_Shareholders_0_Country_of_Origin: [''],
+      Major_Shareholders_0_TIN: [''],
+      Major_Shareholders_0_Direct_Shareholding_Percentage: [''],
+      Major_Shareholders_0_Dividends_Received_in_Basis_Period: [''],
+      // C4 Row 2
+      Major_Shareholders_1_Name_of_Shareholder_Partner: [''],
+      Major_Shareholders_1_Address: [''],
+      Major_Shareholders_1_ID_Passport_Reg_No: [''],
+      Major_Shareholders_1_Date_of_Birth: [''],
+      Major_Shareholders_1_Country_of_Origin: [''],
+      Major_Shareholders_1_TIN: [''],
+      Major_Shareholders_1_Direct_Shareholding_Percentage: [''],
+      Major_Shareholders_1_Dividends_Received_in_Basis_Period: [''],
+      // C4 Row 3
+      Major_Shareholders_2_Name_of_Shareholder_Partner: [''],
+      Major_Shareholders_2_Address: [''],
+      Major_Shareholders_2_ID_Passport_Reg_No: [''],
+      Major_Shareholders_2_Date_of_Birth: [''],
+      Major_Shareholders_2_Country_of_Origin: [''],
+      Major_Shareholders_2_TIN: [''],
+      Major_Shareholders_2_Direct_Shareholding_Percentage: [''],
+      Major_Shareholders_2_Dividends_Received_in_Basis_Period: [''],
+      // C4 Row 4
+      Major_Shareholders_3_Name_of_Shareholder_Partner: [''],
+      Major_Shareholders_3_Address: [''],
+      Major_Shareholders_3_ID_Passport_Reg_No: [''],
+      Major_Shareholders_3_Date_of_Birth: [''],
+      Major_Shareholders_3_Country_of_Origin: [''],
+      Major_Shareholders_3_TIN: [''],
+      Major_Shareholders_3_Direct_Shareholding_Percentage: [''],
+      Major_Shareholders_3_Dividends_Received_in_Basis_Period: [''],
+      // C4 Row 5
+      Major_Shareholders_4_Name_of_Shareholder_Partner: [''],
+      Major_Shareholders_4_Address: [''],
+      Major_Shareholders_4_ID_Passport_Reg_No: [''],
+      Major_Shareholders_4_Date_of_Birth: [''],
+      Major_Shareholders_4_Country_of_Origin: [''],
+      Major_Shareholders_4_TIN: [''],
+      Major_Shareholders_4_Direct_Shareholding_Percentage: [''],
+      Major_Shareholders_4_Dividends_Received_in_Basis_Period: [''],
+
+      // Attachment C5: Beneficial Owners
+      // C5 Row 1
+      Beneficial_Owner_0_Name: [''],
+      Beneficial_Owner_0_TIN: [''],
+      Beneficial_Owner_0_Shareholding_Percentage: [''],
+      Beneficial_Owner_0_Salary_Bonus: [''],
+      Beneficial_Owner_0_Dividends_Received_in_Basis_Period: [''],
+      Beneficial_Owner_0_Total_Loan_from_Owner: [''],
+      Beneficial_Owner_0_Total_Loan_to_Owner: [''],
+      Beneficial_Owner_0_Address: [''],
+      Beneficial_Owner_0_ID_Passport_No: [''],
+      Beneficial_Owner_0_Date_of_Birth: [''],
+      Beneficial_Owner_0_Telephone_No: [''],
+      Beneficial_Owner_0_Fees_Commission_Allowance: [''],
+
+
+      // C5 Row 2
+      Beneficial_Owner_1_Name: [''],
+      Beneficial_Owner_1_TIN: [''],
+      Beneficial_Owner_1_Shareholding_Percentage: [''],
+      Beneficial_Owner_1_Salary_Bonus: [''],
+      Beneficial_Owner_1_Dividends_Received_in_Basis_Period: [''],
+      Beneficial_Owner_1_Total_Loan_from_Owner: [''],
+      Beneficial_Owner_1_Total_Loan_to_Owner: [''],
+      Beneficial_Owner_1_Address: [''],
+      Beneficial_Owner_1_ID_Passport_No: [''],
+      Beneficial_Owner_1_Date_of_Birth: [''],
+      Beneficial_Owner_1_Telephone_No: [''],
+      Beneficial_Owner_1_Fees_Commission_Allowance: [''],
+      // C5 Row 3
+      Beneficial_Owner_2_Name: [''],
+      Beneficial_Owner_2_TIN: [''],
+      Beneficial_Owner_2_Shareholding_Percentage: [''],
+      Beneficial_Owner_2_Salary_Bonus: [''],
+      Beneficial_Owner_2_Dividends_Received_in_Basis_Period: [''],
+      Beneficial_Owner_2_Total_Loan_from_Owner: [''],
+      Beneficial_Owner_2_Total_Loan_to_Owner: [''],
+      Beneficial_Owner_2_Address: [''],
+      Beneficial_Owner_2_ID_Passport_No: [''],
+      Beneficial_Owner_2_Date_of_Birth: [''],
+      Beneficial_Owner_2_Telephone_No: [''],
+      Beneficial_Owner_2_Fees_Commission_Allowance: [''],
+      // C5 Row 4
+      Beneficial_Owner_3_Name: [''],
+      Beneficial_Owner_3_TIN: [''],
+      Beneficial_Owner_3_Shareholding_Percentage: [''],
+      Beneficial_Owner_3_Salary_Bonus: [''],
+      Beneficial_Owner_3_Dividends_Received_in_Basis_Period: [''],
+      Beneficial_Owner_3_Total_Loan_from_Owner: [''],
+      Beneficial_Owner_3_Total_Loan_to_Owner: [''],
+      Beneficial_Owner_3_Address: [''],
+      Beneficial_Owner_3_ID_Passport_No: [''],
+      Beneficial_Owner_3_Date_of_Birth: [''],
+      Beneficial_Owner_3_Telephone_No: [''],
+      Beneficial_Owner_3_Fees_Commission_Allowance: [''],
+      // C5 Row 5
+      Beneficial_Owner_4_Name: [''],
+      Beneficial_Owner_4_TIN: [''],
+      Beneficial_Owner_4_Shareholding_Percentage: [''],
+      Beneficial_Owner_4_Salary_Bonus: [''],
+      Beneficial_Owner_4_Dividends_Received_in_Basis_Period: [''],
+      Beneficial_Owner_4_Total_Loan_from_Owner: [''],
+      Beneficial_Owner_4_Total_Loan_to_Owner: [''],
+      Beneficial_Owner_4_Address: [''],
+      Beneficial_Owner_4_ID_Passport_No: [''],
+      Beneficial_Owner_4_Date_of_Birth: [''],
+      Beneficial_Owner_4_Telephone_No: [''],
+      Beneficial_Owner_4_Fees_Commission_Allowance: [''],
+
+      // Attachment C9: Financial Particulars
+      Financial_Particulars_Pnl_Sales_Turnover: [''],
+      Financial_Particulars_Pnl_Gross_Profit_Loss: [''],
+      Financial_Particulars_Pnl_Net_Profit_Loss: [''],
+      Financial_Particulars_Fp_Total_Non_Current_Assets: [''],
+      Financial_Particulars_Fp_Total_Current_Assets: [''],
+      Financial_Particulars_Fp_Total_Assets: [''],
+      Financial_Particulars_Fp_Total_Current_Liabilities: [''],
+      Financial_Particulars_Fp_Total_Liabilities: [''],
+      Financial_Particulars_Fp_Total_Equity: [''],
+
+      // Attachment C10: Subsidiaries or Related Entities
+      // C10 Row 1
+      Subsidiaries_Or_Related_Entities_0_Name: [''],
+      Subsidiaries_Or_Related_Entities_0_Registration_No: [''],
+      Subsidiaries_Or_Related_Entities_0_TIN: [''],
+      Subsidiaries_Or_Related_Entities_0_Have_Transactions: [''],
+      // C10 Row 2
+      Subsidiaries_Or_Related_Entities_1_Name: [''],
+      Subsidiaries_Or_Related_Entities_1_Registration_No: [''],
+      Subsidiaries_Or_Related_Entities_1_TIN: [''],
+      Subsidiaries_Or_Related_Entities_1_Have_Transactions: [''],
+      // C10 Row 3
+      Subsidiaries_Or_Related_Entities_2_Name: [''],
+      Subsidiaries_Or_Related_Entities_2_Registration_No: [''],
+      Subsidiaries_Or_Related_Entities_2_TIN: [''],
+      Subsidiaries_Or_Related_Entities_2_Have_Transactions: [''],
+      // C10 Row 4
+      Subsidiaries_Or_Related_Entities_3_Name: [''],
+      Subsidiaries_Or_Related_Entities_3_Registration_No: [''],
+      Subsidiaries_Or_Related_Entities_3_TIN: [''],
+      Subsidiaries_Or_Related_Entities_3_Have_Transactions: [''],
+      // C10 Row 5
+      Subsidiaries_Or_Related_Entities_4_Name: [''],
+      Subsidiaries_Or_Related_Entities_4_Registration_No: [''],
+      Subsidiaries_Or_Related_Entities_4_TIN: [''],
+      Subsidiaries_Or_Related_Entities_4_Have_Transactions: [''],
+
+      // Attachment C11: Payments Received from Malaysian Residents
+      // C11 Row 1
+      Payments_From_Malaysian_Residents_0_Name_of_taxpayer: [''],
+      Payments_From_Malaysian_Residents_0_TIN: [''],
+      Payments_From_Malaysian_Residents_0_Type_of_payment_received: [''],
+      Payments_From_Malaysian_Residents_0_Amount: [''],
+      // C11 Row 2
+      Payments_From_Malaysian_Residents_1_Name_of_taxpayer: [''],
+      Payments_From_Malaysian_Residents_1_TIN: [''],
+      Payments_From_Malaysian_Residents_1_Type_of_payment_received: [''],
+      Payments_From_Malaysian_Residents_1_Amount: [''],
+      // C11 Row 3
+      Payments_From_Malaysian_Residents_2_Name_of_taxpayer: [''],
+      Payments_From_Malaysian_Residents_2_TIN: [''],
+      Payments_From_Malaysian_Residents_2_Type_of_payment_received: [''],
+      Payments_From_Malaysian_Residents_2_Amount: [''],
+      // C11 Row 4
+      Payments_From_Malaysian_Residents_3_Name_of_taxpayer: [''],
+      Payments_From_Malaysian_Residents_3_TIN: [''],
+      Payments_From_Malaysian_Residents_3_Type_of_payment_received: [''],
+      Payments_From_Malaysian_Residents_3_Amount: [''],
+      // C11 Row 5
+      Payments_From_Malaysian_Residents_4_Name_of_taxpayer: [''],
+      Payments_From_Malaysian_Residents_4_TIN: [''],
+      Payments_From_Malaysian_Residents_4_Type_of_payment_received: [''],
+      Payments_From_Malaysian_Residents_4_Amount: [''],
+    });
 
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state && navigation.extras.state['formData']) {
@@ -39,16 +402,22 @@ export class FormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // if (this.initialFormData) {
+    //   // Dynamically create form controls based on the keys in the received data
+    //   const formControls: { [key: string]: any } = {};
+    //   for (const key in this.initialFormData) {
+    //     if (Object.prototype.hasOwnProperty.call(this.initialFormData, key)) {
+    //       formControls[key] = [this.initialFormData[key] || ''];
+    //     }
+    //   }
+    //   this.le1Form = this.fb.group(formControls);
+    //   console.log('Form initialized with data:', this.le1Form.value);
+    // }
     if (this.initialFormData) {
-      // Dynamically create form controls based on the keys in the received data
-      const formControls: { [key: string]: any } = {};
-      for (const key in this.initialFormData) {
-        if (Object.prototype.hasOwnProperty.call(this.initialFormData, key)) {
-          formControls[key] = [this.initialFormData[key] || ''];
-        }
-      }
-      this.le1Form = this.fb.group(formControls);
-      console.log('Form initialized with data:', this.le1Form.value);
+      // Use patchValue. It safely fills in the values for matching controls
+      // and ignores any properties in initialFormData that don't have a control.
+      this.le1Form.patchValue(this.initialFormData);
+      console.log('Form initialized and patched with data:', this.le1Form.value);
     }
   }
 

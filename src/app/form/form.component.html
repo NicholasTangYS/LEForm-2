@@ -1,17 +1,17 @@
 <nav class="sidebar">
     <h2>LE1 Form Sections</h2>
     <ul>
-        <li><a href="#form/part-a">Part A: Basic Particulars</a></li>
-        <li><a href="#form/part-b">Part B: Tax Computation</a></li>
-        <li><a href="#form/part-c">Part C: Entity Details</a></li>
-        <li><a href="#form/part-d">Part D: CbC Reporting</a></li>
-        <li><a href="#form/declaration">Declaration</a></li>
-        <li><a href="#form/attachment-c3">Att. C3: Compliance Officers</a></li>
-        <li><a href="#form/attachment-c4">Att. C4: Major Shareholders</a></li>
-        <li><a href="#form/attachment-c5">Att. C5: Beneficial Owners</a></li>
-        <li><a href="#form/attachment-c9">Att. C9: Financial Particulars</a></li>
-        <li><a href="#form/attachment-c10">Att. C10: Subsidiaries</a></li>
-        <li><a href="#form/attachment-c11">Att. C11: Payments Received</a></li>
+        <li><a [routerLink]="['/form']" fragment="part-a">Part A: Basic Particulars</a></li>
+        <li><a [routerLink]="['/form']" fragment="part-b">Part B: Tax Computation</a></li>
+        <li><a [routerLink]="['/form']" fragment="part-c">Part C: Entity Details</a></li>
+        <li><a [routerLink]="['/form']" fragment="part-d">Part D: CbC Reporting</a></li>
+        <li><a [routerLink]="['/form']" fragment="declaration">Declaration</a></li>
+        <li><a [routerLink]="['/form']" fragment="attachment-c3">Att. C3: Compliance Officers</a></li>
+        <li><a [routerLink]="['/form']" fragment="attachment-c4">Att. C4: Major Shareholders</a></li>
+        <li><a [routerLink]="['/form']" fragment="attachment-c5">Att. C5: Beneficial Owners</a></li>
+        <li><a [routerLink]="['/form']" fragment="attachment-c9">Att. C9: Financial Particulars</a></li>
+        <li><a [routerLink]="['/form']" fragment="attachment-c10">Att. C10: Subsidiaries</a></li>
+        <li><a [routerLink]="['/form']" fragment="attachment-c11">Att. C11: Payments Received</a></li>
     </ul>
 </nav>
 <main class="main-content">
@@ -24,14 +24,14 @@
         <fieldset id="part-a">
             <legend>Part A: Basic Particulars</legend>
             <label for="Year_of_Assessment_1">Year of Assessment:</label>
-            <input style="width: 2%;" type="text" id="Year_of_Assessment_1" formControlName="Year_of_Assessment_1" maxlength="1"
-                size="1" >
-            <input style="width: 2%;" type="text" id="Year_of_Assessment_2" formControlName="Year_of_Assessment_2" maxlength="1"
-                size="1" >
-            <input style="width: 2%;" type="text" id="Year_of_Assessment_3" formControlName="Year_of_Assessment_3" maxlength="1"
-                size="1" >
-            <input style="width: 2%;" type="text" id="Year_of_Assessment_4" formControlName="Year_of_Assessment_4" maxlength="1"
-                size="1" >
+            <input style="width: 4%;" type="text" id="Year_of_Assessment_1" formControlName="Year_of_Assessment_1"
+                maxlength="1" size="1">
+            <input style="width: 4%;" type="text" id="Year_of_Assessment_2" formControlName="Year_of_Assessment_2"
+                maxlength="1" size="1">
+            <input style="width: 4%;" type="text" id="Year_of_Assessment_3" formControlName="Year_of_Assessment_3"
+                maxlength="1" size="1">
+            <input style="width: 4%;" type="text" id="Year_of_Assessment_4" formControlName="Year_of_Assessment_4"
+                maxlength="1" size="1">
 
             <label for="Company_Name">Company Name:</label>
             <input type="text" id="Company_Name" formControlName="Company_Name">
@@ -41,7 +41,7 @@
 
             <label for="Company_Address_Line2">Address Line 2:</label>
             <input type="text" id="Company_Address_Line2" formControlName="Company_Address_Line2">
-            <div  style="display: flex;justify-content: space-between;">
+            <div style="display: flex;justify-content: space-between;">
                 <div style="width: 25%;">
                     <label for="Postcode">Postcode:</label>
                     <input type="text" id="Postcode" formControlName="Postcode">
@@ -76,7 +76,8 @@
             <div style="display: flex; gap: 5px; align-items: center;border-radius: 5px;
     border: 1px solid #ccc; padding:5px; margin-bottom: 10px;">
                 <input style="width:4%" type="number" id="Incorp_date_day" formControlName="Incorp_date_day" size="2"> /
-                <input style="width:4%" type="number" id="Incorp_date_month" formControlName="Incorp_date_month" size="2"> /
+                <input style="width:4%" type="number" id="Incorp_date_month" formControlName="Incorp_date_month"
+                    size="2"> /
                 <input style="width:8%" type="number" id="Incorp_date_year" formControlName="Incorp_date_year" size="4">
             </div>
 
@@ -94,10 +95,11 @@
                 border-radius: 5px;
                 margin-bottom: 10px;
                 padding: 5px;">
-                <input type="radio" id="Change_of_Accounting_Period_No_Yes" formControlName="Change_of_Accounting_Period_No"
-                    value="1">
+                <input type="radio" id="Change_of_Accounting_Period_No_Yes"
+                    formControlName="Change_of_Accounting_Period_No" value="1">
                 <label for="Record_keeping_Yes">Yes</label>
-                <input type="radio" id="Change_of_Accounting_Period_No" formControlName="Change_of_Accounting_Period_No" value="2">
+                <input type="radio" id="Change_of_Accounting_Period_No" formControlName="Change_of_Accounting_Period_No"
+                    value="2">
                 <label for="Record_keeping_No">No</label>
             </div>
 
@@ -120,8 +122,8 @@
     border: 1px solid #ccc; padding:5px; justify-content: space-between;
     margin-bottom: 10px;">
                 <label for="Accounting_Period_From_Day">From (DD/MM/YYYY):</label>
-                <input style="width:4%" type="number" id="Accounting_Period_From_Day" formControlName="Accounting_Period_From_Day"
-                    size="2"> /
+                <input style="width:4%" type="number" id="Accounting_Period_From_Day"
+                    formControlName="Accounting_Period_From_Day" size="2"> /
                 <input style="width:4%" type="number" id="Accounting_Period_From_Month"
                     formControlName="Accounting_Period_From_Month" size="2"> /
                 <input style="width:8%" type="number" id="Accounting_Period_From_Year"
@@ -129,12 +131,12 @@
                 <!-- split border Line -->
                 <span></span>
                 <label for="Accounting_Period_To_Day">To (DD/MM/YYYY):</label>
-                <input style="width:4%" type="number" id="Accounting_Period_To_Day" formControlName="Accounting_Period_To_Day"
-                    size="2"> /
-                <input style="width:4%" type="number" id="Accounting_Period_To_Month" formControlName="Accounting_Period_To_Month"
-                    size="2"> /
-                <input style="width:8%" type="number" id="Accounting_Period_To_Year" formControlName="Accounting_Period_To_Year"
-                    size="4">
+                <input style="width:4%" type="number" id="Accounting_Period_To_Day"
+                    formControlName="Accounting_Period_To_Day" size="2"> /
+                <input style="width:4%" type="number" id="Accounting_Period_To_Month"
+                    formControlName="Accounting_Period_To_Month" size="2"> /
+                <input style="width:8%" type="number" id="Accounting_Period_To_Year"
+                    formControlName="Accounting_Period_To_Year" size="4">
             </div>
 
             <label>Basis Period:</label>
@@ -142,18 +144,22 @@
     border: 1px solid #ccc; padding:5px;justify-content: space-between;
     margin-bottom: 10px;">
                 <label for="Basis_Period_From_Day">From (DD/MM/YYYY):</label>
-                <input style="width:4%" type="number" id="Basis_Period_From_Day" formControlName="Basis_Period_From_Day" size="2">
+                <input style="width:4%" type="number" id="Basis_Period_From_Day" formControlName="Basis_Period_From_Day"
+                    size="2">
                 /
-                <input style="width:4%" type="number" id="Basis_Period_From_Month" formControlName="Basis_Period_From_Month"
-                    size="2"> /
-                <input style="width:8%" type="number" id="Basis_Period_From_Year" formControlName="Basis_Period_From_Year"
-                    size="4">
+                <input style="width:4%" type="number" id="Basis_Period_From_Month"
+                    formControlName="Basis_Period_From_Month" size="2"> /
+                <input style="width:8%" type="number" id="Basis_Period_From_Year"
+                    formControlName="Basis_Period_From_Year" size="4">
                 <label for="Basis_Period_To_Day">To (DD/MM/YYYY):</label>
-                <input style="width:4%" type="number" id="Basis_Period_To_Day" formControlName="Basis_Period_To_Day" size="2">
+                <input style="width:4%" type="number" id="Basis_Period_To_Day" formControlName="Basis_Period_To_Day"
+                    size="2">
                 /
-                <input style="width:4%" type="number" id="Basis_Period_To_Month" formControlName="Basis_Period_To_Month" size="2">
+                <input style="width:4%" type="number" id="Basis_Period_To_Month" formControlName="Basis_Period_To_Month"
+                    size="2">
                 /
-                <input style="width:8%" type="number" id="Basis_Period_To_Year" formControlName="Basis_Period_To_Year" size="4">
+                <input style="width:8%" type="number" id="Basis_Period_To_Year" formControlName="Basis_Period_To_Year"
+                    size="4">
             </div>
 
             <label for="FS_in_Foreign_Currency_Yes">FS in Foreign Currency:</label>
@@ -162,9 +168,11 @@
                 border-radius: 5px;
                 margin-bottom: 10px;
                 padding: 5px;">
-                <input type="radio" id="FS_in_Foreign_Currency_Yes" formControlName="FS_in_Foreign_Currency_Yes" value="1">
+                <input type="radio" id="FS_in_Foreign_Currency_Yes" formControlName="FS_in_Foreign_Currency_Yes"
+                    value="1">
                 <label for="FS_in_Foreign_Currency_Yes">Yes</label>
-                <input type="radio" id="FS_in_Foreign_Currency_No" formControlName="FS_in_Foreign_Currency_Yes" value="2">
+                <input type="radio" id="FS_in_Foreign_Currency_No" formControlName="FS_in_Foreign_Currency_Yes"
+                    value="2">
                 <label for="FS_in_Foreign_Currency_No">No</label>
             </div>
 
@@ -192,11 +200,14 @@
                 border-radius: 5px;
                 margin-bottom: 10px;
                 padding: 5px;">
-                <input type="radio" id="Business_Status_In_Operation" formControlName="Business_Status_In_Operation" value="1">
+                <input type="radio" id="Business_Status_In_Operation" formControlName="Business_Status_In_Operation"
+                    value="1">
                 <label for="Business_Status_In_Operation">In Operation</label>
-                <input type="radio" id="Business_Status_Dormant" formControlName="Business_Status_In_Operation" value="2">
+                <input type="radio" id="Business_Status_Dormant" formControlName="Business_Status_In_Operation"
+                    value="2">
                 <label for="Business_Status_Dormant">Dormant</label>
-                <input type="radio" id="Business_Status_Winding" formControlName="Business_Status_In_Operation" value="3">
+                <input type="radio" id="Business_Status_Winding" formControlName="Business_Status_In_Operation"
+                    value="3">
                 <label for="Business_Status_winding">In the process of winding-up</label>
             </div>
 
@@ -254,17 +265,20 @@
                 </div>
 
                 <div style="width: 33.33%;display: flex;">
-                    <input type="radio" id="Type_of_Labuan_entity_10" formControlName="Type_of_Labuan_entity" value="10">
+                    <input type="radio" id="Type_of_Labuan_entity_10" formControlName="Type_of_Labuan_entity"
+                        value="10">
                     <label for="Type_of_Labuan_entity_10">Malaysian bank licensee</label>
                 </div>
 
                 <div style="width: 33.33%;display: flex;">
-                    <input type="radio" id="Type_of_Labuan_entity_11" formControlName="Type_of_Labuan_entity" value="11">
+                    <input type="radio" id="Type_of_Labuan_entity_11" formControlName="Type_of_Labuan_entity"
+                        value="11">
                     <label for="Type_of_Labuan_entity_11">Any Labuan financial institutions</label>
                 </div>
 
                 <div style="width: 33.33%;display: flex;">
-                    <input type="radio" id="Type_of_Labuan_entity_12" formControlName="Type_of_Labuan_entity" value="12">
+                    <input type="radio" id="Type_of_Labuan_entity_12" formControlName="Type_of_Labuan_entity"
+                        value="12">
                     <label for="Type_of_Labuan_entity_12">Any person declared by the Minister to be a Labuan
                         entity</label>
                 </div>
@@ -457,177 +471,266 @@
 
         <!-- Attachment C3: Compliance Officers -->
         <fieldset id="attachment-c3">
-            <legend>Attachment C3: Compliance Officers</legend>
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Designation</th>
-                        <th>TIN</th>
-                        <th>Salary/Bonus (RM)</th>
-                        <th>Fees (RM)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Row 1 -->
-                    <tr>
-                        <td><input type="text" formControlName="Compliance_Officers_0_Name"></td>
-                        <td><input type="text" formControlName="Compliance_Officers_0_Designation"></td>
-                        <td><input type="text" formControlName="Compliance_Officers_0_TIN"></td>
-                        <td><input type="text" formControlName="Compliance_Officers_0_Salary_Bonus"></td>
-                        <td><input type="text" formControlName="Compliance_Officers_0_Fees_Commission_Allowances"></td>
-                    </tr>
-                    <!-- Row 2 -->
-                    <tr>
-                        <td><input type="text" formControlName="Compliance_Officers_1_Name"></td>
-                        <td><input type="text" formControlName="Compliance_Officers_1_Designation"></td>
-                        <td><input type="text" formControlName="Compliance_Officers_1_TIN"></td>
-                        <td><input type="text" formControlName="Compliance_Officers_1_Salary_Bonus"></td>
-                        <td><input type="text" formControlName="Compliance_Officers_1_Fees_Commission_Allowances"></td>
-                    </tr>
-                    <!-- Row 3 -->
-                    <tr>
-                        <td><input type="text" formControlName="Compliance_Officers_2_Name"></td>
-                        <td><input type="text" formControlName="Compliance_Officers_2_Designation"></td>
-                        <td><input type="text" formControlName="Compliance_Officers_2_TIN"></td>
-                        <td><input type="text" formControlName="Compliance_Officers_2_Salary_Bonus"></td>
-                        <td><input type="text" formControlName="Compliance_Officers_2_Fees_Commission_Allowances"></td>
-                    </tr>
-                    <!-- Row 4 -->
-                    <tr>
-                        <td><input type="text" formControlName="Compliance_Officers_3_Name"></td>
-                        <td><input type="text" formControlName="Compliance_Officers_3_Designation"></td>
-                        <td><input type="text" formControlName="Compliance_Officers_3_TIN"></td>
-                        <td><input type="text" formControlName="Compliance_Officers_3_Salary_Bonus"></td>
-                        <td><input type="text" formControlName="Compliance_Officers_3_Fees_Commission_Allowances"></td>
-                    </tr>
-                    <!-- Row 5 -->
-                    <tr>
-                        <td><input type="text" formControlName="Compliance_Officers_4_Name"></td>
-                        <td><input type="text" formControlName="Compliance_Officers_4_Designation"></td>
-                        <td><input type="text" formControlName="Compliance_Officers_4_TIN"></td>
-                        <td><input type="text" formControlName="Compliance_Officers_4_Salary_Bonus"></td>
-                        <td><input type="text" formControlName="Compliance_Officers_4_Fees_Commission_Allowances"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </fieldset>
+    <legend>Attachment C3: Compliance Officers</legend>
+    <table class="data-table" style="width: 100%;">
+        <thead>
+            <tr>
+                <th style="width: 10%;">Name</th>
+                <th style="width: 5%;">Claim P.U.(A) 419/2011</th>
+                <th style="width: 10%;">Designation</th>
+                <th style="width: 15%;">Address</th>
+                <th style="width: 10%;">ID/Passport No.</th>
+                <th style="width: 8%;">Date of Birth</th>
+                <th style="width: 8%;">TIN</th>
+                <th style="width: 8%;">Telephone No.</th>
+                <th style="width: 8%;">Salary/Bonus (RM)</th>
+                <th style="width: 8%;">Fees/Commission (RM)</th>
+                <th style="width: 8%;">Loan to Officer (RM)</th>
+                <th style="width: 8%;">Loan from Officer (RM)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><textarea rows="1" formControlName="Compliance_Officers_0_Name"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_0_Claim_PUA_419_2011"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_0_Designation"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_0_Address"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_0_ID_Passport_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_0_Date_of_Birth"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_0_TIN"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_0_Telephone_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_0_Salary_Bonus"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_0_Fees_Commission_Allowances"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_0_Total_Loan_to_Officer"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_0_Total_Loan_from_Officer"></textarea></td>
+            </tr>
+            <tr>
+                <td><textarea rows="1" formControlName="Compliance_Officers_1_Name"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_1_Claim_PUA_419_2011"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_1_Designation"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_1_Address"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_1_ID_Passport_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_1_Date_of_Birth"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_1_TIN"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_1_Telephone_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_1_Salary_Bonus"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_1_Fees_Commission_Allowances"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_1_Total_Loan_to_Officer"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_1_Total_Loan_from_Officer"></textarea></td>
+            </tr>
+            <tr>
+                <td><textarea rows="1" formControlName="Compliance_Officers_2_Name"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_2_Claim_PUA_419_2011"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_2_Designation"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_2_Address"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_2_ID_Passport_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_2_Date_of_Birth"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_2_TIN"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_2_Telephone_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_2_Salary_Bonus"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_2_Fees_Commission_Allowances"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_2_Total_Loan_to_Officer"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_2_Total_Loan_from_Officer"></textarea></td>
+            </tr>
+            <tr>
+                <td><textarea rows="1" formControlName="Compliance_Officers_3_Name"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_3_Claim_PUA_419_2011"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_3_Designation"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_3_Address"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_3_ID_Passport_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_3_Date_of_Birth"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_3_TIN"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_3_Telephone_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_3_Salary_Bonus"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_3_Fees_Commission_Allowances"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_3_Total_Loan_to_Officer"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_3_Total_Loan_from_Officer"></textarea></td>
+            </tr>
+            <tr>
+                <td><textarea rows="1" formControlName="Compliance_Officers_4_Name"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_4_Claim_PUA_419_2011"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_4_Designation"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_4_Address"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_4_ID_Passport_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_4_Date_of_Birth"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_4_TIN"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_4_Telephone_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_4_Salary_Bonus"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_4_Fees_Commission_Allowances"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_4_Total_Loan_to_Officer"></textarea></td>
+                <td><textarea rows="1" formControlName="Compliance_Officers_4_Total_Loan_from_Officer"></textarea></td>
+            </tr>
+        </tbody>
+    </table>
+</fieldset>
 
-        <!-- Attachment C4: Major Shareholders -->
-        <fieldset id="attachment-c4">
-            <legend>Attachment C4: Major Shareholders</legend>
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Country (Code)</th>
-                        <th>TIN</th>
-                        <th>Shareholding (%)</th>
-                        <th>Dividends (RM)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Row 1 -->
-                    <tr>
-                        <td><input type="text" formControlName="Major_Shareholders_0_Name_of_Shareholder_Partner"></td>
-                        <td><input type="text" formControlName="Major_Shareholders_0_Country_of_Origin"></td>
-                        <td><input type="text" formControlName="Major_Shareholders_0_TIN"></td>
-                        <td><input type="text" formControlName="Major_Shareholders_0_Direct_Shareholding_Percentage"></td>
-                        <td><input type="text" formControlName="Major_Shareholders_0_Dividends_Received_in_Basis_Period"></td>
-                    </tr>
-                    <!-- Row 2 -->
-                    <tr>
-                        <td><input type="text" formControlName="Major_Shareholders_1_Name_of_Shareholder_Partner"></td>
-                        <td><input type="text" formControlName="Major_Shareholders_1_Country_of_Origin"></td>
-                        <td><input type="text" formControlName="Major_Shareholders_1_TIN"></td>
-                        <td><input type="text" formControlName="Major_Shareholders_1_Direct_Shareholding_Percentage"></td>
-                        <td><input type="text" formControlName="Major_Shareholders_1_Dividends_Received_in_Basis_Period"></td>
-                    </tr>
-                    <!-- Row 3 -->
-                    <tr>
-                        <td><input type="text" formControlName="Major_Shareholders_2_Name_of_Shareholder_Partner"></td>
-                        <td><input type="text" formControlName="Major_Shareholders_2_Country_of_Origin"></td>
-                        <td><input type="text" formControlName="Major_Shareholders_2_TIN"></td>
-                        <td><input type="text" formControlName="Major_Shareholders_2_Direct_Shareholding_Percentage"></td>
-                        <td><input type="text" formControlName="Major_Shareholders_2_Dividends_Received_in_Basis_Period"></td>
-                    </tr>
-                    <!-- Row 4 -->
-                    <tr>
-                        <td><input type="text" formControlName="Major_Shareholders_3_Name_of_Shareholder_Partner"></td>
-                        <td><input type="text" formControlName="Major_Shareholders_3_Country_of_Origin"></td>
-                        <td><input type="text" formControlName="Major_Shareholders_3_TIN"></td>
-                        <td><input type="text" formControlName="Major_Shareholders_3_Direct_Shareholding_Percentage"></td>
-                        <td><input type="text" formControlName="Major_Shareholders_3_Dividends_Received_in_Basis_Period"></td>
-                    </tr>
-                    <!-- Row 5 -->
-                    <tr>
-                        <td><input type="text" formControlName="Major_Shareholders_4_Name_of_Shareholder_Partner"></td>
-                        <td><input type="text" formControlName="Major_Shareholders_4_Country_of_Origin"></td>
-                        <td><input type="text" formControlName="Major_Shareholders_4_TIN"></td>
-                        <td><input type="text" formControlName="Major_Shareholders_4_Direct_Shareholding_Percentage"></td>
-                        <td><input type="text" formControlName="Major_Shareholders_4_Dividends_Received_in_Basis_Period"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </fieldset>
+---
 
-        <!-- Attachment C5: Beneficial Owners -->
-        <fieldset id="attachment-c5">
-            <legend>Attachment C5: Beneficial Owners</legend>
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>TIN</th>
-                        <th>Shareholding (%)</th>
-                        <th>Salary/Bonus (RM)</th>
-                        <th>Dividends (RM)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Row 1 -->
-                    <tr>
-                        <td><input type="text" formControlName="Beneficial_Owners_0_Name"></td>
-                        <td><input type="text" formControlName="Beneficial_Owners_0_TIN"></td>
-                        <td><input type="text" formControlName="Beneficial_Owners_0_Shareholding_Percentage"></td>
-                        <td><input type="text" formControlName="Beneficial_Owners_0_Salary_Bonus"></td>
-                        <td><input type="text" formControlName="Beneficial_Owners_0_Dividends_Received_in_Basis_Period"></td>
-                    </tr>
-                    <!-- Row 2 -->
-                    <tr>
-                        <td><input type="text" formControlName="Beneficial_Owners_1_Name"></td>
-                        <td><input type="text" formControlName="Beneficial_Owners_1_TIN"></td>
-                        <td><input type="text" formControlName="Beneficial_Owners_1_Shareholding_Percentage"></td>
-                        <td><input type="text" formControlName="Beneficial_Owners_1_Salary_Bonus"></td>
-                        <td><input type="text" formControlName="Beneficial_Owners_1_Dividends_Received_in_Basis_Period"></td>
-                    </tr>
-                    <!-- Row 3 -->
-                    <tr>
-                        <td><input type="text" formControlName="Beneficial_Owners_2_Name"></td>
-                        <td><input type="text" formControlName="Beneficial_Owners_2_TIN"></td>
-                        <td><input type="text" formControlName="Beneficial_Owners_2_Shareholding_Percentage"></td>
-                        <td><input type="text" formControlName="Beneficial_Owners_2_Salary_Bonus"></td>
-                        <td><input type="text" formControlName="Beneficial_Owners_2_Dividends_Received_in_Basis_Period"></td>
-                    </tr>
-                    <!-- Row 4 -->
-                    <tr>
-                        <td><input type="text" formControlName="Beneficial_Owners_3_Name"></td>
-                        <td><input type="text" formControlName="Beneficial_Owners_3_TIN"></td>
-                        <td><input type="text" formControlName="Beneficial_Owners_3_Shareholding_Percentage"></td>
-                        <td><input type="text" formControlName="Beneficial_Owners_3_Salary_Bonus"></td>
-                        <td><input type="text" formControlName="Beneficial_Owners_3_Dividends_Received_in_Basis_Period"></td>
-                    </tr>
-                    <!-- Row 5 -->
-                    <tr>
-                        <td><input type="text" formControlName="Beneficial_Owners_4_Name"></td>
-                        <td><input type="text" formControlName="Beneficial_Owners_4_TIN"></td>
-                        <td><input type="text" formControlName="Beneficial_Owners_4_Shareholding_Percentage"></td>
-                        <td><input type="text" formControlName="Beneficial_Owners_4_Salary_Bonus"></td>
-                        <td><input type="text" formControlName="Beneficial_Owners_4_Dividends_Received_in_Basis_Period"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </fieldset>
+<fieldset id="attachment-c4">
+    <legend>Attachment C4: Major Shareholders</legend>
+    <table class="data-table" style="width: 100%;">
+        <thead>
+            <tr>
+                <th style="width: 15%;">Name of Shareholder/Partner</th>
+                <th style="width: 15%;">Address</th>
+                <th style="width: 10%;">ID/Passport/Reg No.</th>
+                <th style="width: 10%;">Date of Birth</th>
+                <th style="width: 10%;">Country (Code)</th>
+                <th style="width: 10%;">TIN</th>
+                <th style="width: 15%;">Shareholding (%)</th>
+                <th style="width: 15%;">Dividends (RM)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><textarea rows="1" formControlName="Major_Shareholders_0_Name_of_Shareholder_Partner"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_0_Address"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_0_ID_Passport_Reg_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_0_Date_of_Birth"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_0_Country_of_Origin"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_0_TIN"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_0_Direct_Shareholding_Percentage"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_0_Dividends_Received_in_Basis_Period"></textarea></td>
+            </tr>
+            <tr>
+                <td><textarea rows="1" formControlName="Major_Shareholders_1_Name_of_Shareholder_Partner"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_1_Address"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_1_ID_Passport_Reg_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_1_Date_of_Birth"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_1_Country_of_Origin"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_1_TIN"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_1_Direct_Shareholding_Percentage"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_1_Dividends_Received_in_Basis_Period"></textarea></td>
+            </tr>
+            <tr>
+                <td><textarea rows="1" formControlName="Major_Shareholders_2_Name_of_Shareholder_Partner"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_2_Address"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_2_ID_Passport_Reg_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_2_Date_of_Birth"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_2_Country_of_Origin"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_2_TIN"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_2_Direct_Shareholding_Percentage"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_2_Dividends_Received_in_Basis_Period"></textarea></td>
+            </tr>
+            <tr>
+                <td><textarea rows="1" formControlName="Major_Shareholders_3_Name_of_Shareholder_Partner"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_3_Address"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_3_ID_Passport_Reg_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_3_Date_of_Birth"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_3_Country_of_Origin"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_3_TIN"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_3_Direct_Shareholding_Percentage"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_3_Dividends_Received_in_Basis_Period"></textarea></td>
+            </tr>
+            <tr>
+                <td><textarea rows="1" formControlName="Major_Shareholders_4_Name_of_Shareholder_Partner"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_4_Address"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_4_ID_Passport_Reg_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_4_Date_of_Birth"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_4_Country_of_Origin"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_4_TIN"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_4_Direct_Shareholding_Percentage"></textarea></td>
+                <td><textarea rows="1" formControlName="Major_Shareholders_4_Dividends_Received_in_Basis_Period"></textarea></td>
+            </tr>
+        </tbody>
+    </table>
+</fieldset>
+
+---
+
+<fieldset id="attachment-c5">
+    <legend>Attachment C5: Beneficial Owners</legend>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Address</th>
+                <th>ID/Passport No.</th>
+                <th>Date of Birth</th>
+                <th>TIN</th>
+                <th>Telephone No.</th>
+                <th>Shareholding (%)</th>
+                <th>Salary/Bonus (RM)</th>
+                <th>Fees/Comm./Allow. (RM)</th>
+                <th>Total Loan to Owner (RM)</th>
+                <th>Total Loan from Owner (RM)</th>
+                <th>Dividends (RM)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_0_Name"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_0_Address"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_0_ID_Passport_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_0_Date_of_Birth"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_0_TIN"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_0_Telephone_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_0_Shareholding_Percentage"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_0_Salary_Bonus"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_0_Fees_Commission_Allowance"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_0_Total_Loan_to_Owner"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_0_Total_Loan_from_Owner"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_0_Dividends_Received_in_Basis_Period"></textarea></td>
+            </tr>
+            <tr>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_1_Name"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_1_Address"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_1_ID_Passport_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_1_Date_of_Birth"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_1_TIN"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_1_Telephone_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_1_Shareholding_Percentage"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_1_Salary_Bonus"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_1_Fees_Commission_Allowance"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_1_Total_Loan_to_Owner"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_1_Total_Loan_from_Owner"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_1_Dividends_Received_in_Basis_Period"></textarea></td>
+            </tr>
+            <tr>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_2_Name"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_2_Address"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_2_ID_Passport_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_2_Date_of_Birth"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_2_TIN"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_2_Telephone_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_2_Shareholding_Percentage"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_2_Salary_Bonus"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_2_Fees_Commission_Allowance"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_2_Total_Loan_to_Owner"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_2_Total_Loan_from_Owner"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_2_Dividends_Received_in_Basis_Period"></textarea></td>
+            </tr>
+            <tr>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_3_Name"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_3_Address"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_3_ID_Passport_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_3_Date_of_Birth"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_3_TIN"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_3_Telephone_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_3_Shareholding_Percentage"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_3_Salary_Bonus"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_3_Fees_Commission_Allowance"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_3_Total_Loan_to_Owner"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_3_Total_Loan_from_Owner"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_3_Dividends_Received_in_Basis_Period"></textarea></td>
+            </tr>
+            <tr>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_4_Name"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_4_Address"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_4_ID_Passport_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_4_Date_of_Birth"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_4_TIN"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_4_Telephone_No"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_4_Shareholding_Percentage"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_4_Salary_Bonus"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_4_Fees_Commission_Allowance"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_4_Total_Loan_to_Owner"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_4_Total_Loan_from_Owner"></textarea></td>
+                <td><textarea rows="1" formControlName="Beneficial_Owner_4_Dividends_Received_in_Basis_Period"></textarea></td>
+            </tr>
+        </tbody>
+    </table>
+</fieldset>
 
         <!-- Attachment C9: Financial Particulars -->
         <fieldset id="attachment-c9">
@@ -679,37 +782,47 @@
                     <!-- Row 1 -->
                     <tr>
                         <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_0_Name"></td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_0_Registration_No"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_0_Registration_No">
+                        </td>
                         <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_0_TIN"></td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_0_Have_Transactions"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_0_Have_Transactions">
+                        </td>
                     </tr>
                     <!-- Row 2 -->
                     <tr>
                         <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_1_Name"></td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_1_Registration_No"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_1_Registration_No">
+                        </td>
                         <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_1_TIN"></td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_1_Have_Transactions"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_1_Have_Transactions">
+                        </td>
                     </tr>
                     <!-- Row 3 -->
                     <tr>
                         <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_2_Name"></td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_2_Registration_No"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_2_Registration_No">
+                        </td>
                         <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_2_TIN"></td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_2_Have_Transactions"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_2_Have_Transactions">
+                        </td>
                     </tr>
                     <!-- Row 4 -->
                     <tr>
                         <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_3_Name"></td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_3_Registration_No"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_3_Registration_No">
+                        </td>
                         <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_3_TIN"></td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_3_Have_Transactions"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_3_Have_Transactions">
+                        </td>
                     </tr>
                     <!-- Row 5 -->
                     <tr>
                         <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_4_Name"></td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_4_Registration_No"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_4_Registration_No">
+                        </td>
                         <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_4_TIN"></td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_4_Have_Transactions"></td>
+                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_4_Have_Transactions">
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -730,41 +843,51 @@
                 <tbody>
                     <!-- Row 1 -->
                     <tr>
-                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_0_Name_of_taxpayer"></td>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_0_Name_of_taxpayer">
+                        </td>
                         <td><input type="text" formControlName="Payments_From_Malaysian_Residents_0_TIN"></td>
-                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_0_Type_of_payment_received">
+                        <td><input type="text"
+                                formControlName="Payments_From_Malaysian_Residents_0_Type_of_payment_received">
                         </td>
                         <td><input type="text" formControlName="Payments_From_Malaysian_Residents_0_Amount"></td>
                     </tr>
                     <!-- Row 2 -->
                     <tr>
-                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_1_Name_of_taxpayer"></td>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_1_Name_of_taxpayer">
+                        </td>
                         <td><input type="text" formControlName="Payments_From_Malaysian_Residents_1_TIN"></td>
-                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_1_Type_of_payment_received">
+                        <td><input type="text"
+                                formControlName="Payments_From_Malaysian_Residents_1_Type_of_payment_received">
                         </td>
                         <td><input type="text" formControlName="Payments_From_Malaysian_Residents_1_Amount"></td>
                     </tr>
                     <!-- Row 3 -->
                     <tr>
-                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_2_Name_of_taxpayer"></td>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_2_Name_of_taxpayer">
+                        </td>
                         <td><input type="text" formControlName="Payments_From_Malaysian_Residents_2_TIN"></td>
-                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_2_Type_of_payment_received">
+                        <td><input type="text"
+                                formControlName="Payments_From_Malaysian_Residents_2_Type_of_payment_received">
                         </td>
                         <td><input type="text" formControlName="Payments_From_Malaysian_Residents_2_Amount"></td>
                     </tr>
                     <!-- Row 4 -->
                     <tr>
-                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_3_Name_of_taxpayer"></td>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_3_Name_of_taxpayer">
+                        </td>
                         <td><input type="text" formControlName="Payments_From_Malaysian_Residents_3_TIN"></td>
-                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_3_Type_of_payment_received">
+                        <td><input type="text"
+                                formControlName="Payments_From_Malaysian_Residents_3_Type_of_payment_received">
                         </td>
                         <td><input type="text" formControlName="Payments_From_Malaysian_Residents_3_Amount"></td>
                     </tr>
                     <!-- Row 5 -->
                     <tr>
-                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_4_Name_of_taxpayer"></td>
+                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_4_Name_of_taxpayer">
+                        </td>
                         <td><input type="text" formControlName="Payments_From_Malaysian_Residents_4_TIN"></td>
-                        <td><input type="text" formControlName="Payments_From_Malaysian_Residents_4_Type_of_payment_received">
+                        <td><input type="text"
+                                formControlName="Payments_From_Malaysian_Residents_4_Type_of_payment_received">
                         </td>
                         <td><input type="text" formControlName="Payments_From_Malaysian_Residents_4_Amount"></td>
                     </tr>

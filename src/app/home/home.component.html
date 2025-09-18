@@ -3,22 +3,62 @@
     <h3>Upload Your Documents</h3>
     <p>Please upload the relevant files. The system will extract the data and pre-fill the form for you.</p>
 
-    <div class="upload-area">
-        <label for="tax-summary-file">Tax Computation Summary (Part A & B)</label>
-        <input type="file" accept="image/*, .pdf" #taxFile>
+    <!-- <div class="upload-area" [class.file-selected]="taxFileName" (click)="taxFileInp.click()">
+        <div *ngIf="!taxFileName; else taxFileSelected">
+            <label>Tax Computation Summary (Part A & B)</label>
+        </div>
+        <ng-template #taxFileSelected>
+            <span class="file-name">{{ taxFileName }}</span>
+            <button class="remove-btn" (click)="removeFile('tax'); $event.stopPropagation()">&times;</button>
+        </ng-template>
+        <input type="file" accept="image/*, .pdf" #taxFileInp (change)="onFileSelected($event, 'tax')" hidden>
     </div>
 
-    <div class="upload-area">
-        <label for="shareholder-file">Shareholder & Officer Details (Attachments C3, C4, C5)</label>
-        <input type="file" accept="image/*, .pdf" #shareholderFile>
+    <div class="upload-area" [class.file-selected]="shareholderFileName" (click)="shareholderFileInp.click()">
+        <div *ngIf="!shareholderFileName; else shareholderFileSelected">
+            <label>Shareholder & Officer Details (Attachments C3, C4, C5)</label>
+        </div>
+        <ng-template #shareholderFileSelected>
+            <span class="file-name">{{ shareholderFileName }}</span>
+            <button class="remove-btn" (click)="removeFile('shareholder'); $event.stopPropagation()">&times;</button>
+        </ng-template>
+        <input type="file" accept="image/*, .pdf" #shareholderFileInp (change)="onFileSelected($event, 'shareholder')" hidden>
+    </div> -->
+
+    <div class="upload-area" [class.file-selected]="financialsFileName" (click)="financialsFileInp.click()">
+        <div *ngIf="!financialsFileName; else financialsFileSelected">
+            <label>Financial Statements (Part A)</label>
+        </div>
+        <ng-template #financialsFileSelected>
+            <span class="file-name">{{ financialsFileName }}</span>
+            <button class="remove-btn" (click)="removeFile('financials'); $event.stopPropagation()">&times;</button>
+        </ng-template>
+        <input type="file" accept="image/*, .pdf" #financialsFileInp (change)="onFileSelected($event, 'financials')" hidden>
     </div>
 
-    <div class="upload-area">
-        <label for="financials-file">Financial Statements (Attachment C9)</label>
-        <input type="file" accept="image/*, .pdf" #financialsFile>
+    <div class="upload-area" [class.file-selected]="shareholderFileName" (click)="shareholderFileInp.click()">
+        <div *ngIf="!shareholderFileName; else shareholderFileSelected">
+            <label>Annual Return (Attachments C3, C4)</label>
+        </div>
+        <ng-template #shareholderFileSelected>
+            <span class="file-name">{{ shareholderFileName }}</span>
+            <button class="remove-btn" (click)="removeFile('shareholder'); $event.stopPropagation()">&times;</button>
+        </ng-template>
+        <input type="file" accept="image/*, .pdf" #shareholderFileInp (change)="onFileSelected($event, 'shareholder')" hidden>
     </div>
 
-    <button class="btn" (click)="processFiles(taxFile, shareholderFile, financialsFile)">Process Documents</button>
+    <div class="upload-area" [class.file-selected]="c5FileName" (click)="c5FileInp.click()">
+        <div *ngIf="!c5FileName; else c5FileSelected">
+            <label>Annexure (Attachments C5)</label>
+        </div>
+        <ng-template #c5FileSelected>
+            <span class="file-name">{{ c5FileName }}</span>
+            <button class="remove-btn" (click)="removeFile('c5'); $event.stopPropagation()">&times;</button>
+        </ng-template>
+        <input type="file" accept="image/*, .pdf" #c5FileInp (change)="onFileSelected($event, 'c5')" hidden>
+    </div>
+
+    <button class="btn" (click)="processFiles()">Process Documents</button>
 </div>
 
 <div id="loader" *ngIf="isLoading">

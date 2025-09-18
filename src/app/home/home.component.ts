@@ -8,20 +8,67 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss'] // We'll create this CSS file
+  styleUrls: ['./home.component.scss']
 })
 export class HomeComponent {
   isLoading = false;
+  taxFile: File | null = null;
+  shareholderFile: File | null = null;
+  financialsFile: File | null = null;
+  c5File: File | null = null;
+
+  taxFileName = '';
+  shareholderFileName = '';
+  financialsFileName = '';
+  c5FileName = '';
 
   // --- MOCK API FUNCTIONS (as provided in the original script) ---
   readonly API_BASE_URL = 'https://asia-southeast1-fusioneta-test.cloudfunctions.net/AI-Invoice-Parser/';
   readonly ENDPOINTS = {
       tax: 'tax-document-parser',
-      shareholder: 'shareholder-document-parser',
+      c3: 'c3',
+      c4: 'c4',
+      c5: 'c5',
       financials: 'financial-statement'
   };
 
   constructor(private router: Router) {}
+
+  onFileSelected(event: Event, fileType: string): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      if (fileType === 'tax') {
+        this.taxFile = file;
+        this.taxFileName = file.name;
+      } else if (fileType === 'shareholder') {
+        this.shareholderFile = file;
+        this.shareholderFileName = file.name;
+      } else if (fileType === 'financials') {
+        this.financialsFile = file;
+        this.financialsFileName = file.name;
+      } else if (fileType === 'c5') {
+        this.c5File = file;
+        this.c5FileName = file.name;
+      }
+    }
+  }
+
+  removeFile(fileType: string): void {
+    if (fileType === 'tax') {
+      this.taxFile = null;
+      this.taxFileName = '';
+    } else if (fileType === 'shareholder') {
+      this.shareholderFile = null;
+      this.shareholderFileName = '';
+    } else if (fileType === 'financials') {
+      this.financialsFile = null;
+      this.financialsFileName = '';
+    } else if (fileType === 'c5') {
+      this.c5File = null;
+      this.c5FileName = '';
+    }
+  }
 
   async callParserApi(file: File, endpoint: string): Promise<any> {
     const fullApiUrl = this.API_BASE_URL + endpoint;
@@ -85,12 +132,8 @@ export class HomeComponent {
   }
 
 
-  async processFiles(taxInput: HTMLInputElement, shareholderInput: HTMLInputElement, financialsInput: HTMLInputElement) {
-    const taxFile = taxInput.files?.[0];
-    const shareholderFile = shareholderInput.files?.[0];
-    const financialsFile = financialsInput.files?.[0];
-
-    if (!taxFile && !shareholderFile && !financialsFile) {
+  async processFiles() {
+    if (!this.taxFile && !this.shareholderFile && !this.financialsFile) {
       alert('Please upload at least one file to process.');
       return;
     }
@@ -98,14 +141,18 @@ export class HomeComponent {
     this.isLoading = true;
     const apiPromises: Promise<any>[] = [];
 
-    if (taxFile) {
-      apiPromises.push(this.callTaxSummaryApi(taxFile));
+    if (this.taxFile) {
+      apiPromises.push(this.callTaxSummaryApi(this.taxFile));
     }
-    if (shareholderFile) {
-      apiPromises.push(this.callShareholderApi(shareholderFile));
+    if (this.shareholderFile) {
+      apiPromises.push(this.callParserApi(this.shareholderFile, this.ENDPOINTS.c3));
+      apiPromises.push(this.callParserApi(this.shareholderFile, this.ENDPOINTS.c4));
     }
-    if (financialsFile) {
-      apiPromises.push(this.callParserApi(financialsFile, this.ENDPOINTS.financials));
+    if (this.financialsFile) {
+      apiPromises.push(this.callParserApi(this.financialsFile, this.ENDPOINTS.financials));
+    }
+    if (this.c5File) {
+      apiPromises.push(this.callParserApi(this.c5File, this.ENDPOINTS.c5));
     }
 
     try {

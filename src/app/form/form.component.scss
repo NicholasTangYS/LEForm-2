@@ -93,12 +93,12 @@ label {
 }
 
 input[type="text"] {
-    width:80%;
-    word-break: break-all;
+    width: 100%; /* Makes the input field fill its container */
+    box-sizing: border-box; /* Ensures padding and border are included in the 100% width */
 
+    /* The following styles are from your original code and have been kept */
     padding: 12px 10px;
     margin-bottom: 20px;
-    border:0 none;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 1em;
@@ -130,9 +130,43 @@ button[type="submit"]:hover {
 }
 .data-table td {
     width: fit-content;
-    padding: 0;
+    height: 50px;
+    padding: 8px; /* Added padding for better cell spacing */
 }
-.data-table input {
-    width: 80%;
+
+/* Style for all text inputs and textareas within the table */
+.data-table input,
+.data-table textarea {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
     border: 0;
+    // resize: none; /* Prevents manual resizing by the user */
+    // overflow: hidden; /* Hides the scrollbar, allowing the element to grow */
+    line-height: 1.5; /* Ensures consistent line spacing */
+    min-height: 20px; /* Sets a minimum height for the field */
+    
+    /* Inherit font styles from the parent cell for consistency */
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+}
+
+.data-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+/* Add borders and padding to the cells and headers */
+.data-table th, .data-table td {
+    border: 1px solid #ccc;
+    text-align: left;
+}
+
+/* Style the table header separately for better visuals */
+.data-table th {
+    background-color: #f2f2f2;
+    font-weight: 600;
 }
