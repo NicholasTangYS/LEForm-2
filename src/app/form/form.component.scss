@@ -155,7 +155,7 @@ button[type="submit"]:hover {
 
 .data-table {
     border-collapse: collapse;
-    width: 100%;
+    width: max-content;
     margin-bottom: 20px;
 }
 
@@ -170,3 +170,18 @@ button[type="submit"]:hover {
     background-color: #f2f2f2;
     font-weight: 600;
 }
+
+.form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .form-column {
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 5px;
+        }
+        .form-column h4 {
+            margin-top: 0;
+        }

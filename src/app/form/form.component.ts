@@ -11,7 +11,7 @@ import { saveAs } from 'file-saver';
 @Component({
   selector: 'app-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule,RouterModule , HttpClientModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, HttpClientModule],
   templateUrl: './form.component.html',
   styleUrls: ['./form.component.scss']
 })
@@ -326,15 +326,65 @@ export class FormComponent implements OnInit {
       Beneficial_Owner_4_Fees_Commission_Allowance: [''],
 
       // Attachment C9: Financial Particulars
-      Financial_Particulars_Pnl_Sales_Turnover: [''],
-      Financial_Particulars_Pnl_Gross_Profit_Loss: [''],
-      Financial_Particulars_Pnl_Net_Profit_Loss: [''],
-      Financial_Particulars_Fp_Total_Non_Current_Assets: [''],
-      Financial_Particulars_Fp_Total_Current_Assets: [''],
-      Financial_Particulars_Fp_Total_Assets: [''],
-      Financial_Particulars_Fp_Total_Current_Liabilities: [''],
-      Financial_Particulars_Fp_Total_Liabilities: [''],
-      Financial_Particulars_Fp_Total_Equity: [''],
+      Business_Activity_Code: [''],
+      Type_of_business_activity: [''],
+      Fp_Type_of_Labuan_entity: [''],
+      Pnl_Sales_Turnover: [''],
+      Pnl_Opening_Inventory: [''],
+      Pnl_Cost_of_Purchases: [''],
+      Pnl_Cost_of_Production: [''],
+      Pnl_Closing_Inventory: [''],
+      Pnl_Cost_of_Sales: [''],
+      Pnl_Gross_Profit_Loss: [''],
+      Pnl_Foreign_Currency_Exchange_Gain: [''],
+      Pnl_Other_Business_Income: [''],
+      Pnl_Other_Income: [''],
+      Pnl_Non_Taxable_Profits: [''],
+      Pnl_Interest_Expenditure: [''],
+      Pnl_Professional_Fees: [''],
+      Pnl_Technical_Fees_to_Non_Residents: [''],
+      Pnl_Contract_Payments: [''],
+      Pnl_Management_Fee: [''],
+      Pnl_Salaries_Wages: [''],
+      Pnl_Cost_of_Employee_Share_Options: [''],
+      Pnl_Royalties: [''],
+      Pnl_Rental_Lease: [''],
+      Pnl_Maintenance_Repairs: [''],
+      Pnl_Research_Development: [''],
+      Pnl_Promotion_Advertisement: [''],
+      Pnl_Travelling_Accommodation: [''],
+      Pnl_Foreign_Currency_Exchange_Loss: [''],
+      Pnl_Other_Expenditure: [''],
+      Pnl_Total_Expenditure: [''],
+      Pnl_Net_Profit_Loss: [''],
+      Fp_Motor_Vehicles: [''],
+      Fp_Plant_Equipment: [''],
+      Fp_Land_Buildings: [''],
+      Fp_Other_Non_Current_Assets: [''],
+      Fp_Investments: [''],
+      Fp_Total_Non_Current_Assets: [''],
+      Fp_Cost_of_NCA_Acquired: [''],
+      Fp_Trade_Debtors: [''],
+      Fp_Other_Debtors: [''],
+      Fp_Inventory: [''],
+      Fp_Loans_to_Related_Entities: [''],
+      Fp_Cash_in_Hand_Bank: [''],
+      Fp_Other_Current_Assets: [''],
+      Fp_Total_Current_Assets: [''],
+      Fp_Total_Assets: [''],
+      Fp_Loans_Bank_Overdrafts: [''],
+      Fp_Trade_Creditors: [''],
+      Fp_Other_Creditors: [''],
+      Fp_Loans_from_Related_Entities: [''],
+      Fp_Other_Current_Liabilities: [''],
+      Fp_Total_Current_Liabilities: [''],
+      Fp_Non_Current_Liabilities: [''],
+      Fp_Total_Liabilities: [''],
+      Fp_Issued_Paid_Up_Capital: [''],
+      Fp_Profit_Loss_Appropriation: [''],
+      Fp_Reserve_Account: [''],
+      Fp_Total_Equity: [''],
+      Fp_Total_Liabilities_and_Equity: [''],
 
       // Attachment C10: Subsidiaries or Related Entities
       // C10 Row 1
@@ -444,28 +494,32 @@ export class FormComponent implements OnInit {
 
       const pdfDoc = await PDFDocument.load(pdfTemplateBytes);
       const pages = pdfDoc.getPages();
+      console.log(pages)
       const formValues = this.le1Form.value;
       console.log('Form values to populate PDF:', formValues);
 
-      for (const fieldName in formValues) {
-        if (Object.prototype.hasOwnProperty.call(formValues, fieldName)) {
-            const value = formValues[fieldName];
-            // Check if value exists and there's a mapping for it
-            if (value && mapping[fieldName]) {
-              const coords = mapping[fieldName];
-              const page = pages[coords.page];
-              if (page) {
-                const { height } = page.getSize();
-                // pdf-lib's y-coordinate starts from the bottom, so we invert it.
-                // const y = height - coords.y;
+      for (const fieldName in mapping) {
+        if (Object.prototype.hasOwnProperty.call(mapping, fieldName)) {
+          const coords = mapping[fieldName];
+          const value = formValues[fieldName];
+          console.log(coords, value);
+          // Check if a value exists for the field
+          if (value !== null && value !== undefined) {
+            // Adjust the page index to be zero-based for pdf-lib
+            const pageIndex = coords.page;
 
-                page.drawText(String(value), {
-                  x: coords.x,
-                  y: coords.y,
-                  size: coords.size || 12,
-                });
-              }
+            if (pageIndex >= 0 && pageIndex < pages.length) {
+              const page = pages[pageIndex];
+
+              page.drawText(String(value), {
+                x: coords.x,
+                y: coords.y,
+                size: coords.size || 12,
+              });
+            } else {
+              console.warn(`Invalid page index for field '${fieldName}': page ${coords.page}`);
             }
+          }
         }
       }
 

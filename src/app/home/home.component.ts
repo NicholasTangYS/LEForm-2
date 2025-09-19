@@ -29,6 +29,7 @@ export class HomeComponent {
       c3: 'c3',
       c4: 'c4',
       c5: 'c5',
+      c9: 'c9',
       financials: 'financial-statement'
   };
 
@@ -67,7 +68,8 @@ export class HomeComponent {
     } else if (fileType === 'c5') {
       this.c5File = null;
       this.c5FileName = '';
-    }
+    } 
+
   }
 
   async callParserApi(file: File, endpoint: string): Promise<any> {
@@ -150,6 +152,7 @@ export class HomeComponent {
     }
     if (this.financialsFile) {
       apiPromises.push(this.callParserApi(this.financialsFile, this.ENDPOINTS.financials));
+      apiPromises.push(this.callParserApi(this.financialsFile, this.ENDPOINTS.c9));
     }
     if (this.c5File) {
       apiPromises.push(this.callParserApi(this.c5File, this.ENDPOINTS.c5));
