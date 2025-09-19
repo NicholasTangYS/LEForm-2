@@ -339,77 +339,110 @@
                     <tr>
                         <th>Activity Code</th>
                         <th>Core Income (1=Y, 2=N)</th>
-                        <th>Status (1=Active
-                            2=Dormant)</th>
-                        <th>No. of Employees</th>
+                        <th>Status (1=Active, 2=Dormant)</th>
+                        <th>No. of Employees (Labuan)</th>
                         <th>OpEx (RM)</th>
-                        <th>Substantive (1=Y, 2=N)</th>
+                        <th>Compliance with FPEC (1=Y, 2=N)</th>
+                        <th>Compliance with CML (1=Y, 2=N)</th>
+                        <th>No. of Employees (Malaysia)</th>
+                        <th>No. of Related Companies</th>
+                        <th>Substantive (1=Y, 2=N, 3=By main trade, 4=NA)</th>
                         <th>Net Loss (RM)</th>
                         <th>Net Profit (RM)</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Row 1 -->
                     <tr>
-                        <td><input type="text" formControlName="B1_Activities_0_Business_Activity_Code"></td>
-                        <td><input type="text" formControlName="B1_Activities_0_Core_Income_Activity_Yes"></td>
-                        <td><input type="text" formControlName="B1_Activities_0_Business_Activity_Status_Active"></td>
-                        <td><input type="number" formControlName="B1_Activities_0_No_of_Employees"></td>
-                        <td><input type="text" formControlName="B1_Activities_0_Annual_Operating_Expenditure"></td>
-                        <td><input type="text" formControlName="B1_Activities_0_Comply_Substantive_Yes"></td>
-                        <td><input type="text" formControlName="B1_Activities_0_Amount_of_Net_Loss"></td>
-                        <td><input type="text" formControlName="B1_Activities_0_Net_Profits_ex_IP"></td>
+                        <td><input type="text" formControlName="B1_Row1_Business_Activity_Code"></td>
+                        <td><input type="text" formControlName="B1_Row1_Core_Income_Activity_Yes"></td>
+                        <td><input type="text" formControlName="B1_Row1_Business_Activity_Status_Active"></td>
+                        <td><input type="number" formControlName="B1_Row1_No_of_Employees"></td>
+                        <td><input type="text" formControlName="B1_Row1_Annual_Operating_Expenditure"></td>
+                        <td><input type="text" formControlName="B1_Row1_Compliance_with_FPEC"></td>
+                        <td><input type="text" formControlName="B1_Row1_Compliance_with_CML"></td>
+                        <td><input type="number" formControlName="B1_Row1_No_of_Employees_Malaysia"></td>
+                        <td><input type="number" formControlName="B1_Row1_No_of_Related_Company"></td>
+                        <td><input type="text" formControlName="B1_Row1_Comply_Substantive_Yes"></td>
+                        <td><input type="text" formControlName="B1_Row1_Amount_of_Net_Loss"></td>
+                        <td><input type="text" formControlName="B1_Row1_Net_Profits_ex_IP"></td>
                     </tr>
-                    <!-- Row 2 -->
                     <tr>
-                        <td><input type="text" formControlName="B1_Activities_1_Business_Activity_Code"></td>
-                        <td><input type="text" formControlName="B1_Activities_1_Core_Income_Activity_Yes"></td>
-                        <td><input type="text" formControlName="B1_Activities_1_Business_Activity_Status_Active"></td>
-                        <td><input type="number" formControlName="B1_Activities_1_No_of_Employees"></td>
-                        <td><input type="text" formControlName="B1_Activities_1_Annual_Operating_Expenditure"></td>
-                        <td><input type="text" formControlName="B1_Activities_1_Comply_Substantive_Yes"></td>
-                        <td><input type="text" formControlName="B1_Activities_1_Amount_of_Net_Loss"></td>
-                        <td><input type="text" formControlName="B1_Activities_1_Net_Profits_ex_IP"></td>
+                        <td><input type="text" formControlName="B1_Row2_Business_Activity_Code"></td>
+                        <td><input type="text" formControlName="B1_Row2_Core_Income_Activity_Yes"></td>
+                        <td><input type="text" formControlName="B1_Row2_Business_Activity_Status_Active"></td>
+                        <td><input type="number" formControlName="B1_Row2_No_of_Employees"></td>
+                        <td><input type="text" formControlName="B1_Row2_Annual_Operating_Expenditure"></td>
+                        <td><input type="text" formControlName="B1_Row2_Compliance_with_FPEC"></td>
+                        <td><input type="text" formControlName="B1_Row2_Compliance_with_CML"></td>
+                        <td><input type="number" formControlName="B1_Row2_No_of_Employees_Malaysia"></td>
+                        <td><input type="number" formControlName="B1_Row2_No_of_Related_Company"></td>
+                        <td><input type="text" formControlName="B1_Row2_Comply_Substantive_Yes"></td>
+                        <td><input type="text" formControlName="B1_Row2_Amount_of_Net_Loss"></td>
+                        <td><input type="text" formControlName="B1_Row2_Net_Profits_ex_IP"></td>
                     </tr>
-                    <!-- Row 3 -->
                     <tr>
-                        <td><input type="text" formControlName="B1_Activities_2_Business_Activity_Code"></td>
-                        <td><input type="text" formControlName="B1_Activities_2_Core_Income_Activity_Yes"></td>
-                        <td><input type="text" formControlName="B1_Activities_2_Business_Activity_Status_Active"></td>
-                        <td><input type="number" formControlName="B1_Activities_2_No_of_Employees"></td>
-                        <td><input type="text" formControlName="B1_Activities_2_Annual_Operating_Expenditure"></td>
-                        <td><input type="text" formControlName="B1_Activities_2_Comply_Substantive_Yes"></td>
-                        <td><input type="text" formControlName="B1_Activities_2_Amount_of_Net_Loss"></td>
-                        <td><input type="text" formControlName="B1_Activities_2_Net_Profits_ex_IP"></td>
+                        <td><input type="text" formControlName="B1_Row3_Business_Activity_Code"></td>
+                        <td><input type="text" formControlName="B1_Row3_Core_Income_Activity_Yes"></td>
+                        <td><input type="text" formControlName="B1_Row3_Business_Activity_Status_Active"></td>
+                        <td><input type="number" formControlName="B1_Row3_No_of_Employees"></td>
+                        <td><input type="text" formControlName="B1_Row3_Annual_Operating_Expenditure"></td>
+                        <td><input type="text" formControlName="B1_Row3_Compliance_with_FPEC"></td>
+                        <td><input type="text" formControlName="B1_Row3_Compliance_with_CML"></td>
+                        <td><input type="number" formControlName="B1_Row3_No_of_Employees_Malaysia"></td>
+                        <td><input type="number" formControlName="B1_Row3_No_of_Related_Company"></td>
+                        <td><input type="text" formControlName="B1_Row3_Comply_Substantive_Yes"></td>
+                        <td><input type="text" formControlName="B1_Row3_Amount_of_Net_Loss"></td>
+                        <td><input type="text" formControlName="B1_Row3_Net_Profits_ex_IP"></td>
                     </tr>
-                    <!-- Row 4 -->
                     <tr>
-                        <td><input type="text" formControlName="B1_Activities_3_Business_Activity_Code"></td>
-                        <td><input type="text" formControlName="B1_Activities_3_Core_Income_Activity_Yes"></td>
-                        <td><input type="text" formControlName="B1_Activities_3_Business_Activity_Status_Active"></td>
-                        <td><input type="number" formControlName="B1_Activities_3_No_of_Employees"></td>
-                        <td><input type="text" formControlName="B1_Activities_3_Annual_Operating_Expenditure"></td>
-                        <td><input type="text" formControlName="B1_Activities_3_Comply_Substantive_Yes"></td>
-                        <td><input type="text" formControlName="B1_Activities_3_Amount_of_Net_Loss"></td>
-                        <td><input type="text" formControlName="B1_Activities_3_Net_Profits_ex_IP"></td>
+                        <td><input type="text" formControlName="B1_Row4_Business_Activity_Code"></td>
+                        <td><input type="text" formControlName="B1_Row4_Core_Income_Activity_Yes"></td>
+                        <td><input type="text" formControlName="B1_Row4_Business_Activity_Status_Active"></td>
+                        <td><input type="number" formControlName="B1_Row4_No_of_Employees"></td>
+                        <td><input type="text" formControlName="B1_Row4_Annual_Operating_Expenditure"></td>
+                        <td><input type="text" formControlName="B1_Row4_Compliance_with_FPEC"></td>
+                        <td><input type="text" formControlName="B1_Row4_Compliance_with_CML"></td>
+                        <td><input type="number" formControlName="B1_Row4_No_of_Employees_Malaysia"></td>
+                        <td><input type="number" formControlName="B1_Row4_No_of_Related_Company"></td>
+                        <td><input type="text" formControlName="B1_Row4_Comply_Substantive_Yes"></td>
+                        <td><input type="text" formControlName="B1_Row4_Amount_of_Net_Loss"></td>
+                        <td><input type="text" formControlName="B1_Row4_Net_Profits_ex_IP"></td>
                     </tr>
-                    <!-- Row 5 -->
                     <tr>
-                        <td><input type="text" formControlName="B1_Activities_4_Business_Activity_Code"></td>
-                        <td><input type="text" formControlName="B1_Activities_4_Core_Income_Activity_Yes"></td>
-                        <td><input type="text" formControlName="B1_Activities_4_Business_Activity_Status_Active"></td>
-                        <td><input type="number" formControlName="B1_Activities_4_No_of_Employees"></td>
-                        <td><input type="text" formControlName="B1_Activities_4_Annual_Operating_Expenditure"></td>
-                        <td><input type="text" formControlName="B1_Activities_4_Comply_Substantive_Yes"></td>
-                        <td><input type="text" formControlName="B1_Activities_4_Amount_of_Net_Loss"></td>
-                        <td><input type="text" formControlName="B1_Activities_4_Net_Profits_ex_IP"></td>
+                        <td><input type="text" formControlName="B1_Row5_Business_Activity_Code"></td>
+                        <td><input type="text" formControlName="B1_Row5_Core_Income_Activity_Yes"></td>
+                        <td><input type="text" formControlName="B1_Row5_Business_Activity_Status_Active"></td>
+                        <td><input type="number" formControlName="B1_Row5_No_of_Employees"></td>
+                        <td><input type="text" formControlName="B1_Row5_Annual_Operating_Expenditure"></td>
+                        <td><input type="text" formControlName="B1_Row5_Compliance_with_FPEC"></td>
+                        <td><input type="text" formControlName="B1_Row5_Compliance_with_CML"></td>
+                        <td><input type="number" formControlName="B1_Row5_No_of_Employees_Malaysia"></td>
+                        <td><input type="number" formControlName="B1_Row5_No_of_Related_Company"></td>
+                        <td><input type="text" formControlName="B1_Row5_Comply_Substantive_Yes"></td>
+                        <td><input type="text" formControlName="B1_Row5_Amount_of_Net_Loss"></td>
+                        <td><input type="text" formControlName="B1_Row5_Net_Profits_ex_IP"></td>
                     </tr>
                 </tbody>
             </table>
 
-            <!-- Other Part B fields -->
             <label for="B2_Total_Net_Profits">B2: Total Net Profits (RM):</label>
             <input type="text" id="B2_Total_Net_Profits" formControlName="B2_Total_Net_Profits">
+
+            <label for="B3a_Chargeable_Profit_0_Percent">B3a: Chargeable Profit (0%):</label>
+            <input type="text" id="B3a_Chargeable_Profit_0_Percent" formControlName="B3a_Chargeable_Profit_0_Percent">
+
+            <label for="B3b_Chargeable_Profit_3_Percent">B3b: Chargeable Profit (3%):</label>
+            <input type="text" id="B3b_Chargeable_Profit_3_Percent" formControlName="B3b_Chargeable_Profit_3_Percent">
+
+            <label for="B3c_Chargeable_Profit_24_Percent">B3c: Chargeable Profit (24%):</label>
+            <input type="text" id="B3c_Chargeable_Profit_24_Percent" formControlName="B3c_Chargeable_Profit_24_Percent">
+
+            <label for="B4_Tax_Charged">B4: Tax Charged:</label>
+            <input type="text" id="B4_Tax_Charged" formControlName="B4_Tax_Charged">
+
+            <label for="B5_Zakat_Paid">B5: Zakat Paid:</label>
+            <input type="text" id="B5_Zakat_Paid" formControlName="B5_Zakat_Paid">
+
             <label for="B6_Tax_Payable">B6: Tax Payable (MYR):</label>
             <input type="text" id="B6_Tax_Payable" formControlName="B6_Tax_Payable">
         </fieldset>
@@ -472,6 +505,7 @@
         <!-- Attachment C3: Compliance Officers -->
         <fieldset id="attachment-c3">
             <legend>Attachment C3: Compliance Officers</legend>
+            <div style="overflow-x: auto;">
             <table class="data-table">
                 <thead>
                     <tr>
@@ -582,6 +616,7 @@
                     </tr>
                 </tbody>
             </table>
+            </div>
         </fieldset>
 
         ---
@@ -801,16 +836,16 @@
         <fieldset id="attachment-c9">
             <legend>Attachment C9: Financial Particulars</legend>
             <div class="form-column">
-                    <h4>General Information</h4>
-                    <label>Business Activity Code:</label>
-                    <input type="text" formControlName="Business_Activity_Code">
-                    <label>Type of Business Activity:</label>
-                    <input type="text" formControlName="Type_of_business_activity">
-                    <label>Type of Labuan Entity:</label>
-                    <input type="text" formControlName="Fp_Type_of_Labuan_entity">
-                </div>
+                <h4>General Information</h4>
+                <label>Business Activity Code:</label>
+                <input type="text" formControlName="Business_Activity_Code">
+                <label>Type of Business Activity:</label>
+                <input type="text" formControlName="Type_of_business_activity">
+                <label>Type of Labuan Entity:</label>
+                <input type="text" formControlName="Fp_Type_of_Labuan_entity">
+            </div>
             <div class="form-grid">
-                
+
                 <div class="form-column">
                     <h4>Profit & Loss</h4>
                     <label>Sales / Turnover:</label>
@@ -871,68 +906,68 @@
                     <input type="text" formControlName="Pnl_Net_Profit_Loss">
                 </div>
                 <div>
-                <div class="form-column">
-                    <h4>Assets</h4>
-                    <label>Motor Vehicles:</label>
-                    <input type="text" formControlName="Fp_Motor_Vehicles">
-                    <label>Plant & Equipment:</label>
-                    <input type="text" formControlName="Fp_Plant_Equipment">
-                    <label>Land & Buildings:</label>
-                    <input type="text" formControlName="Fp_Land_Buildings">
-                    <label>Other Non-Current Assets:</label>
-                    <input type="text" formControlName="Fp_Other_Non_Current_Assets">
-                    <label>Investments:</label>
-                    <input type="text" formControlName="Fp_Investments">
-                    <label>Total Non-Current Assets:</label>
-                    <input type="text" formControlName="Fp_Total_Non_Current_Assets">
-                    <label>Cost of NCA Acquired:</label>
-                    <input type="text" formControlName="Fp_Cost_of_NCA_Acquired">
-                    <label>Trade Debtors:</label>
-                    <input type="text" formControlName="Fp_Trade_Debtors">
-                    <label>Other Debtors:</label>
-                    <input type="text" formControlName="Fp_Other_Debtors">
-                    <label>Inventory:</label>
-                    <input type="text" formControlName="Fp_Inventory">
-                    <label>Loans to Related Entities:</label>
-                    <input type="text" formControlName="Fp_Loans_to_Related_Entities">
-                    <label>Cash in Hand & Bank:</label>
-                    <input type="text" formControlName="Fp_Cash_in_Hand_Bank">
-                    <label>Other Current Assets:</label>
-                    <input type="text" formControlName="Fp_Other_Current_Assets">
-                    <label>Total Current Assets:</label>
-                    <input type="text" formControlName="Fp_Total_Current_Assets">
-                    <label>Total Assets:</label>
-                    <input type="text" formControlName="Fp_Total_Assets">
-                </div>
-                <div class="form-column">
-                    <h4>Liabilities & Equity</h4>
-                    <label>Loans & Bank Overdrafts:</label>
-                    <input type="text" formControlName="Fp_Loans_Bank_Overdrafts">
-                    <label>Trade Creditors:</label>
-                    <input type="text" formControlName="Fp_Trade_Creditors">
-                    <label>Other Creditors:</label>
-                    <input type="text" formControlName="Fp_Other_Creditors">
-                    <label>Loans from Related Entities:</label>
-                    <input type="text" formControlName="Fp_Loans_from_Related_Entities">
-                    <label>Other Current Liabilities:</label>
-                    <input type="text" formControlName="Fp_Other_Current_Liabilities">
-                    <label>Total Current Liabilities:</label>
-                    <input type="text" formControlName="Fp_Total_Current_Liabilities">
-                    <label>Non-Current Liabilities:</label>
-                    <input type="text" formControlName="Fp_Non_Current_Liabilities">
-                    <label>Total Liabilities:</label>
-                    <input type="text" formControlName="Fp_Total_Liabilities">
-                    <label>Issued & Paid-Up Capital:</label>
-                    <input type="text" formControlName="Fp_Issued_Paid_Up_Capital">
-                    <label>Profit & Loss Appropriation:</label>
-                    <input type="text" formControlName="Fp_Profit_Loss_Appropriation">
-                    <label>Reserve Account:</label>
-                    <input type="text" formControlName="Fp_Reserve_Account">
-                    <label>Total Equity:</label>
-                    <input type="text" formControlName="Fp_Total_Equity">
-                    <label>Total Liabilities & Equity:</label>
-                    <input type="text" formControlName="Fp_Total_Liabilities_and_Equity">
-                </div>
+                    <div class="form-column">
+                        <h4>Assets</h4>
+                        <label>Motor Vehicles:</label>
+                        <input type="text" formControlName="Fp_Motor_Vehicles">
+                        <label>Plant & Equipment:</label>
+                        <input type="text" formControlName="Fp_Plant_Equipment">
+                        <label>Land & Buildings:</label>
+                        <input type="text" formControlName="Fp_Land_Buildings">
+                        <label>Other Non-Current Assets:</label>
+                        <input type="text" formControlName="Fp_Other_Non_Current_Assets">
+                        <label>Investments:</label>
+                        <input type="text" formControlName="Fp_Investments">
+                        <label>Total Non-Current Assets:</label>
+                        <input type="text" formControlName="Fp_Total_Non_Current_Assets">
+                        <label>Cost of NCA Acquired:</label>
+                        <input type="text" formControlName="Fp_Cost_of_NCA_Acquired">
+                        <label>Trade Debtors:</label>
+                        <input type="text" formControlName="Fp_Trade_Debtors">
+                        <label>Other Debtors:</label>
+                        <input type="text" formControlName="Fp_Other_Debtors">
+                        <label>Inventory:</label>
+                        <input type="text" formControlName="Fp_Inventory">
+                        <label>Loans to Related Entities:</label>
+                        <input type="text" formControlName="Fp_Loans_to_Related_Entities">
+                        <label>Cash in Hand & Bank:</label>
+                        <input type="text" formControlName="Fp_Cash_in_Hand_Bank">
+                        <label>Other Current Assets:</label>
+                        <input type="text" formControlName="Fp_Other_Current_Assets">
+                        <label>Total Current Assets:</label>
+                        <input type="text" formControlName="Fp_Total_Current_Assets">
+                        <label>Total Assets:</label>
+                        <input type="text" formControlName="Fp_Total_Assets">
+                    </div>
+                    <div class="form-column">
+                        <h4>Liabilities & Equity</h4>
+                        <label>Loans & Bank Overdrafts:</label>
+                        <input type="text" formControlName="Fp_Loans_Bank_Overdrafts">
+                        <label>Trade Creditors:</label>
+                        <input type="text" formControlName="Fp_Trade_Creditors">
+                        <label>Other Creditors:</label>
+                        <input type="text" formControlName="Fp_Other_Creditors">
+                        <label>Loans from Related Entities:</label>
+                        <input type="text" formControlName="Fp_Loans_from_Related_Entities">
+                        <label>Other Current Liabilities:</label>
+                        <input type="text" formControlName="Fp_Other_Current_Liabilities">
+                        <label>Total Current Liabilities:</label>
+                        <input type="text" formControlName="Fp_Total_Current_Liabilities">
+                        <label>Non-Current Liabilities:</label>
+                        <input type="text" formControlName="Fp_Non_Current_Liabilities">
+                        <label>Total Liabilities:</label>
+                        <input type="text" formControlName="Fp_Total_Liabilities">
+                        <label>Issued & Paid-Up Capital:</label>
+                        <input type="text" formControlName="Fp_Issued_Paid_Up_Capital">
+                        <label>Profit & Loss Appropriation:</label>
+                        <input type="text" formControlName="Fp_Profit_Loss_Appropriation">
+                        <label>Reserve Account:</label>
+                        <input type="text" formControlName="Fp_Reserve_Account">
+                        <label>Total Equity:</label>
+                        <input type="text" formControlName="Fp_Total_Equity">
+                        <label>Total Liabilities & Equity:</label>
+                        <input type="text" formControlName="Fp_Total_Liabilities_and_Equity">
+                    </div>
                 </div>
             </div>
         </fieldset>
@@ -952,47 +987,47 @@
                 <tbody>
                     <!-- Row 1 -->
                     <tr>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_0_Name"></td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_0_Registration_No">
+                        <td><input type="text" formControlName="Name1"></td>
+                        <td><input type="text" formControlName="Registration_No1">
                         </td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_0_TIN"></td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_0_Have_Transactions">
+                        <td><input type="text" formControlName="TIN1"></td>
+                        <td><input type="text" formControlName="Have_Transactions1">
                         </td>
                     </tr>
                     <!-- Row 2 -->
                     <tr>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_1_Name"></td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_1_Registration_No">
+                        <td><input type="text" formControlName="Name2"></td>
+                        <td><input type="text" formControlName="Registration_No2">
                         </td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_1_TIN"></td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_1_Have_Transactions">
+                        <td><input type="text" formControlName="TIN2"></td>
+                        <td><input type="text" formControlName="Have_Transactions2">
                         </td>
                     </tr>
                     <!-- Row 3 -->
                     <tr>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_2_Name"></td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_2_Registration_No">
+                        <td><input type="text" formControlName="Name3"></td>
+                        <td><input type="text" formControlName="Registration_No3">
                         </td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_2_TIN"></td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_2_Have_Transactions">
+                        <td><input type="text" formControlName="TIN3"></td>
+                        <td><input type="text" formControlName="Have_Transactions3">
                         </td>
                     </tr>
                     <!-- Row 4 -->
                     <tr>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_3_Name"></td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_3_Registration_No">
+                        <td><input type="text" formControlName="Name4"></td>
+                        <td><input type="text" formControlName="Registration_No4">
                         </td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_3_TIN"></td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_3_Have_Transactions">
+                        <td><input type="text" formControlName="TIN4"></td>
+                        <td><input type="text" formControlName="Have_Transactions4">
                         </td>
                     </tr>
                     <!-- Row 5 -->
                     <tr>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_4_Name"></td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_4_Registration_No">
+                        <td><input type="text" formControlName="Name5"></td>
+                        <td><input type="text" formControlName="Registration_No5">
                         </td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_4_TIN"></td>
-                        <td><input type="text" formControlName="Subsidiaries_Or_Related_Entities_4_Have_Transactions">
+                        <td><input type="text" formControlName="TIN5"></td>
+                        <td><input type="text" formControlName="Have_Transactions5">
                         </td>
                     </tr>
                 </tbody>

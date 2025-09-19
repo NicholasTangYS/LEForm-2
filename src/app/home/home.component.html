@@ -58,6 +58,17 @@
         <input type="file" accept="image/*, .pdf" #c5FileInp (change)="onFileSelected($event, 'c5')" hidden>
     </div>
 
+     <div class="upload-area" [class.file-selected]="SRFileName" (click)="SRFileInp.click()">
+        <div *ngIf="!SRFileName; else SRFileSelected">
+            <label>SR Confirmation</label>
+        </div>
+        <ng-template #SRFileSelected>
+            <span class="file-name">{{ SRFileName }}</span>
+            <button class="remove-btn" (click)="removeFile('sr'); $event.stopPropagation()">&times;</button>
+        </ng-template>
+        <input type="file" accept="image/*, .pdf" #SRFileInp (change)="onFileSelected($event, 'sr')" hidden>
+    </div>
+
     <button class="btn" (click)="processFiles()">Process Documents</button>
 </div>
 

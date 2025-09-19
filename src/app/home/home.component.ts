@@ -16,11 +16,13 @@ export class HomeComponent {
   shareholderFile: File | null = null;
   financialsFile: File | null = null;
   c5File: File | null = null;
+  SRFile: File | null = null;
 
   taxFileName = '';
   shareholderFileName = '';
   financialsFileName = '';
   c5FileName = '';
+  SRFileName  = '';
 
   // --- MOCK API FUNCTIONS (as provided in the original script) ---
   readonly API_BASE_URL = 'https://asia-southeast1-fusioneta-test.cloudfunctions.net/AI-Invoice-Parser/';
@@ -30,7 +32,10 @@ export class HomeComponent {
       c4: 'c4',
       c5: 'c5',
       c9: 'c9',
-      financials: 'financial-statement'
+      financials: 'financial-statement',
+      partb: 'partb',
+      c10: 'c10',
+      c11: 'c11'
   };
 
   constructor(private router: Router) {}
@@ -51,6 +56,9 @@ export class HomeComponent {
       } else if (fileType === 'c5') {
         this.c5File = file;
         this.c5FileName = file.name;
+      } else if (fileType === 'sr') {
+        this.SRFile = file;
+        this.SRFileName = file.name;
       }
     }
   }
@@ -68,7 +76,10 @@ export class HomeComponent {
     } else if (fileType === 'c5') {
       this.c5File = null;
       this.c5FileName = '';
-    } 
+    }  else if (fileType === 'sr') {
+      this.SRFile = null;
+      this.SRFileName = '';
+    }
 
   }
 
@@ -135,7 +146,7 @@ export class HomeComponent {
 
 
   async processFiles() {
-    if (!this.taxFile && !this.shareholderFile && !this.financialsFile) {
+    if (!this.taxFile && !this.shareholderFile && !this.financialsFile && !this.c5File && !this.SRFile) {
       alert('Please upload at least one file to process.');
       return;
     }
@@ -156,6 +167,11 @@ export class HomeComponent {
     }
     if (this.c5File) {
       apiPromises.push(this.callParserApi(this.c5File, this.ENDPOINTS.c5));
+    }
+    if (this.SRFile) {
+      apiPromises.push(this.callParserApi(this.SRFile, this.ENDPOINTS.partb));
+      apiPromises.push(this.callParserApi(this.SRFile, this.ENDPOINTS.c10));
+      apiPromises.push(this.callParserApi(this.SRFile, this.ENDPOINTS.c11));
     }
 
     try {
