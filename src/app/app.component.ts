@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterModule, RouterOutlet } from '@angular/router';
+import { IdleService } from './auth/idle.service';
 
 @Component({
   selector: 'app-root',
@@ -11,4 +12,5 @@ import { RouterModule, RouterOutlet } from '@angular/router';
 })
 export class AppComponent {
   title = 'ng';
+  constructor(private idle: IdleService) {}
 }

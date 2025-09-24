@@ -141,19 +141,58 @@ export class FormComponent implements OnInit {
 
       // Part C: Entity Details
       C1_Correspondence_Address_line1: [''],
+      C1_Correspondence_Address_line2: [''],
       C1_Postcode: [''],
       C1_City: [''],
+      C1_State: [''],
+      C1_Country: [''],
+      C2_Address_Is_Tax_Agent_or_Trust_Co: [''],
       C6a_Has_Related_Company: [''],
-
+      C6b_Number_of_Related_Companies_Qualifying_Activity: [''],
+      C7a_Derived_Income_from_Non_Labuan_Activity: [''],
+      C7b_Total_Income_from_Non_Labuan_Activity: [''],
+      C8a_Derived_Income_from_IP: [''],
+      C8b_Total_Income_from_IP: [''],
+      C10_Has_Subsidiary_Outside_Labuan: [''],
+      C11_Received_Payments_from_Malaysian_Resident: [''],
+      C12_Row1_Incentive_Code: [''],
+      C12_Row1_Amount_Claimed: [''],
+      C12_Row2_Incentive_Code: [''],
+      C12_Row2_Amount_Claimed: [''],
+      C12_Row3_Incentive_Code: [''],
+      C12_Row3_Amount_Claimed: [''],
       // Part D: CbC Reporting
       D1_Subject_to_CbCR: [''],
       D2_Reporting_Entity_Status: [''],
+      D3_Has_Financial_Account_Outside_Malaysia: [''],
+      D4_Subject_to_AEOI: [''],
+
 
       // Part E: Reporting Entity
       E1_MNE_Group_Name: [''],
+      E2_Accounting_Period_From_Day: [''],
+      E2_Accounting_Period_From_Month: [''],
+      E2_Accounting_Period_From_Year: [''],
+      E2_Accounting_Period_To_Day: [''],
+      E2_Accounting_Period_To_Month: [''],
+      E2_Accounting_Period_To_Year: [''],
+      E3_Constituent_Entities_in_Malaysia: [''],
+      E4_Constituent_Entities_outside_Malaysia: [''],
 
       // Part F: Non-Reporting Entity
       F1_Reporting_Entity_Name: [''],
+      F2_TIN: [''],
+      F3_Country_of_Residence: [''],
+      F4_Accounting_Period_From_Day: [''],
+      F4_Accounting_Period_From_Month: [''],
+      F4_Accounting_Period_From_Year: [''],
+      F4_Accounting_Period_To_Day: [''],
+      F4_Accounting_Period_To_Month: [''],
+      F4_Accounting_Period_To_Year: [''],
+      F5_MNE_Group_Name: [''],
+      F6_Status_of_Reporting_Entity: [''],
+      F7a_Ultimate_Holding_Entity_Name: [''],
+      F7b_Country_of_Residence_UHE: [''],
 
       // Declaration
       Declarant_Name: [''],
@@ -161,6 +200,8 @@ export class FormComponent implements OnInit {
       Declaration_Date_Day: [''],
       Declaration_Date_Month: [''],
       Declaration_Date_Year: [''],
+      Declarant_Designation: [''],
+      Designation_Others: [''],
 
       // Attachment C3: Compliance Officers
       // C3 Row 1

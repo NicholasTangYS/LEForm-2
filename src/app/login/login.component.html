@@ -1,0 +1,26 @@
+<div class="login-container">
+  <h2>{{ isRegister ? 'Register' : 'Login' }}</h2>
+  <form (ngSubmit)="onSubmit()" [formGroup]="loginForm">
+    <div>
+      <label>Email</label>
+      <div>
+        <input type="text" formControlName="username" />
+      </div>
+      
+    </div>
+    <div>
+      <label>Password</label>
+      <input type="password" formControlName="password" />
+    </div>
+    <div *ngIf="isRegister">
+      <label>Confirm Password</label>
+      <input type="password" formControlName="confirmPassword" />
+    </div>
+    <button type="submit" [disabled]="loginForm.invalid">{{ isRegister ? 'Register' : 'Login' }}</button>
+    <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+  </form>
+  <p>
+    {{ isRegister ? 'Already have an account?' : 'Don\'t have an account?' }}
+    <a (click)="toggleForm()">{{ isRegister ? 'Login' : 'Register' }}</a>
+  </p>
+</div>

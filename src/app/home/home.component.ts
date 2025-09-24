@@ -2,6 +2,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -11,6 +12,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent {
+  
   isLoading = false;
   taxFile: File | null = null;
   shareholderFile: File | null = null;
@@ -38,7 +40,14 @@ export class HomeComponent {
       c11: 'c11'
   };
 
-  constructor(private router: Router) {}
+  constructor(private router: Router,
+              private auth: AuthService
+  ) {}
+
+  logout() {
+    this.auth.logout();
+    // this.router.navigate(['/login']);
+  }
 
   onFileSelected(event: Event, fileType: string): void {
     const input = event.target as HTMLInputElement;

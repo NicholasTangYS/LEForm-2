@@ -2,8 +2,9 @@ import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, RouterModule } from '@angular/router';
 
 import { routes } from './app.routes';
-import { provideHttpClient } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { TokenInterceptor } from './auth/token.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [provideZoneChangeDetection({ eventCoalescing: true }), 
@@ -12,7 +13,8 @@ export const appConfig: ApplicationConfig = {
     // provideFormsModule(), // Add this
     FormsModule ,
     ReactiveFormsModule ,
-    RouterModule
+    RouterModule,
+    { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true }
   ]
 };
 // function provideFormsModule(): import("@angular/core").Provider | import("@angular/core").EnvironmentProviders {

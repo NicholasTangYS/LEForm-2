@@ -107,6 +107,19 @@ input[type="text"] {
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 
+input[type="number"] {
+    width: 100%; /* Makes the input field fill its container */
+    box-sizing: border-box; /* Ensures padding and border are included in the 100% width */
+
+    /* The following styles are from your original code and have been kept */
+    padding: 12px 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
 input[type="text"]:focus {
     border-color: #3498db;
     box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
@@ -157,8 +170,9 @@ button[type="submit"]:hover {
 
 .data-table {
     border-collapse: collapse;
-    width: max-content;
+    width: fit-content;
     margin-bottom: 20px;
+    font-size: 14px;
 }
 
 /* Add borders and padding to the cells and headers */

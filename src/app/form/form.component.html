@@ -75,8 +75,8 @@
             <label for="Incorp_date_day">Incorporation Date (DD/MM/YYYY):</label>
             <div style="display: flex; gap: 5px; align-items: center;border-radius: 5px;
     border: 1px solid #ccc; padding:5px; margin-bottom: 10px;">
-                <input style="width:4%" type="number" id="Incorp_date_day" formControlName="Incorp_date_day" size="2"> /
-                <input style="width:4%" type="number" id="Incorp_date_month" formControlName="Incorp_date_month"
+                <input style="width:5%" type="number" id="Incorp_date_day" formControlName="Incorp_date_day" size="2"> /
+                <input style="width:5%" type="number" id="Incorp_date_month" formControlName="Incorp_date_month"
                     size="2"> /
                 <input style="width:8%" type="number" id="Incorp_date_year" formControlName="Incorp_date_year" size="4">
             </div>
@@ -122,18 +122,18 @@
     border: 1px solid #ccc; padding:5px; justify-content: space-between;
     margin-bottom: 10px;">
                 <label for="Accounting_Period_From_Day">From (DD/MM/YYYY):</label>
-                <input style="width:4%" type="number" id="Accounting_Period_From_Day"
+                <input style="width:5%" type="number" id="Accounting_Period_From_Day"
                     formControlName="Accounting_Period_From_Day" size="2"> /
-                <input style="width:4%" type="number" id="Accounting_Period_From_Month"
+                <input style="width:5%" type="number" id="Accounting_Period_From_Month"
                     formControlName="Accounting_Period_From_Month" size="2"> /
                 <input style="width:8%" type="number" id="Accounting_Period_From_Year"
                     formControlName="Accounting_Period_From_Year" size="4">
                 <!-- split border Line -->
                 <span></span>
                 <label for="Accounting_Period_To_Day">To (DD/MM/YYYY):</label>
-                <input style="width:4%" type="number" id="Accounting_Period_To_Day"
+                <input style="width:5%" type="number" id="Accounting_Period_To_Day"
                     formControlName="Accounting_Period_To_Day" size="2"> /
-                <input style="width:4%" type="number" id="Accounting_Period_To_Month"
+                <input style="width:5%" type="number" id="Accounting_Period_To_Month"
                     formControlName="Accounting_Period_To_Month" size="2"> /
                 <input style="width:8%" type="number" id="Accounting_Period_To_Year"
                     formControlName="Accounting_Period_To_Year" size="4">
@@ -144,18 +144,18 @@
     border: 1px solid #ccc; padding:5px;justify-content: space-between;
     margin-bottom: 10px;">
                 <label for="Basis_Period_From_Day">From (DD/MM/YYYY):</label>
-                <input style="width:4%" type="number" id="Basis_Period_From_Day" formControlName="Basis_Period_From_Day"
+                <input style="width:5%" type="number" id="Basis_Period_From_Day" formControlName="Basis_Period_From_Day"
                     size="2">
                 /
-                <input style="width:4%" type="number" id="Basis_Period_From_Month"
+                <input style="width:5%" type="number" id="Basis_Period_From_Month"
                     formControlName="Basis_Period_From_Month" size="2"> /
                 <input style="width:8%" type="number" id="Basis_Period_From_Year"
                     formControlName="Basis_Period_From_Year" size="4">
                 <label for="Basis_Period_To_Day">To (DD/MM/YYYY):</label>
-                <input style="width:4%" type="number" id="Basis_Period_To_Day" formControlName="Basis_Period_To_Day"
+                <input style="width:5%" type="number" id="Basis_Period_To_Day" formControlName="Basis_Period_To_Day"
                     size="2">
                 /
-                <input style="width:4%" type="number" id="Basis_Period_To_Month" formControlName="Basis_Period_To_Month"
+                <input style="width:5%" type="number" id="Basis_Period_To_Month" formControlName="Basis_Period_To_Month"
                     size="2">
                 /
                 <input style="width:8%" type="number" id="Basis_Period_To_Year" formControlName="Basis_Period_To_Year"
@@ -334,6 +334,7 @@
             <legend>Part B: Tax Computation</legend>
 
             <h4>B1: Particulars of Labuan Business Activity</h4>
+            <div style="overflow: auto; width: 77vw;">
             <table class="data-table">
                 <thead>
                     <tr>
@@ -353,77 +354,78 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td><input type="text" formControlName="B1_Row1_Business_Activity_Code"></td>
-                        <td><input type="text" formControlName="B1_Row1_Core_Income_Activity_Yes"></td>
-                        <td><input type="text" formControlName="B1_Row1_Business_Activity_Status_Active"></td>
-                        <td><input type="number" formControlName="B1_Row1_No_of_Employees"></td>
-                        <td><input type="text" formControlName="B1_Row1_Annual_Operating_Expenditure"></td>
-                        <td><input type="text" formControlName="B1_Row1_Compliance_with_FPEC"></td>
-                        <td><input type="text" formControlName="B1_Row1_Compliance_with_CML"></td>
-                        <td><input type="number" formControlName="B1_Row1_No_of_Employees_Malaysia"></td>
-                        <td><input type="number" formControlName="B1_Row1_No_of_Related_Company"></td>
-                        <td><input type="text" formControlName="B1_Row1_Comply_Substantive_Yes"></td>
-                        <td><input type="text" formControlName="B1_Row1_Amount_of_Net_Loss"></td>
-                        <td><input type="text" formControlName="B1_Row1_Net_Profits_ex_IP"></td>
+                        <td><textarea type="text" formControlName="B1_Row1_Business_Activity_Code"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row1_Core_Income_Activity_Yes"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row1_Business_Activity_Status_Active"></textarea></td>
+                        <td><textarea type="number" formControlName="B1_Row1_No_of_Employees"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row1_Annual_Operating_Expenditure"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row1_Compliance_with_FPEC"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row1_Compliance_with_CML"></textarea></td>
+                        <td><textarea type="number" formControlName="B1_Row1_No_of_Employees_Malaysia"></textarea></td>
+                        <td><textarea type="number" formControlName="B1_Row1_No_of_Related_Company"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row1_Comply_Substantive_Yes"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row1_Amount_of_Net_Loss"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row1_Net_Profits_ex_IP"></textarea></td>
                     </tr>
                     <tr>
-                        <td><input type="text" formControlName="B1_Row2_Business_Activity_Code"></td>
-                        <td><input type="text" formControlName="B1_Row2_Core_Income_Activity_Yes"></td>
-                        <td><input type="text" formControlName="B1_Row2_Business_Activity_Status_Active"></td>
-                        <td><input type="number" formControlName="B1_Row2_No_of_Employees"></td>
-                        <td><input type="text" formControlName="B1_Row2_Annual_Operating_Expenditure"></td>
-                        <td><input type="text" formControlName="B1_Row2_Compliance_with_FPEC"></td>
-                        <td><input type="text" formControlName="B1_Row2_Compliance_with_CML"></td>
-                        <td><input type="number" formControlName="B1_Row2_No_of_Employees_Malaysia"></td>
-                        <td><input type="number" formControlName="B1_Row2_No_of_Related_Company"></td>
-                        <td><input type="text" formControlName="B1_Row2_Comply_Substantive_Yes"></td>
-                        <td><input type="text" formControlName="B1_Row2_Amount_of_Net_Loss"></td>
-                        <td><input type="text" formControlName="B1_Row2_Net_Profits_ex_IP"></td>
+                        <td><textarea type="text" formControlName="B1_Row2_Business_Activity_Code"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row2_Core_Income_Activity_Yes"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row2_Business_Activity_Status_Active"></textarea></td>
+                        <td><textarea type="number" formControlName="B1_Row2_No_of_Employees"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row2_Annual_Operating_Expenditure"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row2_Compliance_with_FPEC"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row2_Compliance_with_CML"></textarea></td>
+                        <td><textarea type="number" formControlName="B1_Row2_No_of_Employees_Malaysia"></textarea></td>
+                        <td><textarea type="number" formControlName="B1_Row2_No_of_Related_Company"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row2_Comply_Substantive_Yes"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row2_Amount_of_Net_Loss"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row2_Net_Profits_ex_IP"></textarea></td>
                     </tr>
                     <tr>
-                        <td><input type="text" formControlName="B1_Row3_Business_Activity_Code"></td>
-                        <td><input type="text" formControlName="B1_Row3_Core_Income_Activity_Yes"></td>
-                        <td><input type="text" formControlName="B1_Row3_Business_Activity_Status_Active"></td>
-                        <td><input type="number" formControlName="B1_Row3_No_of_Employees"></td>
-                        <td><input type="text" formControlName="B1_Row3_Annual_Operating_Expenditure"></td>
-                        <td><input type="text" formControlName="B1_Row3_Compliance_with_FPEC"></td>
-                        <td><input type="text" formControlName="B1_Row3_Compliance_with_CML"></td>
-                        <td><input type="number" formControlName="B1_Row3_No_of_Employees_Malaysia"></td>
-                        <td><input type="number" formControlName="B1_Row3_No_of_Related_Company"></td>
-                        <td><input type="text" formControlName="B1_Row3_Comply_Substantive_Yes"></td>
-                        <td><input type="text" formControlName="B1_Row3_Amount_of_Net_Loss"></td>
-                        <td><input type="text" formControlName="B1_Row3_Net_Profits_ex_IP"></td>
+                        <td><textarea type="text" formControlName="B1_Row3_Business_Activity_Code"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row3_Core_Income_Activity_Yes"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row3_Business_Activity_Status_Active"></textarea></td>
+                        <td><textarea type="number" formControlName="B1_Row3_No_of_Employees"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row3_Annual_Operating_Expenditure"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row3_Compliance_with_FPEC"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row3_Compliance_with_CML"></textarea></td>
+                        <td><textarea type="number" formControlName="B1_Row3_No_of_Employees_Malaysia"></textarea></td>
+                        <td><textarea type="number" formControlName="B1_Row3_No_of_Related_Company"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row3_Comply_Substantive_Yes"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row3_Amount_of_Net_Loss"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row3_Net_Profits_ex_IP"></textarea></td>
                     </tr>
                     <tr>
-                        <td><input type="text" formControlName="B1_Row4_Business_Activity_Code"></td>
-                        <td><input type="text" formControlName="B1_Row4_Core_Income_Activity_Yes"></td>
-                        <td><input type="text" formControlName="B1_Row4_Business_Activity_Status_Active"></td>
-                        <td><input type="number" formControlName="B1_Row4_No_of_Employees"></td>
-                        <td><input type="text" formControlName="B1_Row4_Annual_Operating_Expenditure"></td>
-                        <td><input type="text" formControlName="B1_Row4_Compliance_with_FPEC"></td>
-                        <td><input type="text" formControlName="B1_Row4_Compliance_with_CML"></td>
-                        <td><input type="number" formControlName="B1_Row4_No_of_Employees_Malaysia"></td>
-                        <td><input type="number" formControlName="B1_Row4_No_of_Related_Company"></td>
-                        <td><input type="text" formControlName="B1_Row4_Comply_Substantive_Yes"></td>
-                        <td><input type="text" formControlName="B1_Row4_Amount_of_Net_Loss"></td>
-                        <td><input type="text" formControlName="B1_Row4_Net_Profits_ex_IP"></td>
+                        <td><textarea type="text" formControlName="B1_Row4_Business_Activity_Code"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row4_Core_Income_Activity_Yes"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row4_Business_Activity_Status_Active"></textarea></td>
+                        <td><textarea type="number" formControlName="B1_Row4_No_of_Employees"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row4_Annual_Operating_Expenditure"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row4_Compliance_with_FPEC"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row4_Compliance_with_CML"></textarea></td>
+                        <td><textarea type="number" formControlName="B1_Row4_No_of_Employees_Malaysia"></textarea></td>
+                        <td><textarea type="number" formControlName="B1_Row4_No_of_Related_Company"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row4_Comply_Substantive_Yes"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row4_Amount_of_Net_Loss"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row4_Net_Profits_ex_IP"></textarea></td>
                     </tr>
                     <tr>
-                        <td><input type="text" formControlName="B1_Row5_Business_Activity_Code"></td>
-                        <td><input type="text" formControlName="B1_Row5_Core_Income_Activity_Yes"></td>
-                        <td><input type="text" formControlName="B1_Row5_Business_Activity_Status_Active"></td>
-                        <td><input type="number" formControlName="B1_Row5_No_of_Employees"></td>
-                        <td><input type="text" formControlName="B1_Row5_Annual_Operating_Expenditure"></td>
-                        <td><input type="text" formControlName="B1_Row5_Compliance_with_FPEC"></td>
-                        <td><input type="text" formControlName="B1_Row5_Compliance_with_CML"></td>
-                        <td><input type="number" formControlName="B1_Row5_No_of_Employees_Malaysia"></td>
-                        <td><input type="number" formControlName="B1_Row5_No_of_Related_Company"></td>
-                        <td><input type="text" formControlName="B1_Row5_Comply_Substantive_Yes"></td>
-                        <td><input type="text" formControlName="B1_Row5_Amount_of_Net_Loss"></td>
-                        <td><input type="text" formControlName="B1_Row5_Net_Profits_ex_IP"></td>
+                        <td><textarea type="text" formControlName="B1_Row5_Business_Activity_Code"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row5_Core_Income_Activity_Yes"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row5_Business_Activity_Status_Active"></textarea></td>
+                        <td><textarea type="number" formControlName="B1_Row5_No_of_Employees"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row5_Annual_Operating_Expenditure"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row5_Compliance_with_FPEC"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row5_Compliance_with_CML"></textarea></td>
+                        <td><textarea type="number" formControlName="B1_Row5_No_of_Employees_Malaysia"></textarea></td>
+                        <td><textarea type="number" formControlName="B1_Row5_No_of_Related_Company"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row5_Comply_Substantive_Yes"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row5_Amount_of_Net_Loss"></textarea></td>
+                        <td><textarea type="text" formControlName="B1_Row5_Net_Profits_ex_IP"></textarea></td>
                     </tr>
                 </tbody>
             </table>
+            </div>
 
             <label for="B2_Total_Net_Profits">B2: Total Net Profits (RM):</label>
             <input type="text" id="B2_Total_Net_Profits" formControlName="B2_Total_Net_Profits">
@@ -450,27 +452,160 @@
         <!-- Part C, D, etc. -->
         <fieldset id="part-c">
             <legend>Part C: Particulars of Labuan Entity</legend>
-            <label for="C1_Correspondence_Address_line1">Correspondence Address Line 1:</label>
-            <input type="text" id="C1_Correspondence_Address_line1" formControlName="C1_Correspondence_Address_line1">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label for="C1_Correspondence_Address_line1">Correspondence Address Line 1:</label>
+                    <input type="text" id="C1_Correspondence_Address_line1"
+                        formControlName="C1_Correspondence_Address_line1">
 
-            <label for="C1_Postcode">Correspondence Postcode:</label>
-            <input type="text" id="C1_Postcode" formControlName="C1_Postcode">
+                    <label for="C1_Correspondence_Address_line2">Correspondence Address Line 2:</label>
+                    <input type="text" id="C1_Correspondence_Address_line2"
+                        formControlName="C1_Correspondence_Address_line2">
+                </div>
+               
+            </div>
+             
+            <div style="display: flex; justify-content: space-between; gap: 10px;">
+                <div style="flex: 1;">
+                    <label for="C1_Postcode">Correspondence Postcode:</label>
+                    <input type="text" id="C1_Postcode" formControlName="C1_Postcode">
+                </div>
+                <div style="flex: 1;">
+                    <label for="C1_City">Correspondence City:</label>
+                    <input type="text" id="C1_City" formControlName="C1_City">
+                </div>
+                <div style="flex: 1;">
+                    <label for="C1_State">Correspondence State:</label>
+                    <input type="text" id="C1_State" formControlName="C1_State">
+                </div>
+                <div style="flex: 1;">
+                    <label for="C1_Country">Correspondence Country:</label>
+                    <input type="text" id="C1_Country" formControlName="C1_Country">
+                </div>
+            </div>
+            <div>
+                    <label for="C2_Address_Is_Tax_Agent_or_Trust_Co">Address is Tax Agent or Trust Co (1=Tax Agent,
+                        2=Trust Co, 3= No):</label>
+                    <input type="text" id="C2_Address_Is_Tax_Agent_or_Trust_Co"
+                        formControlName="C2_Address_Is_Tax_Agent_or_Trust_Co">
 
-            <label for="C1_City">Correspondence City:</label>
-            <input type="text" id="C1_City" formControlName="C1_City">
+                    <label for="C6a_Has_Related_Company">Has Related Company (1=Yes, 2=No):</label>
+                    <input type="text" id="C6a_Has_Related_Company" formControlName="C6a_Has_Related_Company">
 
-            <label for="C6a_Has_Related_Company">Has Related Company (1=Yes, 2=No):</label>
-            <input type="text" id="C6a_Has_Related_Company" formControlName="C6a_Has_Related_Company">
+                    <label for="C6b_Number_of_Related_Companies_Qualifying_Activity">Number of Related Companies
+                        Qualifying Activity:</label>
+                    <input type="number" id="C6b_Number_of_Related_Companies_Qualifying_Activity" min="0"
+                        formControlName="C6b_Number_of_Related_Companies_Qualifying_Activity">
+                </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                <div>
+                    <label for="C7a_Derived_Income_from_Non_Labuan_Activity">Derived Income from Non-Labuan Activity
+                        (1=Yes, 2=No):</label>
+                    <input type="text" id="C7a_Derived_Income_from_Non_Labuan_Activity"
+                        formControlName="C7a_Derived_Income_from_Non_Labuan_Activity">
+                </div>
+                <div>
+                    <label for="C7b_Total_Income_from_Non_Labuan_Activity">Total Income from Non-Labuan
+                        Activity:</label>
+                    <input type="number" id="C7b_Total_Income_from_Non_Labuan_Activity" min="0"
+                        formControlName="C7b_Total_Income_from_Non_Labuan_Activity">
+                </div>
+                <div>
+                    <label for="C8a_Derived_Income_from_IP">Derived Income from IP (1=Yes, 2=No):</label>
+                    <input type="text" id="C8a_Derived_Income_from_IP" formControlName="C8a_Derived_Income_from_IP">
+                </div>
+                <div>
+                    <label for="C8b_Total_Income_from_IP">Total Income from IP:</label>
+                    <input type="number" min="0" id="C8b_Total_Income_from_IP"
+                        formControlName="C8b_Total_Income_from_IP">
+                </div>
+                <div>
+                    <label for="C10_Has_Subsidiary_Outside_Labuan">Has Subsidiary Outside Labuan (1=Yes, 2=No):</label>
+                    <input type="text" id="C10_Has_Subsidiary_Outside_Labuan"
+                        formControlName="C10_Has_Subsidiary_Outside_Labuan">
+                </div>
+                <div>
+                    <label for="C11_Received_Payments_from_Malaysian_Resident">Received Payments from Malaysian Resident
+                        (1=Yes, 2=No):</label>
+                    <input type="text" id="C11_Received_Payments_from_Malaysian_Resident"
+                        formControlName="C11_Received_Payments_from_Malaysian_Resident">
+                </div>
+            </div>
+
+            <hr>
+
+            <h3>Incentive Details</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: #f2f2f2;">
+                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Incentive Code</th>
+                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Amount Claimed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #ddd;">
+                            <input type="text" id="C12_Row1_Incentive_Code" formControlName="C12_Row1_Incentive_Code"
+                                style="width: 100%;">
+                        </td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">
+                            <input type="text" id="C12_Row1_Amount_Claimed" formControlName="C12_Row1_Amount_Claimed"
+                                style="width: 100%;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #ddd;">
+                            <input type="text" id="C12_Row2_Incentive_Code" formControlName="C12_Row2_Incentive_Code"
+                                style="width: 100%;">
+                        </td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">
+                            <input type="text" id="C12_Row2_Amount_Claimed" formControlName="C12_Row2_Amount_Claimed"
+                                style="width: 100%;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #ddd;">
+                            <input type="text" id="C12_Row3_Incentive_Code" formControlName="C12_Row3_Incentive_Code"
+                                style="width: 100%;">
+                        </td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">
+                            <input type="text" id="C12_Row3_Amount_Claimed" formControlName="C12_Row3_Amount_Claimed"
+                                style="width: 100%;">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </fieldset>
 
         <!-- Part D: CbC Reporting -->
         <fieldset id="part-d">
             <legend>Part D: Particulars Of Country-By-Country Reporting</legend>
-            <label for="D1_Subject_to_CbCR">Subject to CbCR (1=Yes, 2=No):</label>
-            <input type="text" id="D1_Subject_to_CbCR" formControlName="D1_Subject_to_CbCR">
-
-            <label for="D2_Reporting_Entity_Status">Reporting Status (1=Reporting, 2=Non-reporting):</label>
-            <input type="text" id="D2_Reporting_Entity_Status" formControlName="D2_Reporting_Entity_Status">
+            <div style="display: flex; justify-content: space-between; gap: 10px;">
+                <div style="flex: 1;">
+                    <label for="D1_Subject_to_CbCR">Subject to CbCR (1=Yes, 2=No):</label>
+                    <input type="text" id="D1_Subject_to_CbCR" formControlName="D1_Subject_to_CbCR">
+                </div>
+                <div style="flex: 1;">
+                    <label for="D2_Reporting_Entity_Status">Reporting Status (1=Reporting, 2=Non-reporting):</label>
+                    <input type="text" id="D2_Reporting_Entity_Status" formControlName="D2_Reporting_Entity_Status">
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; gap: 10px;">
+                <div style="flex: 1;">
+                    <label for="D3_Has_Financial_Account_Outside_Malaysia">Has financial account(s) at financial
+                        institution(s)
+                        outside Malaysia (1=Yes, 2=No):</label>
+                    <input type="text" id="D3_Has_Financial_Account_Outside_Malaysia"
+                        formControlName="D3_Has_Financial_Account_Outside_Malaysia">
+                </div>
+                <div style="flex: 1;">
+                    <label for="D4_Subject_to_AEOI">Subject to the Labuan Business Activity Tax (Automatic Exchange
+                        Of Financial
+                        Account
+                        Information) Regulations 2018 (1=Yes, 2=No):</label>
+                    <input type="text" id="D4_Subject_to_AEOI" formControlName="D4_Subject_to_AEOI">
+                </div>
+            </div>
         </fieldset>
 
         <!-- Part E: Reporting Entity -->
@@ -478,13 +613,107 @@
             <legend>Part E: Reporting Entity</legend>
             <label for="E1_MNE_Group_Name">MNE Group Name:</label>
             <input type="text" id="E1_MNE_Group_Name" formControlName="E1_MNE_Group_Name">
+            <label>Accounting Period:</label>
+            <div style="display: flex; gap: 5px; align-items: center;border-radius: 5px;
+    border: 1px solid #ccc; padding:5px; justify-content: space-between;
+    margin-bottom: 10px;">
+                <label for="E2_Accounting_Period_From">From (DD/MM/YYYY):</label>
+                <input style="width:5%" type="number" id="E2_Accounting_Period_From_Day"
+                    formControlName="E2_Accounting_Period_From_Day" size="2"> /
+                <input style="width:5%" type="number" id="E2_Accounting_Period_From_Month"
+                    formControlName="E2_Accounting_Period_From_Month" size="2"> /
+                <input style="width:8%" type="number" id="E2_Accounting_Period_From_Year"
+                    formControlName="E2_Accounting_Period_From_Year" size="4">
+                <!-- split border Line -->
+                <span></span>
+                <label for="E2_Accounting_Period_To">To (DD/MM/YYYY):</label>
+                <input style="width:5%" type="number" id="E2_Accounting_Period_To_Day"
+                    formControlName="E2_Accounting_Period_To_Day" size="2"> /
+                <input style="width:5%" type="number" id="E2_Accounting_Period_To_Month"
+                    formControlName="E2_Accounting_Period_To_Month" size="2"> /
+                <input style="width:8%" type="number" id="E2_Accounting_Period_To_Year"
+                    formControlName="E2_Accounting_Period_To_Year" size="4">
+            </div>
+            <div style="display: flex; justify-content: space-between; gap: 10px;">
+                <div style="flex: 1;">
+                    <label for="E3_Constituent_Entities_in_Malaysia">Number of constituent entities in Malaysia:</label>
+                    <input type="number" id="E3_Constituent_Entities_in_Malaysia" min="0"
+                        formControlName="E3_Constituent_Entities_in_Malaysia">
+                </div>
+                <div style="flex: 1;">
+                    <label for="E4_Constituent_Entities_outside_Malaysia">Number of constituent entities outside
+                        Malaysia:</label>
+                    <input type="number" min="0" id="E4_Constituent_Entities_outside_Malaysia"
+                        formControlName="E4_Constituent_Entities_outside_Malaysia">
+                </div>
+            </div>
         </fieldset>
 
         <!-- Part F: Non-Reporting Entity -->
         <fieldset id="part-f">
             <legend>Part F: Non-Reporting Entity</legend>
-            <label for="F1_Reporting_Entity_Name">Reporting Entity Name:</label>
-            <input type="text" id="F1_Reporting_Entity_Name" formControlName="F1_Reporting_Entity_Name">
+
+            <div style="display: flex; justify-content: space-between; gap: 10px; margin-bottom: 10px;">
+                <div style="flex: 2;">
+                    <label for="F1_Reporting_Entity_Name">Reporting Entity Name:</label>
+                    <input type="text" id="F1_Reporting_Entity_Name" formControlName="F1_Reporting_Entity_Name">
+                </div>
+                <div style="flex: 1;">
+                    <label for="F2_TIN">TIN:</label>
+                    <input type="text" id="F2_TIN" formControlName="F2_TIN">
+                </div>
+                <div style="flex: 1;">
+                    <label for="F3_Country_of_Residence">Country of Residence:</label>
+                    <input type="text" id="F3_Country_of_Residence" formControlName="F3_Country_of_Residence">
+                </div>
+            </div>
+
+            <label>Accounting Period:</label>
+            <div style="display: flex; gap: 5px; align-items: center;border-radius: 5px;
+border: 1px solid #ccc; padding:5px; justify-content: space-between;
+margin-bottom: 10px;">
+                <label for="F4_Accounting_Period_From">From (DD/MM/YYYY):</label>
+                <input style="width:5%" type="number" id="F4_Accounting_Period_From_Day"
+                    formControlName="F4_Accounting_Period_From_Day" size="2"> /
+                <input style="width:5%" type="number" id="F4_Accounting_Period_From_Month"
+                    formControlName="F4_Accounting_Period_From_Month" size="2"> /
+                <input style="width:8%" type="number" id="F4_Accounting_Period_From_Year"
+                    formControlName="F4_Accounting_Period_From_Year" size="4">
+                <!-- split border Line -->
+                <span></span>
+                <label for="F4_Accounting_Period_To">To (DD/MM/YYYY):</label>
+                <input style="width:5%" type="number" id="F4_Accounting_Period_To_Day"
+                    formControlName="F4_Accounting_Period_To_Day" size="2"> /
+                <input style="width:5%" type="number" id="F4_Accounting_Period_To_Month"
+                    formControlName="F4_Accounting_Period_To_Month" size="2"> /
+                <input style="width:8%" type="number" id="F4_Accounting_Period_To_Year"
+                    formControlName="F4_Accounting_Period_To_Year" size="4">
+            </div>
+
+            <div style="display: flex; justify-content: space-between; gap: 10px;">
+                <div style="flex: 1;">
+                    <label for="F5_MNE_Group_Name">MNE Group Name:</label>
+                    <input type="text" id="F5_MNE_Group_Name" formControlName="F5_MNE_Group_Name">
+                </div>
+                <div style="flex: 1;">
+                    <label for="F6_Status_of_Reporting_Entity">Status of Reporting Entity(1= Ultimate holding entity, 2=
+                        Surrogate holding entity):</label>
+                    <input type="text" id="F6_Status_of_Reporting_Entity"
+                        formControlName="F6_Status_of_Reporting_Entity">
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; gap: 10px; margin-top: 10px;">
+                <div style="flex: 1;">
+                    <label for="F7a_Ultimate_Holding_Entity_Name">Ultimate Holding Entity Name:</label>
+                    <input type="text" id="F7a_Ultimate_Holding_Entity_Name"
+                        formControlName="F7a_Ultimate_Holding_Entity_Name">
+                </div>
+                <div style="flex: 1;">
+                    <label for="F7b_Country_of_Residence_UHE">Country of Residence (Ultimate Holding Entity):</label>
+                    <input type="text" id="F7b_Country_of_Residence_UHE" formControlName="F7b_Country_of_Residence_UHE">
+                </div>
+            </div>
         </fieldset>
 
         <!-- Declaration -->
@@ -497,125 +726,203 @@
             <input type="text" id="Declarant_ID_Passport" formControlName="Declarant_ID_Passport">
 
             <label for="Declaration_Date_Day">Declaration Date (DD/MM/YYYY):</label>
-            <input type="text" id="Declaration_Date_Day" formControlName="Declaration_Date_Day" size="2"> /
-            <input type="text" id="Declaration_Date_Month" formControlName="Declaration_Date_Month" size="2"> /
-            <input type="text" id="Declaration_Date_Year" formControlName="Declaration_Date_Year" size="4">
+            <div style="display: flex; gap: 5px; align-items: center; padding:5px; 
+margin-bottom: 10px;">
+            <input style="width:8%" type="text" id="Declaration_Date_Day" formControlName="Declaration_Date_Day" size="2"> /
+            <input style="width:8%" type="text" id="Declaration_Date_Month" formControlName="Declaration_Date_Month" size="2"> /
+            <input style="width:16%" type="text" id="Declaration_Date_Year" formControlName="Declaration_Date_Year" size="4">
+            </div>
+
+            <label for="Declarant_Designation">Designation:</label>
+            <div style="display: flex;
+    flex-wrap: wrap;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    padding: 5px;">
+
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Declarant_Designation_1" formControlName="Declarant_Designation" value="1">
+                    <label for="Declarant_Designation_1">Manager or principal officer
+in Malaysia</label>
+                </div>
+
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Declarant_Designation_2" formControlName="Declarant_Designation" value="2">
+                    <label for="Declarant_Designation_2">Resident director as provided in the Labuan Companies Act 1990</label>
+                </div>
+
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Declarant_Designation_3" formControlName="Declarant_Designation" value="3">
+                    <label for="Declarant_Designation_3">Secretary</label>
+                </div>
+
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Declarant_Designation_4" formControlName="Declarant_Designation" value="4">
+                    <label for="Declarant_Designation_4">Trustee</label>
+                </div>
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Declarant_Designation_5" formControlName="Declarant_Designation" value="5">
+                    <label for="Declarant_Designation_5">Liquidator or receiver</label>
+                </div>
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Declarant_Designation_6" formControlName="Declarant_Designation" value="6">
+                    <label for="Declarant_Designation_6">Partner or general partner</label>
+                </div>
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Declarant_Designation_7" formControlName="Declarant_Designation" value="7">
+                    <label for="Declarant_Designation_7">Designated partner</label>
+                </div>
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Declarant_Designation_8" formControlName="Declarant_Designation" value="8">
+                    <label for="Declarant_Designation_8">Tax Agent</label>
+                </div>
+                <div style="width: 33.33%;display: flex;">
+                    <input type="radio" id="Declarant_Designation_9" formControlName="Declarant_Designation" value="9">
+                    <label for="Declarant_Designation_9">Others </label>
+                </div>
+                
+
+
+            </div>
+            <label *ngIf="le1Form.get('Declarant_Designation')?.value === '9'" for="Designation_Others">Please specify:</label>
+            <input *ngIf="le1Form.get('Declarant_Designation')?.value === '9'" type="text" id="Designation_Others" formControlName="Designation_Others">
         </fieldset>
 
         <!-- Attachment C3: Compliance Officers -->
         <fieldset id="attachment-c3">
             <legend>Attachment C3: Compliance Officers</legend>
             <div style="overflow-x: auto;">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th style="width: 10%;">Name</th>
-                        <th style="width: 5%;">Claim P.U.(A) 419/2011</th>
-                        <th style="width: 10%;">Designation</th>
-                        <th style="width: 15%;">Address</th>
-                        <th style="width: 10%;">ID/Passport No.</th>
-                        <th style="width: 8%;">Date of Birth</th>
-                        <th style="width: 8%;">TIN</th>
-                        <th style="width: 8%;">Telephone No.</th>
-                        <th style="width: 8%;">Salary/Bonus (RM)</th>
-                        <th style="width: 8%;">Fees/Commission (RM)</th>
-                        <th style="width: 8%;">Loan to Officer (RM)</th>
-                        <th style="width: 8%;">Loan from Officer (RM)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_0_Name"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_0_Claim_PUA_419_2011"></textarea>
-                        </td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_0_Designation"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_0_Address"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_0_ID_Passport_No"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_0_Date_of_Birth"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_0_TIN"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_0_Telephone_No"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_0_Salary_Bonus"></textarea></td>
-                        <td><textarea rows="1"
-                                formControlName="Compliance_Officers_0_Fees_Commission_Allowances"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_0_Total_Loan_to_Officer"></textarea>
-                        </td>
-                        <td><textarea rows="1"
-                                formControlName="Compliance_Officers_0_Total_Loan_from_Officer"></textarea></td>
-                    </tr>
-                    <tr>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_1_Name"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_1_Claim_PUA_419_2011"></textarea>
-                        </td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_1_Designation"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_1_Address"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_1_ID_Passport_No"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_1_Date_of_Birth"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_1_TIN"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_1_Telephone_No"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_1_Salary_Bonus"></textarea></td>
-                        <td><textarea rows="1"
-                                formControlName="Compliance_Officers_1_Fees_Commission_Allowances"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_1_Total_Loan_to_Officer"></textarea>
-                        </td>
-                        <td><textarea rows="1"
-                                formControlName="Compliance_Officers_1_Total_Loan_from_Officer"></textarea></td>
-                    </tr>
-                    <tr>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_2_Name"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_2_Claim_PUA_419_2011"></textarea>
-                        </td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_2_Designation"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_2_Address"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_2_ID_Passport_No"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_2_Date_of_Birth"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_2_TIN"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_2_Telephone_No"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_2_Salary_Bonus"></textarea></td>
-                        <td><textarea rows="1"
-                                formControlName="Compliance_Officers_2_Fees_Commission_Allowances"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_2_Total_Loan_to_Officer"></textarea>
-                        </td>
-                        <td><textarea rows="1"
-                                formControlName="Compliance_Officers_2_Total_Loan_from_Officer"></textarea></td>
-                    </tr>
-                    <tr>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_3_Name"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_3_Claim_PUA_419_2011"></textarea>
-                        </td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_3_Designation"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_3_Address"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_3_ID_Passport_No"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_3_Date_of_Birth"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_3_TIN"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_3_Telephone_No"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_3_Salary_Bonus"></textarea></td>
-                        <td><textarea rows="1"
-                                formControlName="Compliance_Officers_3_Fees_Commission_Allowances"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_3_Total_Loan_to_Officer"></textarea>
-                        </td>
-                        <td><textarea rows="1"
-                                formControlName="Compliance_Officers_3_Total_Loan_from_Officer"></textarea></td>
-                    </tr>
-                    <tr>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_4_Name"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_4_Claim_PUA_419_2011"></textarea>
-                        </td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_4_Designation"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_4_Address"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_4_ID_Passport_No"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_4_Date_of_Birth"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_4_TIN"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_4_Telephone_No"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_4_Salary_Bonus"></textarea></td>
-                        <td><textarea rows="1"
-                                formControlName="Compliance_Officers_4_Fees_Commission_Allowances"></textarea></td>
-                        <td><textarea rows="1" formControlName="Compliance_Officers_4_Total_Loan_to_Officer"></textarea>
-                        </td>
-                        <td><textarea rows="1"
-                                formControlName="Compliance_Officers_4_Total_Loan_from_Officer"></textarea></td>
-                    </tr>
-                </tbody>
-            </table>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">Name</th>
+                            <th style="width: 5%;">Claim P.U.(A) 419/2011</th>
+                            <th style="width: 10%;">Designation</th>
+                            <th style="width: 15%;">Address</th>
+                            <th style="width: 10%;">ID/Passport No.</th>
+                            <th style="width: 8%;">Date of Birth</th>
+                            <th style="width: 8%;">TIN</th>
+                            <th style="width: 8%;">Telephone No.</th>
+                            <th style="width: 8%;">Salary/Bonus (RM)</th>
+                            <th style="width: 8%;">Fees/Commission (RM)</th>
+                            <th style="width: 8%;">Loan to Officer (RM)</th>
+                            <th style="width: 8%;">Loan from Officer (RM)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_0_Name"></textarea></td>
+                            <td><textarea rows="1"
+                                    formControlName="Compliance_Officers_0_Claim_PUA_419_2011"></textarea>
+                            </td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_0_Designation"></textarea></td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_0_Address"></textarea></td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_0_ID_Passport_No"></textarea>
+                            </td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_0_Date_of_Birth"></textarea>
+                            </td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_0_TIN"></textarea></td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_0_Telephone_No"></textarea></td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_0_Salary_Bonus"></textarea></td>
+                            <td><textarea rows="1"
+                                    formControlName="Compliance_Officers_0_Fees_Commission_Allowances"></textarea></td>
+                            <td><textarea rows="1"
+                                    formControlName="Compliance_Officers_0_Total_Loan_to_Officer"></textarea>
+                            </td>
+                            <td><textarea rows="1"
+                                    formControlName="Compliance_Officers_0_Total_Loan_from_Officer"></textarea></td>
+                        </tr>
+                        <tr>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_1_Name"></textarea></td>
+                            <td><textarea rows="1"
+                                    formControlName="Compliance_Officers_1_Claim_PUA_419_2011"></textarea>
+                            </td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_1_Designation"></textarea></td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_1_Address"></textarea></td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_1_ID_Passport_No"></textarea>
+                            </td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_1_Date_of_Birth"></textarea>
+                            </td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_1_TIN"></textarea></td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_1_Telephone_No"></textarea></td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_1_Salary_Bonus"></textarea></td>
+                            <td><textarea rows="1"
+                                    formControlName="Compliance_Officers_1_Fees_Commission_Allowances"></textarea></td>
+                            <td><textarea rows="1"
+                                    formControlName="Compliance_Officers_1_Total_Loan_to_Officer"></textarea>
+                            </td>
+                            <td><textarea rows="1"
+                                    formControlName="Compliance_Officers_1_Total_Loan_from_Officer"></textarea></td>
+                        </tr>
+                        <tr>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_2_Name"></textarea></td>
+                            <td><textarea rows="1"
+                                    formControlName="Compliance_Officers_2_Claim_PUA_419_2011"></textarea>
+                            </td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_2_Designation"></textarea></td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_2_Address"></textarea></td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_2_ID_Passport_No"></textarea>
+                            </td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_2_Date_of_Birth"></textarea>
+                            </td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_2_TIN"></textarea></td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_2_Telephone_No"></textarea></td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_2_Salary_Bonus"></textarea></td>
+                            <td><textarea rows="1"
+                                    formControlName="Compliance_Officers_2_Fees_Commission_Allowances"></textarea></td>
+                            <td><textarea rows="1"
+                                    formControlName="Compliance_Officers_2_Total_Loan_to_Officer"></textarea>
+                            </td>
+                            <td><textarea rows="1"
+                                    formControlName="Compliance_Officers_2_Total_Loan_from_Officer"></textarea></td>
+                        </tr>
+                        <tr>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_3_Name"></textarea></td>
+                            <td><textarea rows="1"
+                                    formControlName="Compliance_Officers_3_Claim_PUA_419_2011"></textarea>
+                            </td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_3_Designation"></textarea></td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_3_Address"></textarea></td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_3_ID_Passport_No"></textarea>
+                            </td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_3_Date_of_Birth"></textarea>
+                            </td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_3_TIN"></textarea></td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_3_Telephone_No"></textarea></td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_3_Salary_Bonus"></textarea></td>
+                            <td><textarea rows="1"
+                                    formControlName="Compliance_Officers_3_Fees_Commission_Allowances"></textarea></td>
+                            <td><textarea rows="1"
+                                    formControlName="Compliance_Officers_3_Total_Loan_to_Officer"></textarea>
+                            </td>
+                            <td><textarea rows="1"
+                                    formControlName="Compliance_Officers_3_Total_Loan_from_Officer"></textarea></td>
+                        </tr>
+                        <tr>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_4_Name"></textarea></td>
+                            <td><textarea rows="1"
+                                    formControlName="Compliance_Officers_4_Claim_PUA_419_2011"></textarea>
+                            </td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_4_Designation"></textarea></td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_4_Address"></textarea></td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_4_ID_Passport_No"></textarea>
+                            </td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_4_Date_of_Birth"></textarea>
+                            </td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_4_TIN"></textarea></td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_4_Telephone_No"></textarea></td>
+                            <td><textarea rows="1" formControlName="Compliance_Officers_4_Salary_Bonus"></textarea></td>
+                            <td><textarea rows="1"
+                                    formControlName="Compliance_Officers_4_Fees_Commission_Allowances"></textarea></td>
+                            <td><textarea rows="1"
+                                    formControlName="Compliance_Officers_4_Total_Loan_to_Officer"></textarea>
+                            </td>
+                            <td><textarea rows="1"
+                                    formControlName="Compliance_Officers_4_Total_Loan_from_Officer"></textarea></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </fieldset>
 
