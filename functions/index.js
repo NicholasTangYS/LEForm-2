@@ -47,12 +47,12 @@ app.get('/getUser', async (req, res) => {
 
 app.post('/login', async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { email, password } = req.body;
 
         // Step 1: Query the database for the user by username
         // NOTE: In a production app, you would also select the stored password hash and salt.
-        const query = 'SELECT * FROM le_user WHERE Name = ?';
-        db.query(query, [username], (err, results) => {
+        const query = 'SELECT * FROM le_user WHERE email = ?';
+        db.query(query, [email], (err, results) => {
             if (err) {
                 console.error(err);
                 return res.status(500).send('An internal server error occurred.');
@@ -82,6 +82,50 @@ app.post('/login', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).send('An error occurred during the login process.');
+    }
+});
+
+app.post('/register', async (req, res) => {
+    try {
+        const { name, email, contact, password } = req.body;
+
+        // Step 1: Validate required fields
+        if (!name || !email || !contact || !password) {
+            return res.status(400).send('All fields are required: Name, email, contact_no, password.');
+        }
+
+        // Step 2: Check if user already exists
+        const checkUserQuery = 'SELECT * FROM le_user WHERE email = ?';
+        db.query(checkUserQuery, [email], (err, results) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send('An internal server error occurred.');
+            }
+
+            if (results.length > 0) {
+                return res.status(409).send('User with this email already exists.');
+            }
+
+            // Step 3: Insert the new user into the database
+            // NOTE: For a real application, you must hash the password before saving it.
+            // For example, using bcrypt.
+            // const hashedPassword = await bcrypt.hash(password, 10);
+            
+            const insertQuery = 'INSERT INTO le_user (Name, email, contact_no, password) VALUES (?, ?, ?, ?)';
+            db.query(insertQuery, [name, email, contact, password], (insertErr, insertResult) => {
+                if (insertErr) {
+                    console.error(insertErr);
+                    return res.status(500).send('An error occurred during user registration.');
+                }
+
+                // Step 4: Respond with success message
+                res.status(201).json({ message: 'User registered successfully!' });
+            });
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('An error occurred during the registration process.');
     }
 });
 

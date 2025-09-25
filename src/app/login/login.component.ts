@@ -23,7 +23,9 @@ export class LoginComponent {
     private router: Router
   ) {
     this.loginForm = this.fb.group({
-      username: ['', Validators.required],
+      name: [''],
+      contact: [''],
+      email: ['', Validators.required],
       password: ['', Validators.required],
       confirmPassword: ['']
     });
@@ -34,20 +36,30 @@ export class LoginComponent {
     this.errorMessage = '';
     if (this.isRegister) {
       this.loginForm.get('confirmPassword')?.setValidators(Validators.required);
+      this.loginForm.get('name')?.setValidators(Validators.required);
+      this.loginForm.get('contact')?.setValidators(Validators.required);
     } else {
       this.loginForm.get('confirmPassword')?.clearValidators();
     }
     this.loginForm.get('confirmPassword')?.updateValueAndValidity();
+    this.loginForm.get('name')?.updateValueAndValidity();
+    this.loginForm.get('contact')?.updateValueAndValidity();
   }
 
   onSubmit() {
     if (this.loginForm.invalid) {
       return;
     }
+    
 
-    const { username, password, confirmPassword } = this.loginForm.value;
+    const { email, password, confirmPassword , name, contact} = this.loginForm.value;
 
     if (this.isRegister) {
+      //validate if all fields are filled
+      if (!name || !contact || !email || !password || !confirmPassword) {
+        this.errorMessage = 'Please fill in all fields';
+        return;
+      }
       if (password !== confirmPassword) {
         this.errorMessage = 'Passwords do not match';
         return;
@@ -58,8 +70,15 @@ export class LoginComponent {
       //     this.errorMessage = err.error?.message || 'Registration failed';
       //   }
       // });
+      this.auth.register(name, contact, email, password).subscribe({
+        next: () => this.router.navigate(['/home']),
+        error: (err) => {
+          console.log(err);
+          this.errorMessage = err.error?.message || 'Registration failed';
+        }
+      });
     } else {
-      this.auth.login(username, password).subscribe({
+      this.auth.login(email, password).subscribe({
         next: () => this.router.navigate(['/home']),
         error: (err) => {
           this.errorMessage = err.error?.message || 'Login failed';

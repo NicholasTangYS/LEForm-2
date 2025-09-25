@@ -1,6 +1,6 @@
 // src/app/form/form.component.ts
 import { Component, OnInit } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
@@ -19,9 +19,11 @@ export class FormComponent implements OnInit {
   le1Form: FormGroup;
   initialFormData: any;
   isLoading: boolean = false;
+  sidebarOpen = false;
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private fb: FormBuilder,
     private http: HttpClient
   ) {
@@ -501,7 +503,6 @@ export class FormComponent implements OnInit {
       Payments_From_Malaysian_Residents_4_Type_of_payment_received: [''],
       Payments_From_Malaysian_Residents_4_Amount: [''],
     });
-
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state && navigation.extras.state['formData']) {
       this.initialFormData = navigation.extras.state['formData'];
@@ -510,6 +511,10 @@ export class FormComponent implements OnInit {
       // Uncomment the line below to redirect if no data is present
       // this.router.navigate(['/home']);
     }
+  }
+
+  toggleSidebar() {
+    this.sidebarOpen = !this.sidebarOpen;
   }
 
   ngOnInit(): void {
@@ -530,6 +535,15 @@ export class FormComponent implements OnInit {
       this.le1Form.patchValue(this.initialFormData);
       console.log('Form initialized and patched with data:', this.le1Form.value);
     }
+
+    this.route.fragment.subscribe(fragment => {
+      if (fragment) {
+        const element = document.querySelector('#' + fragment);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', inline:'nearest' });
+        }
+      }
+    });
   }
 
   async generatePdf(): Promise<void> {

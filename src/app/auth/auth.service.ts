@@ -13,14 +13,24 @@ export class AuthService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  login(username: string, password: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, { username, password }).pipe(
+  login(email: string, password: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/login`, { email, password }).pipe(
       tap((res: any) => {
         this.setTokens(res.accessToken, res.refreshToken);
       })
     );
   }
 
+    register(name: string, contact: string, email: string, password: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/register`, { name, contact, email, password }).pipe(
+      tap((res: any) => {
+        //show success message and redirect to login
+        alert('Registration successful! Please log in.');
+        this.router.navigate(['/login']);
+        // this.setTokens(res.accessToken, res.refreshToken);
+      })
+    );
+  }
   refreshToken(): Observable<any> {
     const refresh = localStorage.getItem('refresh_token');
     return this.http.post(`${this.apiUrl}/refresh`, { refreshToken: refresh }).pipe(
