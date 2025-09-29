@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, effect } from '@angular/core';
 import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { IdleService } from './auth/idle.service';
 import { filter } from 'rxjs';
@@ -17,6 +17,7 @@ import { AuthService } from './auth/auth.service';
 })
 export class AppComponent {
   title = 'ng';
+  userID: any;
   isLoginPage = false;
   constructor(private idle: IdleService,
     private router: Router,
@@ -27,6 +28,13 @@ export class AppComponent {
       .subscribe((event: any) => {
         this.isLoginPage = event.urlAfterRedirects === '/login';
       });
+
+       effect(() => {
+            this.userID = this.auth.getUserId();
+            if (this.userID) {
+             console.log(this.userID)
+            }
+          });
   }
   isCollapsed = false;
 

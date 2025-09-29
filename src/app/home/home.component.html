@@ -1,5 +1,13 @@
 
 <div class="container" id="upload-container" *ngIf="!isLoading">
+    <div style="display: flex;">
+        <button (click)="cancel()" style="padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px;
+    background: #d9d9d9;">Cancel</button>
+    </div>
+    
     <h1>LE1 Form Document Upload</h1>
     <h3>Upload Your Documents</h3>
     <p>Please upload the relevant files. The system will extract the data and pre-fill the form for you.</p>
@@ -77,4 +85,25 @@
     <div class="spinner"></div>
     <h2>Processing documents...</h2>
     <p>This may take a moment. Please wait.</p>
+</div>
+
+<div class="modal-overlay" *ngIf="showFailureModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Processing Issues Detected</h2>
+      <p>The following documents could not be processed. You can retry them or proceed with only the successful files.</p>
+    </div>
+    <div class="modal-body">
+      <ul class="failed-list">
+        <li *ngFor="let failed of failedRequests">
+          <strong>{{ failed.name }}</strong>
+          <span class="error-reason">{{ failed.reason }}</span>
+        </li>
+      </ul>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" (click)="retryFailedRequests()">Retry Failed</button>
+      <button class="btn" (click)="proceedIgnoringFailures()">Proceed Anyway</button>
+    </div>
+  </div>
 </div>

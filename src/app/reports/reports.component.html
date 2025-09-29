@@ -1,0 +1,95 @@
+<div class="reports-container">
+    <header class="reports-header">
+        <h1>Reports</h1>
+        <!-- From Uiverse.io by ilkhoeri -->
+        <button type="button" class="button2">
+            <span class="fold"></span>
+
+            <div class="points_wrapper">
+                <i class="point"></i>
+                <i class="point"></i>
+                <i class="point"></i>
+                <i class="point"></i>
+                <i class="point"></i>
+                <i class="point"></i>
+                <i class="point"></i>
+                <i class="point"></i>
+                <i class="point"></i>
+                <i class="point"></i>
+            </div>
+
+            <span class="inner"><svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2.5">
+                    <polyline points="13.18 1.37 13.18 9.64 21.45 9.64 10.82 22.63 10.82 14.36 2.55 14.36 13.18 1.37">
+                    </polyline>
+                </svg>Credits</span>
+        </button>
+
+        <button (click)="createNewReport()" class="btn btn-primary">
+            Create New Report
+        </button>
+    </header>
+
+    <div class="controls-container">
+        <div class="search-container">
+            <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()" placeholder="Search by report name..."
+                class="search-input" />
+        </div>
+        <div class="items-per-page-container">
+            <label for="itemsPerPage">Show:</label>
+            <select id="itemsPerPage" [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange()"
+                class="items-per-page-select">
+                <option *ngFor="let option of itemsPerPageOptions" [value]="option">
+                    {{ option }}
+                </option>
+            </select>
+            <span>entries</span>
+        </div>
+    </div>
+
+    <div class="report-list">
+        <table class="reports-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Year End</th>
+                    <th>Created On</th>
+                    <th>Updated On</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let project of paginatedProjects">
+                    <td data-label="Name">{{ project.name }}</td>
+                    <td data-label="Status"><span class="status" [ngClass]="project.status">{{
+                            project.status }}</span></td>
+                    <td data-label="Year End">{{ project.year_end }}</td>
+                    <td data-label="Created On">{{ project.created_on | date:'short' }}</td>
+                    <td data-label="Updated On">{{ project.updated_on | date:'short' }}</td>
+                    <td data-label="Actions">
+                        <button (click)="editReport(project)" class="btn btn-secondary">Edit</button>
+                    </td>
+                </tr>
+                <tr *ngIf="paginatedProjects.length === 0">
+                    <td colspan="6" class="no-results">No reports found.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-container" *ngIf="totalPages > 1">
+        <button class="pagination-button" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+            Previous
+        </button>
+        <ng-container *ngFor="let page of pages">
+            <button class="pagination-button" (click)="goToPage(page)" [class.active]="page === currentPage">
+                {{ page }}
+            </button>
+        </ng-container>
+        <button class="pagination-button" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+            Next
+        </button>
+    </div>
+</div>

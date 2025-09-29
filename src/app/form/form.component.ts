@@ -7,6 +7,8 @@ import { CommonModule } from '@angular/common';
 import { forkJoin, lastValueFrom } from 'rxjs';
 import { PDFDocument } from 'pdf-lib';
 import { saveAs } from 'file-saver';
+import { AuthService } from '../auth/auth.service';
+import { baseUrl } from '../../environments/environment';
 
 @Component({
   selector: 'app-form',
@@ -20,12 +22,14 @@ export class FormComponent implements OnInit {
   initialFormData: any;
   isLoading: boolean = false;
   sidebarOpen = false;
+  private apiUrl = baseUrl;
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private fb: FormBuilder,
-    private http: HttpClient
+    private http: HttpClient,
+    private auth: AuthService,
   ) {
     // Initialize an empty form group. It will be populated dynamically.
     this.le1Form = this.fb.group({
@@ -518,6 +522,16 @@ export class FormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const projectId = this.auth.getProjectId();
+
+    if (projectId) {
+      this.loadProjectData(projectId);
+    } else {
+      // If a user navigates here directly without an ID, redirect them.
+      console.warn('No project ID found. Redirecting to reports page.');
+      this.router.navigate(['/reports']);
+      return; // Stop further execution
+    }
     // if (this.initialFormData) {
     //   // Dynamically create form controls based on the keys in the received data
     //   const formControls: { [key: string]: any } = {};
@@ -529,12 +543,12 @@ export class FormComponent implements OnInit {
     //   this.le1Form = this.fb.group(formControls);
     //   console.log('Form initialized with data:', this.le1Form.value);
     // }
-    if (this.initialFormData) {
-      // Use patchValue. It safely fills in the values for matching controls
-      // and ignores any properties in initialFormData that don't have a control.
-      this.le1Form.patchValue(this.initialFormData);
-      console.log('Form initialized and patched with data:', this.le1Form.value);
-    }
+    // if (this.initialFormData) {
+    //   // Use patchValue. It safely fills in the values for matching controls
+    //   // and ignores any properties in initialFormData that don't have a control.
+    //   this.le1Form.patchValue(this.initialFormData);
+    //   console.log('Form initialized and patched with data:', this.le1Form.value);
+    // }
 
     this.route.fragment.subscribe(fragment => {
       if (fragment) {
@@ -544,6 +558,35 @@ export class FormComponent implements OnInit {
         }
       }
     });
+  }
+
+  loadProjectData(projectId: any): void {
+    this.isLoading = true;
+    this.http.get<any>(`${this.apiUrl}/getProjectDetails/${projectId}`).subscribe({
+      next: (response) => {
+        // Assuming the API returns an object where the form data is in a `data` property
+        if (response && response[0].data) {
+          this.le1Form.patchValue(response[0].data);
+          console.log('Form successfully patched with data from API.');
+        } else {
+          console.error('Invalid data structure received from API:', response);
+          alert('Failed to load project data due to incorrect format.');
+          this.router.navigate(['/reports']);
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching project details:', err);
+        alert('An error occurred while fetching project data.');
+        this.router.navigate(['/reports']);
+      },
+      complete: () => {
+        this.isLoading = false; // Turn off the loader
+      }
+    });
+  }
+
+  back(){
+    this.router.navigate(['/reports']);
   }
 
   async generatePdf(): Promise<void> {

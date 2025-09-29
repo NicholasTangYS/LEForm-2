@@ -74,10 +74,10 @@ app.post('/login', async (req, res) => {
             }
 
             // Step 4: If login is successful, generate JWTs and return them
-            const accessToken = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1h' });
-            const refreshToken = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '7d' });
-
-            res.json({ accessToken, refreshToken });
+            const accessToken = jwt.sign({ id: user.ID }, JWT_SECRET, { expiresIn: '1d' });
+            const refreshToken = jwt.sign({ id: user.ID }, JWT_SECRET, { expiresIn: '7d' });
+            const userID = user.ID
+            res.json({ accessToken, refreshToken, userID });
         });
     } catch (err) {
         console.error(err);
@@ -129,6 +129,88 @@ app.post('/register', async (req, res) => {
     }
 });
 
+
+app.get('/getProjectByUser/:userId', async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        // Step 1: Retrieve the main invoice details
+        const query = 'SELECT ID, name, status, year_end, created_on, updated_on FROM le_project where userID = ?';
+        db.query(query, [userId],(err, results) => {
+            if (err) throw err;
+            res.json(results);
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('An error occurred while retrieving the project');
+    }
+});
+
+app.get('/getProjectDetails/:Id', async (req, res) => {
+    const { Id } = req.params;
+
+    try {
+        // Step 1: Retrieve the main invoice details
+        const query = 'SELECT data FROM le_project where ID = ?';
+        db.query(query, [Id],(err, results) => {
+            if (err) throw err;
+            res.json(results);
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('An error occurred while retrieving the project data');
+    }
+});
+
+app.post('/createProject', async (req, res) => {
+    // Destructure required fields from the request body
+    const { userId, name, status, year_end, data } = req.body;
+
+    // Basic validation
+    if (!userId || !name || !status || !year_end) {
+        return res.status(400).json({ message: 'Missing required fields: userId, name, status, or year_end.' });
+    }
+
+    // Convert the 'data' object (or null/undefined) into a JSON string
+    // This is crucial for storing complex structures into a single column (JSON or TEXT type).
+    let dataJsonString;
+    try {
+        dataJsonString = data ? JSON.stringify(data) : null;
+    } catch (e) {
+        console.error('Failed to stringify project data:', e);
+        return res.status(400).json({ message: 'Invalid JSON format provided for the "data" column.' });
+    }
+
+    // SQL query to insert a new project.
+    // We use NOW() for created_on and updated_on to record the current timestamp.
+    const query = `
+        INSERT INTO le_project 
+        (userID, name, status, year_end, data, created_on, updated_on) 
+        VALUES (?, ?, ?, ?, ?, NOW(), NOW())
+    `;
+
+    // The parameters array: Note that dataJsonString is passed here.
+    const params = [userId, name, status, year_end, dataJsonString];
+
+    try {
+        db.query(query, params, (err, results) => {
+            if (err) {
+                console.error('Database insertion error:', err);
+                // Throwing the error here lets the outer catch block handle the 500 response
+                return res.status(500).json({ message: 'Database error occurred during project creation.' });
+            }
+            
+            // Send back the success status and the ID of the newly created project
+            res.status(201).json({ 
+                message: 'Project created successfully',
+                projectId: results.insertId // Assuming your DB driver returns insertId for new rows
+            });
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('An unexpected error occurred while creating the project');
+    }
+});
 // For cost control, you can set the maximum number of containers that can be
 // running at the same time. This helps mitigate the impact of unexpected
 // traffic spikes by instead downgrading performance. This limit is a

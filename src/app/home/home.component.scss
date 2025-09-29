@@ -174,3 +174,104 @@ h2 {
     cursor: pointer;
     text-align: center;
 }
+
+/* Add these styles for the failure modal */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  
+  h2 {
+    margin-top: 0;
+    color: #111827;
+  }
+
+  p {
+    margin-bottom: 0;
+    color: #4b5563;
+  }
+}
+
+.modal-body {
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.failed-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-left: 4px solid #ef4444;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+    
+    strong {
+      display: block;
+      color: #991b1b;
+      margin-bottom: 0.25rem;
+      font-size: 1rem;
+    }
+  }
+}
+
+.error-reason {
+  color: #b91c1c;
+  font-size: 0.875rem;
+  word-break: break-word;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Use existing button styles but ensure they work here */
+.modal-actions .btn {
+  padding: 0.65rem 1.25rem;
+  font-size: 0.95rem;
+}
+
+.modal-actions .btn-secondary {
+    background-color: #e5e7eb;
+    color: #374151;
+
+    &:hover {
+        background-color: #d1d5db;
+    }
+}

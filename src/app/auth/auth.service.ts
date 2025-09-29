@@ -17,6 +17,9 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/login`, { email, password }).pipe(
       tap((res: any) => {
         this.setTokens(res.accessToken, res.refreshToken);
+        if (res.userID) {
+            localStorage.setItem('user_id', res.userID);
+        }
       })
     );
   }
@@ -40,9 +43,15 @@ export class AuthService {
     );
   }
 
+  getUserId(): string | null {
+    return localStorage.getItem('user_id');
+  }
+
   logout(): void {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    // ⭐ NEW: Remove the user ID on logout
+    localStorage.removeItem('id'); 
     this.router.navigate(['/login']);
   }
 
@@ -53,6 +62,18 @@ export class AuthService {
   private setTokens(access: string, refresh: string) {
     localStorage.setItem('access_token', access);
     localStorage.setItem('refresh_token', refresh);
+    try {
+      const decoded: any = jwtDecode(access);
+      // Assuming your backend stores the User ID in the token payload 
+      // under a key like 'userId', 'sub' (subject), or '_id'.
+      // You must check your backend's token structure. Let's assume 'userId'.
+      if (decoded.userId) { 
+        localStorage.setItem('id', decoded.id);
+      }
+    } catch (e) {
+      console.error('Failed to decode access token:', e);
+      // Handle error (e.g., if the token is invalid)
+    }
   }
 
   isTokenExpired(): boolean {
@@ -62,5 +83,22 @@ export class AuthService {
     const decoded: any = jwtDecode(token);
     const exp = decoded.exp * 1000;
     return Date.now() > exp;
+  }
+
+  setProjectId(id: any): void {
+    // Using sessionStorage allows the ID to persist through a page reload
+    sessionStorage.setItem('activeProjectId', id);
+  }
+
+  /**
+   * Gets the project ID and clears it from storage to prevent reuse.
+   * @returns The project ID, or null if not found.
+   */
+  getProjectId(): any {
+    const id = sessionStorage.getItem('activeProjectId');
+    if (id) {
+      sessionStorage.removeItem('activeProjectId'); // Clear after reading
+    }
+    return id;
   }
 }
