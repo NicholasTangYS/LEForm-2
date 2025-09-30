@@ -23,6 +23,7 @@ export class FormComponent implements OnInit {
   isLoading: boolean = false;
   sidebarOpen = false;
   private apiUrl = baseUrl;
+  projectId: any;
 
   constructor(
     private router: Router,
@@ -30,6 +31,7 @@ export class FormComponent implements OnInit {
     private fb: FormBuilder,
     private http: HttpClient,
     private auth: AuthService,
+    
   ) {
     // Initialize an empty form group. It will be populated dynamically.
     this.le1Form = this.fb.group({
@@ -522,10 +524,10 @@ export class FormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const projectId = this.auth.getProjectId();
+    this.projectId = this.auth.getProjectId();
 
-    if (projectId) {
-      this.loadProjectData(projectId);
+    if (this.projectId) {
+      this.loadProjectData(this.projectId);
     } else {
       // If a user navigates here directly without an ID, redirect them.
       console.warn('No project ID found. Redirecting to reports page.');
@@ -554,7 +556,7 @@ export class FormComponent implements OnInit {
       if (fragment) {
         const element = document.querySelector('#' + fragment);
         if (element) {
-          element.scrollIntoView({ behavior: 'smooth', inline:'nearest' });
+          element.scrollIntoView({ behavior: 'smooth', inline: 'nearest' });
         }
       }
     });
@@ -580,13 +582,47 @@ export class FormComponent implements OnInit {
         this.router.navigate(['/reports']);
       },
       complete: () => {
-        this.isLoading = false; // Turn off the loader
+        setTimeout(() => {
+          this.isLoading = false; // Turn off the loader
+        }, 500);
+        
       }
     });
   }
 
-  back(){
+  back() {
+    
     this.router.navigate(['/reports']);
+  }
+
+  saveProject(): void {
+    if (!this.projectId) {
+      alert('No project is currently loaded. Cannot save data.');
+      return;
+    }
+
+    if (this.le1Form.invalid) {
+      alert('The form is invalid. Please check all fields before saving.');
+      return;
+    }
+
+    this.isLoading = true;
+    const formData = this.le1Form.value;
+    const requestBody = { data: formData }; // Wrap the form data in a 'data' object
+
+    this.http.put(`${this.apiUrl}/updateProjectDetails/${this.projectId}`, requestBody).subscribe({
+      next: (response) => {
+        console.log('Project update successful', response);
+        alert('Project data has been saved successfully!');
+      },
+      error: (err) => {
+        console.error('Error updating project details:', err);
+        alert('An error occurred while saving the project. Please try again.');
+      },
+      complete: () => {
+        this.isLoading = false;
+      }
+    });
   }
 
   async generatePdf(): Promise<void> {

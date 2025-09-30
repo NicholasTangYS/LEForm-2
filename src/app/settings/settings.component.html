@@ -1,0 +1,109 @@
+<!-- src/app/settings/settings.component.html -->
+<div class="settings-container">
+  <div class="settings-card">
+    <h1 class="settings-title">User Settings</h1>
+    <p class="settings-subtitle">Manage your personal information and account details.</p>
+
+    <!-- Form for updating user info -->
+    <form [formGroup]="settingsForm" (ngSubmit)="onSubmit()" novalidate>
+      <h2 class="section-title">User Profile</h2>
+      <!-- Name Field -->
+      <div class="form-group">
+        <label for="Name">Full Name</label>
+        <input style="background-color: #f2f2f2;" readonly type="text" id="Name" formControlName="Name" class="form-control" placeholder="Enter your full Name">
+        <div *ngIf="settingsForm.get('Name')?.invalid && settingsForm.get('Name')?.touched" class="error-message">
+          <small *ngIf="settingsForm.get('Name')?.errors?.['required']">Full name is required.</small>
+        </div>
+      </div>
+
+      <!-- Email Field -->
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input style="background-color: #f2f2f2;" type="email" id="email" formControlName="email" class="form-control" placeholder="Enter your email address" readonly>
+        <div *ngIf="settingsForm.get('email')?.invalid && settingsForm.get('email')?.touched" class="error-message">
+          <small *ngIf="settingsForm.get('email')?.errors?.['required']">Email is required.</small>
+          <small *ngIf="settingsForm.get('email')?.errors?.['email']">Please enter a valid email format.</small>
+        </div>
+      </div>
+
+      <!-- Contact Number Field -->
+      <div class="form-group">
+        <label for="contact_no">Contact Number</label>
+        <input type="tel" id="contact_no" formControlName="contact_no" class="form-control" placeholder="Enter your phone number">
+        <div *ngIf="settingsForm.get('contact_no')?.invalid && settingsForm.get('contact_no')?.touched" class="error-message">
+          <small *ngIf="settingsForm.get('contact_no')?.errors?.['required']">Contact number is required.</small>
+        </div>
+      </div>
+
+      <!-- Address Field -->
+      <div class="form-group">
+        <label for="address">Address</label>
+        <textarea id="address" formControlName="address" class="form-control" rows="3" placeholder="Enter your full address"></textarea>
+        <div *ngIf="settingsForm.get('address')?.invalid && settingsForm.get('address')?.touched" class="error-message">
+          <small *ngIf="settingsForm.get('address')?.errors?.['required']">Address is required.</small>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="button-container">
+        <button type="submit" class="submit-btn" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Save Profile Changes</span>
+          <span *ngIf="isLoading">Saving...</span>
+        </button>
+      </div>
+    </form>
+
+    <hr class="divider">
+
+    <!-- NEW: Form for Changing Password -->
+    <form [formGroup]="changePasswordForm" (ngSubmit)="onChangePassword()" novalidate>
+      <h2 class="section-title">Change Password</h2>
+      
+      <!-- Current Password -->
+      <div class="form-group">
+        <label for="currentPassword">Current Password</label>
+        <input type="password" id="currentPassword" formControlName="currentPassword" class="form-control" placeholder="Enter your current password">
+        <div *ngIf="p['currentPassword'].invalid && p['currentPassword'].touched" class="error-message">
+          <small *ngIf="p['currentPassword'].errors?.['required']">Current password is required.</small>
+        </div>
+      </div>
+
+      <!-- New Password -->
+      <div class="form-group">
+        <label for="newPassword">New Password</label>
+        <input type="password" id="newPassword" formControlName="newPassword" class="form-control" placeholder="Enter a new password">
+        <div *ngIf="p['newPassword'].invalid && p['newPassword'].touched" class="error-message">
+          <small *ngIf="p['newPassword'].errors?.['required']">New password is required.</small>
+          <small *ngIf="p['newPassword'].errors?.['minlength']">Password must be at least 8 characters long.</small>
+        </div>
+      </div>
+
+      <!-- Confirm New Password -->
+      <div class="form-group">
+        <label for="confirmPassword">Confirm New Password</label>
+        <input type="password" id="confirmPassword" formControlName="confirmPassword" class="form-control" placeholder="Confirm your new password">
+        <div *ngIf="p['confirmPassword'].invalid && p['confirmPassword'].touched" class="error-message">
+          <small *ngIf="p['confirmPassword'].errors?.['required']">Please confirm your new password.</small>
+        </div>
+        <!-- Mismatch error on the form group level -->
+        <div *ngIf="changePasswordForm.errors?.['mismatch'] && p['confirmPassword'].touched" class="error-message">
+            <small>Passwords do not match.</small>
+        </div>
+      </div>
+
+      <!-- Change Password Button -->
+      <div class="button-container">
+        <button type="submit" class="submit-btn" [disabled]="isLoading || changePasswordForm.invalid">
+          <span *ngIf="!isLoading">Change Password</span>
+          <span *ngIf="isLoading">Updating...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner"></div>
+  <p>Please wait...</p>
+</div>

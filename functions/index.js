@@ -45,60 +45,25 @@ app.get('/getUser', async (req, res) => {
     }
 });
 
-app.post('/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-
-        // Step 1: Query the database for the user by username
-        // NOTE: In a production app, you would also select the stored password hash and salt.
-        const query = 'SELECT * FROM le_user WHERE email = ?';
-        db.query(query, [email], (err, results) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).send('An internal server error occurred.');
-            }
-
-            // Step 2: Check if a user was found
-            if (results.length === 0) {
-                return res.status(401).send('Invalid username or password.');
-            }
-
-            const user = results[0];
-
-            // Step 3: Compare the provided password with the stored password
-            // NOTE: This is NOT secure. In a real application, you would
-            // hash the incoming password and compare it against the stored hash.
-            // For example, using a library like `bcrypt`.
-            if (password !== user.password) {
-                return res.status(401).send('Invalid username or password.');
-            }
-
-            // Step 4: If login is successful, generate JWTs and return them
-            const accessToken = jwt.sign({ id: user.ID }, JWT_SECRET, { expiresIn: '1d' });
-            const refreshToken = jwt.sign({ id: user.ID }, JWT_SECRET, { expiresIn: '7d' });
-            const userID = user.ID
-            res.json({ accessToken, refreshToken, userID });
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('An error occurred during the login process.');
-    }
-});
-
 app.post('/register', async (req, res) => {
     try {
         const { name, email, contact, password } = req.body;
 
         // Step 1: Validate required fields
         if (!name || !email || !contact || !password) {
-            return res.status(400).send('All fields are required: Name, email, contact_no, password.');
+            return res.status(400).send('All fields are required.');
+        }
+
+        // Optional: Add more robust validation (e.g., password length)
+        if (password.length < 8) {
+            return res.status(400).send('Password must be at least 8 characters long.');
         }
 
         // Step 2: Check if user already exists
-        const checkUserQuery = 'SELECT * FROM le_user WHERE email = ?';
-        db.query(checkUserQuery, [email], (err, results) => {
+        const checkUserQuery = 'SELECT ID FROM le_user WHERE email = ?';
+        db.query(checkUserQuery, [email], async (err, results) => {
             if (err) {
-                console.error(err);
+                console.error('Database error during user check:', err);
                 return res.status(500).send('An internal server error occurred.');
             }
 
@@ -106,26 +71,212 @@ app.post('/register', async (req, res) => {
                 return res.status(409).send('User with this email already exists.');
             }
 
-            // Step 3: Insert the new user into the database
-            // NOTE: For a real application, you must hash the password before saving it.
-            // For example, using bcrypt.
-            // const hashedPassword = await bcrypt.hash(password, 10);
+            // Step 3: Hash the password before saving
+            // This is the crucial security step.
+            const hashedPassword = await bcrypt.hash(password, saltRounds);
             
+            // Step 4: Insert the new user into the database with the hashed password
             const insertQuery = 'INSERT INTO le_user (Name, email, contact_no, password) VALUES (?, ?, ?, ?)';
-            db.query(insertQuery, [name, email, contact, password], (insertErr, insertResult) => {
+            db.query(insertQuery, [name, email, contact, hashedPassword], (insertErr, insertResult) => {
                 if (insertErr) {
-                    console.error(insertErr);
+                    console.error('Database error during registration:', insertErr);
                     return res.status(500).send('An error occurred during user registration.');
                 }
-
-                // Step 4: Respond with success message
+                
+                // Step 5: Respond with success message
                 res.status(201).json({ message: 'User registered successfully!' });
             });
         });
 
     } catch (err) {
-        console.error(err);
+        console.error('General error during registration:', err);
         res.status(500).send('An error occurred during the registration process.');
+    }
+});
+
+app.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Validate input
+        if (!email || !password) {
+            return res.status(400).send('Email and password are required.');
+        }
+
+        // Step 1: Query the database for the user by email
+        const query = 'SELECT * FROM le_user WHERE email = ?';
+        db.query(query, [email], async (err, results) => {
+            if (err) {
+                console.error('Database error during login:', err);
+                return res.status(500).send('An internal server error occurred.');
+            }
+
+            // Step 2: Check if a user was found
+            if (results.length === 0) {
+                // Use a generic error message to prevent user enumeration attacks
+                return res.status(401).send('Invalid email or password.');
+            }
+
+            const user = results[0];
+            const hashedPasswordInDb = user.password;
+
+            // Step 3: Securely compare the provided password with the stored hash
+            const isMatch = await bcrypt.compare(password, hashedPasswordInDb);
+
+            if (!isMatch) {
+                // Passwords do not match
+                return res.status(401).send('Invalid email or password.');
+            }
+
+            // Step 4: If login is successful, generate JWTs and return them
+            // The password is correct, proceed with token generation
+            const accessToken = jwt.sign({ id: user.ID }, process.env.JWT_SECRET, { expiresIn: '1d' });
+            const refreshToken = jwt.sign({ id: user.ID }, process.env.JWT_SECRET, { expiresIn: '7d' });
+            const userID = user.ID;
+
+            res.json({ accessToken, refreshToken, userID });
+        });
+    } catch (err) {
+        console.error('General error during login:', err);
+        res.status(500).send('An error occurred during the login process.');
+    }
+});
+
+app.get('/getUserDetails/:userID', async (req, res) => {
+    const { userID } = req.params;
+
+    try {
+        // Step 1: Retrieve the main invoice details
+        const query = 'SELECT * FROM le_user where ID =?';
+        db.query(query,[userID], (err, results) => {
+            if (err) throw err;
+            res.json(results);
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('An error occurred while retrieving the invoice');
+    }
+});
+
+app.put('/updateUserDetails/:Id', async (req, res) => {
+    // 1. Extract the project ID from the URL parameters
+    const { Id } = req.params;
+
+    // 2. Extract the new data payload from the request body
+    //    We assume the client sends the new 'data' value in the request body.
+   
+    const contact_no = req.body.contact_no;
+    const address = req.body.address;
+
+    // Check if the data is present
+    if ( contact_no === undefined|| address=== undefined) {
+        return res.status(400).json({ 
+            message: 'Missing required field: "data" in request body.'
+        });
+    }
+
+    try {
+        // SQL query to update the 'data' column in the 'le_project' table
+        // We use placeholders (?) for security to prevent SQL Injection.
+        const query = 'UPDATE le_user SET contact_no =?, address=?  WHERE ID = ?';
+        
+        // The first placeholder takes newData, the second takes the Id
+        db.query(query, [ contact_no, address, Id], (err, results) => {
+            if (err) {
+                console.error('Database error during update:', err);
+                // Return a specific error status code for database issues
+                return res.status(500).json({ 
+                    message: 'Database error occurred during project update.', 
+                    error: err.message 
+                });
+            }
+            
+            // Check if any rows were actually updated
+            if (results.affectedRows === 0) {
+                return res.status(404).json({ 
+                    message: `Project with ID ${Id} not found or no changes were made.` 
+                });
+            }
+
+            // Successful update response
+            res.json({ 
+                message: `User ID ${Id} updated successfully.`,
+                affectedRows: results.affectedRows
+            });
+        });
+    } catch (err) {
+        // Catch any non-database errors (e.g., JSON parsing failure, internal server issues)
+        console.error('General error during project update:', err);
+        res.status(500).send('An internal error occurred while updating the project data');
+    }
+});
+
+
+app.post('/changePassword/:Id', (req, res) => {
+    // 1. Extract ID from URL and passwords from the request body
+    const { Id } = req.params;
+    const { currentPassword, newPassword } = req.body;
+
+    // 2. Validate that the required data was provided
+    if (!currentPassword || !newPassword) {
+        return res.status(400).json({
+            message: 'Both "currentPassword" and "newPassword" are required in the request body.'
+        });
+    }
+
+    // Optional: Add backend validation for password length
+    if (newPassword.length < 8) {
+        return res.status(400).json({
+            message: 'New password must be at least 8 characters long.'
+        });
+    }
+
+    try {
+        // 3. Find the user in the database to get their current hashed password
+        const selectQuery = 'SELECT password FROM le_user WHERE ID = ?';
+        
+        db.query(selectQuery, [Id], async (err, results) => {
+            if (err) {
+                console.error('Database error during user lookup:', err);
+                return res.status(500).json({ message: 'A database error occurred.' });
+            }
+            
+            // 4. Handle the case where the user is not found
+            if (results.length === 0) {
+                return res.status(404).json({ message: `User with ID ${Id} not found.` });
+            }
+
+            const hashedPasswordFromDB = results[0].password;
+
+            // 5. Securely compare the provided current password with the one from the database
+            const isMatch = await bcrypt.compare(currentPassword, hashedPasswordFromDB);
+
+            if (!isMatch) {
+                // If passwords do not match, send a clear but secure error
+                return res.status(401).json({ message: 'Incorrect current password.' });
+            }
+
+            // 6. If the current password is correct, hash the new password
+            const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+            // 7. Update the database with the new hashed password
+            const updateQuery = 'UPDATE le_user SET password = ? WHERE ID = ?';
+            db.query(updateQuery, [hashedNewPassword, Id], (updateErr, updateResults) => {
+                if (updateErr) {
+                    console.error('Database error during password update:', updateErr);
+                    return res.status(500).json({ message: 'A database error occurred during the update.' });
+                }
+                
+                // 8. Send a success response
+                res.status(200).json({ 
+                    message: `Password for user ID ${Id} has been updated successfully.`
+                });
+            });
+        });
+    } catch (err) {
+        // Catch any other server errors
+        console.error('A general error occurred during password change:', err);
+        res.status(500).send('An internal server error occurred.');
     }
 });
 
@@ -159,6 +310,57 @@ app.get('/getProjectDetails/:Id', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).send('An error occurred while retrieving the project data');
+    }
+});
+
+app.put('/updateProjectDetails/:Id', async (req, res) => {
+    // 1. Extract the project ID from the URL parameters
+    const { Id } = req.params;
+
+    // 2. Extract the new data payload from the request body
+    //    We assume the client sends the new 'data' value in the request body.
+    const newData = req.body.data;
+
+    // Check if the data is present
+    if (newData === undefined) {
+        return res.status(400).json({ 
+            message: 'Missing required field: "data" in request body.'
+        });
+    }
+
+    try {
+        // SQL query to update the 'data' column in the 'le_project' table
+        // We use placeholders (?) for security to prevent SQL Injection.
+        const query = 'UPDATE le_project SET data = ?, updated_on = NOW() WHERE ID = ?';
+        
+        // The first placeholder takes newData, the second takes the Id
+        db.query(query, [JSON.stringify(newData), Id], (err, results) => {
+            if (err) {
+                console.error('Database error during update:', err);
+                // Return a specific error status code for database issues
+                return res.status(500).json({ 
+                    message: 'Database error occurred during project update.', 
+                    error: err.message 
+                });
+            }
+            
+            // Check if any rows were actually updated
+            if (results.affectedRows === 0) {
+                return res.status(404).json({ 
+                    message: `Project with ID ${Id} not found or no changes were made.` 
+                });
+            }
+
+            // Successful update response
+            res.json({ 
+                message: `Project ID ${Id} updated successfully.`,
+                affectedRows: results.affectedRows
+            });
+        });
+    } catch (err) {
+        // Catch any non-database errors (e.g., JSON parsing failure, internal server issues)
+        console.error('General error during project update:', err);
+        res.status(500).send('An internal error occurred while updating the project data');
     }
 });
 

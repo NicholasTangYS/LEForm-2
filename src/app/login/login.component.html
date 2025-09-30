@@ -4,25 +4,43 @@
     <div *ngIf="isRegister">
       <label>Name</label>
       <input type="text" formControlName="name" />
+      <div *ngIf="loginForm.get('name')?.invalid && loginForm.get('name')?.touched" class="error">
+        <p>Name is required.</p>
+      </div>
     </div>
     <div *ngIf="isRegister">
       <label>Contact Number</label>
-      <input type="number"  formControlName="contact" />
+      <input type="text" formControlName="contact" />
+       <div *ngIf="loginForm.get('contact')?.invalid && loginForm.get('contact')?.touched" class="error">
+        <p>Contact number is required.</p>
+      </div>
     </div>
     <div>
       <label>Email</label>
-      <div>
-        <input type="text" formControlName="email" />
+      <input type="text" formControlName="email" />
+       <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="error">
+        <p *ngIf="loginForm.get('email')?.errors?.['required']">Email is required.</p>
+        <p *ngIf="loginForm.get('email')?.errors?.['email']">Please enter a valid email.</p>
       </div>
-      
     </div>
     <div>
       <label>Password</label>
       <input type="password" formControlName="password" />
+       <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error">
+        <p>Password is required.</p>
+      </div>
     </div>
     <div *ngIf="isRegister">
       <label>Confirm Password</label>
       <input type="password" formControlName="confirmPassword" />
+      <!-- Specific error for the required validator -->
+      <div *ngIf="loginForm.get('confirmPassword')?.hasError('required') && loginForm.get('confirmPassword')?.touched" class="error">
+          <p>Confirming your password is required.</p>
+      </div>
+      <!-- Specific error for the mismatch validator on the form group -->
+      <div *ngIf="loginForm.hasError('passwordsMismatch') && loginForm.get('confirmPassword')?.touched" class="error">
+         <p>Passwords do not match.</p>
+      </div>
     </div>
     <button type="submit" [disabled]="loginForm.invalid">{{ isRegister ? 'Register' : 'Login' }}</button>
     <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>

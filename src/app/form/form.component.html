@@ -1,5 +1,5 @@
 <div [hidden]="isLoading" style="display: flex;justify-content: space-between;background: #f5f5f5;">
-    <button (click)="back()" class="backbtn">Back</button>
+    
     <!-- <button class="sidebar-toggle" (click)="toggleSidebar()">☰</button> -->
     <nav class="sidebar" [class.sidebar-opened]="sidebarOpen">
         <div>
@@ -26,8 +26,21 @@
             </svg></h3>
     </nav>
     <div class="content">
-        <h1>Borang LE1 - Data Entry</h1>
-        <p>Fill in the details and click "Generate PDF" to download the completed form.</p>
+        <div style="display: flex; justify-content: space-between;">
+            <div style="display: flex;  align-items: center;">
+                <button (click)="back()" class="backbtn">← Back</button>
+                <h2>Borang LE1 - Data Entry</h2>
+            </div>
+             
+             <div style="display: flex; gap: 10px;">
+                <button (click)="saveProject()" [disabled]="isLoading">Save</button>
+             <button type="submit" (click)="generatePdf()">Generate PDF</button>
+             </div>
+             
+        </div>
+       
+        <!-- <p>Fill in the details and click "Generate PDF" to download the completed form.</p> -->
+        <div style="overflow: auto; max-height: 85vh; max-width: 73vw;">
         <form id="le1-form" [formGroup]="le1Form" (ngSubmit)="generatePdf()">
 
             <!-- Part A: Basic Particulars -->
@@ -1554,8 +1567,9 @@ margin-bottom: 10px;">
                 </table>
             </fieldset>
 
-            <button type="submit">Generate PDF</button>
+            
         </form>
+        </div>
     </div>
 </div>
 

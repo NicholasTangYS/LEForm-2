@@ -6,7 +6,7 @@ import { AuthService } from './auth.service';
 export class IdleService {
   private idleTimeout: any;
   private warningTimeout: any;
-  private idleDuration = 15 * 60 * 1000; // 15 min
+  private idleDuration = 24 * 60 * 60 * 1000; // 1day
   private warningDuration = 1 * 60 * 1000; // 1 min before logout
 
   constructor(private auth: AuthService, private zone: NgZone) {

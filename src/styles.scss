@@ -1,3 +1,32 @@
 html {
   scroll-behavior: smooth;
 }
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+/* * GLOBAL CSS: styles.css or styles.scss
+ * This targets the default backdrop element.
+ */
+.cdk-overlay-backdrop {
+    /* Set the background color to transparent/light for the blur effect to show */
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    width: 100%;
+    top: 0;
+    /* Apply the blur filter */
+    z-index: 100;
+    height: 100%;
+    position: absolute;
+    backdrop-filter: blur(4px);
+}
+
+/* * Optional: If you use the 'blurred-dialog-panel' class, use it only for 
+ * styling the dialog window itself (not the screen behind it).
+ */
+.blurred-dialog-panel {
+    /* Example style for the dialog container */
+    border-radius: 12px;       
+    top:40vh;
+    left:35vw;
+    position: fixed !important;
+    z-index: 100;
+}

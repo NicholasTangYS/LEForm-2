@@ -28,7 +28,8 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/register`, { name, contact, email, password }).pipe(
       tap((res: any) => {
         //show success message and redirect to login
-        alert('Registration successful! Please log in.');
+        // alert('Registration successful! Please log in.');
+        
         this.router.navigate(['/login']);
         // this.setTokens(res.accessToken, res.refreshToken);
       })

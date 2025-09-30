@@ -9,17 +9,27 @@ body {
 }
 
 .backbtn{
-    position: fixed;
-    padding: 10px 15px;
+    // position: fixed;
+    // padding: 10px 15px;
     border: 0;
+    color: black;
+    height: 30px;
     font-size: medium;
+    // margin-top: 50px;
+    transition: transform 0.3s;
     cursor: pointer;
     border-radius: 5px;
-    background-color: #d1d1d1;
+    background-color: #f5f5f5;
+}
+
+.backbtn:hover{
+    text-decoration: underline;
+    background-color: #f5f5f5;
+    transform: none;
 }
 /* --- Sidebar Navigation --- */
 .sidebar {
-    margin-left: 160px;
+    margin-left: 100px;
 width: 240px;
 justify-content: space-between;
 display: flex;
@@ -72,7 +82,7 @@ top:0;
 /* --- Main Content Area --- */
 .content {
     flex-grow: 1;
-    margin-left: 120px; /* Same width as the sidebar */
+    margin-left: 60px; /* Same width as the sidebar */
     padding: 40px;
     
 }
@@ -147,14 +157,30 @@ input[type="text"]:focus {
     outline: none;
 }
 
+button{
+    height: 50px;    
+    font-size: 1em;
+    font-weight: bold;
+    border: 0;
+    padding: 5px 15px;
+    color: white;
+    border-radius: 5px;
+    background-color: #3498db;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+button:hover{
+    transform: translateY(-2px);
+    background-color: #328fcd;
+}
+
 /* --- Submit Button --- */
 button[type="submit"] {
     background-color: #2ecc71; /* Green */
     color: white;
     border: none;
     padding: 15px 30px;
-    font-size: 1.2em;
-    font-weight: bold;
+    
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.2s;
@@ -162,7 +188,7 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
     background-color: #27ae60; /* Darker green */
-    transform: translateY(-2px);
+    
 }
 .data-table td {
     width: fit-content;
