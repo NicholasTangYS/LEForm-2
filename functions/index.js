@@ -15,8 +15,11 @@ const app = express();
 const jwt = require('jsonwebtoken');
 const mysql = require('mysql2');
 const logger = require("firebase-functions/logger");
-
+const cors = require('cors'); 
+const crypto = require('crypto');
 const JWT_SECRET = process.env.JWT_SECRET;
+const bcrypt = require('bcrypt');
+const saltRounds = 10; // The cost factor for hashing
 
 const db = mysql.createConnection({
     host: 'db-mysql-sgp1-44557-do-user-17663198-0.k.db.ondigitalocean.com',  // DigitalOcean's public hostname
@@ -27,6 +30,20 @@ const db = mysql.createConnection({
     keepAliveInitialDelay: 10000, // keepalive
     enableKeepAlive: true // keepalive
 });
+
+const allowedOrigins = [
+  'https://le1-form.web.app', // Production Angular app
+  'http://localhost:4200',    // Your typical Angular local dev server
+  'http://127.0.0.1:4200'     // Alternative localhost address
+];
+const corsOptions = {
+  origin: allowedOrigins, // ⬅️ ONLY allow your deployed Angular app
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true, // If you need to send cookies/auth headers
+};
+
+app.use(cors(corsOptions)); // 3. Use the middleware
+
 
 
 app.get('/getUser', async (req, res) => {
@@ -280,6 +297,97 @@ app.post('/changePassword/:Id', (req, res) => {
     }
 });
 
+app.post('/request-password-reset', (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ message: 'Email is required.' });
+    }
+
+    // 1. Check if user exists
+    const findUserQuery = 'SELECT ID FROM le_user WHERE email = ?';
+    db.query(findUserQuery, [email], (err, results) => {
+        if (err) {
+            console.error('DB error finding user for password reset:', err);
+            return res.status(500).json({ message: 'An internal error occurred.' });
+        }
+
+        if (results.length === 0) {
+            // IMPORTANT: Do not reveal if an email exists or not.
+            // Send a generic success message to prevent user enumeration.
+            return res.status(200).json({ message: 'If an account with that email exists, a password reset code has been sent.' });
+        }
+
+        // 2. Generate a secure random token
+        const resetCode = crypto.randomInt(100000, 999999).toString(); // 6-digit code
+        const expiry = new Date();
+        expiry.setHours(expiry.getHours() + 1); // Token is valid for 1 hour
+
+        // 3. Store the token and expiry in the database
+        const updateTokenQuery = 'UPDATE le_user SET reset_token = ?, reset_token_expiry = ? WHERE email = ?';
+        db.query(updateTokenQuery, [resetCode, expiry, email], (updateErr, updateResult) => {
+            if (updateErr) {
+                console.error('DB error storing reset token:', updateErr);
+                return res.status(500).json({ message: 'An internal error occurred.' });
+            }
+
+            // 4. Send the email (In a real app, you'd use a service like Nodemailer/SendGrid)
+            // For now, we just log it and send it in the response for testing.
+            logger.info(`Password reset code for ${email}: ${resetCode}`);
+
+            res.status(200).json({
+                message: 'A password reset code has been sent to your email.',
+                resetCode: resetCode // NOTE: Only for development/testing. Remove in production.
+            });
+        });
+    });
+});
+
+app.post('/reset-password', async (req, res) => {
+    const { email, resetCode, newPassword } = req.body;
+
+    if (!email || !resetCode || !newPassword) {
+        return res.status(400).json({ message: 'Email, reset code, and new password are required.' });
+    }
+
+    if (newPassword.length < 8) {
+        return res.status(400).json({ message: 'Password must be at least 8 characters long.' });
+    }
+
+    // 1. Find user by email, token, and check expiry
+    const findUserQuery = 'SELECT ID FROM le_user WHERE email = ? AND reset_token = ? AND reset_token_expiry > NOW()';
+    db.query(findUserQuery, [email, resetCode], async (err, results) => {
+        if (err) {
+            console.error('DB error verifying reset token:', err);
+            return res.status(500).json({ message: 'An internal error occurred.' });
+        }
+
+        if (results.length === 0) {
+            return res.status(400).json({ message: 'Invalid or expired reset code.' });
+        }
+
+        const userId = results[0].ID;
+
+        try {
+            // 2. Hash the new password
+            const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+            // 3. Update the password and clear the reset token
+            const updatePasswordQuery = 'UPDATE le_user SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE ID = ?';
+            db.query(updatePasswordQuery, [hashedPassword, userId], (updateErr, updateResult) => {
+                if (updateErr) {
+                    console.error('DB error updating password:', updateErr);
+                    return res.status(500).json({ message: 'An internal error occurred.' });
+                }
+
+                res.status(200).json({ message: 'Your password has been reset successfully. You can now log in.' });
+            });
+        } catch (hashError) {
+            console.error('Error hashing new password:', hashError);
+            res.status(500).json({ message: 'An internal error occurred.' });
+        }
+    });
+});
 
 app.get('/getProjectByUser/:userId', async (req, res) => {
     const { userId } = req.params;
@@ -318,47 +426,87 @@ app.put('/updateProjectDetails/:Id', async (req, res) => {
     const { Id } = req.params;
 
     // 2. Extract the new data payload from the request body
-    //    We assume the client sends the new 'data' value in the request body.
     const newData = req.body.data;
 
     // Check if the data is present
     if (newData === undefined) {
-        return res.status(400).json({ 
+        return res.status(400).json({
             message: 'Missing required field: "data" in request body.'
         });
     }
 
-    try {
-        // SQL query to update the 'data' column in the 'le_project' table
-        // We use placeholders (?) for security to prevent SQL Injection.
-        const query = 'UPDATE le_project SET data = ?, updated_on = NOW() WHERE ID = ?';
+    // --- Dynamic SQL Setup ---
+    // Array to hold the parts of the SQL SET clause (e.g., 'name = ?')
+    const setClauses = [];
+    // Array to hold the values corresponding to the placeholders (?)
+    const values = [];
+
+    // All updates will include the latest full JSON payload for the 'data' column
+    setClauses.push('data = ?');
+    values.push(JSON.stringify(newData));
+
+    // Also include updated_on timestamp
+    setClauses.push('updated_on = NOW()');
+    
+    // --- 3. Conditional Updates for Mapped Columns ---
+
+    // A. Map Company Name to 'name' column
+    if (newData.Company_Name) {
+        setClauses.push('name = ?');
+        values.push(newData.Company_Name);
+    }
+
+    // B. Map Accounting Period components to 'year_end' column (DATE format YYYY-MM-DD)
+    const combinedData = newData; // Use newData directly if the date fields are at the top level
+    
+    const day = combinedData.Accounting_Period_To_Day;
+    const month = combinedData.Accounting_Period_To_Month;
+    const year = combinedData.Accounting_Period_To_Year;
+
+    if (day && month && year) {
+        // Construct the date string in 'YYYY-MM-DD' format
+        const yearEndString = `${year}-${month}-${day}`;
         
-        // The first placeholder takes newData, the second takes the Id
-        db.query(query, [JSON.stringify(newData), Id], (err, results) => {
+        setClauses.push('year_end = ?');
+        values.push(yearEndString);
+    }
+
+    // --- 4. Final Query Construction ---
+    // Join the set clauses (e.g., "data = ?, name = ?, year_end = ?")
+    const updateSet = setClauses.join(', ');
+    
+    // The final value needed for the WHERE clause (the ID) is appended last
+    values.push(Id); 
+
+    // SQL query to update the 'le_project' table
+    const query = `UPDATE le_project SET ${updateSet} WHERE ID = ?`;
+    
+    // Log the constructed query and values for debugging (optional)
+    // console.log('SQL Query:', query);
+    // console.log('SQL Values:', values);
+
+    try {
+        db.query(query, values, (err, results) => {
             if (err) {
                 console.error('Database error during update:', err);
-                // Return a specific error status code for database issues
                 return res.status(500).json({ 
                     message: 'Database error occurred during project update.', 
                     error: err.message 
                 });
             }
             
-            // Check if any rows were actually updated
             if (results.affectedRows === 0) {
                 return res.status(404).json({ 
                     message: `Project with ID ${Id} not found or no changes were made.` 
                 });
             }
 
-            // Successful update response
             res.json({ 
                 message: `Project ID ${Id} updated successfully.`,
                 affectedRows: results.affectedRows
             });
         });
     } catch (err) {
-        // Catch any non-database errors (e.g., JSON parsing failure, internal server issues)
         console.error('General error during project update:', err);
         res.status(500).send('An internal error occurred while updating the project data');
     }

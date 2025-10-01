@@ -1,5 +1,5 @@
 // src/app/auth/auth.service.ts
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
@@ -10,12 +10,14 @@ import { baseUrl } from '../../environments/environment';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private apiUrl = baseUrl; // change to your backend
+  userId = signal<string | null>(localStorage.getItem('user_id'));
 
   constructor(private http: HttpClient, private router: Router) {}
 
   login(email: string, password: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, { email, password }).pipe(
       tap((res: any) => {
+        this.userId.set(res.userID);
         this.setTokens(res.accessToken, res.refreshToken);
         if (res.userID) {
             localStorage.setItem('user_id', res.userID);
@@ -35,6 +37,21 @@ export class AuthService {
       })
     );
   }
+
+  /**
+   * Sends a request to the backend to initiate a password reset for the given email.
+   * @param email The user's email address.
+   */
+  requestPasswordReset(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/request-password-reset`, { email });
+  }
+
+  /**
+   * Sends the reset code and new password to the backend to finalize the password reset.
+   */
+  resetPassword(email: string, resetCode: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/reset-password`, { email, resetCode, newPassword });
+  }
   refreshToken(): Observable<any> {
     const refresh = localStorage.getItem('refresh_token');
     return this.http.post(`${this.apiUrl}/refresh`, { refreshToken: refresh }).pipe(
@@ -45,14 +62,15 @@ export class AuthService {
   }
 
   getUserId(): string | null {
-    return localStorage.getItem('user_id');
+    return this.userId();
   }
 
   logout(): void {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    // ⭐ NEW: Remove the user ID on logout
-    localStorage.removeItem('id'); 
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('id'); // Also clear the 'id' from token decoding
+    this.userId.set(null);
     this.router.navigate(['/login']);
   }
 

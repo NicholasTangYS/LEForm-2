@@ -8,6 +8,8 @@ import { AuthService } from './auth/auth.service';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button'; // for the buttons
 import { DialogService } from './dialog.service';
+import { HttpClient } from '@angular/common/http';
+import { baseUrl } from '../environments/environment';
 // ... add to @NgModule imports and exports
 
 @Component({
@@ -23,13 +25,17 @@ import { DialogService } from './dialog.service';
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
+    private apiUrl = baseUrl;
   title = 'ng';
   userID: any;
+  username: any;
   isLoginPage = false;
   constructor(private idle: IdleService,
     private router: Router,
      private auth: AuthService,
-     private dialogService: DialogService
+     private dialogService: DialogService,
+
+         private http: HttpClient,
   ) {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -38,13 +44,33 @@ export class AppComponent {
       });
 
        effect(() => {
-            this.userID = this.auth.getUserId();
+            this.userID = this.auth.userId();
             if (this.userID) {
-             console.log(this.userID)
+              this.loadUserData();
+            } else {
+              // Clear user data on logout
+              this.username = null;
             }
           });
   }
   isCollapsed = false;
+
+  loadUserData(): void {
+    // this.isLoading = true;
+    this.http.get<any>(`${this.apiUrl}/getUserDetails/${this.userID}`).subscribe({
+      next: (userData) => {
+        if(userData.length>0){
+          this.username= userData[0].Name
+        }
+        // this.settingsForm.patchValue(userData[0]);
+      },
+      error: (err) => {
+        console.error('Failed to load user data:', err);
+        alert('Could not load your profile data. Please try again later.');
+      },
+      
+    });
+  }
 
   toggleSidebar() {
     this.isCollapsed = !this.isCollapsed;

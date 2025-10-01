@@ -1,1 +1,39 @@
-<p>dashboard works!</p>
+<div class="dashboard-container">
+  <div class="dashboard-content">
+    <div class="dashboard-header">
+      <h1>Dashboard</h1>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-cards">
+      <div class="kpi-card">
+        <div class="kpi-value">{{ kpis.totalRevenue | currency }}</div>
+        <div class="kpi-label">Total Revenue</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value">{{ kpis.netProfit | currency }}</div>
+        <div class="kpi-label">Net Profit</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value">{{ kpis.newCustomers }}</div>
+        <div class="kpi-label">New Customers</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value">{{ kpis.conversionRate }}%</div>
+        <div class="kpi-label">Conversion Rate</div>
+      </div>
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="charts-grid">
+      <div class="card">
+        <h3>Cash Flow Sources</h3>
+        <div id="cash-flow-chart" style="width: 100%; height: 500px;"></div>
+      </div>
+      <div class="card">
+        <h3>Income vs. Expense</h3>
+        <div id="income-expense-chart" style="width: 100%; height: 500px;"></div>
+      </div>
+    </div>
+  </div>
+</div>

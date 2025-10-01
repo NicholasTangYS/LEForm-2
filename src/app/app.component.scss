@@ -9,14 +9,43 @@
   background: #2f3e46;
   color: white;
   width: 250px;
-  transition:  0.3s ease;
+  /* 1. Ensure a smooth transition for the width property */
+  transition: width 0.3s ease; 
   padding: 1rem;
   height: 97vh;
   top: 0;
   left: 0;
-    position: fixed;
+  position: fixed;
+
   &.collapsed {
     width: 70px;
+  }
+  
+  /* --- New Styles for Smooth Text Transition --- */
+
+  /* 2. Style the header div for consistent alignment */
+  & > div:first-child { 
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    height: 70px;
+  }
+
+  /* 3. Smooth transition for the main title (LE Form.ai) */
+  h2 {
+    font-size: 1.5rem;
+    white-space: nowrap; /* Prevents wrapping during collapse */
+    overflow: hidden;    /* Hides content beyond the width */
+    /* Add transition for opacity for smooth fade in/out */
+    transition: opacity 0.3s ease; 
+  }
+
+  /* 4. Hide title text with opacity and width when collapsed */
+  &.collapsed h2 {
+    opacity: 0; /* Fade out */
+    width: 0;
+    padding: 0;
+    margin: 0;
   }
 
   .toggle-btn {
@@ -24,19 +53,113 @@
     border: none;
     color: white;
     cursor: pointer;
-    margin-bottom: 1rem;
+    font-size: medium;
   }
 
   nav a {
-    display: block;
+    display: flex; /* Use flex for icon/text alignment */
+    align-items: center;
     color: #fff;
-    padding: 0.5rem 0;
+    padding: 0.5rem ;
     text-decoration: none;
     margin-bottom: 5px;
+    transition: all ease 0.3s;
+    
     &:hover {
       background: rgba(255, 255, 255, 0.1);
     }
+    
+    /* 5. Style the navigation span (Dashboard, Reports, Settings) */
+    span {
+        /* Add transition for opacity */
+        transition: opacity 0.3s ease;
+        white-space: nowrap;
+        overflow: hidden;
+    }
   }
+  
+  /* 6. Hide navigation text when collapsed */
+  &.collapsed nav a span {
+    opacity: 0;
+    width: 0; /* Ensures the hidden text doesn't take up space */
+  }
+
+  // .user-info {
+  //     padding-top: 1rem;
+  //     border-top: 1px solid rgba(255, 255, 255, 0.1);
+  //     position: absolute;
+  //     bottom: 20px;
+  //     left: 1rem;
+  //     right: 1rem;
+  // }
+
+  // .user-details {
+  //   display: flex;
+  //   align-items: center;
+  //   padding-bottom: 10px;
+
+  //   .user-icon {
+  //       /* Keep existing icon styles */
+  //       transition: margin-right 0.3s ease;
+  //   }
+
+  //   /* 7. Style the username text */
+  //   span:last-child { 
+  //     transition: opacity 0.3s ease;
+  //     white-space: nowrap;
+  //     overflow: hidden;
+  //   }
+  // }
+
+  // /* 8. Hide username text when collapsed */
+  // &.collapsed .user-details span:last-child {
+  //   opacity: 0;
+  //   width: 0;
+  //   padding: 0;
+  //   margin: 0;
+  // }
+
+  .logout-button {
+    // width: 100%;
+    // text-align: left;
+    transition: opacity 0.3s ease;
+    
+    /* 9. Ensure Mat-Button is styled correctly in the collapsed state */
+    &.mat-button {
+      padding: 0;
+      min-width: 0;
+    }
+  }
+
+  /* 10. Hide logout button text when collapsed (handled by *ngIf, but this adds opacity transition) */
+  &.collapsed .logout-button {
+     opacity: 0; /* Fade it out */
+  }
+}
+.user-icon {
+    /* Set the size of the icon container */
+    width: 30px;
+    height: 30px;
+    
+    /* Make it a circle */
+    border-radius: 50%;
+    
+    /* Center the text inside */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* Appearance */
+    background-color: #007bff; /* Example background color */
+    color: black;              /* Text color */
+    font-weight: bold;
+    font-size: 14px;
+    
+    /* Ensure it aligns well with the username text */
+    margin-right: 8px;
+    
+    /* If the user-details div is also flex/grid, you may need: */
+    flex-shrink: 0;
 }
 
 .main-content {
@@ -58,6 +181,7 @@
 .user-info {
   position: absolute;
   bottom: 1rem;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
