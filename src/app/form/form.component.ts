@@ -1,5 +1,5 @@
 // src/app/form/form.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
@@ -509,14 +509,13 @@ export class FormComponent implements OnInit {
       Payments_From_Malaysian_Residents_4_Type_of_payment_received: [''],
       Payments_From_Malaysian_Residents_4_Amount: [''],
     });
-    const navigation = this.router.getCurrentNavigation();
-    if (navigation?.extras.state && navigation.extras.state['formData']) {
-      this.initialFormData = navigation.extras.state['formData'];
-    } else {
-      console.warn('No form data received. Redirecting to home.');
-      // Uncomment the line below to redirect if no data is present
-      // this.router.navigate(['/home']);
-    }
+    //const navigation = this.router.getCurrentNavigation();
+    //if (navigation?.extras.state && navigation.extras.state['formData']) {
+      //this.initialFormData = navigation.extras.state['formData'];
+    //} else {
+      //console.warn('No form data received. Redirecting to home.');
+      
+    //}
   }
 
   toggleSidebar() {
@@ -690,6 +689,16 @@ export class FormComponent implements OnInit {
       alert('An error occurred while generating the PDF. Check the console for details.');
     } finally {
       this.isLoading = false;
+    }
+  }
+
+  // Listen for the browser's beforeunload event (e.g., page refresh, closing tab)
+  @HostListener('window:beforeunload', ['$event'])
+  unloadNotification($event: any): void {
+    // If the form has been changed by the user, show a confirmation prompt.
+    if (this.le1Form.dirty) {
+      // Most modern browsers show a generic message, but setting returnValue is required.
+      $event.returnValue = true;
     }
   }
 }
