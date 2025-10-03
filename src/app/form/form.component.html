@@ -28,7 +28,7 @@
     <div class="content">
         <div style="display: flex; justify-content: space-between;">
             <div style="display: flex;  align-items: center;">
-                <button (click)="back()" class="backbtn">← Back</button>
+                <button (click)="back($event)" class="backbtn">← Back</button>
                 <h2>Borang LE1 - Data Entry</h2>
             </div>
              
@@ -99,11 +99,11 @@
                 <label for="Incorp_date_day">Incorporation Date (DD/MM/YYYY):</label>
                 <div style="display: flex; gap: 5px; align-items: center;border-radius: 5px;
     border: 1px solid #ccc; padding:5px; margin-bottom: 10px;">
-                    <input style="width:5%" type="number" id="Incorp_date_day" formControlName="Incorp_date_day"
+                    <input style="width:4rem" type="number" id="Incorp_date_day" formControlName="Incorp_date_day"
                         size="2"> /
-                    <input style="width:5%" type="number" id="Incorp_date_month" formControlName="Incorp_date_month"
+                    <input style="width:4rem" type="number" id="Incorp_date_month" formControlName="Incorp_date_month"
                         size="2"> /
-                    <input style="width:8%" type="number" id="Incorp_date_year" formControlName="Incorp_date_year"
+                    <input style="width:5rem" type="number" id="Incorp_date_year" formControlName="Incorp_date_year"
                         size="4">
                 </div>
 
@@ -148,20 +148,20 @@
     border: 1px solid #ccc; padding:5px; justify-content: space-between;
     margin-bottom: 10px;">
                     <label for="Accounting_Period_From_Day">From (DD/MM/YYYY):</label>
-                    <input style="width:5%" type="number" id="Accounting_Period_From_Day"
+                    <input style="width:4rem" type="number" id="Accounting_Period_From_Day"
                         formControlName="Accounting_Period_From_Day" size="2"> /
-                    <input style="width:5%" type="number" id="Accounting_Period_From_Month"
+                    <input style="width:4rem" type="number" id="Accounting_Period_From_Month"
                         formControlName="Accounting_Period_From_Month" size="2"> /
-                    <input style="width:8%" type="number" id="Accounting_Period_From_Year"
+                    <input style="width:5rem" type="number" id="Accounting_Period_From_Year"
                         formControlName="Accounting_Period_From_Year" size="4">
                     <!-- split border Line -->
                     <span></span>
                     <label for="Accounting_Period_To_Day">To (DD/MM/YYYY):</label>
-                    <input style="width:5%" type="number" id="Accounting_Period_To_Day"
+                    <input style="width:4rem" type="number" id="Accounting_Period_To_Day"
                         formControlName="Accounting_Period_To_Day" size="2"> /
-                    <input style="width:5%" type="number" id="Accounting_Period_To_Month"
+                    <input style="width:4rem" type="number" id="Accounting_Period_To_Month"
                         formControlName="Accounting_Period_To_Month" size="2"> /
-                    <input style="width:8%" type="number" id="Accounting_Period_To_Year"
+                    <input style="width:5rem" type="number" id="Accounting_Period_To_Year"
                         formControlName="Accounting_Period_To_Year" size="4">
                 </div>
 
@@ -170,21 +170,21 @@
     border: 1px solid #ccc; padding:5px;justify-content: space-between;
     margin-bottom: 10px;">
                     <label for="Basis_Period_From_Day">From (DD/MM/YYYY):</label>
-                    <input style="width:5%" type="number" id="Basis_Period_From_Day"
+                    <input style="width:4rem" type="number" id="Basis_Period_From_Day"
                         formControlName="Basis_Period_From_Day" size="2">
                     /
-                    <input style="width:5%" type="number" id="Basis_Period_From_Month"
+                    <input style="width:4rem" type="number" id="Basis_Period_From_Month"
                         formControlName="Basis_Period_From_Month" size="2"> /
-                    <input style="width:8%" type="number" id="Basis_Period_From_Year"
+                    <input style="width:5rem" type="number" id="Basis_Period_From_Year"
                         formControlName="Basis_Period_From_Year" size="4">
                     <label for="Basis_Period_To_Day">To (DD/MM/YYYY):</label>
-                    <input style="width:5%" type="number" id="Basis_Period_To_Day" formControlName="Basis_Period_To_Day"
+                    <input style="width:4rem" type="number" id="Basis_Period_To_Day" formControlName="Basis_Period_To_Day"
                         size="2">
                     /
-                    <input style="width:5%" type="number" id="Basis_Period_To_Month"
+                    <input style="width:4rem" type="number" id="Basis_Period_To_Month"
                         formControlName="Basis_Period_To_Month" size="2">
                     /
-                    <input style="width:8%" type="number" id="Basis_Period_To_Year"
+                    <input style="width:5rem" type="number" id="Basis_Period_To_Year"
                         formControlName="Basis_Period_To_Year" size="4">
                 </div>
 
@@ -698,20 +698,20 @@
     border: 1px solid #ccc; padding:5px; justify-content: space-between;
     margin-bottom: 10px;">
                     <label for="E2_Accounting_Period_From">From (DD/MM/YYYY):</label>
-                    <input style="width:5%" type="number" id="E2_Accounting_Period_From_Day"
+                    <input style="width:4rem" type="number" id="E2_Accounting_Period_From_Day"
                         formControlName="E2_Accounting_Period_From_Day" size="2"> /
-                    <input style="width:5%" type="number" id="E2_Accounting_Period_From_Month"
+                    <input style="width:4rem" type="number" id="E2_Accounting_Period_From_Month"
                         formControlName="E2_Accounting_Period_From_Month" size="2"> /
-                    <input style="width:8%" type="number" id="E2_Accounting_Period_From_Year"
+                    <input style="width:5rem" type="number" id="E2_Accounting_Period_From_Year"
                         formControlName="E2_Accounting_Period_From_Year" size="4">
                     <!-- split border Line -->
                     <span></span>
                     <label for="E2_Accounting_Period_To">To (DD/MM/YYYY):</label>
-                    <input style="width:5%" type="number" id="E2_Accounting_Period_To_Day"
+                    <input style="width:4rem" type="number" id="E2_Accounting_Period_To_Day"
                         formControlName="E2_Accounting_Period_To_Day" size="2"> /
-                    <input style="width:5%" type="number" id="E2_Accounting_Period_To_Month"
+                    <input style="width:4rem" type="number" id="E2_Accounting_Period_To_Month"
                         formControlName="E2_Accounting_Period_To_Month" size="2"> /
-                    <input style="width:8%" type="number" id="E2_Accounting_Period_To_Year"
+                    <input style="width:5rem" type="number" id="E2_Accounting_Period_To_Year"
                         formControlName="E2_Accounting_Period_To_Year" size="4">
                 </div>
                 <div style="display: flex; justify-content: space-between; gap: 10px;">
@@ -754,20 +754,20 @@
 border: 1px solid #ccc; padding:5px; justify-content: space-between;
 margin-bottom: 10px;">
                     <label for="F4_Accounting_Period_From">From (DD/MM/YYYY):</label>
-                    <input style="width:5%" type="number" id="F4_Accounting_Period_From_Day"
+                    <input style="width:4rem" type="number" id="F4_Accounting_Period_From_Day"
                         formControlName="F4_Accounting_Period_From_Day" size="2"> /
-                    <input style="width:5%" type="number" id="F4_Accounting_Period_From_Month"
+                    <input style="width:4rem" type="number" id="F4_Accounting_Period_From_Month"
                         formControlName="F4_Accounting_Period_From_Month" size="2"> /
-                    <input style="width:8%" type="number" id="F4_Accounting_Period_From_Year"
+                    <input style="width:5rem" type="number" id="F4_Accounting_Period_From_Year"
                         formControlName="F4_Accounting_Period_From_Year" size="4">
                     <!-- split border Line -->
                     <span></span>
                     <label for="F4_Accounting_Period_To">To (DD/MM/YYYY):</label>
-                    <input style="width:5%" type="number" id="F4_Accounting_Period_To_Day"
+                    <input style="width:4rem" type="number" id="F4_Accounting_Period_To_Day"
                         formControlName="F4_Accounting_Period_To_Day" size="2"> /
-                    <input style="width:5%" type="number" id="F4_Accounting_Period_To_Month"
+                    <input style="width:4rem" type="number" id="F4_Accounting_Period_To_Month"
                         formControlName="F4_Accounting_Period_To_Month" size="2"> /
-                    <input style="width:8%" type="number" id="F4_Accounting_Period_To_Year"
+                    <input style="width:8rem" type="number" id="F4_Accounting_Period_To_Year"
                         formControlName="F4_Accounting_Period_To_Year" size="4">
                 </div>
 
@@ -812,11 +812,11 @@ margin-bottom: 10px;">
                 <label for="Declaration_Date_Day">Declaration Date (DD/MM/YYYY):</label>
                 <div style="display: flex; gap: 5px; align-items: center; padding:5px; 
 margin-bottom: 10px;">
-                    <input style="width:8%" type="text" id="Declaration_Date_Day" formControlName="Declaration_Date_Day"
+                    <input style="width:4rem" type="text" id="Declaration_Date_Day" formControlName="Declaration_Date_Day"
                         size="2"> /
-                    <input style="width:8%" type="text" id="Declaration_Date_Month"
+                    <input style="width:4rem" type="text" id="Declaration_Date_Month"
                         formControlName="Declaration_Date_Month" size="2"> /
-                    <input style="width:16%" type="text" id="Declaration_Date_Year"
+                    <input style="width:5rem" type="text" id="Declaration_Date_Year"
                         formControlName="Declaration_Date_Year" size="4">
                 </div>
 

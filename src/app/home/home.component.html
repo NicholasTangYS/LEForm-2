@@ -77,6 +77,16 @@
         </ng-template>
         <input type="file" accept="image/*, .pdf" #SRFileInp (change)="onFileSelected($event, 'sr')" hidden>
     </div>
+     <div class="upload-area" [class.file-selected]="LEFileName" (click)="LEFileInp.click()">
+        <div *ngIf="!LEFileName; else LEFileSelected">
+            <label>Last Year LE</label>
+        </div>
+        <ng-template #LEFileSelected>
+            <span class="file-name">{{ LEFileName }}</span>
+            <button class="remove-btn" (click)="removeFile('le'); $event.stopPropagation()">&times;</button>
+        </ng-template>
+        <input type="file" accept="image/*, .pdf" #LEFileInp (change)="onFileSelected($event, 'le')" hidden>
+    </div>
 
     <button class="btn" (click)="processFiles()">Process Documents</button>
 </div>

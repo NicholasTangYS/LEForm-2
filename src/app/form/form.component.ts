@@ -9,6 +9,7 @@ import { PDFDocument } from 'pdf-lib';
 import { saveAs } from 'file-saver';
 import { AuthService } from '../auth/auth.service';
 import { baseUrl } from '../../environments/environment';
+import { DialogService } from '../dialog.service';
 
 @Component({
   selector: 'app-form',
@@ -31,6 +32,7 @@ export class FormComponent implements OnInit {
     private fb: FormBuilder,
     private http: HttpClient,
     private auth: AuthService,
+    private dialogService: DialogService,
     
   ) {
     // Initialize an empty form group. It will be populated dynamically.
@@ -589,9 +591,9 @@ export class FormComponent implements OnInit {
     });
   }
 
-  back() {
+  back($event: Event) {
+    this.unloadNotification($event)
     
-    this.router.navigate(['/reports']);
   }
 
   saveProject(): void {
@@ -697,8 +699,30 @@ export class FormComponent implements OnInit {
   unloadNotification($event: any): void {
     // If the form has been changed by the user, show a confirmation prompt.
     if (this.le1Form.dirty) {
+      console.log('dirty')
       // Most modern browsers show a generic message, but setting returnValue is required.
       $event.returnValue = true;
+      const dialogData = {
+      title: 'Confirmation',
+      message: `Unsaved changes will be lost. Are you sure you want to leave?`,
+      confirmText: 'Yes',
+      cancelText: 'No, stay here'
+    };
+
+    // Open the dialog and subscribe to the result
+    this.dialogService.confirm(dialogData)
+      .subscribe(result => {
+        if (result) {
+          // User confirmed - proceed with the action
+          this.router.navigate(['/reports']);
+          // Your delete logic here
+        } else {
+          // User canceled
+          console.log('leave canceled.');
+        }
+      });
+    } else{
+      this.router.navigate(['/reports']);
     }
   }
 }

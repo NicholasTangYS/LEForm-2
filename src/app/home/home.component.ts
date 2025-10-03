@@ -28,12 +28,14 @@ export class HomeComponent {
   financialsFile: File | null = null;
   c5File: File | null = null;
   SRFile: File | null = null;
+  LEFile: File | null = null;
   userID: any;
   taxFileName = '';
   shareholderFileName = '';
   financialsFileName = '';
   c5FileName = '';
   SRFileName = '';
+  LEFileName ='';
 
   // State for handling failures
   showFailureModal = false;
@@ -50,7 +52,8 @@ export class HomeComponent {
     financials: 'financial-statement',
     partb: 'partb',
     c10: 'c10',
-    c11: 'c11'
+    c11: 'c11',
+    le: 'LastyearLE'
   };
 
   constructor(private router: Router,
@@ -91,6 +94,10 @@ export class HomeComponent {
         this.SRFile = file;
         this.SRFileName = file.name;
       }
+      else if (fileType === 'le') {
+        this.LEFile = file;
+        this.LEFileName = file.name;
+      }
     }
   }
 
@@ -110,6 +117,10 @@ export class HomeComponent {
     } else if (fileType === 'sr') {
       this.SRFile = null;
       this.SRFileName = '';
+    }
+    else if (fileType === 'le') {
+      this.LEFile = null;
+      this.LEFileName = '';
     }
   }
 
@@ -182,6 +193,10 @@ export class HomeComponent {
       jobs.push({ name: `SR Part C10 (${this.SRFile.name})`, task: () => this.callParserApi(this.SRFile!, this.ENDPOINTS.c10) });
       jobs.push({ name: `SR Part C11 (${this.SRFile.name})`, task: () => this.callParserApi(this.SRFile!, this.ENDPOINTS.c11) });
     }
+    if (this.LEFile) {
+      jobs.push({ name: `Last Year LE (${this.LEFile.name})`, task: () => this.callParserApi(this.LEFile!, this.ENDPOINTS.le) });
+    }
+
 
     const results = await Promise.allSettled(jobs.map(job => job.task()));
 
