@@ -178,17 +178,19 @@ export class HomeComponent {
       jobs.push({ name: `Tax Summary (${this.taxFile.name})`, task: () => this.callTaxSummaryApi(this.taxFile!) });
     }
     if (this.shareholderFile) {
-      jobs.push({ name: `Annual Return C3 (${this.shareholderFile.name})`, task: () => this.callParserApi(this.shareholderFile!, this.ENDPOINTS.c3) });
+      // jobs.push({ name: `Annual Return C3 (${this.shareholderFile.name})`, task: () => this.callParserApi(this.shareholderFile!, this.ENDPOINTS.c3) });
       jobs.push({ name: `Annual Return C4 (${this.shareholderFile.name})`, task: () => this.callParserApi(this.shareholderFile!, this.ENDPOINTS.c4) });
     }
     if (this.financialsFile) {
       jobs.push({ name: `Financials Statements (${this.financialsFile.name})`, task: () => this.callParserApi(this.financialsFile!, this.ENDPOINTS.financials) });
       jobs.push({ name: `Financials Part C9 (${this.financialsFile.name})`, task: () => this.callParserApi(this.financialsFile!, this.ENDPOINTS.c9) });
     }
-    if (this.c5File) {
-      jobs.push({ name: `Annexure C5 (${this.c5File.name})`, task: () => this.callParserApi(this.c5File!, this.ENDPOINTS.c5) });
-    }
+    // if (this.c5File) {
+    //   jobs.push({ name: `Annexure C5 (${this.c5File.name})`, task: () => this.callParserApi(this.c5File!, this.ENDPOINTS.c5) });
+    // }
     if (this.SRFile) {
+      jobs.push({ name: `Annual Return C3 (${this.SRFile.name})`, task: () => this.callParserApi(this.SRFile!, this.ENDPOINTS.c3) });
+      jobs.push({ name: `Annexure C5 (${this.SRFile.name})`, task: () => this.callParserApi(this.SRFile!, this.ENDPOINTS.c5) });
       jobs.push({ name: `SR Part B (${this.SRFile.name})`, task: () => this.callParserApi(this.SRFile!, this.ENDPOINTS.partb) });
       jobs.push({ name: `SR Part C10 (${this.SRFile.name})`, task: () => this.callParserApi(this.SRFile!, this.ENDPOINTS.c10) });
       jobs.push({ name: `SR Part C11 (${this.SRFile.name})`, task: () => this.callParserApi(this.SRFile!, this.ENDPOINTS.c11) });

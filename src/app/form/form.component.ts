@@ -10,11 +10,13 @@ import { saveAs } from 'file-saver';
 import { AuthService } from '../auth/auth.service';
 import { baseUrl } from '../../environments/environment';
 import { DialogService } from '../dialog.service';
+import { ThousandSeparatorDirective } from '../thousand-separator.directive.ts';
+
 
 @Component({
   selector: 'app-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, HttpClientModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, HttpClientModule, ThousandSeparatorDirective],
   templateUrl: './form.component.html',
   styleUrls: ['./form.component.scss']
 })
@@ -25,6 +27,7 @@ export class FormComponent implements OnInit {
   sidebarOpen = false;
   private apiUrl = baseUrl;
   projectId: any;
+  sectionStatus: { [key: string]: boolean } = {};
 
   constructor(
     private router: Router,
@@ -35,7 +38,6 @@ export class FormComponent implements OnInit {
     private dialogService: DialogService,
     
   ) {
-    // Initialize an empty form group. It will be populated dynamically.
     this.le1Form = this.fb.group({
       // Part A: Basic Particulars
       Year_of_Assessment_1: [''],
@@ -511,13 +513,6 @@ export class FormComponent implements OnInit {
       Payments_From_Malaysian_Residents_4_Type_of_payment_received: [''],
       Payments_From_Malaysian_Residents_4_Amount: [''],
     });
-    //const navigation = this.router.getCurrentNavigation();
-    //if (navigation?.extras.state && navigation.extras.state['formData']) {
-      //this.initialFormData = navigation.extras.state['formData'];
-    //} else {
-      //console.warn('No form data received. Redirecting to home.');
-      
-    //}
   }
 
   toggleSidebar() {
@@ -530,28 +525,10 @@ export class FormComponent implements OnInit {
     if (this.projectId) {
       this.loadProjectData(this.projectId);
     } else {
-      // If a user navigates here directly without an ID, redirect them.
       console.warn('No project ID found. Redirecting to reports page.');
       this.router.navigate(['/reports']);
-      return; // Stop further execution
+      return; 
     }
-    // if (this.initialFormData) {
-    //   // Dynamically create form controls based on the keys in the received data
-    //   const formControls: { [key: string]: any } = {};
-    //   for (const key in this.initialFormData) {
-    //     if (Object.prototype.hasOwnProperty.call(this.initialFormData, key)) {
-    //       formControls[key] = [this.initialFormData[key] || ''];
-    //     }
-    //   }
-    //   this.le1Form = this.fb.group(formControls);
-    //   console.log('Form initialized with data:', this.le1Form.value);
-    // }
-    // if (this.initialFormData) {
-    //   // Use patchValue. It safely fills in the values for matching controls
-    //   // and ignores any properties in initialFormData that don't have a control.
-    //   this.le1Form.patchValue(this.initialFormData);
-    //   console.log('Form initialized and patched with data:', this.le1Form.value);
-    // }
 
     this.route.fragment.subscribe(fragment => {
       if (fragment) {
@@ -561,15 +538,85 @@ export class FormComponent implements OnInit {
         }
       }
     });
+
+    this.le1Form.valueChanges.subscribe(() => {
+      this.checkAllSectionsCompletion();
+    });
+
+    // Handle conditional visibility for CbC Reporting sections
+    this.le1Form.get('D1_Subject_to_CbCR')?.valueChanges.subscribe(value => {
+      const p_E = ['E1_MNE_Group_Name', 'E2_Accounting_Period_From_Day', 'E2_Accounting_Period_From_Month', 'E2_Accounting_Period_From_Year', 'E2_Accounting_Period_To_Day', 'E2_Accounting_Period_To_Month', 'E2_Accounting_Period_To_Year', 'E3_Constituent_Entities_in_Malaysia', 'E4_Constituent_Entities_outside_Malaysia'];
+      const p_F = ['F1_Reporting_Entity_Name', 'F2_TIN', 'F3_Country_of_Residence', 'F4_Accounting_Period_From_Day', 'F4_Accounting_Period_From_Month', 'F4_Accounting_Period_From_Year', 'F4_Accounting_Period_To_Day', 'F4_Accounting_Period_To_Month', 'F4_Accounting_Period_To_Year', 'F5_MNE_Group_Name', 'F6_Status_of_Reporting_Entity', 'F7a_Ultimate_Holding_Entity_Name', 'F7b_Country_of_Residence_UHE'];
+      
+      if (value === '1') { // "Yes"
+        p_E.forEach(c => this.le1Form.get(c)?.enable());
+        p_F.forEach(c => this.le1Form.get(c)?.enable());
+      } else { // "No" or other values
+        p_E.forEach(c => this.le1Form.get(c)?.disable());
+        p_F.forEach(c => this.le1Form.get(c)?.disable());
+      }
+    });
+  }
+
+  /**
+   * Checks if a single field has a value.
+   */
+  isFieldComplete(fieldName: string): any {
+    const control = this.le1Form.get(fieldName);
+    return control && control.value !== null && control.value !== undefined && control.value !== '';
+  }
+
+  /**
+   * Validates a table section. A table is complete if there are no partially filled rows.
+   * @param rowCount The number of rows in the table.
+   * @param fieldPrefix The prefix for the form control names in the table (e.g., 'Compliance_Officers_').
+   * @param fieldSuffixes An array of suffixes for the fields in each row (e.g., ['Name', 'Designation']).
+   */
+  isTableComplete(rowCount: number, fieldPrefix: string, fieldSuffixes: string[]): boolean {
+    for (let i = 0; i < rowCount; i++) {
+        const rowFieldValues = fieldSuffixes.map(suffix => this.le1Form.get(`${fieldPrefix}${i}_${suffix}`)?.value);
+        
+        const filledFields = rowFieldValues.filter(v => v !== null && v !== undefined && v !== '').length;
+
+        // A row is invalid if it's partially filled (not completely empty and not completely full)
+        if (filledFields > 0 && filledFields < fieldSuffixes.length) {
+            return false; // Incomplete
+        }
+    }
+    return true; // Complete
+  }
+
+  checkAllSectionsCompletion(): void {
+    // Part A: Basic Particulars
+    this.sectionStatus['part-a'] = [
+        'Year_of_Assessment_1', 'Year_of_Assessment_2', 'Year_of_Assessment_3', 'Year_of_Assessment_4',
+        'Company_Name', 'Company_Address_Line1', 'Postcode', 'City', 'State', 'Change_of_Accounting_Period_No'
+    ].every(field => this.isFieldComplete(field));
+
+    // Part B: Tax Computation (including table validation)
+    const b1Suffixes = [
+        'Business_Activity_Code', 'Core_Income_Activity_Yes', 'Business_Activity_Status_Active',
+        'No_of_Employees', 'Annual_Operating_Expenditure', 'Compliance_with_FPEC', 'Compliance_with_CML',
+        'No_of_Employees_Malaysia', 'No_of_Related_Company', 'Comply_Substantive_Yes',
+        'Amount_of_Net_Loss', 'Net_Profits_ex_IP'
+    ];
+    this.sectionStatus['part-b'] = this.isTableComplete(5, 'B1_Row', b1Suffixes) && 
+                                   ['B2_Total_Net_Profits', 'B6_Tax_Payable'].every(f => this.isFieldComplete(f));
+    
+    // Attachment C3: Compliance Officers
+    const c3Suffixes = ['Name', 'Designation', 'Address', 'ID_Passport_No', 'Date_of_Birth', 'TIN', 'Telephone_No', 'Salary_Bonus', 'Fees_Commission_Allowances', 'Total_Loan_to_Officer', 'Total_Loan_from_Officer']; // Example required fields
+    this.sectionStatus['attachment-c3'] = this.isTableComplete(5, 'Compliance_Officers', c3Suffixes);
+
+    // ... Add similar checks for all other sections and tables ...
   }
 
   loadProjectData(projectId: any): void {
     this.isLoading = true;
     this.http.get<any>(`${this.apiUrl}/getProjectDetails/${projectId}`).subscribe({
       next: (response) => {
-        // Assuming the API returns an object where the form data is in a `data` property
         if (response && response[0].data) {
           this.le1Form.patchValue(response[0].data);
+          this.checkAllSectionsCompletion(); // Check completion status AFTER data is loaded
           console.log('Form successfully patched with data from API.');
         } else {
           console.error('Invalid data structure received from API:', response);
@@ -583,17 +630,13 @@ export class FormComponent implements OnInit {
         this.router.navigate(['/reports']);
       },
       complete: () => {
-        setTimeout(() => {
-          this.isLoading = false; // Turn off the loader
-        }, 500);
-        
+        setTimeout(() => { this.isLoading = false; }, 500);
       }
     });
   }
 
   back($event: Event) {
-    this.unloadNotification($event)
-    
+    this.unloadNotification($event);
   }
 
   saveProject(): void {
@@ -609,7 +652,7 @@ export class FormComponent implements OnInit {
 
     this.isLoading = true;
     const formData = this.le1Form.value;
-    const requestBody = { data: formData }; // Wrap the form data in a 'data' object
+    const requestBody = { data: formData };
 
     this.http.put(`${this.apiUrl}/updateProjectDetails/${this.projectId}`, requestBody).subscribe({
       next: (response) => {
@@ -628,48 +671,43 @@ export class FormComponent implements OnInit {
 
   async generatePdf(): Promise<void> {
     if (this.le1Form.invalid) {
-      // This check is basic. Add more specific validation as needed.
       alert('The form is invalid. Please check all fields.');
       return;
     }
     this.isLoading = true;
 
     try {
-      // Load PDF template and mapping file from the assets folder
       const assets = await lastValueFrom(forkJoin({
-        pdfTemplateBytes: this.http.get('contohbn_le1-2025-asas-tahun-semasa-_1 (2) (1) (1).pdf', { responseType: 'arraybuffer' }),
-        mapping: this.http.get<any>('data_mapping.json')
+        pdfTemplateBytes: this.http.get('assets/contohbn_le1-2025-asas-tahun-semasa-_1 (2) (1) (1).pdf', { responseType: 'arraybuffer' }),
+        mapping: this.http.get<any>('assets/data_mapping.json')
       }));
 
       const { pdfTemplateBytes, mapping } = assets;
 
-      if (!pdfTemplateBytes || !mapping) {
-        throw new Error("Failed to load PDF assets from the 'assets' folder.");
-      }
-
       const pdfDoc = await PDFDocument.load(pdfTemplateBytes);
       const pages = pdfDoc.getPages();
-      console.log(pages)
-      const formValues = this.le1Form.value;
-      console.log('Form values to populate PDF:', formValues);
+      const formValues = this.le1Form.getRawValue(); // Use getRawValue to include disabled fields
 
       for (const fieldName in mapping) {
         if (Object.prototype.hasOwnProperty.call(mapping, fieldName)) {
           const coords = mapping[fieldName];
-          const value = formValues[fieldName];
-          console.log(coords, value);
-          // Check if a value exists for the field
-          if (value !== null && value !== undefined) {
-            // Adjust the page index to be zero-based for pdf-lib
-            const pageIndex = coords.page;
+          let value = formValues[fieldName];
 
+          // For radio buttons, the value might be '1' or '2'. You might need to map this to 'Yes'/'No' or a checkmark.
+          // This is a simple example; your mapping could be more complex.
+          
+          if (value !== null && value !== undefined) {
+            const pageIndex = coords.page;
             if (pageIndex >= 0 && pageIndex < pages.length) {
               const page = pages[pageIndex];
-
+              // Format numbers with commas for the PDF
+              if (typeof value === 'number' || !isNaN(Number(value))) {
+                  value = new Intl.NumberFormat('en-US').format(Number(value));
+              }
               page.drawText(String(value), {
                 x: coords.x,
                 y: coords.y,
-                size: coords.size || 12,
+                size: coords.size || 10, // Adjusted size for PDF
               });
             } else {
               console.warn(`Invalid page index for field '${fieldName}': page ${coords.page}`);
@@ -684,7 +722,7 @@ export class FormComponent implements OnInit {
       const arrayBuffer = pdfBytes.buffer as ArrayBuffer;
 
       const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
-      saveAs(blob, 'LE1_completed.pdf');
+     saveAs(blob, 'LE1_completed.pdf');
 
     } catch (error) {
       console.error('Error generating PDF:', error);
@@ -694,33 +732,25 @@ export class FormComponent implements OnInit {
     }
   }
 
-  // Listen for the browser's beforeunload event (e.g., page refresh, closing tab)
   @HostListener('window:beforeunload', ['$event'])
   unloadNotification($event: any): void {
-    // If the form has been changed by the user, show a confirmation prompt.
     if (this.le1Form.dirty) {
-      console.log('dirty')
-      // Most modern browsers show a generic message, but setting returnValue is required.
       $event.returnValue = true;
       const dialogData = {
-      title: 'Confirmation',
-      message: `Unsaved changes will be lost. Are you sure you want to leave?`,
-      confirmText: 'Yes',
-      cancelText: 'No, stay here'
-    };
+        title: 'Confirmation',
+        message: `Unsaved changes will be lost. Are you sure you want to leave?`,
+        confirmText: 'Yes',
+        cancelText: 'No, stay here'
+      };
 
-    // Open the dialog and subscribe to the result
-    this.dialogService.confirm(dialogData)
-      .subscribe(result => {
-        if (result) {
-          // User confirmed - proceed with the action
-          this.router.navigate(['/reports']);
-          // Your delete logic here
-        } else {
-          // User canceled
-          console.log('leave canceled.');
-        }
-      });
+      this.dialogService.confirm(dialogData)
+        .subscribe(result => {
+          if (result) {
+            this.router.navigate(['/reports']);
+          } else {
+            console.log('Leave canceled.');
+          }
+        });
     } else{
       this.router.navigate(['/reports']);
     }

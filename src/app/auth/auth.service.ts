@@ -116,7 +116,7 @@ export class AuthService {
   getProjectId(): any {
     const id = sessionStorage.getItem('activeProjectId');
     if (id) {
-      sessionStorage.removeItem('activeProjectId'); // Clear after reading
+      // sessionStorage.removeItem('activeProjectId'); // Clear after reading
     }
     return id;
   }

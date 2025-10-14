@@ -31,6 +31,7 @@ body {
 .sidebar {
     margin-left: 100px;
 width: 240px;
+height: 840px;
 justify-content: space-between;
 display: flex;
 flex-direction: column;
@@ -41,13 +42,37 @@ position: fixed; /* Stays in place on scroll */
 // padding-top: 20px;
 border-radius: 5px;
 transition: top 0.5s;
-top: -95%;
+top: -800px;
 }
 
 .sidebar:hover {
 // margin-top: 0;
 top:0;
 }
+
+.radio-group {
+        display: flex;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        padding: 5px;
+    }
+
+    .radio-group label {
+        margin-right: 15px;
+        cursor: pointer;
+    }
+    
+    /* Style for the section sidebar to indicate completeness */
+    .sidebar ul li a.incomplete::after {
+        content: ' ●';
+        color: #ffcc00; /* Yellow dot for incomplete sections */
+    }
+
+    .sidebar ul li a.complete::after {
+        content: ' ●';
+        color: #4CAF50; /* Green dot for complete sections */
+    }
 
 .sidebar h2 {
     text-align: center;
@@ -155,6 +180,19 @@ input[type="text"]:focus {
     border-color: #3498db;
     box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
     outline: none;
+}
+
+textarea {
+    width: 100%; /* Makes the input field fill its container */
+    box-sizing: border-box; /* Ensures padding and border are included in the 100% width */
+
+    /* The following styles are from your original code and have been kept */
+    padding: 12px 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 button{
