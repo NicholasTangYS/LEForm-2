@@ -150,7 +150,7 @@ label {
     color: #555;
 }
 
-input[type="text"] {
+input[type='text'] , input[type='email'] {
     width: 100%; /* Makes the input field fill its container */
     box-sizing: border-box; /* Ensures padding and border are included in the 100% width */
 
