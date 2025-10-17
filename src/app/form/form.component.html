@@ -1,4 +1,9 @@
-<div [hidden]="isLoading" style="display: flex;justify-content: space-between;background: #f5f5f5;">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+<div [hidden]="isLoading" class="page-layout-container">
 
     <!-- <button class="sidebar-toggle" (click)="toggleSidebar()">☰</button> -->
     <nav class="sidebar" [class.sidebar-opened]="sidebarOpen">
@@ -25,12 +30,16 @@
                 <li><a [routerLink]="['/form']" fragment="attachment-c11">Att. C11: Payments Received</a></li>
             </ul>
         </div>
-        <span style="text-align: center; padding: 5px;">Sections <svg xmlns="http://www.w3.org/2000/svg" height="14"
+        <!-- <span style="text-align: center; padding: 5px;">Sections <svg xmlns="http://www.w3.org/2000/svg" height="14"
                 width="14"
-                viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+                viewBox="0 0 640 640">
                 <path fill="#ffffff"
                     d="M297.4 470.6C309.9 483.1 330.2 483.1 342.7 470.6L534.7 278.6C547.2 266.1 547.2 245.8 534.7 233.3C522.2 220.8 501.9 220.8 489.4 233.3L320 402.7L150.6 233.4C138.1 220.9 117.8 220.9 105.3 233.4C92.8 245.9 92.8 266.2 105.3 278.7L297.3 470.7z" />
-            </svg></span>
+            </svg></span> -->
+        <div class="sidebar-footer">
+            <span class="legend-item"><span class="dot complete"></span> Complete</span>
+            <span class="legend-item"><span class="dot incomplete"></span> Incomplete</span>
+        </div>
     </nav>
     <div class="content">
         <div style="display: flex; justify-content: space-between;">
@@ -39,7 +48,7 @@
                 <h2>Borang LE1 - Data Entry</h2>
             </div>
 
-            <div style="display: flex; gap: 10px;">
+            <div style="display: flex; gap: 10px; max-width: 73vw; align-items: center;">
                 <button (click)="saveProject()" [disabled]="isLoading">Save</button>
                 <button type="submit" (click)="generatePdf()">Generate PDF</button>
             </div>
@@ -47,7 +56,7 @@
         </div>
 
         <!-- <p>Fill in the details and click "Generate PDF" to download the completed form.</p> -->
-        <div style="overflow: auto; max-height: 85vh; max-width: 73vw;">
+        <div style="overflow: auto; max-height: 94vh; max-width: 73vw;display: grid;">
             <form id="le1-form" [formGroup]="le1Form" (ngSubmit)="generatePdf()">
 
                 <!-- Part A: Basic Particulars -->
@@ -64,7 +73,7 @@
                     <input style="width: 4%;" type="text" id="Year_of_Assessment_4"
                         formControlName="Year_of_Assessment_4" maxlength="1" size="1">
 
-                    <label for="Company_Name">Company Name:</label>
+                    <label for="Company_Name">Company Name:<span class="required-asterisk">*</span></label>
                     <input type="text" id="Company_Name" formControlName="Company_Name">
 
                     <label for="Company_Address_Line1">Address Line 1:</label>
@@ -124,16 +133,28 @@
 
                     <label for="Change_of_Accounting_Period_No">Change of Accounting Period:</label>
                     <div style="display: flex;
-                border: 1px solid #ccc;
+                border: 1px solid #ccc;gap: 3px;
                 border-radius: 5px;
                 margin-bottom: 10px;
                 padding: 5px;">
-                        <input type="radio" id="Change_of_Accounting_Period_No_Yes"
-                            formControlName="Change_of_Accounting_Period_No" value="1">
-                        <label for="Record_keeping_Yes">Yes</label>
-                        <input type="radio" id="Change_of_Accounting_Period_No"
-                            formControlName="Change_of_Accounting_Period_No" value="2">
-                        <label for="Record_keeping_No">No</label>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="Change_of_Accounting_Period_No"
+                                id="Change_of_Accounting_Period_No_Yes" value="1"
+                                formControlName="Change_of_Accounting_Period_No">
+                            <label class="form-check-label" for="Change_of_Accounting_Period_No_Yes">
+                                Yes
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="Change_of_Accounting_Period_No"
+                                id="Change_of_Accounting_Period_No_No" value="2"
+                                formControlName="Change_of_Accounting_Period_No">
+                            <label class="form-check-label" for="Change_of_Accounting_Period_No_No">
+                                No
+                            </label>
+                        </div>
+
                     </div>
 
                     <label for="Types_of_exchange_of_accounting_periods">Types of exchange of accounting
@@ -143,12 +164,20 @@
                 border-radius: 5px;
                 margin-bottom: 10px;
                 padding: 5px;">
-                        <input type="radio" id="Types_of_exchange_of_accounting_periods_1"
-                            formControlName="Types_of_exchange_of_accounting_periods" value="1">
-                        <label for="Record_keeping_Yes">Shortened period</label>
-                        <input type="radio" id="Types_of_exchange_of_accounting_periods_2"
-                            formControlName="Types_of_exchange_of_accounting_periods" value="2">
-                        <label for="Record_keeping_No">Extended period</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="Types_of_exchange_of_accounting_periods_1"
+                                formControlName="Types_of_exchange_of_accounting_periods" value="1"
+                                name="Types_of_exchange_of_accounting_periods">
+                            <label class="form-check-label" for="Types_of_exchange_of_accounting_periods_1">Shortened
+                                period</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="Types_of_exchange_of_accounting_periods_2"
+                                formControlName="Types_of_exchange_of_accounting_periods" value="2"
+                                name="Types_of_exchange_of_accounting_periods">
+                            <label class="form-check-label" for="Types_of_exchange_of_accounting_periods_2">Extended
+                                period</label>
+                        </div>
                     </div>
 
                     <label>Accounting Period:</label>
@@ -202,12 +231,16 @@
                 border-radius: 5px;
                 margin-bottom: 10px;
                 padding: 5px;">
-                        <input type="radio" id="FS_in_Foreign_Currency_Yes" formControlName="FS_in_Foreign_Currency_Yes"
-                            value="1">
-                        <label for="FS_in_Foreign_Currency_Yes">Yes</label>
-                        <input type="radio" id="FS_in_Foreign_Currency_No" formControlName="FS_in_Foreign_Currency_Yes"
-                            value="2">
-                        <label for="FS_in_Foreign_Currency_No">No</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="FS_in_Foreign_Currency_Yes"
+                                formControlName="FS_in_Foreign_Currency_Yes" value="1" name="FS_in_Foreign_Currency">
+                            <label class="form-check-label" for="FS_in_Foreign_Currency_Yes">Yes</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="FS_in_Foreign_Currency_No"
+                                formControlName="FS_in_Foreign_Currency_Yes" value="2" name="FS_in_Foreign_Currency">
+                            <label class="form-check-label" for="FS_in_Foreign_Currency_No">No</label>
+                        </div>
                     </div>
 
                     <label for="Currency_Reported">Currency Reported:</label>
@@ -222,10 +255,16 @@
                 border-radius: 5px;
                 margin-bottom: 10px;
                 padding: 5px;">
-                        <input type="radio" id="Record_keeping_Yes" formControlName="Record_keeping" value="1">
-                        <label for="Record_keeping_Yes">Yes</label>
-                        <input type="radio" id="Record_keeping_No" formControlName="Record_keeping" value="2">
-                        <label for="Record_keeping_No">No</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="Record_keeping_Yes"
+                                formControlName="Record_keeping" value="1" name="Record_keeping">
+                            <label class="form-check-label" for="Record_keeping_Yes">Yes</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="Record_keeping_No"
+                                formControlName="Record_keeping" value="2" name="Record_keeping">
+                            <label class="form-check-label" for="Record_keeping_No">No</label>
+                        </div>
                     </div>
 
                     <label for="Business_Status_In_Operation">Business Status:</label>
@@ -234,15 +273,22 @@
                 border-radius: 5px;
                 margin-bottom: 10px;
                 padding: 5px;">
-                        <input type="radio" id="Business_Status_In_Operation"
-                            formControlName="Business_Status_In_Operation" value="1">
-                        <label for="Business_Status_In_Operation">In Operation</label>
-                        <input type="radio" id="Business_Status_Dormant" formControlName="Business_Status_In_Operation"
-                            value="2">
-                        <label for="Business_Status_Dormant">Dormant</label>
-                        <input type="radio" id="Business_Status_Winding" formControlName="Business_Status_In_Operation"
-                            value="3">
-                        <label for="Business_Status_winding">In the process of winding-up</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="Business_Status_In_Operation"
+                                formControlName="Business_Status_In_Operation" value="1" name="Business_Status">
+                            <label class="form-check-label" for="Business_Status_In_Operation">In Operation</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="Business_Status_Dormant"
+                                formControlName="Business_Status_In_Operation" value="2" name="Business_Status">
+                            <label class="form-check-label" for="Business_Status_Dormant">Dormant</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="Business_Status_Winding"
+                                formControlName="Business_Status_In_Operation" value="3" name="Business_Status">
+                            <label class="form-check-label" for="Business_Status_winding">In the process of
+                                winding-up</label>
+                        </div>
                     </div>
 
                     <label for="Type_of_Labuan_entity">Type of Labuan entity:</label>
@@ -253,76 +299,84 @@
     margin-bottom: 10px;
     padding: 5px;">
 
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Type_of_Labuan_entity_1" formControlName="Type_of_Labuan_entity"
-                                value="1">
-                            <label for="Type_of_Labuan_entity_1">Labuan Company</label>
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Type_of_Labuan_entity_1"
+                                formControlName="Type_of_Labuan_entity" value="1" name="Type_of_Labuan_entity">
+                            <label class="form-check-label" for="Type_of_Labuan_entity_1">Labuan Company</label>
                         </div>
 
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Type_of_Labuan_entity_2" formControlName="Type_of_Labuan_entity"
-                                value="2">
-                            <label for="Type_of_Labuan_entity_2">Labuan Foundation</label>
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Type_of_Labuan_entity_2"
+                                formControlName="Type_of_Labuan_entity" value="2" name="Type_of_Labuan_entity">
+                            <label class="form-check-label" for="Type_of_Labuan_entity_2">Labuan Foundation</label>
                         </div>
 
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Type_of_Labuan_entity_3" formControlName="Type_of_Labuan_entity"
-                                value="3">
-                            <label for="Type_of_Labuan_entity_3">Labuan Islamic Foundation</label>
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Type_of_Labuan_entity_3"
+                                formControlName="Type_of_Labuan_entity" value="3" name="Type_of_Labuan_entity">
+                            <label class="form-check-label" for="Type_of_Labuan_entity_3">Labuan Islamic
+                                Foundation</label>
                         </div>
 
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Type_of_Labuan_entity_4" formControlName="Type_of_Labuan_entity"
-                                value="4">
-                            <label for="Type_of_Labuan_entity_4">Labuan Islamic partnership</label>
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Type_of_Labuan_entity_4"
+                                formControlName="Type_of_Labuan_entity" value="4" name="Type_of_Labuan_entity">
+                            <label class="form-check-label" for="Type_of_Labuan_entity_4">Labuan Islamic
+                                partnership</label>
                         </div>
 
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Type_of_Labuan_entity_5" formControlName="Type_of_Labuan_entity"
-                                value="5">
-                            <label for="Type_of_Labuan_entity_5">Labuan limited partnership</label>
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Type_of_Labuan_entity_5"
+                                formControlName="Type_of_Labuan_entity" value="5" name="Type_of_Labuan_entity">
+                            <label class="form-check-label" for="Type_of_Labuan_entity_5">Labuan limited
+                                partnership</label>
                         </div>
 
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Type_of_Labuan_entity_6" formControlName="Type_of_Labuan_entity"
-                                value="6">
-                            <label for="Type_of_Labuan_entity_6">Labuan Limited Liability Partnership</label>
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Type_of_Labuan_entity_6"
+                                formControlName="Type_of_Labuan_entity" value="6" name="Type_of_Labuan_entity">
+                            <label class="form-check-label" for="Type_of_Labuan_entity_6">Labuan Limited Liability
+                                Partnership</label>
                         </div>
 
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Type_of_Labuan_entity_7" formControlName="Type_of_Labuan_entity"
-                                value="7">
-                            <label for="Type_of_Labuan_entity_7">Labuan Islamic trust</label>
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Type_of_Labuan_entity_7"
+                                formControlName="Type_of_Labuan_entity" value="7" name="Type_of_Labuan_entity">
+                            <label class="form-check-label" for="Type_of_Labuan_entity_7">Labuan Islamic trust</label>
                         </div>
 
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Type_of_Labuan_entity_8" formControlName="Type_of_Labuan_entity"
-                                value="8">
-                            <label for="Type_of_Labuan_entity_8">Labuan trust</label>
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Type_of_Labuan_entity_8"
+                                formControlName="Type_of_Labuan_entity" value="8" name="Type_of_Labuan_entity">
+                            <label class="form-check-label" for="Type_of_Labuan_entity_8">Labuan trust</label>
                         </div>
 
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Type_of_Labuan_entity_9" formControlName="Type_of_Labuan_entity"
-                                value="9">
-                            <label for="Type_of_Labuan_entity_9">Malaysian Islamic bank licensee</label>
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Type_of_Labuan_entity_9"
+                                formControlName="Type_of_Labuan_entity" value="9" name="Type_of_Labuan_entity">
+                            <label class="form-check-label" for="Type_of_Labuan_entity_9">Malaysian Islamic bank
+                                licensee</label>
                         </div>
 
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Type_of_Labuan_entity_10" formControlName="Type_of_Labuan_entity"
-                                value="10">
-                            <label for="Type_of_Labuan_entity_10">Malaysian bank licensee</label>
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Type_of_Labuan_entity_10"
+                                formControlName="Type_of_Labuan_entity" value="10" name="Type_of_Labuan_entity">
+                            <label class="form-check-label" for="Type_of_Labuan_entity_10">Malaysian bank
+                                licensee</label>
                         </div>
 
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Type_of_Labuan_entity_11" formControlName="Type_of_Labuan_entity"
-                                value="11">
-                            <label for="Type_of_Labuan_entity_11">Any Labuan financial institutions</label>
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Type_of_Labuan_entity_11"
+                                formControlName="Type_of_Labuan_entity" value="11" name="Type_of_Labuan_entity">
+                            <label class="form-check-label" for="Type_of_Labuan_entity_11">Any Labuan financial
+                                institutions</label>
                         </div>
 
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Type_of_Labuan_entity_12" formControlName="Type_of_Labuan_entity"
-                                value="12">
-                            <label for="Type_of_Labuan_entity_12">Any person declared by the Minister to be a Labuan
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Type_of_Labuan_entity_12"
+                                formControlName="Type_of_Labuan_entity" value="12" name="Type_of_Labuan_entity">
+                            <label class="form-check-label" for="Type_of_Labuan_entity_12">Any person declared by the
+                                Minister to be a Labuan
                                 entity</label>
                         </div>
 
@@ -336,36 +390,45 @@
     margin-bottom: 10px;
     padding: 5px;">
 
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Incorp_under_1" formControlName="Incorp_under" value="1">
-                            <label for="Incorp_under_1">Labuan Companies
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Incorp_under_1"
+                                formControlName="Incorp_under" value="1" name="Incorp_under">
+                            <label class="form-check-label" for="Incorp_under_1">Labuan Companies
                                 Act 1990</label>
                         </div>
 
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Incorp_under_2" formControlName="Incorp_under" value="2">
-                            <label for="Incorp_under_2">Labuan Foundations
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Incorp_under_2"
+                                formControlName="Incorp_under" value="2" name="Incorp_under">
+                            <label class="form-check-label" for="Incorp_under_2">Labuan Foundations
                                 Act 2010</label>
                         </div>
 
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Incorp_under_3" formControlName="Incorp_under" value="3">
-                            <label for="Incorp_under_3">Labuan Trusts Act 1996</label>
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Incorp_under_3"
+                                formControlName="Incorp_under" value="3" name="Incorp_under">
+                            <label class="form-check-label" for="Incorp_under_3">Labuan Trusts Act 1996</label>
                         </div>
 
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Incorp_under_4" formControlName="Incorp_under" value="4">
-                            <label for="Incorp_under_4">Labuan Limited Partnerships and Limited Liability Partnerships
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Incorp_under_4"
+                                formControlName="Incorp_under" value="4" name="Incorp_under">
+                            <label class="form-check-label" for="Incorp_under_4">Labuan Limited Partnerships and Limited
+                                Liability Partnerships
                                 Act
                                 2010</label>
                         </div>
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Incorp_under_5" formControlName="Incorp_under" value="5">
-                            <label for="Incorp_under_5">Labuan Financial Services and Securities Act 2010</label>
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Incorp_under_5"
+                                formControlName="Incorp_under" value="5" name="Incorp_under">
+                            <label class="form-check-label" for="Incorp_under_5">Labuan Financial Services and
+                                Securities Act 2010</label>
                         </div>
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Incorp_under_6" formControlName="Incorp_under" value="6">
-                            <label for="Incorp_under_6">Labuan Islamic Financial Services and Securities Act
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Incorp_under_6"
+                                formControlName="Incorp_under" value="6" name="Incorp_under">
+                            <label class="form-check-label" for="Incorp_under_6">Labuan Islamic Financial Services and
+                                Securities Act
                                 2010</label>
                         </div>
 
@@ -379,7 +442,8 @@
                     <legend>Part B: Tax Computation</legend>
 
                     <h4>B1: Particulars of Labuan Business Activity</h4>
-                    <div style="overflow-x: auto; resize: horizontal; width: 840px;">
+                    <div
+                        style="overflow-x: auto; resize: horizontal; width: 60vw; border:1px solid #ccc ; border-radius: 5px;">
                         <table style="width: 2000px;" class="data-table">
                             <thead>
                                 <tr>
@@ -717,14 +781,16 @@
                 <fieldset id="part-d">
                     <legend>Part D: Particulars Of Country-By-Country Reporting</legend>
                     <label>Subject to CbCR?</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="D1_CbCR_Yes" value="1" formControlName="D1_Subject_to_CbCR">
-                            <label for="D1_CbCR_Yes">Yes</label>
+                    <div class="radio-group" style="display: flex; gap: 10px;">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="D1_CbCR_Yes" value="1"
+                                formControlName="D1_Subject_to_CbCR" name="D1_Subject_to_CbCR">
+                            <label class="form-check-label" for="D1_CbCR_Yes">Yes</label>
                         </div>
-                        <div class="radio-option">
-                            <input type="radio" id="D1_CbCR_No" value="2" formControlName="D1_Subject_to_CbCR">
-                            <label for="D1_CbCR_No">No</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="D1_CbCR_No" value="2"
+                                formControlName="D1_Subject_to_CbCR" name="D1_Subject_to_CbCR">
+                            <label class="form-check-label" for="D1_CbCR_No">No</label>
                         </div>
                     </div>
                     <div style="display: flex; justify-content: space-between; gap: 10px;">
@@ -893,56 +959,58 @@ margin-bottom: 10px;">
     margin-bottom: 10px;
     padding: 5px;">
 
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Declarant_Designation_1" formControlName="Declarant_Designation"
-                                value="1">
-                            <label for="Declarant_Designation_1">Manager or principal officer
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Declarant_Designation_1"
+                                formControlName="Declarant_Designation" value="1" name="Declarant_Designation">
+                            <label class="form-check-label" for="Declarant_Designation_1">Manager or principal officer
                                 in Malaysia</label>
                         </div>
 
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Declarant_Designation_2" formControlName="Declarant_Designation"
-                                value="2">
-                            <label for="Declarant_Designation_2">Resident director as provided in the Labuan Companies
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Declarant_Designation_2"
+                                formControlName="Declarant_Designation" value="2" name="Declarant_Designation">
+                            <label class="form-check-label" for="Declarant_Designation_2">Resident director as provided
+                                in the Labuan Companies
                                 Act
                                 1990</label>
                         </div>
 
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Declarant_Designation_3" formControlName="Declarant_Designation"
-                                value="3">
-                            <label for="Declarant_Designation_3">Secretary</label>
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Declarant_Designation_3"
+                                formControlName="Declarant_Designation" value="3" name="Declarant_Designation">
+                            <label class="form-check-label" for="Declarant_Designation_3">Secretary</label>
                         </div>
 
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Declarant_Designation_4" formControlName="Declarant_Designation"
-                                value="4">
-                            <label for="Declarant_Designation_4">Trustee</label>
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Declarant_Designation_4"
+                                formControlName="Declarant_Designation" value="4" name="Declarant_Designation">
+                            <label class="form-check-label" for="Declarant_Designation_4">Trustee</label>
                         </div>
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Declarant_Designation_5" formControlName="Declarant_Designation"
-                                value="5">
-                            <label for="Declarant_Designation_5">Liquidator or receiver</label>
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Declarant_Designation_5"
+                                formControlName="Declarant_Designation" value="5" name="Declarant_Designation">
+                            <label class="form-check-label" for="Declarant_Designation_5">Liquidator or receiver</label>
                         </div>
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Declarant_Designation_6" formControlName="Declarant_Designation"
-                                value="6">
-                            <label for="Declarant_Designation_6">Partner or general partner</label>
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Declarant_Designation_6"
+                                formControlName="Declarant_Designation" value="6" name="Declarant_Designation">
+                            <label class="form-check-label" for="Declarant_Designation_6">Partner or general
+                                partner</label>
                         </div>
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Declarant_Designation_7" formControlName="Declarant_Designation"
-                                value="7">
-                            <label for="Declarant_Designation_7">Designated partner</label>
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Declarant_Designation_7"
+                                formControlName="Declarant_Designation" value="7" name="Declarant_Designation">
+                            <label class="form-check-label" for="Declarant_Designation_7">Designated partner</label>
                         </div>
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Declarant_Designation_8" formControlName="Declarant_Designation"
-                                value="8">
-                            <label for="Declarant_Designation_8">Tax Agent</label>
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Declarant_Designation_8"
+                                formControlName="Declarant_Designation" value="8" name="Declarant_Designation">
+                            <label class="form-check-label" for="Declarant_Designation_8">Tax Agent</label>
                         </div>
-                        <div style="width: 33.33%;display: flex;">
-                            <input type="radio" id="Declarant_Designation_9" formControlName="Declarant_Designation"
-                                value="9">
-                            <label for="Declarant_Designation_9">Others </label>
+                        <div style="width: 33.33%;" class="form-check">
+                            <input class="form-check-input" type="radio" id="Declarant_Designation_9"
+                                formControlName="Declarant_Designation" value="9" name="Declarant_Designation">
+                            <label class="form-check-label" for="Declarant_Designation_9">Others </label>
                         </div>
 
 
@@ -957,7 +1025,8 @@ margin-bottom: 10px;">
                 <!-- Attachment C3: Compliance Officers -->
                 <fieldset id="attachment-c3">
                     <legend>Attachment C3: Compliance Officers</legend>
-                    <div style="overflow-x: auto; resize: horizontal; width: 840px;">
+                    <div
+                        style="overflow-x: auto; resize: horizontal; width: 800px; border:1px solid #ccc ; border-radius: 5px;">
                         <table style="width: 2000px;" class="data-table">
                             <thead>
                                 <tr>
@@ -984,7 +1053,8 @@ margin-bottom: 10px;">
                                     <td><textarea rows="1"
                                             formControlName="Compliance_Officers_0_Designation"></textarea>
                                     </td>
-                                    <td><textarea rows="1" formControlName="Compliance_Officers_0_Address"></textarea>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Compliance_Officers_0_Address"></textarea>
                                     </td>
                                     <td><textarea rows="1"
                                             formControlName="Compliance_Officers_0_ID_Passport_No"></textarea>
@@ -1017,7 +1087,8 @@ margin-bottom: 10px;">
                                     <td><textarea rows="1"
                                             formControlName="Compliance_Officers_1_Designation"></textarea>
                                     </td>
-                                    <td><textarea rows="1" formControlName="Compliance_Officers_1_Address"></textarea>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Compliance_Officers_1_Address"></textarea>
                                     </td>
                                     <td><textarea rows="1"
                                             formControlName="Compliance_Officers_1_ID_Passport_No"></textarea>
@@ -1050,7 +1121,8 @@ margin-bottom: 10px;">
                                     <td><textarea rows="1"
                                             formControlName="Compliance_Officers_2_Designation"></textarea>
                                     </td>
-                                    <td><textarea rows="1" formControlName="Compliance_Officers_2_Address"></textarea>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Compliance_Officers_2_Address"></textarea>
                                     </td>
                                     <td><textarea rows="1"
                                             formControlName="Compliance_Officers_2_ID_Passport_No"></textarea>
@@ -1083,7 +1155,8 @@ margin-bottom: 10px;">
                                     <td><textarea rows="1"
                                             formControlName="Compliance_Officers_3_Designation"></textarea>
                                     </td>
-                                    <td><textarea rows="1" formControlName="Compliance_Officers_3_Address"></textarea>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Compliance_Officers_3_Address"></textarea>
                                     </td>
                                     <td><textarea rows="1"
                                             formControlName="Compliance_Officers_3_ID_Passport_No"></textarea>
@@ -1116,7 +1189,8 @@ margin-bottom: 10px;">
                                     <td><textarea rows="1"
                                             formControlName="Compliance_Officers_4_Designation"></textarea>
                                     </td>
-                                    <td><textarea rows="1" formControlName="Compliance_Officers_4_Address"></textarea>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Compliance_Officers_4_Address"></textarea>
                                     </td>
                                     <td><textarea rows="1"
                                             formControlName="Compliance_Officers_4_ID_Passport_No"></textarea>
@@ -1150,128 +1224,139 @@ margin-bottom: 10px;">
 
                 <fieldset id="attachment-c4">
                     <legend>Attachment C4: Major Shareholders</legend>
-                    <div style="overflow-x: auto; resize: horizontal; width: 840px;">
-                    <table style="width: 2000px;" class="data-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 15%;">Name of Shareholder/Partner</th>
-                                <th style="width: 15%;">Address</th>
-                                <th style="width: 10%;">ID/Passport/Reg No.</th>
-                                <th style="width: 10%;">Date of Birth</th>
-                                <th style="width: 10%;">Country (Code)</th>
-                                <th style="width: 10%;">TIN</th>
-                                <th style="width: 15%;">Shareholding (%)</th>
-                                <th style="width: 15%;">Dividends (RM)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><textarea rows="1"
-                                        formControlName="Major_Shareholders_0_Name_of_Shareholder_Partner"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Major_Shareholders_0_Address"></textarea></td>
-                                <td><textarea rows="1"
-                                        formControlName="Major_Shareholders_0_ID_Passport_Reg_No"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Major_Shareholders_0_Date_of_Birth"></textarea>
-                                </td>
-                                <td><textarea rows="1"
-                                        formControlName="Major_Shareholders_0_Country_of_Origin"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Major_Shareholders_0_TIN"></textarea></td>
-                                <td><textarea rows="1"
-                                        formControlName="Major_Shareholders_0_Direct_Shareholding_Percentage"></textarea>
-                                </td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Major_Shareholders_0_Dividends_Received_in_Basis_Period"></textarea>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><textarea rows="1"
-                                        formControlName="Major_Shareholders_1_Name_of_Shareholder_Partner"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Major_Shareholders_1_Address"></textarea></td>
-                                <td><textarea rows="1"
-                                        formControlName="Major_Shareholders_1_ID_Passport_Reg_No"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Major_Shareholders_1_Date_of_Birth"></textarea>
-                                </td>
-                                <td><textarea rows="1"
-                                        formControlName="Major_Shareholders_1_Country_of_Origin"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Major_Shareholders_1_TIN"></textarea></td>
-                                <td><textarea rows="1"
-                                        formControlName="Major_Shareholders_1_Direct_Shareholding_Percentage"></textarea>
-                                </td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Major_Shareholders_1_Dividends_Received_in_Basis_Period"></textarea>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><textarea rows="1"
-                                        formControlName="Major_Shareholders_2_Name_of_Shareholder_Partner"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Major_Shareholders_2_Address"></textarea></td>
-                                <td><textarea rows="1"
-                                        formControlName="Major_Shareholders_2_ID_Passport_Reg_No"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Major_Shareholders_2_Date_of_Birth"></textarea>
-                                </td>
-                                <td><textarea rows="1"
-                                        formControlName="Major_Shareholders_2_Country_of_Origin"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Major_Shareholders_2_TIN"></textarea></td>
-                                <td><textarea rows="1"
-                                        formControlName="Major_Shareholders_2_Direct_Shareholding_Percentage"></textarea>
-                                </td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Major_Shareholders_2_Dividends_Received_in_Basis_Period"></textarea>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><textarea rows="1"
-                                        formControlName="Major_Shareholders_3_Name_of_Shareholder_Partner"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Major_Shareholders_3_Address"></textarea></td>
-                                <td><textarea rows="1"
-                                        formControlName="Major_Shareholders_3_ID_Passport_Reg_No"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Major_Shareholders_3_Date_of_Birth"></textarea>
-                                </td>
-                                <td><textarea rows="1"
-                                        formControlName="Major_Shareholders_3_Country_of_Origin"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Major_Shareholders_3_TIN"></textarea></td>
-                                <td><textarea rows="1"
-                                        formControlName="Major_Shareholders_3_Direct_Shareholding_Percentage"></textarea>
-                                </td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Major_Shareholders_3_Dividends_Received_in_Basis_Period"></textarea>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><textarea rows="1"
-                                        formControlName="Major_Shareholders_4_Name_of_Shareholder_Partner"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Major_Shareholders_4_Address"></textarea></td>
-                                <td><textarea rows="1"
-                                        formControlName="Major_Shareholders_4_ID_Passport_Reg_No"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Major_Shareholders_4_Date_of_Birth"></textarea>
-                                </td>
-                                <td><textarea rows="1"
-                                        formControlName="Major_Shareholders_4_Country_of_Origin"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Major_Shareholders_4_TIN"></textarea></td>
-                                <td><textarea rows="1"
-                                        formControlName="Major_Shareholders_4_Direct_Shareholding_Percentage"></textarea>
-                                </td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Major_Shareholders_4_Dividends_Received_in_Basis_Period"></textarea>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div
+                        style="overflow-x: auto; resize: horizontal; width: 800px; border:1px solid #ccc ; border-radius: 5px;">
+                        <table style="width: 2000px;" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 15%;">Name of Shareholder/Partner</th>
+                                    <th style="width: 15%;">Address</th>
+                                    <th style="width: 10%;">ID/Passport/Reg No.</th>
+                                    <th style="width: 10%;">Date of Birth</th>
+                                    <th style="width: 10%;">Country (Code)</th>
+                                    <th style="width: 10%;">TIN</th>
+                                    <th style="width: 15%;">Shareholding (%)</th>
+                                    <th style="width: 15%;">Dividends (RM)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Major_Shareholders_0_Name_of_Shareholder_Partner"></textarea>
+                                    </td>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Major_Shareholders_0_Address"></textarea></td>
+                                    <td><textarea rows="1"
+                                            formControlName="Major_Shareholders_0_ID_Passport_Reg_No"></textarea>
+                                    </td>
+                                    <td><textarea rows="1"
+                                            formControlName="Major_Shareholders_0_Date_of_Birth"></textarea>
+                                    </td>
+                                    <td><textarea rows="1"
+                                            formControlName="Major_Shareholders_0_Country_of_Origin"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" formControlName="Major_Shareholders_0_TIN"></textarea></td>
+                                    <td><textarea rows="1"
+                                            formControlName="Major_Shareholders_0_Direct_Shareholding_Percentage"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Major_Shareholders_0_Dividends_Received_in_Basis_Period"></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Major_Shareholders_1_Name_of_Shareholder_Partner"></textarea>
+                                    </td>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Major_Shareholders_1_Address"></textarea></td>
+                                    <td><textarea rows="1"
+                                            formControlName="Major_Shareholders_1_ID_Passport_Reg_No"></textarea>
+                                    </td>
+                                    <td><textarea rows="1"
+                                            formControlName="Major_Shareholders_1_Date_of_Birth"></textarea>
+                                    </td>
+                                    <td><textarea rows="1"
+                                            formControlName="Major_Shareholders_1_Country_of_Origin"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" formControlName="Major_Shareholders_1_TIN"></textarea></td>
+                                    <td><textarea rows="1"
+                                            formControlName="Major_Shareholders_1_Direct_Shareholding_Percentage"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Major_Shareholders_1_Dividends_Received_in_Basis_Period"></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Major_Shareholders_2_Name_of_Shareholder_Partner"></textarea>
+                                    </td>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Major_Shareholders_2_Address"></textarea></td>
+                                    <td><textarea rows="1"
+                                            formControlName="Major_Shareholders_2_ID_Passport_Reg_No"></textarea>
+                                    </td>
+                                    <td><textarea rows="1"
+                                            formControlName="Major_Shareholders_2_Date_of_Birth"></textarea>
+                                    </td>
+                                    <td><textarea rows="1"
+                                            formControlName="Major_Shareholders_2_Country_of_Origin"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" formControlName="Major_Shareholders_2_TIN"></textarea></td>
+                                    <td><textarea rows="1"
+                                            formControlName="Major_Shareholders_2_Direct_Shareholding_Percentage"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Major_Shareholders_2_Dividends_Received_in_Basis_Period"></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Major_Shareholders_3_Name_of_Shareholder_Partner"></textarea>
+                                    </td>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Major_Shareholders_3_Address"></textarea></td>
+                                    <td><textarea rows="1"
+                                            formControlName="Major_Shareholders_3_ID_Passport_Reg_No"></textarea>
+                                    </td>
+                                    <td><textarea rows="1"
+                                            formControlName="Major_Shareholders_3_Date_of_Birth"></textarea>
+                                    </td>
+                                    <td><textarea rows="1"
+                                            formControlName="Major_Shareholders_3_Country_of_Origin"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" formControlName="Major_Shareholders_3_TIN"></textarea></td>
+                                    <td><textarea rows="1"
+                                            formControlName="Major_Shareholders_3_Direct_Shareholding_Percentage"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Major_Shareholders_3_Dividends_Received_in_Basis_Period"></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Major_Shareholders_4_Name_of_Shareholder_Partner"></textarea>
+                                    </td>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Major_Shareholders_4_Address"></textarea></td>
+                                    <td><textarea rows="1"
+                                            formControlName="Major_Shareholders_4_ID_Passport_Reg_No"></textarea>
+                                    </td>
+                                    <td><textarea rows="1"
+                                            formControlName="Major_Shareholders_4_Date_of_Birth"></textarea>
+                                    </td>
+                                    <td><textarea rows="1"
+                                            formControlName="Major_Shareholders_4_Country_of_Origin"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" formControlName="Major_Shareholders_4_TIN"></textarea></td>
+                                    <td><textarea rows="1"
+                                            formControlName="Major_Shareholders_4_Direct_Shareholding_Percentage"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Major_Shareholders_4_Dividends_Received_in_Basis_Period"></textarea>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </fieldset>
 
@@ -1279,162 +1364,188 @@ margin-bottom: 10px;">
 
                 <fieldset id="attachment-c5">
                     <legend>Attachment C5: Beneficial Owners</legend>
-                    <div style="overflow-x: auto; resize: horizontal; width: 840px;">
-                    <table style="width: 2000px;" class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Address</th>
-                                <th>ID/Passport No.</th>
-                                <th>Date of Birth</th>
-                                <th>TIN</th>
-                                <th>Telephone No.</th>
-                                <th>Shareholding (%)</th>
-                                <th>Salary/Bonus (RM)</th>
-                                <th>Fees/Comm./Allow. (RM)</th>
-                                <th>Total Loan to Owner (RM)</th>
-                                <th>Total Loan from Owner (RM)</th>
-                                <th>Dividends (RM)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_0_Name"></textarea></td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_0_Address"></textarea></td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_0_ID_Passport_No"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_0_Date_of_Birth"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_0_TIN"></textarea></td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_0_Telephone_No"></textarea>
-                                </td>
-                                <td><textarea rows="1"
-                                        formControlName="Beneficial_Owner_0_Shareholding_Percentage"></textarea>
-                                </td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_0_Salary_Bonus"></textarea></td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_0_Fees_Commission_Allowance"></textarea></td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_0_Total_Loan_to_Owner"></textarea>
-                                </td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_0_Total_Loan_from_Owner"></textarea>
-                                </td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_0_Dividends_Received_in_Basis_Period"></textarea>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_1_Name"></textarea></td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_1_Address"></textarea></td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_1_ID_Passport_No"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_1_Date_of_Birth"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_1_TIN"></textarea></td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_1_Telephone_No"></textarea>
-                                </td>
-                                <td><textarea rows="1"
-                                        formControlName="Beneficial_Owner_1_Shareholding_Percentage"></textarea>
-                                </td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_1_Salary_Bonus"></textarea></td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_1_Fees_Commission_Allowance"></textarea></td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_1_Total_Loan_to_Owner"></textarea>
-                                </td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_1_Total_Loan_from_Owner"></textarea>
-                                </td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_1_Dividends_Received_in_Basis_Period"></textarea>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_2_Name"></textarea></td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_2_Address"></textarea></td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_2_ID_Passport_No"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_2_Date_of_Birth"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_2_TIN"></textarea></td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_2_Telephone_No"></textarea>
-                                </td>
-                                <td><textarea rows="1"
-                                        formControlName="Beneficial_Owner_2_Shareholding_Percentage"></textarea>
-                                </td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_2_Salary_Bonus"></textarea></td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_2_Fees_Commission_Allowance"></textarea></td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_2_Total_Loan_to_Owner"></textarea>
-                                </td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_2_Total_Loan_from_Owner"></textarea>
-                                </td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_2_Dividends_Received_in_Basis_Period"></textarea>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_3_Name"></textarea></td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_3_Address"></textarea></td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_3_ID_Passport_No"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_3_Date_of_Birth"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_3_TIN"></textarea></td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_3_Telephone_No"></textarea>
-                                </td>
-                                <td><textarea rows="1"
-                                        formControlName="Beneficial_Owner_3_Shareholding_Percentage"></textarea>
-                                </td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_3_Salary_Bonus"></textarea></td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_3_Fees_Commission_Allowance"></textarea></td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_3_Total_Loan_to_Owner"></textarea>
-                                </td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_3_Total_Loan_from_Owner"></textarea>
-                                </td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_3_Dividends_Received_in_Basis_Period"></textarea>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_4_Name"></textarea></td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_4_Address"></textarea></td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_4_ID_Passport_No"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_4_Date_of_Birth"></textarea>
-                                </td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_4_TIN"></textarea></td>
-                                <td><textarea rows="1" formControlName="Beneficial_Owner_4_Telephone_No"></textarea>
-                                </td>
-                                <td><textarea rows="1"
-                                        formControlName="Beneficial_Owner_4_Shareholding_Percentage"></textarea>
-                                </td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_4_Salary_Bonus"></textarea></td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_4_Fees_Commission_Allowance"></textarea></td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_4_Total_Loan_to_Owner"></textarea>
-                                </td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_4_Total_Loan_from_Owner"></textarea>
-                                </td>
-                                <td><textarea rows="1" appThousandSeparator
-                                        formControlName="Beneficial_Owner_4_Dividends_Received_in_Basis_Period"></textarea>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div
+                        style="overflow-x: auto; resize: horizontal; width: 800px; border:1px solid #ccc ; border-radius: 5px;">
+                        <table style="width: 2000px;" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Address</th>
+                                    <th>ID/Passport No.</th>
+                                    <th>Date of Birth</th>
+                                    <th>TIN</th>
+                                    <th>Telephone No.</th>
+                                    <th>Shareholding (%)</th>
+                                    <th>Salary/Bonus (RM)</th>
+                                    <th>Fees/Comm./Allow. (RM)</th>
+                                    <th>Total Loan to Owner (RM)</th>
+                                    <th>Total Loan from Owner (RM)</th>
+                                    <th>Dividends (RM)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Beneficial_Owner_0_Name"></textarea></td>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Beneficial_Owner_0_Address"></textarea></td>
+                                    <td><textarea rows="1"
+                                            formControlName="Beneficial_Owner_0_ID_Passport_No"></textarea>
+                                    </td>
+                                    <td><textarea rows="1"
+                                            formControlName="Beneficial_Owner_0_Date_of_Birth"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" formControlName="Beneficial_Owner_0_TIN"></textarea></td>
+                                    <td><textarea rows="1" formControlName="Beneficial_Owner_0_Telephone_No"></textarea>
+                                    </td>
+                                    <td><textarea rows="1"
+                                            formControlName="Beneficial_Owner_0_Shareholding_Percentage"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_0_Salary_Bonus"></textarea></td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_0_Fees_Commission_Allowance"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_0_Total_Loan_to_Owner"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_0_Total_Loan_from_Owner"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_0_Dividends_Received_in_Basis_Period"></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Beneficial_Owner_1_Name"></textarea></td>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Beneficial_Owner_1_Address"></textarea></td>
+                                    <td><textarea rows="1"
+                                            formControlName="Beneficial_Owner_1_ID_Passport_No"></textarea>
+                                    </td>
+                                    <td><textarea rows="1"
+                                            formControlName="Beneficial_Owner_1_Date_of_Birth"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" formControlName="Beneficial_Owner_1_TIN"></textarea></td>
+                                    <td><textarea rows="1" formControlName="Beneficial_Owner_1_Telephone_No"></textarea>
+                                    </td>
+                                    <td><textarea rows="1"
+                                            formControlName="Beneficial_Owner_1_Shareholding_Percentage"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_1_Salary_Bonus"></textarea></td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_1_Fees_Commission_Allowance"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_1_Total_Loan_to_Owner"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_1_Total_Loan_from_Owner"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_1_Dividends_Received_in_Basis_Period"></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Beneficial_Owner_2_Name"></textarea></td>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Beneficial_Owner_2_Address"></textarea></td>
+                                    <td><textarea rows="1"
+                                            formControlName="Beneficial_Owner_2_ID_Passport_No"></textarea>
+                                    </td>
+                                    <td><textarea rows="1"
+                                            formControlName="Beneficial_Owner_2_Date_of_Birth"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" formControlName="Beneficial_Owner_2_TIN"></textarea></td>
+                                    <td><textarea rows="1" formControlName="Beneficial_Owner_2_Telephone_No"></textarea>
+                                    </td>
+                                    <td><textarea rows="1"
+                                            formControlName="Beneficial_Owner_2_Shareholding_Percentage"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_2_Salary_Bonus"></textarea></td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_2_Fees_Commission_Allowance"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_2_Total_Loan_to_Owner"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_2_Total_Loan_from_Owner"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_2_Dividends_Received_in_Basis_Period"></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Beneficial_Owner_3_Name"></textarea></td>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Beneficial_Owner_3_Address"></textarea></td>
+                                    <td><textarea rows="1"
+                                            formControlName="Beneficial_Owner_3_ID_Passport_No"></textarea>
+                                    </td>
+                                    <td><textarea rows="1"
+                                            formControlName="Beneficial_Owner_3_Date_of_Birth"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" formControlName="Beneficial_Owner_3_TIN"></textarea></td>
+                                    <td><textarea rows="1" formControlName="Beneficial_Owner_3_Telephone_No"></textarea>
+                                    </td>
+                                    <td><textarea rows="1"
+                                            formControlName="Beneficial_Owner_3_Shareholding_Percentage"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_3_Salary_Bonus"></textarea></td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_3_Fees_Commission_Allowance"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_3_Total_Loan_to_Owner"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_3_Total_Loan_from_Owner"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_3_Dividends_Received_in_Basis_Period"></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Beneficial_Owner_4_Name"></textarea></td>
+                                    <td><textarea appAutoResize rows="1"
+                                            formControlName="Beneficial_Owner_4_Address"></textarea></td>
+                                    <td><textarea rows="1"
+                                            formControlName="Beneficial_Owner_4_ID_Passport_No"></textarea>
+                                    </td>
+                                    <td><textarea rows="1"
+                                            formControlName="Beneficial_Owner_4_Date_of_Birth"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" formControlName="Beneficial_Owner_4_TIN"></textarea></td>
+                                    <td><textarea rows="1" formControlName="Beneficial_Owner_4_Telephone_No"></textarea>
+                                    </td>
+                                    <td><textarea rows="1"
+                                            formControlName="Beneficial_Owner_4_Shareholding_Percentage"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_4_Salary_Bonus"></textarea></td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_4_Fees_Commission_Allowance"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_4_Total_Loan_to_Owner"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_4_Total_Loan_from_Owner"></textarea>
+                                    </td>
+                                    <td><textarea rows="1" appThousandSeparator
+                                            formControlName="Beneficial_Owner_4_Dividends_Received_in_Basis_Period"></textarea>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </fieldset>
 
@@ -1591,143 +1702,155 @@ margin-bottom: 10px;">
                 <!-- Attachment C10: Subsidiaries or Related Entities -->
                 <fieldset id="attachment-c10">
                     <legend>Attachment C10: Subsidiaries or Related Entities</legend>
-                    <div style="overflow-x: auto; resize: horizontal; width: 840px;">
-                    <table style="width: 2000px;" class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Registration No.</th>
-                                <th>TIN</th>
-                                <th>Transactions (1=Y, 2=N)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Row 1 -->
-                            <tr>
-                                <td><input type="text" formControlName="Name1"></td>
-                                <td><input type="text" formControlName="Registration_No1">
-                                </td>
-                                <td><input type="text" formControlName="TIN1"></td>
-                                <td><input type="text" formControlName="Have_Transactions1">
-                                </td>
-                            </tr>
-                            <!-- Row 2 -->
-                            <tr>
-                                <td><input type="text" formControlName="Name2"></td>
-                                <td><input type="text" formControlName="Registration_No2">
-                                </td>
-                                <td><input type="text" formControlName="TIN2"></td>
-                                <td><input type="text" formControlName="Have_Transactions2">
-                                </td>
-                            </tr>
-                            <!-- Row 3 -->
-                            <tr>
-                                <td><input type="text" formControlName="Name3"></td>
-                                <td><input type="text" formControlName="Registration_No3">
-                                </td>
-                                <td><input type="text" formControlName="TIN3"></td>
-                                <td><input type="text" formControlName="Have_Transactions3">
-                                </td>
-                            </tr>
-                            <!-- Row 4 -->
-                            <tr>
-                                <td><input type="text" formControlName="Name4"></td>
-                                <td><input type="text" formControlName="Registration_No4">
-                                </td>
-                                <td><input type="text" formControlName="TIN4"></td>
-                                <td><input type="text" formControlName="Have_Transactions4">
-                                </td>
-                            </tr>
-                            <!-- Row 5 -->
-                            <tr>
-                                <td><input type="text" formControlName="Name5"></td>
-                                <td><input type="text" formControlName="Registration_No5">
-                                </td>
-                                <td><input type="text" formControlName="TIN5"></td>
-                                <td><input type="text" formControlName="Have_Transactions5">
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div
+                        style="overflow-x: auto; resize: horizontal; width: 800px; border:1px solid #ccc ; border-radius: 5px;">
+                        <table style="width: 800px;" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Registration No.</th>
+                                    <th>TIN</th>
+                                    <th>Transactions (1=Y, 2=N)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Row 1 -->
+                                <tr>
+                                    <td><input type="text" formControlName="Name1"></td>
+                                    <td><input type="text" formControlName="Registration_No1">
+                                    </td>
+                                    <td><input type="text" formControlName="TIN1"></td>
+                                    <td><input type="text" formControlName="Have_Transactions1">
+                                    </td>
+                                </tr>
+                                <!-- Row 2 -->
+                                <tr>
+                                    <td><input type="text" formControlName="Name2"></td>
+                                    <td><input type="text" formControlName="Registration_No2">
+                                    </td>
+                                    <td><input type="text" formControlName="TIN2"></td>
+                                    <td><input type="text" formControlName="Have_Transactions2">
+                                    </td>
+                                </tr>
+                                <!-- Row 3 -->
+                                <tr>
+                                    <td><input type="text" formControlName="Name3"></td>
+                                    <td><input type="text" formControlName="Registration_No3">
+                                    </td>
+                                    <td><input type="text" formControlName="TIN3"></td>
+                                    <td><input type="text" formControlName="Have_Transactions3">
+                                    </td>
+                                </tr>
+                                <!-- Row 4 -->
+                                <tr>
+                                    <td><input type="text" formControlName="Name4"></td>
+                                    <td><input type="text" formControlName="Registration_No4">
+                                    </td>
+                                    <td><input type="text" formControlName="TIN4"></td>
+                                    <td><input type="text" formControlName="Have_Transactions4">
+                                    </td>
+                                </tr>
+                                <!-- Row 5 -->
+                                <tr>
+                                    <td><input type="text" formControlName="Name5"></td>
+                                    <td><input type="text" formControlName="Registration_No5">
+                                    </td>
+                                    <td><input type="text" formControlName="TIN5"></td>
+                                    <td><input type="text" formControlName="Have_Transactions5">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </fieldset>
 
                 <!-- Attachment C11: Payments Received from Malaysian Residents -->
                 <fieldset id="attachment-c11">
                     <legend>Attachment C11: Payments Received from Malaysian Residents</legend>
-                    <div style="overflow-x: auto; resize: horizontal; width: 840px;">
-                    <table style="width: 2000px;" class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Payer Name</th>
-                                <th>Payer TIN</th>
-                                <th>Payment Type</th>
-                                <th>Amount (RM)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Row 1 -->
-                            <tr>
-                                <td><input type="text"
-                                        formControlName="Payments_From_Malaysian_Residents_0_Name_of_taxpayer">
-                                </td>
-                                <td><input type="text" formControlName="Payments_From_Malaysian_Residents_0_TIN"></td>
-                                <td><input type="text"
-                                        formControlName="Payments_From_Malaysian_Residents_0_Type_of_payment_received">
-                                </td>
-                                <td><textarea appThousandSeparator type="text"
-                                        formControlName="Payments_From_Malaysian_Residents_0_Amount"></textarea></td>
-                            </tr>
-                            <!-- Row 2 -->
-                            <tr>
-                                <td><input type="text"
-                                        formControlName="Payments_From_Malaysian_Residents_1_Name_of_taxpayer">
-                                </td>
-                                <td><input type="text" formControlName="Payments_From_Malaysian_Residents_1_TIN"></td>
-                                <td><input type="text"
-                                        formControlName="Payments_From_Malaysian_Residents_1_Type_of_payment_received">
-                                </td>
-                                <td><textarea appThousandSeparator type="text"
-                                        formControlName="Payments_From_Malaysian_Residents_1_Amount"></textarea></td>
-                            </tr>
-                            <!-- Row 3 -->
-                            <tr>
-                                <td><input type="text"
-                                        formControlName="Payments_From_Malaysian_Residents_2_Name_of_taxpayer">
-                                </td>
-                                <td><input type="text" formControlName="Payments_From_Malaysian_Residents_2_TIN"></td>
-                                <td><input type="text"
-                                        formControlName="Payments_From_Malaysian_Residents_2_Type_of_payment_received">
-                                </td>
-                                <td><textarea appThousandSeparator type="text"
-                                        formControlName="Payments_From_Malaysian_Residents_2_Amount"></textarea></td>
-                            </tr>
-                            <!-- Row 4 -->
-                            <tr>
-                                <td><input type="text"
-                                        formControlName="Payments_From_Malaysian_Residents_3_Name_of_taxpayer">
-                                </td>
-                                <td><input type="text" formControlName="Payments_From_Malaysian_Residents_3_TIN"></td>
-                                <td><input type="text"
-                                        formControlName="Payments_From_Malaysian_Residents_3_Type_of_payment_received">
-                                </td>
-                                <td><textarea appThousandSeparator type="text"
-                                        formControlName="Payments_From_Malaysian_Residents_3_Amount"></textarea></td>
-                            </tr>
-                            <!-- Row 5 -->
-                            <tr>
-                                <td><input type="text"
-                                        formControlName="Payments_From_Malaysian_Residents_4_Name_of_taxpayer">
-                                </td>
-                                <td><input type="text" formControlName="Payments_From_Malaysian_Residents_4_TIN"></td>
-                                <td><input type="text"
-                                        formControlName="Payments_From_Malaysian_Residents_4_Type_of_payment_received">
-                                </td>
-                                <td><textarea appThousandSeparator type="text"
-                                        formControlName="Payments_From_Malaysian_Residents_4_Amount"></textarea> </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div
+                        style="overflow-x: auto; resize: horizontal; width: 800px; border:1px solid #ccc ; border-radius: 5px;">
+                        <table style="width: 800px;" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Payer Name</th>
+                                    <th>Payer TIN</th>
+                                    <th>Payment Type</th>
+                                    <th>Amount (RM)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Row 1 -->
+                                <tr>
+                                    <td><input type="text"
+                                            formControlName="Payments_From_Malaysian_Residents_0_Name_of_taxpayer">
+                                    </td>
+                                    <td><input type="text" formControlName="Payments_From_Malaysian_Residents_0_TIN">
+                                    </td>
+                                    <td><input type="text"
+                                            formControlName="Payments_From_Malaysian_Residents_0_Type_of_payment_received">
+                                    </td>
+                                    <td><textarea appThousandSeparator type="text"
+                                            formControlName="Payments_From_Malaysian_Residents_0_Amount"></textarea>
+                                    </td>
+                                </tr>
+                                <!-- Row 2 -->
+                                <tr>
+                                    <td><input type="text"
+                                            formControlName="Payments_From_Malaysian_Residents_1_Name_of_taxpayer">
+                                    </td>
+                                    <td><input type="text" formControlName="Payments_From_Malaysian_Residents_1_TIN">
+                                    </td>
+                                    <td><input type="text"
+                                            formControlName="Payments_From_Malaysian_Residents_1_Type_of_payment_received">
+                                    </td>
+                                    <td><textarea appThousandSeparator type="text"
+                                            formControlName="Payments_From_Malaysian_Residents_1_Amount"></textarea>
+                                    </td>
+                                </tr>
+                                <!-- Row 3 -->
+                                <tr>
+                                    <td><input type="text"
+                                            formControlName="Payments_From_Malaysian_Residents_2_Name_of_taxpayer">
+                                    </td>
+                                    <td><input type="text" formControlName="Payments_From_Malaysian_Residents_2_TIN">
+                                    </td>
+                                    <td><input type="text"
+                                            formControlName="Payments_From_Malaysian_Residents_2_Type_of_payment_received">
+                                    </td>
+                                    <td><textarea appThousandSeparator type="text"
+                                            formControlName="Payments_From_Malaysian_Residents_2_Amount"></textarea>
+                                    </td>
+                                </tr>
+                                <!-- Row 4 -->
+                                <tr>
+                                    <td><input type="text"
+                                            formControlName="Payments_From_Malaysian_Residents_3_Name_of_taxpayer">
+                                    </td>
+                                    <td><input type="text" formControlName="Payments_From_Malaysian_Residents_3_TIN">
+                                    </td>
+                                    <td><input type="text"
+                                            formControlName="Payments_From_Malaysian_Residents_3_Type_of_payment_received">
+                                    </td>
+                                    <td><textarea appThousandSeparator type="text"
+                                            formControlName="Payments_From_Malaysian_Residents_3_Amount"></textarea>
+                                    </td>
+                                </tr>
+                                <!-- Row 5 -->
+                                <tr>
+                                    <td><input type="text"
+                                            formControlName="Payments_From_Malaysian_Residents_4_Name_of_taxpayer">
+                                    </td>
+                                    <td><input type="text" formControlName="Payments_From_Malaysian_Residents_4_TIN">
+                                    </td>
+                                    <td><input type="text"
+                                            formControlName="Payments_From_Malaysian_Residents_4_Type_of_payment_received">
+                                    </td>
+                                    <td><textarea appThousandSeparator type="text"
+                                            formControlName="Payments_From_Malaysian_Residents_4_Amount"></textarea>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </fieldset>
 
@@ -1742,5 +1865,3 @@ margin-bottom: 10px;">
     <h2>Loading Project Data...</h2>
     <p>Please wait a moment.</p>
 </div>
-
-<!-- Use [hidden] to hide the main content while loading -->

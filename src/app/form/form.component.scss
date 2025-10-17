@@ -1,328 +1,393 @@
-
 /* --- General Body & Layout --- */
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     margin: 0;
     background-color: #f4f7f6;
     color: #333;
-    display: flex; /* Key for the sidebar layout */
 }
 
-.backbtn{
-    // position: fixed;
-    // padding: 10px 15px;
-    border: 0;
-    color: black;
-    height: 30px;
-    font-size: medium;
-    // margin-top: 50px;
-    transition: transform 0.3s;
-    cursor: pointer;
-    border-radius: 5px;
-    background-color: #f5f5f5;
+
+.main-container {
+    display: flex;
+    width: 100%;
 }
 
-.backbtn:hover{
-    text-decoration: underline;
-    background-color: #f5f5f5;
-    transform: none;
+.page-layout-container {
+    display: grid;
+    // Creates two columns:
+    // 1. The first column is 250px wide (for the sidebar).
+    // 2. The second column (1fr) takes up 1 fraction of the remaining space.
+    grid-template-columns: 15vw 1fr;
+    // width: auto;
+    // max-width: 1200px;
+    height: 100%;
+    background: #f5f5f5;
 }
+
+.required-asterisk {
+    color: red;
+    margin-left: 3px;
+}
+
 /* --- Sidebar Navigation --- */
 .sidebar {
-    margin-left: 100px;
-width: 240px;
-height: 840px;
-justify-content: space-between;
-display: flex;
-flex-direction: column;
-background-color: #2c3e50c7; /* Dark blue-gray */
-color: #ecf0f1; /* Light gray text */
-// height: 100vh; /* Full viewport height */
-position: fixed; /* Stays in place on scroll */
-// padding-top: 20px;
-border-radius: 5px;
-transition: top 0.5s;
-top: -800px;
+    width: 15vw;
+    background-color: #ffffff;
+    border-right: 1px solid #e0e0e0;
+    // height: 100vh;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    // flex-shrink: 0;
 }
-
-.sidebar:hover {
-// margin-top: 0;
-top:0;
-}
-
-.radio-group {
-        display: flex;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        margin-bottom: 10px;
-        padding: 5px;
-    }
-
-    .radio-group label {
-        margin-right: 15px;
-        cursor: pointer;
-    }
-    
-    /* Style for the section sidebar to indicate completeness */
-    .sidebar ul li a.incomplete::after {
-        content: ' ●';
-        color: #ffcc00; /* Yellow dot for incomplete sections */
-    }
-
-    .sidebar ul li a.complete::after {
-        content: ' ●';
-        color: #4CAF50; /* Green dot for complete sections */
-    }
 
 .sidebar h2 {
-    text-align: center;
-    padding: 0 20px;
-    font-size: 1.5em;
-    color: #fff;
-    border-bottom: 1px solid #34495e;
-    padding-bottom: 20px;
-    margin-bottom: 20px;
+    padding: 20px 25px;
+    font-size: 1.2em;
+    color: #333;
+    margin: 0;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .sidebar ul {
     list-style-type: none;
-    padding: 0;
+    padding: 10px 0;
     margin: 0;
 }
 
 .sidebar ul li a {
     display: block;
-    padding: 15px 25px;
-    color: #ecf0f1;
+    padding: 12px 25px;
+    color: #333;
     text-decoration: none;
-    font-size: 1.1em;
-    transition: background-color 0.3s, padding-left 0.3s;
+    font-size: 0.8em;
+    transition: background-color 0.3s, color 0.3s;
+    border-left: 3px solid transparent;
 }
 
 .sidebar ul li a:hover {
-    background-color: #34495e; /* Slightly lighter blue-gray */
-    padding-left: 30px;
+    background-color: #f0f0f0;
 }
+
+.sidebar ul li a.active {
+    font-weight: bold;
+    color: #007bff;
+    border-left: 3px solid #007bff;
+}
+
+/* Section Completion Indicators */
+.sidebar ul li a::after {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    float: right;
+    margin-top: 5px;
+}
+.sidebar ul li a.incomplete::after {
+    background-color: #ffcc00; /* Yellow dot */
+}
+.sidebar ul li a.complete::after {
+    background-color: #4CAF50; /* Green dot */
+}
+
+.sidebar-footer {
+    padding: 15px;
+    border-top: 1px solid #e0e0e0;
+    font-size: 0.8em;
+}
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+    &.complete { background-color: #4CAF50; }
+    &.incomplete { background-color: #ffcc00; }
+}
+
 
 /* --- Main Content Area --- */
 .content {
-    flex-grow: 1;
-    margin-left: 60px; /* Same width as the sidebar */
-    padding: 40px;
-    
+    // flex-grow: 1;
+    display: grid;
+    padding: 0 30px;
+    background-color: #f9f9f9;
 }
 
-h1 {
-    color: #2c3e50;
-    border-bottom: 2px solid #e0e0e0;
-    padding-bottom: 10px;
-    margin-bottom: 30px;
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    position: sticky;
+    top: 0;
+    background-color: #f9f9f9;
+    z-index: 10;
+    border-bottom: 1px solid #e0e0e0;
 }
+
+.content-header h2 {
+    margin: 0;
+    font-size: 1.4em;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.form-container {
+    padding: 20px 0;
+}
+.form-grid {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 20px;
+}
+.form-column {
+border: 1px solid #ccc;
+padding: 15px;
+border-radius: 8px;
+margin: 5px;
+}
+.form-column h4 {
+margin-top: 0;
+}
+
 
 /* --- Form Styling --- */
 form {
     background-color: #ffffff;
-    padding: 30px;
-    overflow: auto;
+    padding: 25px;
     border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e0e0e0;
 }
 
 fieldset {
-    border: 1px solid #ddd;
+    border: none;
     border-radius: 5px;
-    padding: 20px;
-    margin-bottom: 30px;
+    // max-width: 800px;
+    padding: 5px;
+    background-color: #f9f9f9;
+    margin-bottom: 25px;
 }
 
 legend {
-    font-size: 1.4em;
+    font-size: 1.2em;
     font-weight: 600;
-    color: #3498db; /* Bright blue */
-    padding: 0 10px;
+    color: #007bff;
+    padding-bottom: 10px;
+    width: 100%;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 20px;
 }
 
 label {
     display: block;
-    align-self: center;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     font-weight: 600;
     color: #555;
+    font-size: 0.85em;
 }
 
-input[type='text'] , input[type='email'] {
-    width: 100%; /* Makes the input field fill its container */
-    box-sizing: border-box; /* Ensures padding and border are included in the 100% width */
-
-    /* The following styles are from your original code and have been kept */
-    padding: 12px 10px;
-    margin-bottom: 20px;
+input[type='text'], input[type='email'], input[type='number'], textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 10px;
+    margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 1em;
+    font-size: 0.75rem;
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-input[type="number"] {
-    width: 100%; /* Makes the input field fill its container */
-    box-sizing: border-box; /* Ensures padding and border are included in the 100% width */
-
-    /* The following styles are from your original code and have been kept */
-    padding: 12px 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1em;
-    transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-input[type="text"]:focus {
-    border-color: #3498db;
-    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+input[type='text']:focus, input[type='email']:focus, input[type='number']:focus, textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
     outline: none;
 }
 
-textarea {
-    width: 100%; /* Makes the input field fill its container */
-    box-sizing: border-box; /* Ensures padding and border are included in the 100% width */
+/* Validation Highlighting */
+input.ng-invalid.ng-touched,
+textarea.ng-invalid.ng-touched {
+    border-color: red;
+}
 
-    /* The following styles are from your original code and have been kept */
-    padding: 12px 10px;
-    margin-bottom: 20px;
+textarea[appAutoResize] {
+    resize: none;      // Prevents the user from manually resizing the textarea
+    overflow-y: scroll;  // Hides the scrollbar, letting the directive control the height
+    min-height: 38px;  // Sets a minimum height, consistent with other input fields
+}
+
+// Ensure table cells can expand
+.data-table td {
+    height: auto; // Allow cell height to grow with the textarea
+}
+
+/* Layout helpers for multi-column fields */
+.form-row-triple {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+.year-inputs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    input {
+        width: 4em;
+        margin-bottom: 0;
+    }
+}
+.radio-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
     border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1em;
-    transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-button{
-    height: 50px;    
-    font-size: 1em;
-    font-weight: bold;
-    border: 0;
-    padding: 5px 15px;
-    color: white;
     border-radius: 5px;
-    background-color: #3498db;
-    transition: background-color 0.3s, transform 0.2s;
+    padding: 10px;
+    margin-bottom: 15px;
+    label {
+        margin-bottom: 0;
+        font-weight: normal;
+    }
+    input[type="radio"] {
+      margin-right: -15px;
+    }
 }
 
-button:hover{
-    transform: translateY(-2px);
-    background-color: #328fcd;
-}
 
-/* --- Submit Button --- */
-button[type="submit"] {
-    background-color: #2ecc71; /* Green */
-    color: white;
-    border: none;
-    padding: 15px 30px;
-    
+
+
+/* --- Buttons --- */
+button {
+    height: 38px;
+    font-size: 0.9em;
+    font-weight: bold;
+    border: 1px solid #ccc;
+    padding: 0 20px;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
 }
 
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+}
+ 
+ button:hover {
+    // box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+button[type="submit"] {
+background-color: #2ecc71; /* Green */
+color: white;
+border: none;
+// padding: 15px 30px;
+border-radius: 5px;
+cursor: pointer;
+transition: background-color 0.3s, transform 0.2s;
+}
 button[type="submit"]:hover {
-    background-color: #27ae60; /* Darker green */
-    
-}
-.data-table td {
-    width: fit-content;
-    height: 50px;
-    padding: 8px; /* Added padding for better cell spacing */
+background-color: #27ae60; /* Darker green */
 }
 
-/* Style for all text inputs and textareas within the table */
-.data-table input,
-.data-table textarea {
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    margin: 0;
+.backbtn {
     border: 0;
-    // resize: none; /* Prevents manual resizing by the user */
-    // overflow: hidden; /* Hides the scrollbar, allowing the element to grow */
-    line-height: 1.5; /* Ensures consistent line spacing */
-    min-height: 20px; /* Sets a minimum height for the field */
-    
-    /* Inherit font styles from the parent cell for consistency */
-    font-family: inherit;
-    font-size: inherit;
-    font-weight: inherit;
+    color: black;
+    font-size: 1em;
+    cursor: pointer;
+    background-color: transparent;
+    margin-right: 15px;
+}
+.backbtn:hover {
+    text-decoration: underline;
 }
 
+.form-check{
+    margin-right: 3px;
+}
+
+/* --- Table Styling --- */
 .data-table {
-    border-collapse: collapse;
-    width: fit-content;
-    margin-bottom: 20px;
-    font-size: 14px;
+    /* (your existing data-table styles can go here) */
+    font-size: 0.85em; /* Smaller font for tables */
+}
+.data-table input, .data-table textarea {
+    font-size: 1em; /* Inherit from table font-size */
+    padding: 4px 6px;
+    margin-bottom: 0;
 }
 
-/* Add borders and padding to the cells and headers */
-.data-table th, .data-table td {
-    border: 1px solid #ccc;
-    text-align: left;
-}
 
-/* Style the table header separately for better visuals */
-.data-table th {
-    background-color: #f2f2f2;
-    font-weight: 600;
-}
-
-.form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
-.form-column {
-    border: 1px solid #ccc;
-    padding: 15px;
-    border-radius: 8px;
-    margin: 5px;
-}
-.form-column h4 {
-    margin-top: 0;
-}
-
-/* Add these styles for the loading indicator */
+/* --- Loading Indicator (Unchanged) --- */
 .loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   background-color: rgba(255, 255, 255, 0.8);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  backdrop-filter: blur(5px);
+  display: flex; flex-direction: column; justify-content: center;
+  align-items: center; z-index: 9999; backdrop-filter: blur(5px);
 }
-
 .spinner {
-  border: 8px solid #f3f3f3; /* Light grey */
-  border-top: 8px solid #3498db; /* Blue */
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  animation: spin 1.5s linear infinite;
-  margin-bottom: 20px;
+  border: 8px solid #f3f3f3; border-top: 8px solid #3498db;
+  border-radius: 50%; width: 60px; height: 60px;
+  animation: spin 1.5s linear infinite; margin-bottom: 20px;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.loading-overlay h2 { font-weight: 500; color: #333; }
+.loading-overlay p { color: #666; }
+
+@media (max-width: 768px) {
+    .page-layout-container {
+        // On small screens, switch to a single-column layout
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        // On a real mobile app, you would hide the sidebar and
+        // control it with a hamburger menu button.
+        // For now, we'll just hide it.
+        display: none;
+    }
+
+    .content {
+        // Adjust padding for a better mobile experience
+        padding: 0 15px;
+    }
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+@media (max-width: 1200px) {
+    .page-layout-container {
+        // Switch from "250px 1fr" to a single-column layout
+        grid-template-columns: 1fr;
+    }
 
-.loading-overlay h2 {
-  font-weight: 500;
-  color: #333;
-}
+    .sidebar {
+        // The form's sidebar no longer needs to be sticky or take up the full height
+        position: static;
+        height: auto;
+        width: 100%; // Take full width in the single-column layout
 
-.loading-overlay p {
-  color: #666;
+        // Add some space between the sidebar and the content below it
+        margin-bottom: 20px; 
+        
+        // Optional: you might want to adjust the sidebar's internal structure for this view
+        // For example, make the list items horizontal if you have a lot of them.
+    }
+
+    .content {
+        // Adjust padding for a cleaner look when stacked
+        padding: 0 10px;
+    }
 }

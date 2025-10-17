@@ -11,12 +11,15 @@ import { AuthService } from '../auth/auth.service';
 import { baseUrl } from '../../environments/environment';
 import { DialogService } from '../dialog.service';
 import { ThousandSeparatorDirective } from '../thousand-separator.directive.ts';
+import { AutoResizeDirective } from '../auto-resize.directive';
 
 
 @Component({
   selector: 'app-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, HttpClientModule, ThousandSeparatorDirective],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, HttpClientModule, ThousandSeparatorDirective,
+    AutoResizeDirective
+  ],
   templateUrl: './form.component.html',
   styleUrls: ['./form.component.scss']
 })
@@ -28,6 +31,7 @@ export class FormComponent implements OnInit {
   private apiUrl = baseUrl;
   projectId: any;
   sectionStatus: { [key: string]: boolean } = {};
+  
 
   constructor(
     private router: Router,
