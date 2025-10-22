@@ -56,7 +56,7 @@
         <input type="file" accept="image/*, .pdf" #shareholderFileInp (change)="onFileSelected($event, 'shareholder')" hidden>
     </div>
 
-    <div class="upload-area" [class.file-selected]="c5FileName" (click)="c5FileInp.click()">
+    <!-- <div class="upload-area" [class.file-selected]="c5FileName" (click)="c5FileInp.click()">
         <div *ngIf="!c5FileName; else c5FileSelected">
             <label>Annexure (Attachments C5)</label>
         </div>
@@ -65,7 +65,7 @@
             <button class="remove-btn" (click)="removeFile('c5'); $event.stopPropagation()">&times;</button>
         </ng-template>
         <input type="file" accept="image/*, .pdf" #c5FileInp (change)="onFileSelected($event, 'c5')" hidden>
-    </div>
+    </div> -->
 
      <div class="upload-area" [class.file-selected]="SRFileName" (click)="SRFileInp.click()">
         <div *ngIf="!SRFileName; else SRFileSelected">

@@ -22,7 +22,7 @@ export class AutoResizeDirective implements OnInit {
    */
   adjust(): void {
     const textarea = this.elementRef.nativeElement as HTMLTextAreaElement;
-    textarea.style.overflow = 'hidden'; // Hide scrollbar
+    // textarea.style.overflow = 'hidden'; // Hide scrollbar
     textarea.style.height = 'auto'; // Reset height
     textarea.style.height = `${textarea.scrollHeight}px`; // Set height to content height
   }

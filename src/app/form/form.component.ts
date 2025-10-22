@@ -31,7 +31,46 @@ export class FormComponent implements OnInit {
   private apiUrl = baseUrl;
   projectId: any;
   sectionStatus: { [key: string]: boolean } = {};
-  
+  businessActivities: { code: string, description: string }[] = [
+    { code: '00001', description: 'Labuan insurer, Labuan reinsurer, Labuan takaful operator or Labuan retakaful operator' },
+    { code: '00002', description: 'Labuan underwriting manager or Labuan underwriting takaful manager' },
+    { code: '00003', description: 'Labuan insurance manager or Labuan takaful manager' },
+    { code: '00004', description: 'Labuan insurance broker or Labuan takaful broker' },
+    { code: '00005', description: 'Labuan captive insurer or Labuan captive takaful' },
+    { code: '00006', description: 'Labuan International Commodity Trading Company' },
+    { code: '00007', description: 'Labuan bank, Labuan investment bank, Labuan Islamic bank or Labuan Islamic investment bank' },
+    { code: '00008', description: 'Labuan trust company' },
+    { code: '00009', description: 'Labuan leasing company or Labuan Islamic leasing company' },
+    { code: '00010', description: 'Labuan credit token company or Labuan Islamic credit token company' },
+    { code: '00011', description: 'Labuan development finance company or Labuan Islamic development finance company' },
+    { code: '00012', description: 'Labuan building credit company or Labuan Islamic building credit company' },
+    { code: '00013', description: 'Labuan factoring company or Labuan Islamic factoring company' },
+    { code: '00014', description: 'Labuan money broker or Labuan Islamic money broker' },
+    { code: '00015', description: 'Labuan fund manager' },
+    { code: '00016', description: 'Labuan securities licensee or Labuan Islamic securities licensee' },
+    { code: '00017', description: 'Labuan fund administrator' },
+    { code: '00018', description: 'Labuan company management' },
+    { code: '00019', description: 'Labuan International Financial Exchange' },
+    { code: '00020', description: 'Self-regulatory organisation or Islamic self-regulation organisation' },
+    { code: '00021', description: 'Labuan entity that undertakes investment holding activities other than pure equity holding activities' },
+    { code: '00022', description: 'Labuan entity that undertakes pure equity holding activities' },
+    { code: '00023', description: 'Labuan entity that carries out administrative services, accounting services, legal services, backroom processing services, payroll services, talent management services, agency services, insolvency related services and management services other than Labuan company management under code 00018' }
+  ];
+
+  labuanEntityTypes = new Map<string, string>([
+    ['1', 'Labuan Company'],
+    ['2', 'Labuan Foundation'],
+    ['3', 'Labuan Islamic Foundation'],
+    ['4', 'Labuan Islamic partnership'],
+    ['5', 'Labuan limited partnership'],
+    ['6', 'Labuan Limited Liability Partnership'],
+    ['7', 'Labuan Islamic trust'],
+    ['8', 'Labuan trust'],
+    ['9', 'Malaysian Islamic bank licensee'],
+    ['10', 'Malaysian bank licensee'],
+    ['11', 'Any Labuan financial institutions'],
+    ['12', 'Any person declared by the Minister to be a Labuan entity']
+  ]);
 
   constructor(
     private router: Router,
@@ -40,7 +79,7 @@ export class FormComponent implements OnInit {
     private http: HttpClient,
     private auth: AuthService,
     private dialogService: DialogService,
-    
+
   ) {
     this.le1Form = this.fb.group({
       // Part A: Basic Particulars
@@ -403,65 +442,65 @@ export class FormComponent implements OnInit {
       Beneficial_Owner_4_Fees_Commission_Allowance: [''],
 
       // Attachment C9: Financial Particulars
-      Business_Activity_Code: [''],
-      Type_of_business_activity: [''],
-      Fp_Type_of_Labuan_entity: [''],
-      Pnl_Sales_Turnover: [''],
-      Pnl_Opening_Inventory: [''],
-      Pnl_Cost_of_Purchases: [''],
-      Pnl_Cost_of_Production: [''],
-      Pnl_Closing_Inventory: [''],
-      Pnl_Cost_of_Sales: [''],
-      Pnl_Gross_Profit_Loss: [''],
-      Pnl_Foreign_Currency_Exchange_Gain: [''],
-      Pnl_Other_Business_Income: [''],
-      Pnl_Other_Income: [''],
-      Pnl_Non_Taxable_Profits: [''],
-      Pnl_Interest_Expenditure: [''],
-      Pnl_Professional_Fees: [''],
-      Pnl_Technical_Fees_to_Non_Residents: [''],
-      Pnl_Contract_Payments: [''],
-      Pnl_Management_Fee: [''],
-      Pnl_Salaries_Wages: [''],
-      Pnl_Cost_of_Employee_Share_Options: [''],
-      Pnl_Royalties: [''],
-      Pnl_Rental_Lease: [''],
-      Pnl_Maintenance_Repairs: [''],
-      Pnl_Research_Development: [''],
-      Pnl_Promotion_Advertisement: [''],
-      Pnl_Travelling_Accommodation: [''],
-      Pnl_Foreign_Currency_Exchange_Loss: [''],
-      Pnl_Other_Expenditure: [''],
-      Pnl_Total_Expenditure: [''],
-      Pnl_Net_Profit_Loss: [''],
-      Fp_Motor_Vehicles: [''],
-      Fp_Plant_Equipment: [''],
-      Fp_Land_Buildings: [''],
-      Fp_Other_Non_Current_Assets: [''],
-      Fp_Investments: [''],
-      Fp_Total_Non_Current_Assets: [''],
-      Fp_Cost_of_NCA_Acquired: [''],
-      Fp_Trade_Debtors: [''],
-      Fp_Other_Debtors: [''],
-      Fp_Inventory: [''],
-      Fp_Loans_to_Related_Entities: [''],
-      Fp_Cash_in_Hand_Bank: [''],
-      Fp_Other_Current_Assets: [''],
-      Fp_Total_Current_Assets: [''],
-      Fp_Total_Assets: [''],
-      Fp_Loans_Bank_Overdrafts: [''],
-      Fp_Trade_Creditors: [''],
-      Fp_Other_Creditors: [''],
-      Fp_Loans_from_Related_Entities: [''],
-      Fp_Other_Current_Liabilities: [''],
-      Fp_Total_Current_Liabilities: [''],
-      Fp_Non_Current_Liabilities: [''],
-      Fp_Total_Liabilities: [''],
-      Fp_Issued_Paid_Up_Capital: [''],
-      Fp_Profit_Loss_Appropriation: [''],
-      Fp_Reserve_Account: [''],
-      Fp_Total_Equity: [''],
-      Fp_Total_Liabilities_and_Equity: [''],
+      Business_Activity_Code: [0],
+      Type_of_business_activity: [0],
+      Fp_Type_of_Labuan_entity: [0],
+      Pnl_Sales_Turnover: [0],
+      Pnl_Opening_Inventory: [0],
+      Pnl_Cost_of_Purchases: [0],
+      Pnl_Cost_of_Production: [0],
+      Pnl_Closing_Inventory: [0],
+      Pnl_Cost_of_Sales: [0],
+      Pnl_Gross_Profit_Loss: [0],
+      Pnl_Foreign_Currency_Exchange_Gain: [0],
+      Pnl_Other_Business_Income: [0],
+      Pnl_Other_Income: [0],
+      Pnl_Non_Taxable_Profits: [0],
+      Pnl_Interest_Expenditure: [0],
+      Pnl_Professional_Fees: [0],
+      Pnl_Technical_Fees_to_Non_Residents: [0],
+      Pnl_Contract_Payments: [0],
+      Pnl_Management_Fee: [0],
+      Pnl_Salaries_Wages: [0],
+      Pnl_Cost_of_Employee_Share_Options: [0],
+      Pnl_Royalties: [0],
+      Pnl_Rental_Lease: [0],
+      Pnl_Maintenance_Repairs: [0],
+      Pnl_Research_Development: [0],
+      Pnl_Promotion_Advertisement: [0],
+      Pnl_Travelling_Accommodation: [0],
+      Pnl_Foreign_Currency_Exchange_Loss: [0],
+      Pnl_Other_Expenditure: [0],
+      Pnl_Total_Expenditure: [0],
+      Pnl_Net_Profit_Loss: [0],
+      Fp_Motor_Vehicles: [0],
+      Fp_Plant_Equipment: [0],
+      Fp_Land_Buildings: [0],
+      Fp_Other_Non_Current_Assets: [0],
+      Fp_Investments: [0],
+      Fp_Total_Non_Current_Assets: [0],
+      Fp_Cost_of_NCA_Acquired: [0],
+      Fp_Trade_Debtors: [0],
+      Fp_Other_Debtors: [0],
+      Fp_Inventory: [0],
+      Fp_Loans_to_Related_Entities: [0],
+      Fp_Cash_in_Hand_Bank: [0],
+      Fp_Other_Current_Assets: [0],
+      Fp_Total_Current_Assets: [0],
+      Fp_Total_Assets: [0],
+      Fp_Loans_Bank_Overdrafts: [0],
+      Fp_Trade_Creditors: [0],
+      Fp_Other_Creditors: [0],
+      Fp_Loans_from_Related_Entities: [0],
+      Fp_Other_Current_Liabilities: [0],
+      Fp_Total_Current_Liabilities: [0],
+      Fp_Non_Current_Liabilities: [0],
+      Fp_Total_Liabilities: [0],
+      Fp_Issued_Paid_Up_Capital: [0],
+      Fp_Profit_Loss_Appropriation: [0],
+      Fp_Reserve_Account: [0],
+      Fp_Total_Equity: [0],
+      Fp_Total_Liabilities_and_Equity: [0],
 
       // Attachment C10: Subsidiaries or Related Entities
       // C10 Row 1
@@ -531,7 +570,7 @@ export class FormComponent implements OnInit {
     } else {
       console.warn('No project ID found. Redirecting to reports page.');
       this.router.navigate(['/reports']);
-      return; 
+      return;
     }
 
     this.route.fragment.subscribe(fragment => {
@@ -551,7 +590,7 @@ export class FormComponent implements OnInit {
     this.le1Form.get('D1_Subject_to_CbCR')?.valueChanges.subscribe(value => {
       const p_E = ['E1_MNE_Group_Name', 'E2_Accounting_Period_From_Day', 'E2_Accounting_Period_From_Month', 'E2_Accounting_Period_From_Year', 'E2_Accounting_Period_To_Day', 'E2_Accounting_Period_To_Month', 'E2_Accounting_Period_To_Year', 'E3_Constituent_Entities_in_Malaysia', 'E4_Constituent_Entities_outside_Malaysia'];
       const p_F = ['F1_Reporting_Entity_Name', 'F2_TIN', 'F3_Country_of_Residence', 'F4_Accounting_Period_From_Day', 'F4_Accounting_Period_From_Month', 'F4_Accounting_Period_From_Year', 'F4_Accounting_Period_To_Day', 'F4_Accounting_Period_To_Month', 'F4_Accounting_Period_To_Year', 'F5_MNE_Group_Name', 'F6_Status_of_Reporting_Entity', 'F7a_Ultimate_Holding_Entity_Name', 'F7b_Country_of_Residence_UHE'];
-      
+
       if (value === '1') { // "Yes"
         p_E.forEach(c => this.le1Form.get(c)?.enable());
         p_F.forEach(c => this.le1Form.get(c)?.enable());
@@ -560,6 +599,26 @@ export class FormComponent implements OnInit {
         p_F.forEach(c => this.le1Form.get(c)?.disable());
       }
     });
+
+    this.le1Form.get('Business_Activity_Code')?.valueChanges.subscribe(code => {
+      this.updateBusinessActivityDescription(code);
+    });
+
+    this.le1Form.get('Type_of_Labuan_entity')?.valueChanges.subscribe(value => {
+      this.updateFpLabuanEntityType(value);
+    });
+  }
+
+  updateBusinessActivityDescription(code: string | null): void {
+    const activity = this.businessActivities.find(a => a.code === code);
+    const description = activity ? activity.description : '';
+    // Use setValue to update the form control; { emitEvent: false } prevents re-triggering valueChanges
+    this.le1Form.get('Type_of_business_activity')?.setValue(description, { emitEvent: false });
+  }
+
+  updateFpLabuanEntityType(value: string | null): void {
+    const entityTypeLabel = this.labuanEntityTypes.get(value || '') || '';
+    this.le1Form.get('Fp_Type_of_Labuan_entity')?.setValue(entityTypeLabel, { emitEvent: false });
   }
 
   /**
@@ -578,14 +637,14 @@ export class FormComponent implements OnInit {
    */
   isTableComplete(rowCount: number, fieldPrefix: string, fieldSuffixes: string[]): boolean {
     for (let i = 0; i < rowCount; i++) {
-        const rowFieldValues = fieldSuffixes.map(suffix => this.le1Form.get(`${fieldPrefix}${i}_${suffix}`)?.value);
-        
-        const filledFields = rowFieldValues.filter(v => v !== null && v !== undefined && v !== '').length;
+      const rowFieldValues = fieldSuffixes.map(suffix => this.le1Form.get(`${fieldPrefix}${i}_${suffix}`)?.value);
 
-        // A row is invalid if it's partially filled (not completely empty and not completely full)
-        if (filledFields > 0 && filledFields < fieldSuffixes.length) {
-            return false; // Incomplete
-        }
+      const filledFields = rowFieldValues.filter(v => v !== null && v !== undefined && v !== '').length;
+
+      // A row is invalid if it's partially filled (not completely empty and not completely full)
+      if (filledFields > 0 && filledFields < fieldSuffixes.length) {
+        return false; // Incomplete
+      }
     }
     return true; // Complete
   }
@@ -593,20 +652,20 @@ export class FormComponent implements OnInit {
   checkAllSectionsCompletion(): void {
     // Part A: Basic Particulars
     this.sectionStatus['part-a'] = [
-        'Year_of_Assessment_1', 'Year_of_Assessment_2', 'Year_of_Assessment_3', 'Year_of_Assessment_4',
-        'Company_Name', 'Company_Address_Line1', 'Postcode', 'City', 'State', 'Change_of_Accounting_Period_No'
+      'Year_of_Assessment_1', 'Year_of_Assessment_2', 'Year_of_Assessment_3', 'Year_of_Assessment_4',
+      'Company_Name', 'Company_Address_Line1', 'Postcode', 'City', 'State', 'Change_of_Accounting_Period_No'
     ].every(field => this.isFieldComplete(field));
 
     // Part B: Tax Computation (including table validation)
     const b1Suffixes = [
-        'Business_Activity_Code', 'Core_Income_Activity_Yes', 'Business_Activity_Status_Active',
-        'No_of_Employees', 'Annual_Operating_Expenditure', 'Compliance_with_FPEC', 'Compliance_with_CML',
-        'No_of_Employees_Malaysia', 'No_of_Related_Company', 'Comply_Substantive_Yes',
-        'Amount_of_Net_Loss', 'Net_Profits_ex_IP'
+      'Business_Activity_Code', 'Core_Income_Activity_Yes', 'Business_Activity_Status_Active',
+      'No_of_Employees', 'Annual_Operating_Expenditure', 'Compliance_with_FPEC', 'Compliance_with_CML',
+      'No_of_Employees_Malaysia', 'No_of_Related_Company', 'Comply_Substantive_Yes',
+      'Amount_of_Net_Loss', 'Net_Profits_ex_IP'
     ];
-    this.sectionStatus['part-b'] = this.isTableComplete(5, 'B1_Row', b1Suffixes) && 
-                                   ['B2_Total_Net_Profits', 'B6_Tax_Payable'].every(f => this.isFieldComplete(f));
-    
+    this.sectionStatus['part-b'] = this.isTableComplete(5, 'B1_Row', b1Suffixes) &&
+      ['B2_Total_Net_Profits', 'B6_Tax_Payable'].every(f => this.isFieldComplete(f));
+
     // Attachment C3: Compliance Officers
     const c3Suffixes = ['Name', 'Designation', 'Address', 'ID_Passport_No', 'Date_of_Birth', 'TIN', 'Telephone_No', 'Salary_Bonus', 'Fees_Commission_Allowances', 'Total_Loan_to_Officer', 'Total_Loan_from_Officer']; // Example required fields
     this.sectionStatus['attachment-c3'] = this.isTableComplete(5, 'Compliance_Officers', c3Suffixes);
@@ -620,6 +679,12 @@ export class FormComponent implements OnInit {
       next: (response) => {
         if (response && response[0].data) {
           this.le1Form.patchValue(response[0].data);
+
+          this.updateBusinessActivityDescription(response[0].data.Business_Activity_Code);
+
+          // ==================== START OF MODIFICATION ====================
+          // 4. Also update the Labuan entity type description when data is loaded.
+          this.updateFpLabuanEntityType(response[0].data.Type_of_Labuan_entity);
           this.checkAllSectionsCompletion(); // Check completion status AFTER data is loaded
           console.log('Form successfully patched with data from API.');
         } else {
@@ -699,14 +764,14 @@ export class FormComponent implements OnInit {
 
           // For radio buttons, the value might be '1' or '2'. You might need to map this to 'Yes'/'No' or a checkmark.
           // This is a simple example; your mapping could be more complex.
-          
+
           if (value !== null && value !== undefined) {
             const pageIndex = coords.page;
             if (pageIndex >= 0 && pageIndex < pages.length) {
               const page = pages[pageIndex];
               // Format numbers with commas for the PDF
               if (typeof value === 'number' || !isNaN(Number(value))) {
-                  value = new Intl.NumberFormat('en-US').format(Number(value));
+                value = new Intl.NumberFormat('en-US').format(Number(value));
               }
               page.drawText(String(value), {
                 x: coords.x,
@@ -726,13 +791,164 @@ export class FormComponent implements OnInit {
       const arrayBuffer = pdfBytes.buffer as ArrayBuffer;
 
       const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
-     saveAs(blob, 'LE1_completed.pdf');
+      saveAs(blob, 'LE1_completed.pdf');
 
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('An error occurred while generating the PDF. Check the console for details.');
     } finally {
       this.isLoading = false;
+    }
+  }
+
+  submit() {
+    //validate if Pnl_Cost_of_Sales =  Pnl_Opening_Inventory + Pnl_Cost_of_Purchases + Pnl_Cost_of_Production - Pnl_Closing_Inventory
+    // PNL Statement Fields
+    const pnl_Cost_of_Sales = Number(this.le1Form.get('Pnl_Cost_of_Sales')?.value) || 0;
+    const pnl_Opening_Inventory = Number(this.le1Form.get('Pnl_Opening_Inventory')?.value) || 0;
+    const pnl_Cost_of_Purchases = Number(this.le1Form.get('Pnl_Cost_of_Purchases')?.value) || 0;
+    const pnl_Cost_of_Production = Number(this.le1Form.get('Pnl_Cost_of_Production')?.value) || 0;
+    const pnl_Closing_Inventory = Number(this.le1Form.get('Pnl_Closing_Inventory')?.value) || 0;
+
+    const calculated_Cost_of_Sales = pnl_Opening_Inventory + pnl_Cost_of_Purchases + pnl_Cost_of_Production - pnl_Closing_Inventory;
+
+    // validate if Pnl_Gross_Profit_Loss = Pnl_Sales_Turnover - cost of sales
+    const pnl_Sales_Turnover = Number(this.le1Form.get('Pnl_Sales_Turnover')?.value) || 0;
+    const pnl_Gross_Profit_Loss = Number(this.le1Form.get('Pnl_Gross_Profit_Loss')?.value) || 0;
+    const calculated_Gross_Profit_Loss = pnl_Sales_Turnover - calculated_Cost_of_Sales;
+
+    // validate if Pnl_Net_Profit_Loss = Pnl_Gross_Profit_Loss + other income - total expenditure
+    const pnl_Foreign_Currency_Exchange_Gain = Number(this.le1Form.get('Pnl_Foreign_Currency_Exchange_Gain')?.value) || 0;
+    const pnl_Other_Business_Income = Number(this.le1Form.get('Pnl_Other_Business_Income')?.value) || 0;
+    const pnl_Other_Income = Number(this.le1Form.get('Pnl_Other_Income')?.value) || 0;
+    const pnl_Non_Taxable_Profits = Number(this.le1Form.get('Pnl_Non_Taxable_Profits')?.value) || 0;
+    const Pnl_Net_Profit_Loss = Number(this.le1Form.get('Pnl_Net_Profit_Loss')?.value) || 0;
+
+    const total_Other_Income = pnl_Foreign_Currency_Exchange_Gain + pnl_Other_Business_Income + pnl_Other_Income + pnl_Non_Taxable_Profits;
+    const calculated_Net_Profit_Loss = calculated_Gross_Profit_Loss + total_Other_Income - (Number(this.le1Form.get('Pnl_Total_Expenditure')?.value) || 0);
+
+    // validate if Pnl_Total_Expenditure = sum of all expenditure fields
+    const pnl_Interest_Expenditure = Number(this.le1Form.get('Pnl_Interest_Expenditure')?.value) || 0;
+    const pnl_Professional_Fees = Number(this.le1Form.get('Pnl_Professional_Fees')?.value) || 0;
+    const pnl_Technical_Fees_to_Non_Residents = Number(this.le1Form.get('Pnl_Technical_Fees_to_Non_Residents')?.value) || 0;
+    const pnl_Contract_Payments = Number(this.le1Form.get('Pnl_Contract_Payments')?.value) || 0;
+    const pnl_Management_Fee = Number(this.le1Form.get('Pnl_Management_Fee')?.value) || 0;
+    const pnl_Salaries_Wages = Number(this.le1Form.get('Pnl_Salaries_Wages')?.value) || 0;
+    const pnl_Cost_of_Employee_Share_Options = Number(this.le1Form.get('Pnl_Cost_of_Employee_Share_Options')?.value) || 0;
+    const pnl_Royalties = Number(this.le1Form.get('Pnl_Royalties')?.value) || 0;
+    const pnl_Rental_Lease = Number(this.le1Form.get('Pnl_Rental_Lease')?.value) || 0;
+    const pnl_Maintenance_Repairs = Number(this.le1Form.get('Pnl_Maintenance_Repairs')?.value) || 0;
+    const pnl_Research_Development = Number(this.le1Form.get('Pnl_Research_Development')?.value) || 0;
+    const pnl_Promotion_Advertisement = Number(this.le1Form.get('Pnl_Promotion_Advertisement')?.value) || 0;
+    const pnl_Travelling_Accommodation = Number(this.le1Form.get('Pnl_Travelling_Accommodation')?.value) || 0;
+    const pnl_Foreign_Currency_Exchange_Loss = Number(this.le1Form.get('Pnl_Foreign_Currency_Exchange_Loss')?.value) || 0;
+    const pnl_Other_Expenditure = Number(this.le1Form.get('Pnl_Other_Expenditure')?.value) || 0;
+    const pnl_Total_Expenditure = Number(this.le1Form.get('Pnl_Total_Expenditure')?.value) || 0;
+
+    const calculated_Total_Expenditure = pnl_Interest_Expenditure + pnl_Professional_Fees + pnl_Technical_Fees_to_Non_Residents + pnl_Contract_Payments + pnl_Management_Fee + pnl_Salaries_Wages + pnl_Cost_of_Employee_Share_Options + pnl_Royalties + pnl_Rental_Lease + pnl_Maintenance_Repairs + pnl_Research_Development + pnl_Promotion_Advertisement + pnl_Travelling_Accommodation + pnl_Foreign_Currency_Exchange_Loss + pnl_Other_Expenditure;
+
+    // Financial Position (FP) - Assets
+    const fp_Motor_Vehicles = Number(this.le1Form.get('Fp_Motor_Vehicles')?.value) || 0;
+    const fp_Plant_Equipment = Number(this.le1Form.get('Fp_Plant_Equipment')?.value) || 0;
+    const fp_Land_Buildings = Number(this.le1Form.get('Fp_Land_Buildings')?.value) || 0;
+    const fp_Other_Non_Current_Assets = Number(this.le1Form.get('Fp_Other_Non_Current_Assets')?.value) || 0;
+    const fp_Investments = Number(this.le1Form.get('Fp_Investments')?.value) || 0;
+    const fp_Total_Non_Current_Assets = Number(this.le1Form.get('Fp_Total_Non_Current_Assets')?.value) || 0;
+
+    const calculated_Total_Non_Current_Assets = fp_Motor_Vehicles + fp_Plant_Equipment + fp_Land_Buildings + fp_Other_Non_Current_Assets + fp_Investments;
+
+    // Current Assets
+    const fp_Trade_Debtors = Number(this.le1Form.get('Fp_Trade_Debtors')?.value) || 0;
+    const fp_Other_Debtors = Number(this.le1Form.get('Fp_Other_Debtors')?.value) || 0;
+    const fp_Inventory = Number(this.le1Form.get('Fp_Inventory')?.value) || 0;
+    const fp_Loans_to_Related_Entities = Number(this.le1Form.get('Fp_Loans_to_Related_Entities')?.value) || 0;
+    const fp_Cash_in_Hand_Bank = Number(this.le1Form.get('Fp_Cash_in_Hand_Bank')?.value) || 0;
+    const fp_Other_Current_Assets = Number(this.le1Form.get('Fp_Other_Current_Assets')?.value) || 0;
+    const fp_Total_Current_Assets = Number(this.le1Form.get('Fp_Total_Current_Assets')?.value) || 0;
+    const calculated_Total_Current_Assets = fp_Trade_Debtors + fp_Other_Debtors + fp_Inventory + fp_Loans_to_Related_Entities + fp_Cash_in_Hand_Bank + fp_Other_Current_Assets;
+
+    // Total Assets
+    const fp_Total_Assets = Number(this.le1Form.get('Fp_Total_Assets')?.value) || 0;
+    const calculated_Total_Assets = calculated_Total_Current_Assets + calculated_Total_Non_Current_Assets;
+
+    // Financial Position (FP) - Liabilities
+    // Current Liabilities
+    const fp_Loans_Bank_Overdrafts = Number(this.le1Form.get('Fp_Loans_Bank_Overdrafts')?.value) || 0;
+    const fp_Trade_Creditors = Number(this.le1Form.get('Fp_Trade_Creditors')?.value) || 0;
+    const fp_Other_Creditors = Number(this.le1Form.get('Fp_Other_Creditors')?.value) || 0;
+    const fp_Loans_from_Related_Entities = Number(this.le1Form.get('Fp_Loans_from_Related_Entities')?.value) || 0;
+    const fp_Other_Current_Liabilities = Number(this.le1Form.get('Fp_Other_Current_Liabilities')?.value) || 0;
+    const fp_Total_Current_Liabilities = Number(this.le1Form.get('Fp_Total_Current_Liabilities')?.value) || 0;
+
+    const calculated_Total_Current_Liabilities = fp_Loans_Bank_Overdrafts + fp_Trade_Creditors + fp_Other_Creditors + fp_Loans_from_Related_Entities + fp_Other_Current_Liabilities;
+
+    // Total Liabilities
+    const fp_Non_Current_Liabilities = Number(this.le1Form.get('Fp_Non_Current_Liabilities')?.value) || 0;
+    const fp_Total_Liabilities = Number(this.le1Form.get('Fp_Total_Liabilities')?.value) || 0;
+
+    const calculated_Total_Liabilities = calculated_Total_Current_Liabilities + fp_Non_Current_Liabilities;
+
+    // Financial Position (FP) - Equity
+    const fp_Issued_Paid_Up_Capital = Number(this.le1Form.get('Fp_Issued_Paid_Up_Capital')?.value) || 0;
+    const fp_Profit_Loss_Appropriation = Number(this.le1Form.get('Fp_Profit_Loss_Appropriation')?.value) || 0;
+    const fp_Reserve_Account = Number(this.le1Form.get('Fp_Reserve_Account')?.value) || 0;
+    const fp_Total_Equity = Number(this.le1Form.get('Fp_Total_Equity')?.value) || 0;
+
+    const calculated_Total_Equity = fp_Issued_Paid_Up_Capital + fp_Profit_Loss_Appropriation + fp_Reserve_Account;
+
+    // Total Liabilities and Equity
+    const fp_Total_Liabilities_and_Equity = Number(this.le1Form.get('Fp_Total_Liabilities_and_Equity')?.value) || 0;
+    const calculated_Total_Liabilities_and_Equity = calculated_Total_Liabilities + calculated_Total_Equity;
+
+    // Perform validations
+    
+    if (Pnl_Net_Profit_Loss !== calculated_Net_Profit_Loss) {
+      alert(`Validation Error: Net Profit/Loss should be equal to Gross Profit/Loss + Other Income - Total Expenditure.\n\nCurrent Value: ${Pnl_Net_Profit_Loss}\nCalculated Value: ${calculated_Net_Profit_Loss}`);
+      return;
+    }       
+    if (fp_Total_Liabilities_and_Equity !== calculated_Total_Liabilities_and_Equity) {
+      alert(`Validation Error: Total Liabilities and Equity should be equal to the sum of Total Liabilities and Total Equity.\n\nCurrent Value: ${fp_Total_Liabilities_and_Equity}\nCalculated Value: ${calculated_Total_Liabilities_and_Equity}`);
+      return;
+    }
+    if (fp_Total_Equity !== calculated_Total_Equity) {
+      alert(`Validation Error: Total Equity should be equal to the sum of Issued Paid-Up Capital, Profit/Loss Appropriation, and Reserve Account.\n\nCurrent Value: ${fp_Total_Equity}\nCalculated Value: ${calculated_Total_Equity}`);
+      return;
+    }
+    if (fp_Total_Liabilities !== calculated_Total_Liabilities) {
+      alert(`Validation Error: Total Liabilities should be equal to the sum of Total Current Liabilities and Non-Current Liabilities.\n\nCurrent Value: ${fp_Total_Liabilities}\nCalculated Value: ${calculated_Total_Liabilities}`);
+      return;
+    }
+    if (fp_Total_Current_Liabilities !== calculated_Total_Current_Liabilities) {
+      alert(`Validation Error: Total Current Liabilities should be equal to the sum of all current liabilities fields.\n\nCurrent Value: ${fp_Total_Current_Liabilities}\nCalculated Value: ${calculated_Total_Current_Liabilities}`);
+      return;
+    }
+    if (fp_Total_Assets !== calculated_Total_Assets) {
+      alert(`Validation Error: Total Assets should be equal to the sum of Total Current Assets and Total Non-Current Assets.\n\nCurrent Value: ${fp_Total_Assets}\nCalculated Value: ${calculated_Total_Assets}`);
+      return;
+    }
+    if (fp_Total_Current_Assets !== calculated_Total_Current_Assets) {
+      alert(`Validation Error: Total Current Assets should be equal to the sum of all current asset fields.\n\nCurrent Value: ${fp_Total_Current_Assets}\nCalculated Value: ${calculated_Total_Current_Assets}`);
+      return;
+    }
+    if (fp_Total_Non_Current_Assets !== calculated_Total_Non_Current_Assets) {
+      alert(`Validation Error: Total Non-Current Assets should be equal to the sum of all non-current asset fields.\n\nCurrent Value: ${fp_Total_Non_Current_Assets}\nCalculated Value: ${calculated_Total_Non_Current_Assets}`);
+      return;
+    }
+    if (pnl_Total_Expenditure !== calculated_Total_Expenditure) {
+      alert(`Validation Error: Total Expenditure should be equal to the sum of all expenditure fields.\n\nCurrent Value: ${pnl_Total_Expenditure}\nCalculated Value: ${calculated_Total_Expenditure}`);
+      return;
+    }
+    if (pnl_Gross_Profit_Loss !== calculated_Gross_Profit_Loss) {
+      alert(`Validation Error: Gross Profit/Loss should be equal to Sales Turnover - Cost of Sales.\n\nCurrent Value: ${pnl_Gross_Profit_Loss}\nCalculated Value: ${calculated_Gross_Profit_Loss}`);
+      return;
+    }
+    if (pnl_Cost_of_Sales !== calculated_Cost_of_Sales) {
+      alert(`Validation Error: Pnl_Cost_of_Sales should be equal to Pnl_Opening_Inventory + Pnl_Cost_of_Purchases + Pnl_Cost_of_Production - Pnl_Closing_Inventory.\n\nCurrent Value: ${pnl_Cost_of_Sales}\nCalculated Value: ${calculated_Cost_of_Sales}`);
+      return;
+    }
+    if (fp_Total_Liabilities_and_Equity !== fp_Total_Assets){
+      alert(`Validation Error: Total Liabilities and Equity should be equal to Total Assets.\n\nTotal Liabilities and Equity: ${fp_Total_Liabilities_and_Equity}\nTotal Assets: ${fp_Total_Assets}`);
+      return;
     }
   }
 
@@ -755,7 +971,7 @@ export class FormComponent implements OnInit {
             console.log('Leave canceled.');
           }
         });
-    } else{
+    } else {
       this.router.navigate(['/reports']);
     }
   }

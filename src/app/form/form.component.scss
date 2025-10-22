@@ -145,6 +145,10 @@ body {
     gap: 10px;
 }
 
+.form-select{
+    line-height: 2;
+}
+
 .form-container {
     padding: 20px 0;
 }
@@ -203,10 +207,12 @@ input[type='text'], input[type='email'], input[type='number'], textarea {
     width: 100%;
     box-sizing: border-box;
     padding: 8px 10px;
+    height: 50px;
     margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 0.75rem;
+    resize: none;
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 
@@ -223,9 +229,10 @@ textarea.ng-invalid.ng-touched {
 }
 
 textarea[appAutoResize] {
+    
     resize: none;      // Prevents the user from manually resizing the textarea
-    overflow-y: scroll;  // Hides the scrollbar, letting the directive control the height
-    min-height: 38px;  // Sets a minimum height, consistent with other input fields
+    overflow: auto;  // Hides the scrollbar, letting the directive control the height
+    min-height: 50px;  // Sets a minimum height, consistent with other input fields
 }
 
 // Ensure table cells can expand
@@ -329,6 +336,7 @@ background-color: #27ae60; /* Darker green */
     font-size: 1em; /* Inherit from table font-size */
     padding: 4px 6px;
     margin-bottom: 0;
+    field-sizing: content;
 }
 
 
@@ -370,7 +378,7 @@ background-color: #27ae60; /* Darker green */
 @media (max-width: 1200px) {
     .page-layout-container {
         // Switch from "250px 1fr" to a single-column layout
-        grid-template-columns: 1fr;
+        // grid-template-columns: 1fr;
     }
 
     .sidebar {

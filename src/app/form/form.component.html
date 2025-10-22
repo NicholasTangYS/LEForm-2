@@ -50,7 +50,8 @@
 
             <div style="display: flex; gap: 10px; max-width: 73vw; align-items: center;">
                 <button (click)="saveProject()" [disabled]="isLoading">Save</button>
-                <button type="submit" (click)="generatePdf()">Generate PDF</button>
+                <!-- <button type="submit" (click)="generatePdf()">Generate PDF</button> -->
+                <button type="submit" (click)="submit()">Submit</button>
             </div>
 
         </div>
@@ -463,8 +464,15 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><textarea type="text"
-                                            formControlName="B1_Row1_Business_Activity_Code"></textarea>
+                                    <td>
+                                        <!-- <textarea type="text"
+                                            formControlName="B1_Row1_Business_Activity_Code"></textarea> -->
+                                        <select formControlName="B1_Row1_Business_Activity_Code" class="form-select">
+                                            <option value="" disabled>-- Select --</option>
+                                            <option *ngFor="let activity of businessActivities" [value]="activity.code">
+                                                {{ activity.code }}
+                                            </option>
+                                        </select>
                                     </td>
                                     <td><textarea type="text"
                                             formControlName="B1_Row1_Core_Income_Activity_Yes"></textarea>
@@ -493,8 +501,16 @@
                                             formControlName="B1_Row1_Net_Profits_ex_IP"></textarea></td>
                                 </tr>
                                 <tr>
-                                    <td><textarea type="text"
-                                            formControlName="B1_Row2_Business_Activity_Code"></textarea>
+                                    <td>
+                                        <!-- <textarea type="text"
+                                            formControlName="B1_Row2_Business_Activity_Code"> -->
+                                        <!-- </textarea> -->
+                                        <select formControlName="B1_Row2_Business_Activity_Code" class="form-select">
+                                            <option value="" disabled>-- Select --</option>
+                                            <option *ngFor="let activity of businessActivities" [value]="activity.code">
+                                                {{ activity.code }}
+                                            </option>
+                                        </select>
                                     </td>
                                     <td><textarea type="text"
                                             formControlName="B1_Row2_Core_Income_Activity_Yes"></textarea>
@@ -523,8 +539,15 @@
                                             formControlName="B1_Row2_Net_Profits_ex_IP"></textarea></td>
                                 </tr>
                                 <tr>
-                                    <td><textarea type="text"
-                                            formControlName="B1_Row3_Business_Activity_Code"></textarea>
+                                    <td>
+                                        <!-- <textarea type="text"
+                                            formControlName="B1_Row3_Business_Activity_Code"></textarea> -->
+                                        <select formControlName="B1_Row3_Business_Activity_Code" class="form-select">
+                                            <option value="" disabled>-- Select --</option>
+                                            <option *ngFor="let activity of businessActivities" [value]="activity.code">
+                                                {{ activity.code }}
+                                            </option>
+                                        </select>
                                     </td>
                                     <td><textarea type="text"
                                             formControlName="B1_Row3_Core_Income_Activity_Yes"></textarea>
@@ -553,8 +576,15 @@
                                             formControlName="B1_Row3_Net_Profits_ex_IP"></textarea></td>
                                 </tr>
                                 <tr>
-                                    <td><textarea type="text"
-                                            formControlName="B1_Row4_Business_Activity_Code"></textarea>
+                                    <td>
+                                        <!-- <textarea type="text"
+                                            formControlName="B1_Row4_Business_Activity_Code"></textarea> -->
+                                        <select formControlName="B1_Row4_Business_Activity_Code" class="form-select">
+                                            <option value="" disabled>-- Select --</option>
+                                            <option *ngFor="let activity of businessActivities" [value]="activity.code">
+                                                {{ activity.code }}
+                                            </option>
+                                        </select>
                                     </td>
                                     <td><textarea type="text"
                                             formControlName="B1_Row4_Core_Income_Activity_Yes"></textarea>
@@ -583,8 +613,15 @@
                                             formControlName="B1_Row4_Net_Profits_ex_IP"></textarea></td>
                                 </tr>
                                 <tr>
-                                    <td><textarea type="text"
-                                            formControlName="B1_Row5_Business_Activity_Code"></textarea>
+                                    <td>
+                                        <!-- <textarea type="text"
+                                            formControlName="B1_Row5_Business_Activity_Code"></textarea> -->
+                                        <select formControlName="B1_Row5_Business_Activity_Code" class="form-select">
+                                            <option value="" disabled>-- Select --</option>
+                                            <option *ngFor="let activity of businessActivities" [value]="activity.code">
+                                                {{ activity.code }}
+                                            </option>
+                                        </select>
                                     </td>
                                     <td><textarea type="text"
                                             formControlName="B1_Row5_Core_Income_Activity_Yes"></textarea>
@@ -1554,12 +1591,25 @@ margin-bottom: 10px;">
                     <legend>Attachment C9: Financial Particulars</legend>
                     <div class="form-column">
                         <h4>General Information</h4>
-                        <label>Business Activity Code:</label>
+                        <!-- <label>Business Activity Code:</label>
                         <textarea appThousandSeparator formControlName="Business_Activity_Code"></textarea>
                         <label>Type of Business Activity:</label>
-                        <textarea appThousandSeparator formControlName="Type_of_business_activity"></textarea>
+                        <textarea appThousandSeparator formControlName="Type_of_business_activity"></textarea> -->
+                        <label for="Business_Activity_Code">Business Activity Code:</label>
+                        <select id="Business_Activity_Code" formControlName="Business_Activity_Code" class="form-select"
+                            style="margin-bottom: 10px;">
+                            <option value="" disabled>-- Select a Code --</option>
+                            <option *ngFor="let activity of businessActivities" [value]="activity.code">
+                                {{ activity.code }}
+                            </option>
+                        </select>
+
+                        <label for="Type_of_business_activity">Type of Business Activity:</label>
+                        <textarea id="Type_of_business_activity" formControlName="Type_of_business_activity" readonly
+                            style="background-color: #e9ecef; resize: none;"></textarea>
                         <label>Type of Labuan Entity:</label>
-                        <textarea appThousandSeparator formControlName="Fp_Type_of_Labuan_entity"></textarea>
+                        <textarea formControlName="Fp_Type_of_Labuan_entity" readonly
+                            style="background-color: #e9ecef; resize: none;"></textarea>
                     </div>
                     <div class="form-grid">
 

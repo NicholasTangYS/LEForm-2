@@ -35,7 +35,7 @@ export class HomeComponent {
   financialsFileName = '';
   c5FileName = '';
   SRFileName = '';
-  LEFileName ='';
+  LEFileName = '';
 
   // State for handling failures
   showFailureModal = false;
@@ -268,8 +268,30 @@ export class HomeComponent {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     // Day of the month, pad to 2 digits
     const day = String(date.getDate()).padStart(2, '0');
-    
+
     return `${year}-${month}-${day}`;
+  }
+
+  formatBusinessActivityCode(
+    code: string | number | null | undefined
+  ): string | number | null | undefined {
+    // 1. Convert to string and handle null/undefined/empty input early
+    if (code === null || code === undefined || code === '') {
+      return code;
+    }
+
+    const codeAsString = String(code);
+    const numericValue = Number(codeAsString);
+
+    // 2. Check the condition for padding (number between 1 and 23)
+    if (!isNaN(numericValue) && numericValue >= 1 && numericValue <= 23) {
+      // Use String.prototype.padStart() for zero-padding
+      // Example: '1'.padStart(5, '0') returns '00001'
+      return codeAsString.padStart(5, '0');
+    }
+
+    // 3. Otherwise, return the original value (whether it's already 5 digits, '24', '10000', etc.)
+    return code;
   }
 
   proceedWithData(responses: any[]) {
@@ -277,6 +299,12 @@ export class HomeComponent {
     const combinedData = Object.assign({}, ...responses);
     const today = new Date();
     const submissionDate = this._formatDate(today);
+    combinedData.B1_Row1_Business_Activity_Code = this.formatBusinessActivityCode(combinedData.B1_Row1_Business_Activity_Code);
+    combinedData.B1_Row2_Business_Activity_Code = this.formatBusinessActivityCode(combinedData.B1_Row2_Business_Activity_Code);
+    combinedData.B1_Row3_Business_Activity_Code = this.formatBusinessActivityCode(combinedData.B1_Row3_Business_Activity_Code);
+    combinedData.B1_Row4_Business_Activity_Code = this.formatBusinessActivityCode(combinedData.B1_Row4_Business_Activity_Code);
+    combinedData.B1_Row5_Business_Activity_Code = this.formatBusinessActivityCode(combinedData.B1_Row5_Business_Activity_Code);
+    combinedData.Business_Activity_Code = this.formatBusinessActivityCode(combinedData.Business_Activity_Code);
     const yearEnd = (combinedData.Accounting_Period_To_Day && combinedData.Accounting_Period_To_Month && combinedData.Accounting_Period_To_Year)
       ? `${combinedData.Accounting_Period_To_Year}-${combinedData.Accounting_Period_To_Month}-${combinedData.Accounting_Period_To_Day}`
       : submissionDate;
@@ -302,8 +330,8 @@ export class HomeComponent {
     return this.http.post(`${this.apiUrl}/createProject`, body).pipe(
       tap((res: any) => {
         console.log('API Success - Project created:', res);
-        const projectId = res.projectId ;
-        
+        const projectId = res.projectId;
+
         // Use the service to set the ID
         this.auth.setProjectId(projectId);
 

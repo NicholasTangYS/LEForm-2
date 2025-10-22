@@ -8,6 +8,7 @@
 .sidebar {
   background: #2f3e46;
   color: white;
+  min-width: 150px;
   width: 15vw;
   z-index: 3;
   /* 1. Ensure a smooth transition for the width property */
@@ -20,6 +21,7 @@
 
   &.collapsed {
     width: 4vw;
+    min-width: 60px;
   }
   
   /* --- New Styles for Smooth Text Transition --- */
