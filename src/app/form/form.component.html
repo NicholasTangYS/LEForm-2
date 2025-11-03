@@ -65,19 +65,19 @@
                 <fieldset id="part-a">
                     <legend>Part A: Basic Particulars</legend>
                     <label for="Year_of_Assessment_1">Year of Assessment:</label>
-                    <input style="width: 4%;" type="text" id="Year_of_Assessment_1"
-                        formControlName="Year_of_Assessment_1" maxlength="1" size="1">
-                    <input style="width: 4%;" type="text" id="Year_of_Assessment_2"
+                    <input style="width: 20%;" type="number" id="Year_of_Assessment" min="0"
+                        formControlName="Year_of_Assessment" maxlength="4" size="1">
+                    <!-- <input style="width: 4%;" type="text" id="Year_of_Assessment_2"
                         formControlName="Year_of_Assessment_2" maxlength="1" size="1">
                     <input style="width: 4%;" type="text" id="Year_of_Assessment_3"
                         formControlName="Year_of_Assessment_3" maxlength="1" size="1">
                     <input style="width: 4%;" type="text" id="Year_of_Assessment_4"
-                        formControlName="Year_of_Assessment_4" maxlength="1" size="1">
+                        formControlName="Year_of_Assessment_4" maxlength="1" size="1"> -->
 
                     <label for="Company_Name">Company Name:<span class="required-asterisk">*</span></label>
                     <input type="text" id="Company_Name" formControlName="Company_Name">
 
-                    <label for="Company_Address_Line1">Address Line 1:</label>
+                    <!-- <label for="Company_Address_Line1">Address Line 1:</label>
                     <input type="text" id="Company_Address_Line1" formControlName="Company_Address_Line1">
 
                     <label for="Company_Address_Line2">Address Line 2:</label>
@@ -130,8 +130,9 @@
                     <label for="Email">Email:</label>
                     <div style="margin-bottom: 10px;">
                         <input type="email" id="Email" formControlName="Email">
-                    </div>
-
+                    </div> -->
+                     <label for="Company_Registration_No">Registration No:</label>
+                    <input type="text" id="Company_Registration_No" formControlName="Company_Registration_No">
                     <label for="Change_of_Accounting_Period_No">Change of Accounting Period:</label>
                     <div style="display: flex;
                 border: 1px solid #ccc;gap: 3px;
@@ -186,21 +187,24 @@
     border: 1px solid #ccc; padding:5px; justify-content: space-between;
     margin-bottom: 10px;">
                         <label for="Accounting_Period_From_Day">From (DD/MM/YYYY):</label>
-                        <input style="width:4rem" type="number" id="Accounting_Period_From_Day"
+                        <input type="string" id="Accounting_Period_From" formControlName="Accounting_Period_From"
+                            size="10">
+                        <!-- <input style="width:4rem" type="number" id="Accounting_Period_From_Day"
                             formControlName="Accounting_Period_From_Day" size="2"> /
                         <input style="width:4rem" type="number" id="Accounting_Period_From_Month"
                             formControlName="Accounting_Period_From_Month" size="2"> /
                         <input style="width:5rem" type="number" id="Accounting_Period_From_Year"
-                            formControlName="Accounting_Period_From_Year" size="4">
+                            formControlName="Accounting_Period_From_Year" size="4"> -->
                         <!-- split border Line -->
                         <span></span>
                         <label for="Accounting_Period_To_Day">To (DD/MM/YYYY):</label>
-                        <input style="width:4rem" type="number" id="Accounting_Period_To_Day"
+                        <input type="string" id="Accounting_Period_To" formControlName="Accounting_Period_To" size="10">
+                        <!-- <input style="width:4rem" type="number" id="Accounting_Period_To_Day"
                             formControlName="Accounting_Period_To_Day" size="2"> /
                         <input style="width:4rem" type="number" id="Accounting_Period_To_Month"
                             formControlName="Accounting_Period_To_Month" size="2"> /
                         <input style="width:5rem" type="number" id="Accounting_Period_To_Year"
-                            formControlName="Accounting_Period_To_Year" size="4">
+                            formControlName="Accounting_Period_To_Year" size="4"> -->
                     </div>
 
                     <label>Basis Period:</label>
@@ -208,22 +212,24 @@
     border: 1px solid #ccc; padding:5px;justify-content: space-between;
     margin-bottom: 10px;">
                         <label for="Basis_Period_From_Day">From (DD/MM/YYYY):</label>
-                        <input style="width:4rem" type="number" id="Basis_Period_From_Day"
+                        <input type="string" id="Basis_Period_From" formControlName="Basis_Period_From" size="10">
+                        <!-- <input style="width:4rem" type="number" id="Basis_Period_From_Day"
                             formControlName="Basis_Period_From_Day" size="2">
                         /
                         <input style="width:4rem" type="number" id="Basis_Period_From_Month"
                             formControlName="Basis_Period_From_Month" size="2"> /
                         <input style="width:5rem" type="number" id="Basis_Period_From_Year"
-                            formControlName="Basis_Period_From_Year" size="4">
+                            formControlName="Basis_Period_From_Year" size="4"> -->
                         <label for="Basis_Period_To_Day">To (DD/MM/YYYY):</label>
-                        <input style="width:4rem" type="number" id="Basis_Period_To_Day"
+                        <input type="string" id="Basis_Period_To" formControlName="Basis_Period_To" size="10">
+                        <!-- <input style="width:4rem" type="number" id="Basis_Period_To_Day"
                             formControlName="Basis_Period_To_Day" size="2">
                         /
                         <input style="width:4rem" type="number" id="Basis_Period_To_Month"
                             formControlName="Basis_Period_To_Month" size="2">
                         /
                         <input style="width:5rem" type="number" id="Basis_Period_To_Year"
-                            formControlName="Basis_Period_To_Year" size="4">
+                            formControlName="Basis_Period_To_Year" size="4"> -->
                     </div>
 
                     <label for="FS_in_Foreign_Currency_Yes">FS in Foreign Currency:</label>
@@ -980,12 +986,14 @@ margin-bottom: 10px;">
                     <label for="Declaration_Date_Day">Declaration Date (DD/MM/YYYY):</label>
                     <div style="display: flex; gap: 5px; align-items: center; padding:5px; 
 margin-bottom: 10px;">
-                        <input style="width:4rem" type="text" id="Declaration_Date_Day"
+                        <input  type="date" id="Declaration_Date"
+                            formControlName="Declaration_Date" >
+                        <!-- <input style="width:4rem" type="text" id="Declaration_Date_Day"
                             formControlName="Declaration_Date_Day" size="2"> /
                         <input style="width:4rem" type="text" id="Declaration_Date_Month"
                             formControlName="Declaration_Date_Month" size="2"> /
                         <input style="width:5rem" type="text" id="Declaration_Date_Year"
-                            formControlName="Declaration_Date_Year" size="4">
+                            formControlName="Declaration_Date_Year" size="4"> -->
                     </div>
 
                     <label for="Declarant_Designation">Designation:</label>

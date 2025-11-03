@@ -7,15 +7,16 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 require('dotenv').config();
-const {setGlobalOptions} = require("firebase-functions/v2");
-const {onRequest} = require("firebase-functions/https");
+const { setGlobalOptions } = require("firebase-functions/v2");
+const { onRequest } = require("firebase-functions/https");
 const firebase = require("firebase-admin");
 const express = require('express');
 const app = express();
+const puppeteer = require('puppeteer');
 const jwt = require('jsonwebtoken');
 const mysql = require('mysql2');
 const logger = require("firebase-functions/logger");
-const cors = require('cors'); 
+const cors = require('cors');
 const crypto = require('crypto');
 const JWT_SECRET = process.env.JWT_SECRET;
 const bcrypt = require('bcrypt');
@@ -24,7 +25,7 @@ const saltRounds = 10; // The cost factor for hashing
 const db = mysql.createConnection({
     host: 'db-mysql-sgp1-44557-do-user-17663198-0.k.db.ondigitalocean.com',  // DigitalOcean's public hostname
     user: 'doadmin',               // MySQL user
-    password:  process.env.DB_PASSWORD,              // MySQL password
+    password: process.env.DB_PASSWORD,              // MySQL password
     database: 'altomate_LE', // The database you're connecting to
     port: 25060,             // Replace with your MySQL port (e.g., 25060)
     keepAliveInitialDelay: 10000, // keepalive
@@ -32,14 +33,14 @@ const db = mysql.createConnection({
 });
 
 const allowedOrigins = [
-  'https://le1-form.web.app', // Production Angular app
-  'http://localhost:4200',    // Your typical Angular local dev server
-  'http://127.0.0.1:4200'     // Alternative localhost address
+    'https://le1-form.web.app', // Production Angular app
+    'http://localhost:4200',    // Your typical Angular local dev server
+    'http://127.0.0.1:4200'     // Alternative localhost address
 ];
 const corsOptions = {
-  origin: allowedOrigins, // ⬅️ ONLY allow your deployed Angular app
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true, // If you need to send cookies/auth headers
+    origin: allowedOrigins, // ⬅️ ONLY allow your deployed Angular app
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true, // If you need to send cookies/auth headers
 };
 
 app.use(cors(corsOptions)); // 3. Use the middleware
@@ -91,7 +92,7 @@ app.post('/register', async (req, res) => {
             // Step 3: Hash the password before saving
             // This is the crucial security step.
             const hashedPassword = await bcrypt.hash(password, saltRounds);
-            
+
             // Step 4: Insert the new user into the database with the hashed password
             const insertQuery = 'INSERT INTO le_user (Name, email, contact_no, password) VALUES (?, ?, ?, ?)';
             db.query(insertQuery, [name, email, contact, hashedPassword], (insertErr, insertResult) => {
@@ -99,7 +100,7 @@ app.post('/register', async (req, res) => {
                     console.error('Database error during registration:', insertErr);
                     return res.status(500).send('An error occurred during user registration.');
                 }
-                
+
                 // Step 5: Respond with success message
                 res.status(201).json({ message: 'User registered successfully!' });
             });
@@ -165,7 +166,7 @@ app.get('/getUserDetails/:userID', async (req, res) => {
     try {
         // Step 1: Retrieve the main invoice details
         const query = 'SELECT * FROM le_user where ID =?';
-        db.query(query,[userID], (err, results) => {
+        db.query(query, [userID], (err, results) => {
             if (err) throw err;
             res.json(results);
         });
@@ -181,13 +182,13 @@ app.put('/updateUserDetails/:Id', async (req, res) => {
 
     // 2. Extract the new data payload from the request body
     //    We assume the client sends the new 'data' value in the request body.
-   
+
     const contact_no = req.body.contact_no;
     const address = req.body.address;
 
     // Check if the data is present
-    if ( contact_no === undefined|| address=== undefined) {
-        return res.status(400).json({ 
+    if (contact_no === undefined || address === undefined) {
+        return res.status(400).json({
             message: 'Missing required field: "data" in request body.'
         });
     }
@@ -196,27 +197,27 @@ app.put('/updateUserDetails/:Id', async (req, res) => {
         // SQL query to update the 'data' column in the 'le_project' table
         // We use placeholders (?) for security to prevent SQL Injection.
         const query = 'UPDATE le_user SET contact_no =?, address=?  WHERE ID = ?';
-        
+
         // The first placeholder takes newData, the second takes the Id
-        db.query(query, [ contact_no, address, Id], (err, results) => {
+        db.query(query, [contact_no, address, Id], (err, results) => {
             if (err) {
                 console.error('Database error during update:', err);
                 // Return a specific error status code for database issues
-                return res.status(500).json({ 
-                    message: 'Database error occurred during project update.', 
-                    error: err.message 
+                return res.status(500).json({
+                    message: 'Database error occurred during project update.',
+                    error: err.message
                 });
             }
-            
+
             // Check if any rows were actually updated
             if (results.affectedRows === 0) {
-                return res.status(404).json({ 
-                    message: `Project with ID ${Id} not found or no changes were made.` 
+                return res.status(404).json({
+                    message: `Project with ID ${Id} not found or no changes were made.`
                 });
             }
 
             // Successful update response
-            res.json({ 
+            res.json({
                 message: `User ID ${Id} updated successfully.`,
                 affectedRows: results.affectedRows
             });
@@ -251,13 +252,13 @@ app.post('/changePassword/:Id', (req, res) => {
     try {
         // 3. Find the user in the database to get their current hashed password
         const selectQuery = 'SELECT password FROM le_user WHERE ID = ?';
-        
+
         db.query(selectQuery, [Id], async (err, results) => {
             if (err) {
                 console.error('Database error during user lookup:', err);
                 return res.status(500).json({ message: 'A database error occurred.' });
             }
-            
+
             // 4. Handle the case where the user is not found
             if (results.length === 0) {
                 return res.status(404).json({ message: `User with ID ${Id} not found.` });
@@ -283,9 +284,9 @@ app.post('/changePassword/:Id', (req, res) => {
                     console.error('Database error during password update:', updateErr);
                     return res.status(500).json({ message: 'A database error occurred during the update.' });
                 }
-                
+
                 // 8. Send a success response
-                res.status(200).json({ 
+                res.status(200).json({
                     message: `Password for user ID ${Id} has been updated successfully.`
                 });
             });
@@ -395,7 +396,7 @@ app.get('/getProjectByUser/:userId', async (req, res) => {
     try {
         // Step 1: Retrieve the main invoice details
         const query = 'SELECT ID, name, status, year_end, created_on, updated_on FROM le_project where userID = ?';
-        db.query(query, [userId],(err, results) => {
+        db.query(query, [userId], (err, results) => {
             if (err) throw err;
             res.json(results);
         });
@@ -411,7 +412,7 @@ app.get('/getProjectDetails/:Id', async (req, res) => {
     try {
         // Step 1: Retrieve the main invoice details
         const query = 'SELECT data FROM le_project where ID = ?';
-        db.query(query, [Id],(err, results) => {
+        db.query(query, [Id], (err, results) => {
             if (err) throw err;
             res.json(results);
         });
@@ -447,7 +448,7 @@ app.put('/updateProjectDetails/:Id', async (req, res) => {
 
     // Also include updated_on timestamp
     setClauses.push('updated_on = NOW()');
-    
+
     // --- 3. Conditional Updates for Mapped Columns ---
 
     // A. Map Company Name to 'name' column
@@ -458,7 +459,7 @@ app.put('/updateProjectDetails/:Id', async (req, res) => {
 
     // B. Map Accounting Period components to 'year_end' column (DATE format YYYY-MM-DD)
     const combinedData = newData; // Use newData directly if the date fields are at the top level
-    
+
     const day = combinedData.Accounting_Period_To_Day;
     const month = combinedData.Accounting_Period_To_Month;
     const year = combinedData.Accounting_Period_To_Year;
@@ -466,7 +467,7 @@ app.put('/updateProjectDetails/:Id', async (req, res) => {
     if (day && month && year) {
         // Construct the date string in 'YYYY-MM-DD' format
         const yearEndString = `${year}-${month}-${day}`;
-        
+
         setClauses.push('year_end = ?');
         values.push(yearEndString);
     }
@@ -474,13 +475,13 @@ app.put('/updateProjectDetails/:Id', async (req, res) => {
     // --- 4. Final Query Construction ---
     // Join the set clauses (e.g., "data = ?, name = ?, year_end = ?")
     const updateSet = setClauses.join(', ');
-    
+
     // The final value needed for the WHERE clause (the ID) is appended last
-    values.push(Id); 
+    values.push(Id);
 
     // SQL query to update the 'le_project' table
     const query = `UPDATE le_project SET ${updateSet} WHERE ID = ?`;
-    
+
     // Log the constructed query and values for debugging (optional)
     // console.log('SQL Query:', query);
     // console.log('SQL Values:', values);
@@ -489,19 +490,19 @@ app.put('/updateProjectDetails/:Id', async (req, res) => {
         db.query(query, values, (err, results) => {
             if (err) {
                 console.error('Database error during update:', err);
-                return res.status(500).json({ 
-                    message: 'Database error occurred during project update.', 
-                    error: err.message 
-                });
-            }
-            
-            if (results.affectedRows === 0) {
-                return res.status(404).json({ 
-                    message: `Project with ID ${Id} not found or no changes were made.` 
+                return res.status(500).json({
+                    message: 'Database error occurred during project update.',
+                    error: err.message
                 });
             }
 
-            res.json({ 
+            if (results.affectedRows === 0) {
+                return res.status(404).json({
+                    message: `Project with ID ${Id} not found or no changes were made.`
+                });
+            }
+
+            res.json({
                 message: `Project ID ${Id} updated successfully.`,
                 affectedRows: results.affectedRows
             });
@@ -549,9 +550,9 @@ app.post('/createProject', async (req, res) => {
                 // Throwing the error here lets the outer catch block handle the 500 response
                 return res.status(500).json({ message: 'Database error occurred during project creation.' });
             }
-            
+
             // Send back the success status and the ID of the newly created project
-            res.status(201).json({ 
+            res.status(201).json({
                 message: 'Project created successfully',
                 projectId: results.insertId // Assuming your DB driver returns insertId for new rows
             });
@@ -561,6 +562,179 @@ app.post('/createProject', async (req, res) => {
         res.status(500).send('An unexpected error occurred while creating the project');
     }
 });
+
+app.post('/fill-lhdn-form', async (req, res) => {
+    const { data } = req.body;
+    if (!data) {
+        return res.status(400).send('Form data is missing.');
+    }
+
+    console.log('Received request to fill LHDN form.');
+    openWebBrowser(data).catch(err => {
+        // We add a .catch here to handle any unexpected synchronous errors
+        // during the initial setup of runAutomation, though it's unlikely.
+        console.error("Error initializing automation task:", err);
+    });
+    res.status(202).send({ message: 'Automation process has been successfully started. Please check for a new browser window.' });
+
+});
+
+
+async function openWebBrowser(data) {
+
+    let browser; // Define browser variable in a higher scope for the catch block
+    
+    try {
+        browser = await puppeteer.launch({
+            headless: false,
+            defaultViewport: null,
+            args: ['--start-maximized']
+        });
+
+        const page = await browser.newPage();
+        await page.setViewport({ width: 1520, height: 880 }); // Set a consistent viewport size
+
+        // 1. Go to the login page
+        console.log('Navigating to MyTax login page...');
+        const loginUrl = 'https://mytax.hasil.gov.my/';
+        await page.goto(loginUrl, { waitUntil: 'networkidle0' });
+
+        console.log('>>> ACTION REQUIRED: Please log in and navigate through the portal until the new TAEF tab/window opens.');
+
+        // 2. Create a promise that resolves when the new tab is created and identified.
+        const newPagePromise = new Promise((resolve) => {
+            browser.on('targetcreated', async (target) => {
+                // Check if a new page/tab has been created
+                if (target.type() === 'page') {
+                    const newPage = await target.page();
+                    // Check if the URL of the new page is the one we are looking for
+                    if (newPage && newPage.url().includes('taef.hasil.gov.my')) {
+                        console.log('New TAEF tab detected!');
+                        resolve(newPage); // Resolve the promise with the new page object
+                    }
+                }
+            });
+        });
+
+        // 3. Wait for the user's actions to trigger the new tab opening.
+        //    The script will pause here until the promise from step 2 is resolved.
+        const taefPage = await newPagePromise;
+        await taefPage.bringToFront(); // Bring the new tab into focus
+        await taefPage.setViewport({ width: 1520, height: 880 }); // Set viewport for the new page
+
+        // 4. Now that we have the correct page, wait for the dashboard to be visible on IT.
+        console.log('Waiting for the TAEF dashboard to load...');
+        const postLoginSelector = '#carouselDashboard';
+        await taefPage.waitForSelector(postLoginSelector, { timeout: 180000 }); // 3 minute timeout
+
+        // --- END OF NEW TAB LOGIC ---
+
+        console.log('TAEF Dashboard loaded. Navigating to e-Borang selection page...');
+
+        // 5. Navigate to the e-Borang page within the new tab.
+        const eBorangUrl = 'https://taef.hasil.gov.my/e-borang';
+        await taefPage.goto(eBorangUrl, { waitUntil: 'networkidle0' });
+
+        console.log('On e-Borang page. Performing search for the company...');
+
+        // 6. Select "No. Pendaftaran" from the dropdown.
+        const searchTypeDropdownSelector = 'select[aria-label="Search type"]';
+        await taefPage.waitForSelector(searchTypeDropdownSelector);
+        await taefPage.select(searchTypeDropdownSelector, '5');
+
+        // 7. Input the Company Registration Number.
+        const regNoInputSelector = 'input.form-control';
+        await taefPage.waitForSelector(regNoInputSelector);
+        await taefPage.type(regNoInputSelector, data.Company_Registration_No);
+
+        // 8. Click the "Hantar" button and wait for the form page to load.
+        const hantarButtonSelector = 'button.submit-button';
+        await taefPage.waitForSelector(hantarButtonSelector);
+
+        await Promise.all([
+            taefPage.click(hantarButtonSelector),
+            // taefPage.waitForNavigation({ waitUntil: 'networkidle0' })
+        ]);
+
+        console.log('Search complete. Now on the main LE1 data entry form.');
+
+        console.log('>>> ACTION 2: Please click the necessary buttons on the current page to open the final LE1 form.');
+
+        const formPagePromise = new Promise((resolve) => {
+            browser.on('targetcreated', async (target) => {
+                if (target.type() === 'page') {
+                    const finalPage = await target.page();
+                    // We specifically look for the MakAsas (Basic Info) page to start filling
+                    if (finalPage && finalPage.url().includes('ef.hasil.gov.my/eLE1/MakAsas')) {
+                        console.log('Final LE1 form page (MakAsas) detected!');
+                        resolve(finalPage);
+                    }
+                }
+            });
+        });
+
+        const formPage = await formPagePromise;
+        await formPage.bringToFront();
+        await formPage.setViewport({ width: 1520, height: 880 });
+
+        console.log('Starting to fill the LE1 form...');
+
+        // --- DATA FILLING EXAMPLE ---
+        // Now, all actions will use the `formPage` object.
+
+        // 1. Wait for the dropdown to be available on the page.
+        const foreignCurrencySelector = '#MainContent_ddlPenyata';
+        await formPage.waitForSelector(foreignCurrencySelector);
+
+        // 2. Select the value from your JSON data.
+        //    The `.select()` function automatically finds the <option> with the matching 'value' attribute.
+        //    Your data provides '1' for Yes and '2' for No, which matches the HTML perfectly.
+        await formPage.select(foreignCurrencySelector, (data?.FS_in_Foreign_Currency_Yes));
+
+        console.log(`Selected '${data.FS_in_Foreign_Currency_Yes === '1' ? 'Yes' : 'No'}' for 'FS in Foreign Currency'.`);
+
+
+        const accountingStart = '#MainContent_txtTarikhMula';
+        await formPage.waitForSelector(accountingStart);
+
+        await formPage.type(accountingStart, (data?.Accounting_Period_From));
+
+        const accountingEnd = '#MainContent_txtTarikhTutup';
+        await formPage.waitForSelector(accountingEnd);
+
+        await formPage.type(accountingEnd, (data?.Accounting_Period_To));
+
+        const basisStart = '#MainContent_txtTarikhMulaAsas';
+        await formPage.waitForSelector(basisStart);
+
+        await formPage.type(basisStart, (data?.Basis_Period_From));
+
+        const basisEnd = '#MainContent_txtTarikhTutupAsas';
+        await formPage.waitForSelector(basisEnd);
+
+        await formPage.type(basisEnd, (data?.Basis_Period_To));
+        // Puppeteer's .select() triggers the 'change' event, which should correctly trigger the website's __doPostBack function.
+        // If it doesn't, you may need to add a short wait for the postback to complete.
+        // For example: await formPage.waitForNavigation({ waitUntil: 'networkidle0' });
+
+        // --- CONTINUE FILLING ALL OTHER FIELDS ---
+        // You would continue adding your field mappings here. For example:
+        // const companyNameSelector = '#MainContent_txtNamaSyarikat'; // <-- IMPORTANT: Replace with actual ID
+        // await formPage.waitForSelector(companyNameSelector);
+        // await formPage.type(companyNameSelector, data.Company_Name);
+
+        console.log('Form filling complete.');
+        // await formPage.screenshot({ path: 'lhdn_final_form_filled.png', fullPage: true });
+
+        console.log('Automation is complete. The user can now review and submit the form manually.');
+    } catch (error) {
+        console.error('An error occurred during the automation process:', error);
+        if (browser) {
+            // await browser.close(); // Uncomment if you want the browser to close on error
+        }
+    }
+
+}
 // For cost control, you can set the maximum number of containers that can be
 // running at the same time. This helps mitigate the impact of unexpected
 // traffic spikes by instead downgrading performance. This limit is a
@@ -571,7 +745,7 @@ app.post('/createProject', async (req, res) => {
 // functions should each use functions.runWith({ maxInstances: 10 }) instead.
 // In the v1 API, each function can only serve one request per container, so
 // this will be the maximum concurrent request count.
-setGlobalOptions({ maxInstances: 10 });
+setGlobalOptions({ maxInstances: 10, timeoutSeconds: 540 });
 
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started

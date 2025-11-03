@@ -83,39 +83,42 @@ export class FormComponent implements OnInit {
   ) {
     this.le1Form = this.fb.group({
       // Part A: Basic Particulars
-      Year_of_Assessment_1: [''],
-      Year_of_Assessment_2: [''],
-      Year_of_Assessment_3: [''],
-      Year_of_Assessment_4: [''],
+      Year_of_Assessment: [''],
+      // Year_of_Assessment_1: [''],
+      // Year_of_Assessment_2: [''],
+      // Year_of_Assessment_3: [''],
+      // Year_of_Assessment_4: [''],
       Company_Name: [''],
-      Company_Address_Line1: [''],
-      Company_Address_Line2: [''],
-      Postcode: [''],
-      City: [''],
-      State: [''],
+      // Company_Address_Line1: [''],
+      // Company_Address_Line2: [''],
+      // Postcode: [''],
+      // City: [''],
+      // State: [''],
       Company_Registration_No: [''],
-      Company_TIN_LE: [''],
-      TIN_C_or_PT: [''],
-      Employer_TIN: [''],
-      Incorp_date_day: [''],
-      Incorp_date_month: [''],
-      Incorp_date_year: [''],
-      Telephone_no: [''],
-      Email: [''],
+      // Company_TIN_LE: [''],
+      // TIN_C_or_PT: [''],
+      // Employer_TIN: [''],
+      // Incorp_date_day: [''],
+      // Incorp_date_month: [''],
+      // Incorp_date_year: [''],
+      // Telephone_no: [''],
+      // Email: [''],
       Change_of_Accounting_Period_No: [''],
       Types_of_exchange_of_accounting_periods: [''],
-      Accounting_Period_From_Day: [''],
-      Accounting_Period_From_Month: [''],
-      Accounting_Period_From_Year: [''],
-      Accounting_Period_To_Day: [''],
-      Accounting_Period_To_Month: [''],
-      Accounting_Period_To_Year: [''],
-      Basis_Period_From_Day: [''],
-      Basis_Period_From_Month: [''],
-      Basis_Period_From_Year: [''],
-      Basis_Period_To_Day: [''],
-      Basis_Period_To_Month: [''],
-      Basis_Period_To_Year: [''],
+      // Accounting_Period_From = date with format 'dd/mm/yyyy'
+
+      Accounting_Period_From: [''],
+      // Accounting_Period_From_Month: [''],
+      // Accounting_Period_From_Year: [''],
+      Accounting_Period_To: [''],
+      // Accounting_Period_To_Month: [''],
+      // Accounting_Period_To_Year: [''],
+      Basis_Period_From: [''],
+      // Basis_Period_From_Month: [''],
+      // Basis_Period_From_Year: [''],
+      Basis_Period_To: [''],
+      // Basis_Period_To_Month: [''],
+      // Basis_Period_To_Year: [''],
       FS_in_Foreign_Currency_Yes: [''],
       Currency_Reported: [''],
       Currency_Exchange_Rate: [''],
@@ -252,9 +255,9 @@ export class FormComponent implements OnInit {
       // Declaration
       Declarant_Name: [''],
       Declarant_ID_Passport: [''],
-      Declaration_Date_Day: [''],
-      Declaration_Date_Month: [''],
-      Declaration_Date_Year: [''],
+      Declaration_Date: [''],
+      // Declaration_Date_Month: [''],
+      // Declaration_Date_Year: [''],
       Declarant_Designation: [''],
       Designation_Others: [''],
 
@@ -801,7 +804,7 @@ export class FormComponent implements OnInit {
     }
   }
 
-  submit() {
+  runValidations(): boolean {
     //validate if Pnl_Cost_of_Sales =  Pnl_Opening_Inventory + Pnl_Cost_of_Purchases + Pnl_Cost_of_Production - Pnl_Closing_Inventory
     // PNL Statement Fields
     const pnl_Cost_of_Sales = Number(this.le1Form.get('Pnl_Cost_of_Sales')?.value) || 0;
@@ -904,51 +907,88 @@ export class FormComponent implements OnInit {
     
     if (Pnl_Net_Profit_Loss !== calculated_Net_Profit_Loss) {
       alert(`Validation Error: Net Profit/Loss should be equal to Gross Profit/Loss + Other Income - Total Expenditure.\n\nCurrent Value: ${Pnl_Net_Profit_Loss}\nCalculated Value: ${calculated_Net_Profit_Loss}`);
-      return;
+      return false;
     }       
     if (fp_Total_Liabilities_and_Equity !== calculated_Total_Liabilities_and_Equity) {
+      console.log(calculated_Total_Liabilities)
+      console.log(calculated_Total_Equity)
       alert(`Validation Error: Total Liabilities and Equity should be equal to the sum of Total Liabilities and Total Equity.\n\nCurrent Value: ${fp_Total_Liabilities_and_Equity}\nCalculated Value: ${calculated_Total_Liabilities_and_Equity}`);
-      return;
+      return false;
     }
     if (fp_Total_Equity !== calculated_Total_Equity) {
       alert(`Validation Error: Total Equity should be equal to the sum of Issued Paid-Up Capital, Profit/Loss Appropriation, and Reserve Account.\n\nCurrent Value: ${fp_Total_Equity}\nCalculated Value: ${calculated_Total_Equity}`);
-      return;
+      return false;
     }
     if (fp_Total_Liabilities !== calculated_Total_Liabilities) {
       alert(`Validation Error: Total Liabilities should be equal to the sum of Total Current Liabilities and Non-Current Liabilities.\n\nCurrent Value: ${fp_Total_Liabilities}\nCalculated Value: ${calculated_Total_Liabilities}`);
-      return;
+      return false;
     }
     if (fp_Total_Current_Liabilities !== calculated_Total_Current_Liabilities) {
       alert(`Validation Error: Total Current Liabilities should be equal to the sum of all current liabilities fields.\n\nCurrent Value: ${fp_Total_Current_Liabilities}\nCalculated Value: ${calculated_Total_Current_Liabilities}`);
-      return;
+      return false;
     }
     if (fp_Total_Assets !== calculated_Total_Assets) {
       alert(`Validation Error: Total Assets should be equal to the sum of Total Current Assets and Total Non-Current Assets.\n\nCurrent Value: ${fp_Total_Assets}\nCalculated Value: ${calculated_Total_Assets}`);
-      return;
+      return false;
     }
     if (fp_Total_Current_Assets !== calculated_Total_Current_Assets) {
       alert(`Validation Error: Total Current Assets should be equal to the sum of all current asset fields.\n\nCurrent Value: ${fp_Total_Current_Assets}\nCalculated Value: ${calculated_Total_Current_Assets}`);
-      return;
+      return false;
     }
     if (fp_Total_Non_Current_Assets !== calculated_Total_Non_Current_Assets) {
       alert(`Validation Error: Total Non-Current Assets should be equal to the sum of all non-current asset fields.\n\nCurrent Value: ${fp_Total_Non_Current_Assets}\nCalculated Value: ${calculated_Total_Non_Current_Assets}`);
-      return;
+      return false;
     }
     if (pnl_Total_Expenditure !== calculated_Total_Expenditure) {
       alert(`Validation Error: Total Expenditure should be equal to the sum of all expenditure fields.\n\nCurrent Value: ${pnl_Total_Expenditure}\nCalculated Value: ${calculated_Total_Expenditure}`);
-      return;
+      return false;
     }
     if (pnl_Gross_Profit_Loss !== calculated_Gross_Profit_Loss) {
       alert(`Validation Error: Gross Profit/Loss should be equal to Sales Turnover - Cost of Sales.\n\nCurrent Value: ${pnl_Gross_Profit_Loss}\nCalculated Value: ${calculated_Gross_Profit_Loss}`);
-      return;
+      return false;
     }
     if (pnl_Cost_of_Sales !== calculated_Cost_of_Sales) {
       alert(`Validation Error: Pnl_Cost_of_Sales should be equal to Pnl_Opening_Inventory + Pnl_Cost_of_Purchases + Pnl_Cost_of_Production - Pnl_Closing_Inventory.\n\nCurrent Value: ${pnl_Cost_of_Sales}\nCalculated Value: ${calculated_Cost_of_Sales}`);
-      return;
+      return false;
     }
     if (fp_Total_Liabilities_and_Equity !== fp_Total_Assets){
       alert(`Validation Error: Total Liabilities and Equity should be equal to Total Assets.\n\nTotal Liabilities and Equity: ${fp_Total_Liabilities_and_Equity}\nTotal Assets: ${fp_Total_Assets}`);
+      return false;
+    }
+    return true;
+  }
+
+  async submit(): Promise<void> {
+    // 1. Run all existing validations first.
+    if (!this.runValidations()) {
+      console.log('Local validation failed. Aborting submission.');
+      return; // Stop if validation fails
+    }
+
+    // 2. Confirm with the user before proceeding.
+    const userConfirmed = confirm(
+      'This will open a new browser window for you to log into the LHDN portal. Your form data will be automatically filled in after you log in.\n\nDo you want to continue?'
+    );
+
+    if (!userConfirmed) {
       return;
+    }
+
+    this.isLoading = true;
+    const formData = this.le1Form.getRawValue();
+
+    try {
+      // 3. Send the data to your backend service.
+      //    This assumes your backend is running on http://localhost:3000
+      await lastValueFrom(this.http.post(this.apiUrl + '/fill-lhdn-form', { data: formData }));
+      
+      alert('Automation started. Please check for a new browser window to log in.');
+
+    } catch (error) {
+      console.error('Error starting the automation process:', error);
+      alert('Failed to start the automation process. Please ensure the automation service is running. Check the console for details.');
+    } finally {
+      this.isLoading = false;
     }
   }
 
