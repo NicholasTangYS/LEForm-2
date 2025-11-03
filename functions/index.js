@@ -693,6 +693,37 @@ async function openWebBrowser(data) {
 
         console.log(`Selected '${data.FS_in_Foreign_Currency_Yes === '1' ? 'Yes' : 'No'}' for 'FS in Foreign Currency'.`);
 
+        const changePeriodSelector = '#MainContent_ddlTkrTempoh';
+        await formPage.waitForSelector(changePeriodSelector);
+        await formPage.select(changePeriodSelector, (data?.Change_of_Accounting_Period_No));
+
+        const changePeriodTypeSelector = '#MainContent_ddlJnsTempoh';
+        await formPage.waitForSelector(changePeriodTypeSelector);
+        await formPage.select(changePeriodTypeSelector, (data?.Types_of_exchange_of_accounting_periods));
+
+        const foreignCurrencyTypeSelector = '#MainContent_ddlJnsMatawang';
+        await formPage.waitForSelector(foreignCurrencyTypeSelector);
+        await formPage.select(foreignCurrencyTypeSelector, (data?.Currency_Reported));
+
+        const currencyRate = '#MainContent_txtRate';
+        await formPage.waitForSelector(currencyRate);
+        await formPage.type(currencyRate, (data?.Currency_Exchange_Rate)); 
+
+        const businessStatusSelector = '#MainContent_ddlStatus_pern';
+        await formPage.waitForSelector(businessStatusSelector);
+        await formPage.select(businessStatusSelector, (data?.Business_Status_In_Operation));
+
+        const recordKeepingSelector = '#MainContent_ddlRekod';
+        await formPage.waitForSelector(recordKeepingSelector);
+        await formPage.select(recordKeepingSelector, (data?.Record_keeping));
+
+        const entityTypeSelector = '#MainContent_ddlEntitiLabuan';
+        await formPage.waitForSelector(entityTypeSelector);
+        await formPage.select(entityTypeSelector, (data?.Type_of_Labuan_entity));
+
+        const incorpUnderSelector = '#MainContent_ddlAktivitiEntiti';
+        await formPage.waitForSelector(incorpUnderSelector);
+        await formPage.select(incorpUnderSelector, (data?.Incorp_under));
 
         const accountingStart = '#MainContent_txtTarikhMula';
         await formPage.waitForSelector(accountingStart);

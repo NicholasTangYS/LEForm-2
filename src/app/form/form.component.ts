@@ -121,7 +121,7 @@ export class FormComponent implements OnInit {
       // Basis_Period_To_Year: [''],
       FS_in_Foreign_Currency_Yes: [''],
       Currency_Reported: [''],
-      Currency_Exchange_Rate: [''],
+      Currency_Exchange_Rate: [0],
       Record_keeping: [''],
       Business_Status_In_Operation: [''],
       Type_of_Labuan_entity: [''],
