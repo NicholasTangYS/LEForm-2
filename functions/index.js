@@ -395,7 +395,7 @@ app.get('/getProjectByUser/:userId', async (req, res) => {
 
     try {
         // Step 1: Retrieve the main invoice details
-        const query = 'SELECT ID, name, status, year_end, created_on, updated_on FROM le_project where userID = ?';
+        const query = 'SELECT ID, name, status, year_end, created_on, updated_on FROM le_project where userID = ? order by updated_on desc';
         db.query(query, [userId], (err, results) => {
             if (err) throw err;
             res.json(results);
@@ -583,7 +583,7 @@ app.post('/fill-lhdn-form', async (req, res) => {
 async function openWebBrowser(data) {
 
     let browser; // Define browser variable in a higher scope for the catch block
-    
+
     try {
         browser = await puppeteer.launch({
             headless: false,
@@ -706,8 +706,18 @@ async function openWebBrowser(data) {
         await formPage.select(foreignCurrencyTypeSelector, (data?.Currency_Reported));
 
         const currencyRate = '#MainContent_txtRate';
-        await formPage.waitForSelector(currencyRate);
-        await formPage.type(currencyRate, (data?.Currency_Exchange_Rate)); 
+        // Extract the value first
+        const rateValue = data?.Currency_Exchange_Rate;
+
+        await formPage.evaluate((selector, value) => {
+            // Finds the element and sets its value property to an empty string (clears the field)
+            const element = document.querySelector(selector);
+            if (element) {
+                element.value = '';
+                // Then, set the new value using the 'value' argument passed from Node.js
+                element.value = value;
+            }
+        }, currencyRate, rateValue); // <-- Pass currencyRate (selector) and rateValue (data) here
 
         const businessStatusSelector = '#MainContent_ddlStatus_pern';
         await formPage.waitForSelector(businessStatusSelector);
@@ -744,6 +754,12 @@ async function openWebBrowser(data) {
         await formPage.waitForSelector(basisEnd);
 
         await formPage.type(basisEnd, (data?.Basis_Period_To));
+
+
+        const nextButton1 = '#MainContent_btnNext';
+        await formPage.waitForSelector(nextButton1);
+
+        await formPage.click(nextButton1);
         // Puppeteer's .select() triggers the 'change' event, which should correctly trigger the website's __doPostBack function.
         // If it doesn't, you may need to add a short wait for the postback to complete.
         // For example: await formPage.waitForNavigation({ waitUntil: 'networkidle0' });
