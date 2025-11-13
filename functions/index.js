@@ -19,6 +19,7 @@ const logger = require("firebase-functions/logger");
 const cors = require('cors');
 const crypto = require('crypto');
 const JWT_SECRET = process.env.JWT_SECRET;
+// const chromium = require('chromium');
 const bcrypt = require('bcrypt');
 const saltRounds = 10; // The cost factor for hashing
 
@@ -45,7 +46,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions)); // 3. Use the middleware
 
-
+app.use(express.json());
 
 app.get('/getUser', async (req, res) => {
     // const { invoiceId } = req.params;
@@ -585,10 +586,21 @@ async function openWebBrowser(data) {
     let browser; // Define browser variable in a higher scope for the catch block
 
     try {
-        browser = await puppeteer.launch({
+        const CHROME_EXECUTABLE_PATH = '/usr/bin/chromium-browser';
+
+        const browser = await puppeteer.launch({
+            // Set to false to run non-headless
             headless: false,
+            // executablePath: CHROME_EXECUTABLE_PATH,
             defaultViewport: null,
-            args: ['--start-maximized']
+            args: [
+                '--start-maximized',
+                '--disable-setuid-sandbox',
+                '--no-sandbox',
+                // Crucial arguments for Xvfb and non-headless mode
+                '--disable-dev-shm-usage',
+                '--window-size=1920,1080' // Set a fixed window size
+            ]
         });
 
         const page = await browser.newPage();
@@ -802,3 +814,10 @@ setGlobalOptions({ maxInstances: 10, timeoutSeconds: 540 });
 //   response.send("Hello from Firebase!");
 // });
 exports.altomateLE = onRequest(app);
+
+// const PORT = process.env.PORT || 8080; 
+
+// // Start the Express server
+// app.listen(PORT, () => {
+//   console.log(`Server listening on port ${PORT}`);
+// });
