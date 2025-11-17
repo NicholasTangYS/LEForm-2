@@ -25,6 +25,9 @@ import { AutoResizeDirective } from '../auto-resize.directive';
 })
 export class FormComponent implements OnInit {
   le1Form: FormGroup;
+  isInstructionModalVisible = false; // Controls the visibility of our new modal
+  jsonDataForExtension = '';         // Will hold the pretty-formatted JSON for the user to copy
+  copyButtonText = 'Copy JSON';
   initialFormData: any;
   isLoading: boolean = false;
   sidebarOpen = false;
@@ -57,6 +60,261 @@ export class FormComponent implements OnInit {
     { code: '00023', description: 'Labuan entity that carries out administrative services, accounting services, legal services, backroom processing services, payroll services, talent management services, agency services, insolvency related services and management services other than Labuan company management under code 00018' }
   ];
 
+  incentiveCodes: { code: string }[] = [
+    { code: '801' },
+    { code: '802' },
+    { code: '803' },
+  ]
+
+  countries: { code: string, name: string }[] = [
+    { "code": "MYS", "name": "MALAYSIA" },
+    { "code": "AFG", "name": "AFGHANISTAN" },
+    { "code": "ALA", "name": "ALAND ISLANDS" },
+    { "code": "ALB", "name": "ALBANIA" },
+    { "code": "DZA", "name": "ALGERIA" },
+    { "code": "ASM", "name": "AMERICAN SAMOA" },
+    { "code": "AND", "name": "ANDORRA" },
+    { "code": "AGO", "name": "ANGOLA" },
+    { "code": "AIA", "name": "ANGUILLA" },
+    { "code": "ATA", "name": "ANTARCTICA" },
+    { "code": "ATG", "name": "ANTIGUA AND BARBUDA" },
+    { "code": "ARG", "name": "ARGENTINA" },
+    { "code": "ARM", "name": "ARMENIA" },
+    { "code": "ABW", "name": "ARUBA" },
+    { "code": "AUS", "name": "AUSTRALIA" },
+    { "code": "AUT", "name": "AUSTRIA" },
+    { "code": "AZE", "name": "AZERBAIJAN REPUBLIC" },
+    { "code": "BHS", "name": "BAHAMAS" },
+    { "code": "BHR", "name": "BAHRAIN" },
+    { "code": "BGD", "name": "BANGLADESH" },
+    { "code": "BRB", "name": "BARBADOS" },
+    { "code": "BLR", "name": "BELARUS" },
+    { "code": "BEL", "name": "BELGIUM" },
+    { "code": "BLZ", "name": "BELIZE" },
+    { "code": "BEN", "name": "BENIN" },
+    { "code": "BMU", "name": "BERMUDA" },
+    { "code": "BTN", "name": "BHUTAN" },
+    { "code": "BOL", "name": "BOLIVIA" },
+    { "code": "BES", "name": "BONAIRE, SINT EUSTATIUS AND SABA" },
+    { "code": "BIH", "name": "BOSNIA AND HERZEGOVINA" },
+    { "code": "BWA", "name": "BOTSWANA" },
+    { "code": "BVT", "name": "BOUVET ISLAND" },
+    { "code": "BRA", "name": "BRAZIL" },
+    { "code": "IOT", "name": "BRITISH INDIAN OCEAN TERRITORY" },
+    { "code": "BRN", "name": "BRUNEI DARUSSALAM" },
+    { "code": "BGR", "name": "BULGARIA" },
+    { "code": "BFA", "name": "BURKINA FASO" },
+    { "code": "BDI", "name": "BURUNDI" },
+    { "code": "KHM", "name": "CAMBODIA" },
+    { "code": "CMR", "name": "CAMEROON" },
+    { "code": "CAN", "name": "CANADA" },
+    { "code": "CPV", "name": "CAPE VERDE (CABO VERDE)" },
+    { "code": "CYM", "name": "CAYMAN ISLANDS" },
+    { "code": "CAF", "name": "CENTRAL AFRICAN REPUBLIC" },
+    { "code": "TCD", "name": "CHAD" },
+    { "code": "CHL", "name": "CHILE" },
+    { "code": "CHN", "name": "CHINA" },
+    { "code": "CXR", "name": "CHRISTMAS ISLAND" },
+    { "code": "CCK", "name": "COCOS (KEELING) ISLANDS" },
+    { "code": "COL", "name": "COLOMBIA" },
+    { "code": "COM", "name": "COMOROS" },
+    { "code": "COG", "name": "CONGO" },
+    { "code": "COD", "name": "CONGO, THE DEMOCRATIC REPUBLIC OF THE" },
+    { "code": "COK", "name": "COOK ISLANDS" },
+    { "code": "CRI", "name": "COSTA RICA" },
+    { "code": "CIV", "name": "COTE D'IVOIRE" },
+    { "code": "HRV", "name": "CROATIA" },
+    { "code": "CUB", "name": "CUBA" },
+    { "code": "CUW", "name": "CURACAO" },
+    { "code": "CYP", "name": "CYPRUS" },
+    { "code": "CZE", "name": "CZECH REPUBLIC" },
+    { "code": "DNK", "name": "DENMARK" },
+    { "code": "DJI", "name": "DJIBOUTI" },
+    { "code": "DMA", "name": "DOMINICA" },
+    { "code": "DOM", "name": "DOMINICAN REPUBLIC" },
+    { "code": "ECU", "name": "ECUADOR" },
+    { "code": "EGY", "name": "EGYPT" },
+    { "code": "SLV", "name": "EL SALVADOR" },
+    { "code": "GNQ", "name": "EQUATORIAL GUINEA" },
+    { "code": "ERI", "name": "ERITREA" },
+    { "code": "EST", "name": "ESTONIA" },
+    { "code": "ETH", "name": "ETHIOPIA" },
+    { "code": "FLK", "name": "FALKLAND ISLANDS (MALVINAS)" },
+    { "code": "FRO", "name": "FAROE ISLANDS" },
+    { "code": "FJI", "name": "FIJI" },
+    { "code": "FIN", "name": "FINLAND" },
+    { "code": "FRA", "name": "FRANCE" },
+    { "code": "GUF", "name": "FRENCH GUIANA" },
+    { "code": "PYF", "name": "FRENCH POLYNESIA" },
+    { "code": "ATF", "name": "FRENCH SOUTHERN TERRITORIES" },
+    { "code": "GAB", "name": "GABON" },
+    { "code": "GMB", "name": "GAMBIA" },
+    { "code": "GEO", "name": "GEORGIA" },
+    { "code": "DEU", "name": "GERMANY" },
+    { "code": "GHA", "name": "GHANA" },
+    { "code": "GIB", "name": "GIBRALTAR" },
+    { "code": "GRC", "name": "GREECE" },
+    { "code": "GRL", "name": "GREENLAND" },
+    { "code": "GRD", "name": "GRENADA" },
+    { "code": "GLP", "name": "GUADELOUPE" },
+    { "code": "GUM", "name": "GUAM" },
+    { "code": "GTM", "name": "GUATEMALA" },
+    { "code": "GGY", "name": "GUERNSEY" },
+    { "code": "GIN", "name": "GUINEA" },
+    { "code": "GNB", "name": "GUINEA-BISSAU" },
+    { "code": "GUY", "name": "UYANA" },
+    { "code": "HTI", "name": "HAITI" },
+    { "code": "HMD", "name": "HEARD ISLAND AND MCDONALD ISLANDS" },
+    { "code": "HND", "name": "HONDURAS" },
+    { "code": "HKG", "name": "HONG KONG" },
+    { "code": "HUN", "name": "HUNGARY" },
+    { "code": "ISL", "name": "ICELAND" },
+    { "code": "IND", "name": "INDIA" },
+    { "code": "IDN", "name": "INDONESIA" },
+    { "code": "IRN", "name": "IRAN ISLAMIC REPUBLIC OF" },
+    { "code": "IRQ", "name": "IRAQ" },
+    { "code": "IRL", "name": "IRELAND" },
+    { "code": "IMN", "name": "ISLE OF MAN" },
+    { "code": "ISR", "name": "ISRAEL" },
+    { "code": "ITA", "name": "ITALY" },
+    { "code": "JAM", "name": "JAMAICA" },
+    { "code": "JPN", "name": "JAPAN" },
+    { "code": "JEY", "name": "JERSEY (CHANNEL ISLANDS)" },
+    { "code": "JOR", "name": "JORDAN" },
+    { "code": "KAZ", "name": "KAZAKHSTAN" },
+    { "code": "KEN", "name": "KENYA" },
+    { "code": "KIR", "name": "KIRIBATI" },
+    { "code": "PRK", "name": "KOREA, DEMOCRATIC PEOPLE'S REPUBLIC OF " },
+    { "code": "KOR", "name": "KOREA, REPUBLIC OF" },
+    { "code": "KWT", "name": "KUWAIT" },
+    { "code": "KGZ", "name": "KYRGYZSTAN" },
+    { "code": "LAO", "name": "LAO PEOPLE'S DEMOCRATIC REPUBLIC " },
+    { "code": "LVA", "name": "LATVIA" },
+    { "code": "LBN", "name": "LEBANON" },
+    { "code": "LSO", "name": "LESOTHO" },
+    { "code": "LBR", "name": "LIBERIA" },
+    { "code": "LBY", "name": "LIBYAN ARAB JAMAHIRIYA" },
+    { "code": "LIE", "name": "LIECHTENSTEIN" },
+    { "code": "LTU", "name": "LITHUANIA" },
+    { "code": "LUX", "name": "LUXEMBOURG" },
+    { "code": "MKD", "name": "MACEDONIA, THE FORMER YUGOSLAV REPUBLIC OF" },
+    { "code": "MAC", "name": "MACAO" },
+    { "code": "MDG", "name": "MADAGASCAR" },
+    { "code": "MWI", "name": "MALAWI" },
+    { "code": "MDV", "name": "MALDIVES" },
+    { "code": "MLI", "name": "MALI" },
+    { "code": "MLT", "name": "MALTA" },
+    { "code": "MHL", "name": "MARSHALL ISLANDS" },
+    { "code": "MTQ", "name": "MARTINIQUE" },
+    { "code": "MRT", "name": "MAURITANIA" },
+    { "code": "MUS", "name": "MAURITIUS" },
+    { "code": "MYT", "name": "MAYOTTE" },
+    { "code": "MEX", "name": "MEXICO" },
+    { "code": "FSM", "name": "MICRONESIA, FEDERATED STATES OF " },
+    { "code": "MDA", "name": "MOLDOVA, REPUBLIC OF" },
+    { "code": "MCO", "name": "MONACO" },
+    { "code": "MNG", "name": "MONGOLIA" },
+    { "code": "MNE", "name": "MONTENEGRO" },
+    { "code": "MSR", "name": "MONTSERRAT" },
+    { "code": "MAR", "name": "MOROCCO" },
+    { "code": "MOZ", "name": "MOZAMBIQUE" },
+    { "code": "MMR", "name": "MYANMAR" },
+    { "code": "NAM", "name": "NAMIBIA" },
+    { "code": "NRU", "name": "NAURU" },
+    { "code": "NPL", "name": "NEPAL" },
+    { "code": "NLD", "name": "NETHERLANDS" },
+    { "code": "NCL", "name": "NEW CALEDONIA" },
+    { "code": "NZL", "name": "NEW ZEALAND" },
+    { "code": "NIC", "name": "NICARAGUA" },
+    { "code": "NER", "name": "NIGER" },
+    { "code": "NGA", "name": "NIGERIA" },
+    { "code": "NIU", "name": "NIUE" },
+    { "code": "NFK", "name": "NORFOLK ISLAND" },
+    { "code": "MNP", "name": "NORTHERN MARIANA ISLANDS" },
+    { "code": "NOR", "name": "NORWAY" },
+    { "code": "OMN", "name": "OMAN" },
+    { "code": "PAK", "name": "PAKISTAN" },
+    { "code": "PLW", "name": "PALAU" },
+    { "code": "PSE", "name": "PALESTINIAN TERRITORY" },
+    { "code": "PAN", "name": "PANAMA" },
+    { "code": "PNG", "name": "PAPUA NEW GUINEA" },
+    { "code": "PRY", "name": "PARAGUAY" },
+    { "code": "PER", "name": "PERU" },
+    { "code": "PHL", "name": "PHILIPPINES" },
+    { "code": "PCN", "name": "PITCAIRN" },
+    { "code": "POL", "name": "POLAND" },
+    { "code": "PRT", "name": "PORTUGAL" },
+    { "code": "PRI", "name": "PUERTO RICO " },
+    { "code": "QAT", "name": "QATAR" },
+    { "code": "REU", "name": "REUNION" },
+    { "code": "ROU", "name": "ROMANIA" },
+    { "code": "RUS", "name": "RUSSIAN FEDERATION" },
+    { "code": "RWA", "name": "RWANDA" },
+    { "code": "SHN", "name": "ST. HELENA" },
+    { "code": "KNA", "name": "SAINT KITTS AND NEVIS" },
+    { "code": "LCA", "name": "SAINT LUCIA" },
+    { "code": "MAF", "name": "SAINT MARTIN (FRENCH PART)" },
+    { "code": "SPM", "name": "ST. PIERRE AND MIQUELON" },
+    { "code": "VCT", "name": "SAINT VINCENT AND THE GRENADINES" },
+    { "code": "WSM", "name": "SAMOA" },
+    { "code": "SMR", "name": "SAN MARINO" },
+    { "code": "STP", "name": "SAO TOME AND PRINCIPE" },
+    { "code": "SAU", "name": "SAUDI ARABIA" },
+    { "code": "SEN", "name": "SENEGAL" },
+    { "code": "SRB", "name": "SERBIA AND MONTENEGRO" },
+    { "code": "SYC", "name": "SEYCHELLES" },
+    { "code": "SLE", "name": "SIERRA LEONE" },
+    { "code": "SGP", "name": "SINGAPORE" },
+    { "code": "SXM", "name": "SINT MAARTEN (DUTCH PART)" },
+    { "code": "SVK", "name": "SLOVAKIA (SLOVAK REPUBLIC)" },
+    { "code": "SVN", "name": "SLOVENIA" },
+    { "code": "SLB", "name": "SOLOMON ISLANDS" },
+    { "code": "SOM", "name": "SOMALIA" },
+    { "code": "ZAF", "name": "SOUTH AFRICA" },
+    { "code": "SGS", "name": "SOUTH GEORGIA AND THE SOUTH SANDWICH ISLANDS" },
+    { "code": "SDN", "name": "SUDAN" },
+    { "code": "ESP", "name": "SPAIN" },
+    { "code": "LKA", "name": "SRI LANKA" },
+    { "code": "SUR", "name": "SURINAME" },
+    { "code": "SJM", "name": "SVALBARD AND JAN MAYEN ISLANDS" },
+    { "code": "SWZ", "name": "ESWATINI, KINGDOM OF (SWAZILAND" },
+    { "code": "SWE", "name": "SWEDEN" },
+    { "code": "CHE", "name": "SWITZERLAND" },
+    { "code": "SYR", "name": "SYRIAN ARAB REPUBLIC" },
+    { "code": "TWN", "name": "TAIWAN, PROVINCE OF CHINA" },
+    { "code": "TJK", "name": "TAJIKISTAN" },
+    { "code": "TZA", "name": "TANZANIA, UNITED REPUBLIC OF" },
+    { "code": "THA", "name": "THAILAND" },
+    { "code": "TLS", "name": "TIMOR-LESTE" },
+    { "code": "TGO", "name": "TOGO" },
+    { "code": "TKL", "name": "TOKELAU" },
+    { "code": "TON", "name": "TONGA" },
+    { "code": "TTO", "name": "TRINIDAD AND TOBAGO" },
+    { "code": "TUN", "name": "TUNISIA" },
+    { "code": "TUR", "name": "TURKEY" },
+    { "code": "TKM", "name": "TURKMENISTAN" },
+    { "code": "TCA", "name": "TURKS AND CAICOS ISLANDS" },
+    { "code": "TUV", "name": "TUVALU" },
+    { "code": "UGA", "name": "UGANDA" },
+    { "code": "UKR", "name": "UKRAINE" },
+    { "code": "ARE", "name": "UNITED ARAB EMIRATES" },
+    { "code": "GBR", "name": "UNITED KINGDOM" },
+    { "code": "UMI", "name": "UNITED STATES MINOR OUTLYING ISLANDS" },
+    { "code": "USA", "name": "UNITED STATES" },
+    { "code": "URY", "name": "URUGUAY" },
+    { "code": "UZB", "name": "UZBEKISTAN" },
+    { "code": "VUT", "name": "VANUATU" },
+    { "code": "VAT", "name": "VATICAN CITY STATE (HOLY SEE)" },
+    { "code": "VEn", "name": "VENEZUELA" },
+    { "code": "VNM", "name": "VIETNAM" },
+    { "code": "VGB", "name": "VIRGINIA ISLANDS (BRITISH)" },
+    { "code": "VIR", "name": "VIRGIN ISLANDS (U.S.)" },
+    { "code": "WLF", "name": "WALLIS AND FUTUNA ISLANDS" },
+    { "code": "ESH", "name": "WESTERN SAHARA" },
+    { "code": "YEM", "name": "YEMEN" },
+    { "code": "ZMB", "name": "ZAMBIA" },
+    { "code": "ZWE", "name": "ZIMBABWE" }
+  ]
   labuanEntityTypes = new Map<string, string>([
     ['1', 'Labuan Company'],
     ['2', 'Labuan Foundation'],
@@ -102,7 +360,7 @@ export class FormComponent implements OnInit {
       // Incorp_date_month: [''],
       // Incorp_date_year: [''],
       // Telephone_no: [''],
-      // Email: [''],
+      Email: [''],
       Change_of_Accounting_Period_No: [''],
       Types_of_exchange_of_accounting_periods: [''],
       // Accounting_Period_From = date with format 'dd/mm/yyyy'
@@ -266,7 +524,9 @@ export class FormComponent implements OnInit {
       Compliance_Officers_0_Name: [''],
       Compliance_Officers_0_Claim_PUA_419_2011: [''],
       Compliance_Officers_0_Designation: [''],
+      Compliance_Officers_0_Country: [''],
       Compliance_Officers_0_Address: [''],
+      Compliance_Officers_0_ID_type: [''],
       Compliance_Officers_0_ID_Passport_No: [''],
       Compliance_Officers_0_Date_of_Birth: [''],
       Compliance_Officers_0_TIN: [''],
@@ -279,7 +539,9 @@ export class FormComponent implements OnInit {
       Compliance_Officers_1_Name: [''],
       Compliance_Officers_1_Claim_PUA_419_2011: [''],
       Compliance_Officers_1_Designation: [''],
+      Compliance_Officers_1_Country: [''],
       Compliance_Officers_1_Address: [''],
+      Compliance_Officers_1_ID_type: [''],
       Compliance_Officers_1_ID_Passport_No: [''],
       Compliance_Officers_1_Date_of_Birth: [''],
       Compliance_Officers_1_TIN: [''],
@@ -292,7 +554,9 @@ export class FormComponent implements OnInit {
       Compliance_Officers_2_Name: [''],
       Compliance_Officers_2_Claim_PUA_419_2011: [''],
       Compliance_Officers_2_Designation: [''],
+      Compliance_Officers_2_Country: [''],
       Compliance_Officers_2_Address: [''],
+      Compliance_Officers_2_ID_type: [''],
       Compliance_Officers_2_ID_Passport_No: [''],
       Compliance_Officers_2_Date_of_Birth: [''],
       Compliance_Officers_2_TIN: [''],
@@ -305,7 +569,9 @@ export class FormComponent implements OnInit {
       Compliance_Officers_3_Name: [''],
       Compliance_Officers_3_Claim_PUA_419_2011: [''],
       Compliance_Officers_3_Designation: [''],
+      Compliance_Officers_3_Country: [''],
       Compliance_Officers_3_Address: [''],
+      Compliance_Officers_3_ID_type: [''],
       Compliance_Officers_3_ID_Passport_No: [''],
       Compliance_Officers_3_Date_of_Birth: [''],
       Compliance_Officers_3_TIN: [''],
@@ -318,7 +584,9 @@ export class FormComponent implements OnInit {
       Compliance_Officers_4_Name: [''],
       Compliance_Officers_4_Claim_PUA_419_2011: [''],
       Compliance_Officers_4_Designation: [''],
+      Compliance_Officers_4_Country: [''],
       Compliance_Officers_4_Address: [''],
+      Compliance_Officers_4_ID_type: [''],
       Compliance_Officers_4_ID_Passport_No: [''],
       Compliance_Officers_4_Date_of_Birth: [''],
       Compliance_Officers_4_TIN: [''],
@@ -331,6 +599,7 @@ export class FormComponent implements OnInit {
       // Attachment C4: Major Shareholders
       // C4 Row 1
       Major_Shareholders_0_Name_of_Shareholder_Partner: [''],
+      Major_Shareholders_0_Country: [''],
       Major_Shareholders_0_Address: [''],
       Major_Shareholders_0_ID_Passport_Reg_No: [''],
       Major_Shareholders_0_Date_of_Birth: [''],
@@ -340,6 +609,7 @@ export class FormComponent implements OnInit {
       Major_Shareholders_0_Dividends_Received_in_Basis_Period: [''],
       // C4 Row 2
       Major_Shareholders_1_Name_of_Shareholder_Partner: [''],
+      Major_Shareholders_1_Country: [''],
       Major_Shareholders_1_Address: [''],
       Major_Shareholders_1_ID_Passport_Reg_No: [''],
       Major_Shareholders_1_Date_of_Birth: [''],
@@ -349,6 +619,7 @@ export class FormComponent implements OnInit {
       Major_Shareholders_1_Dividends_Received_in_Basis_Period: [''],
       // C4 Row 3
       Major_Shareholders_2_Name_of_Shareholder_Partner: [''],
+      Major_Shareholders_2_Country: [''],
       Major_Shareholders_2_Address: [''],
       Major_Shareholders_2_ID_Passport_Reg_No: [''],
       Major_Shareholders_2_Date_of_Birth: [''],
@@ -358,6 +629,7 @@ export class FormComponent implements OnInit {
       Major_Shareholders_2_Dividends_Received_in_Basis_Period: [''],
       // C4 Row 4
       Major_Shareholders_3_Name_of_Shareholder_Partner: [''],
+      Major_Shareholders_3_Country: [''],
       Major_Shareholders_3_Address: [''],
       Major_Shareholders_3_ID_Passport_Reg_No: [''],
       Major_Shareholders_3_Date_of_Birth: [''],
@@ -367,6 +639,7 @@ export class FormComponent implements OnInit {
       Major_Shareholders_3_Dividends_Received_in_Basis_Period: [''],
       // C4 Row 5
       Major_Shareholders_4_Name_of_Shareholder_Partner: [''],
+      Major_Shareholders_4_Country: [''],
       Major_Shareholders_4_Address: [''],
       Major_Shareholders_4_ID_Passport_Reg_No: [''],
       Major_Shareholders_4_Date_of_Birth: [''],
@@ -384,6 +657,7 @@ export class FormComponent implements OnInit {
       Beneficial_Owner_0_Dividends_Received_in_Basis_Period: [''],
       Beneficial_Owner_0_Total_Loan_from_Owner: [''],
       Beneficial_Owner_0_Total_Loan_to_Owner: [''],
+      Beneficial_Owner_0_Country: [''],
       Beneficial_Owner_0_Address: [''],
       Beneficial_Owner_0_ID_Passport_No: [''],
       Beneficial_Owner_0_Date_of_Birth: [''],
@@ -399,6 +673,7 @@ export class FormComponent implements OnInit {
       Beneficial_Owner_1_Dividends_Received_in_Basis_Period: [''],
       Beneficial_Owner_1_Total_Loan_from_Owner: [''],
       Beneficial_Owner_1_Total_Loan_to_Owner: [''],
+      Beneficial_Owner_1_Country: [''],
       Beneficial_Owner_1_Address: [''],
       Beneficial_Owner_1_ID_Passport_No: [''],
       Beneficial_Owner_1_Date_of_Birth: [''],
@@ -412,6 +687,7 @@ export class FormComponent implements OnInit {
       Beneficial_Owner_2_Dividends_Received_in_Basis_Period: [''],
       Beneficial_Owner_2_Total_Loan_from_Owner: [''],
       Beneficial_Owner_2_Total_Loan_to_Owner: [''],
+      Beneficial_Owner_2_Country: [''],
       Beneficial_Owner_2_Address: [''],
       Beneficial_Owner_2_ID_Passport_No: [''],
       Beneficial_Owner_2_Date_of_Birth: [''],
@@ -425,6 +701,7 @@ export class FormComponent implements OnInit {
       Beneficial_Owner_3_Dividends_Received_in_Basis_Period: [''],
       Beneficial_Owner_3_Total_Loan_from_Owner: [''],
       Beneficial_Owner_3_Total_Loan_to_Owner: [''],
+      Beneficial_Owner_3_Country: [''],
       Beneficial_Owner_3_Address: [''],
       Beneficial_Owner_3_ID_Passport_No: [''],
       Beneficial_Owner_3_Date_of_Birth: [''],
@@ -438,6 +715,7 @@ export class FormComponent implements OnInit {
       Beneficial_Owner_4_Dividends_Received_in_Basis_Period: [''],
       Beneficial_Owner_4_Total_Loan_from_Owner: [''],
       Beneficial_Owner_4_Total_Loan_to_Owner: [''],
+      Beneficial_Owner_4_Country: [''],
       Beneficial_Owner_4_Address: [''],
       Beneficial_Owner_4_ID_Passport_No: [''],
       Beneficial_Owner_4_Date_of_Birth: [''],
@@ -904,11 +1182,11 @@ export class FormComponent implements OnInit {
     const calculated_Total_Liabilities_and_Equity = calculated_Total_Liabilities + calculated_Total_Equity;
 
     // Perform validations
-    
+
     if (Pnl_Net_Profit_Loss !== calculated_Net_Profit_Loss) {
       alert(`Validation Error: Net Profit/Loss should be equal to Gross Profit/Loss + Other Income - Total Expenditure.\n\nCurrent Value: ${Pnl_Net_Profit_Loss}\nCalculated Value: ${calculated_Net_Profit_Loss}`);
       return false;
-    }       
+    }
     if (fp_Total_Liabilities_and_Equity !== calculated_Total_Liabilities_and_Equity) {
       console.log(calculated_Total_Liabilities)
       console.log(calculated_Total_Equity)
@@ -951,7 +1229,7 @@ export class FormComponent implements OnInit {
       alert(`Validation Error: Pnl_Cost_of_Sales should be equal to Pnl_Opening_Inventory + Pnl_Cost_of_Purchases + Pnl_Cost_of_Production - Pnl_Closing_Inventory.\n\nCurrent Value: ${pnl_Cost_of_Sales}\nCalculated Value: ${calculated_Cost_of_Sales}`);
       return false;
     }
-    if (fp_Total_Liabilities_and_Equity !== fp_Total_Assets){
+    if (fp_Total_Liabilities_and_Equity !== fp_Total_Assets) {
       alert(`Validation Error: Total Liabilities and Equity should be equal to Total Assets.\n\nTotal Liabilities and Equity: ${fp_Total_Liabilities_and_Equity}\nTotal Assets: ${fp_Total_Assets}`);
       return false;
     }
@@ -965,31 +1243,30 @@ export class FormComponent implements OnInit {
       return; // Stop if validation fails
     }
 
-    // 2. Confirm with the user before proceeding.
-    const userConfirmed = confirm(
-      'This will open a new browser window for you to log into the LHDN portal. Your form data will be automatically filled in after you log in.\n\nDo you want to continue?'
-    );
-
-    if (!userConfirmed) {
-      return;
-    }
-
-    this.isLoading = true;
+    // 2. Prepare the JSON data for the extension.
+    // Using getRawValue() to include all fields, and formatting it with an indent of 2 spaces.
     const formData = this.le1Form.getRawValue();
+    this.jsonDataForExtension = JSON.stringify(formData, null, 2);
 
-    try {
-      // 3. Send the data to your backend service.
-      //    This assumes your backend is running on http://localhost:3000
-      await lastValueFrom(this.http.post(this.apiUrl + '/fill-lhdn-form', { data: formData }));
-      
-      alert('Automation started. Please check for a new browser window to log in.');
+    // 3. Show the instruction modal.
+    this.isInstructionModalVisible = true;
+    this.copyButtonText = 'Copy JSON'; // Reset button text
+  }
 
-    } catch (error) {
-      console.error('Error starting the automation process:', error);
-      alert('Failed to start the automation process. Please ensure the automation service is running. Check the console for details.');
-    } finally {
-      this.isLoading = false;
-    }
+  closeInstructionModal(): void {
+    this.isInstructionModalVisible = false;
+  }
+
+  copyJsonToClipboard(): void {
+    navigator.clipboard.writeText(this.jsonDataForExtension).then(() => {
+      this.copyButtonText = 'Copied!';
+      setTimeout(() => {
+        this.copyButtonText = 'Copy JSON';
+      }, 2000); // Reset after 2 seconds
+    }).catch(err => {
+      console.error('Failed to copy text: ', err);
+      alert('Could not copy JSON to clipboard. Please copy it manually.');
+    });
   }
 
   @HostListener('window:beforeunload', ['$event'])

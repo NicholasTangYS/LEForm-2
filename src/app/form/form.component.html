@@ -52,6 +52,7 @@
                 <button (click)="saveProject()" [disabled]="isLoading">Save</button>
                 <!-- <button type="submit" (click)="generatePdf()">Generate PDF</button> -->
                 <button type="submit" (click)="submit()">Submit</button>
+
             </div>
 
         </div>
@@ -126,12 +127,12 @@
 
                     <label for="Telephone_no">Telephone No:</label>
                     <input type="text" id="Telephone_no" formControlName="Telephone_no">
-
+                -->
                     <label for="Email">Email:</label>
                     <div style="margin-bottom: 10px;">
                         <input type="email" id="Email" formControlName="Email">
-                    </div> -->
-                     <label for="Company_Registration_No">Registration No:</label>
+                    </div>
+                    <label for="Company_Registration_No">Registration No:</label>
                     <input type="text" id="Company_Registration_No" formControlName="Company_Registration_No">
                     <label for="Change_of_Accounting_Period_No">Change of Accounting Period:</label>
                     <div style="display: flex;
@@ -480,8 +481,19 @@
                                             </option>
                                         </select>
                                     </td>
-                                    <td><textarea type="text"
-                                            formControlName="B1_Row1_Core_Income_Activity_Yes"></textarea>
+                                    <td>
+                                        <!-- <textarea type="text"
+                                            formControlName="B1_Row1_Core_Income_Activity_Yes"></textarea> -->
+                                        <select formControlName="B1_Row1_Core_Income_Activity_Yes" class="form-select">
+                                            <option value="" disabled>-- Select --</option>
+                                            <option value="1">
+                                                Yes
+                                            </option>
+                                            <option value="2">
+                                                No
+                                            </option>
+                                        </select>
+                                        
                                     </td>
                                     <td><textarea type="text"
                                             formControlName="B1_Row1_Business_Activity_Status_Active"></textarea></td>
@@ -518,8 +530,18 @@
                                             </option>
                                         </select>
                                     </td>
-                                    <td><textarea type="text"
-                                            formControlName="B1_Row2_Core_Income_Activity_Yes"></textarea>
+                                    <td>
+                                        <!-- <textarea type="text"
+                                            formControlName="B1_Row2_Core_Income_Activity_Yes"></textarea> -->
+                                        <select formControlName="B1_Row2_Core_Income_Activity_Yes" class="form-select">
+                                            <option value="" disabled>-- Select --</option>
+                                            <option value="1">
+                                                Yes
+                                            </option>
+                                            <option value="2">
+                                                No
+                                            </option>
+                                        </select>
                                     </td>
                                     <td><textarea type="text"
                                             formControlName="B1_Row2_Business_Activity_Status_Active"></textarea></td>
@@ -555,8 +577,18 @@
                                             </option>
                                         </select>
                                     </td>
-                                    <td><textarea type="text"
-                                            formControlName="B1_Row3_Core_Income_Activity_Yes"></textarea>
+                                    <td>
+                                        <!-- <textarea type="text"
+                                            formControlName="B1_Row3_Core_Income_Activity_Yes"></textarea> -->
+                                            <select formControlName="B1_Row3_Core_Income_Activity_Yes" class="form-select">
+                                            <option value="" disabled>-- Select --</option>
+                                            <option value="1">
+                                                Yes
+                                            </option>
+                                            <option value="2">
+                                                No
+                                            </option>
+                                        </select>
                                     </td>
                                     <td><textarea type="text"
                                             formControlName="B1_Row3_Business_Activity_Status_Active"></textarea></td>
@@ -592,8 +624,18 @@
                                             </option>
                                         </select>
                                     </td>
-                                    <td><textarea type="text"
-                                            formControlName="B1_Row4_Core_Income_Activity_Yes"></textarea>
+                                    <td>
+                                        <!-- <textarea type="text"
+                                            formControlName="B1_Row4_Core_Income_Activity_Yes"></textarea> -->
+                                            <select formControlName="B1_Row4_Core_Income_Activity_Yes" class="form-select">
+                                            <option value="" disabled>-- Select --</option>
+                                            <option value="1">
+                                                Yes
+                                            </option>
+                                            <option value="2">
+                                                No
+                                            </option>
+                                        </select>
                                     </td>
                                     <td><textarea type="text"
                                             formControlName="B1_Row4_Business_Activity_Status_Active"></textarea></td>
@@ -629,8 +671,18 @@
                                             </option>
                                         </select>
                                     </td>
-                                    <td><textarea type="text"
-                                            formControlName="B1_Row5_Core_Income_Activity_Yes"></textarea>
+                                    <td>
+                                        <!-- <textarea type="text"
+                                            formControlName="B1_Row5_Core_Income_Activity_Yes"></textarea> -->
+                                            <select formControlName="B1_Row5_Core_Income_Activity_Yes" class="form-select">
+                                            <option value="" disabled>-- Select --</option>
+                                            <option value="1">
+                                                Yes
+                                            </option>
+                                            <option value="2">
+                                                No
+                                            </option>
+                                        </select>
                                     </td>
                                     <td><textarea type="text"
                                             formControlName="B1_Row5_Business_Activity_Status_Active"></textarea></td>
@@ -725,11 +777,35 @@
                     <div>
                         <label for="C2_Address_Is_Tax_Agent_or_Trust_Co">Address is Tax Agent or Trust Co (1=Tax Agent,
                             2=Trust Co, 3= No):</label>
-                        <input type="text" id="C2_Address_Is_Tax_Agent_or_Trust_Co"
-                            formControlName="C2_Address_Is_Tax_Agent_or_Trust_Co">
+                        <!-- <input type="text" id="C2_Address_Is_Tax_Agent_or_Trust_Co"
+                            formControlName="C2_Address_Is_Tax_Agent_or_Trust_Co"> -->
+                        <select formControlName="C2_Address_Is_Tax_Agent_or_Trust_Co" class="form-select">
+                            <option value="" disabled>-- Select --</option>
+                            <option value="1">
+                                Tax Agent
+                            </option>
+                            <option value="2">
+                                Trust Co
+                            </option>
+                            <option value="3">
+                                No
+                            </option>
+                        </select>
 
-                        <label for="C6a_Has_Related_Company">Has Related Company (1=Yes, 2=No):</label>
-                        <input type="text" id="C6a_Has_Related_Company" formControlName="C6a_Has_Related_Company">
+                        <label for="C6a_Has_Related_Company">Has Related Company:</label>
+                        <!-- <input type="text" id="C6a_Has_Related_Company" formControlName="C6a_Has_Related_Company"> -->
+                        <div class="radio-group" style="display: flex; gap: 10px;">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" id="C6a_Yes" value="1"
+                                    formControlName="C6a_Has_Related_Company" name="C6a_Has_Related_Company">
+                                <label class="form-check-label" for="C6a_Yes">Yes</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" id="C6a_No" value="2"
+                                    formControlName="C6a_Has_Related_Company" name="C6a_Has_Related_Company">
+                                <label class="form-check-label" for="C6a_No">No</label>
+                            </div>
+                        </div>
 
                         <label for="C6b_Number_of_Related_Companies_Qualifying_Activity">Number of Related Companies
                             Qualifying Activity:</label>
@@ -739,10 +815,24 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
                         <div>
                             <label for="C7a_Derived_Income_from_Non_Labuan_Activity">Derived Income from Non-Labuan
-                                Activity
-                                (1=Yes, 2=No):</label>
-                            <input type="text" id="C7a_Derived_Income_from_Non_Labuan_Activity"
+                                Activity:</label>
+                            <!-- <input type="text" id="C7a_Derived_Income_from_Non_Labuan_Activity"
                                 formControlName="C7a_Derived_Income_from_Non_Labuan_Activity">
+                                <div class="form-check"> -->
+                            <div class="radio-group" style="display: flex; gap: 10px;">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" id="C7a_Yes" value="1"
+                                        formControlName="C7a_Derived_Income_from_Non_Labuan_Activity"
+                                        name="C7a_Derived_Income_from_Non_Labuan_Activity">
+                                    <label class="form-check-label" for="C7a_Yes">Yes</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" id="C7a_No" value="2"
+                                        formControlName="C7a_Derived_Income_from_Non_Labuan_Activity"
+                                        name="C7a_Derived_Income_from_Non_Labuan_Activity">
+                                    <label class="form-check-label" for="C7a_No">No</label>
+                                </div>
+                            </div>
                         </div>
                         <div>
                             <label for="C7b_Total_Income_from_Non_Labuan_Activity">Total Income from Non-Labuan
@@ -751,9 +841,21 @@
                                 min="0" formControlName="C7b_Total_Income_from_Non_Labuan_Activity"></textarea>
                         </div>
                         <div>
-                            <label for="C8a_Derived_Income_from_IP">Derived Income from IP (1=Yes, 2=No):</label>
-                            <input type="text" id="C8a_Derived_Income_from_IP"
-                                formControlName="C8a_Derived_Income_from_IP">
+                            <label for="C8a_Derived_Income_from_IP">Derived Income from IP:</label>
+                            <!-- <input type="text" id="C8a_Derived_Income_from_IP"
+                                formControlName="C8a_Derived_Income_from_IP"> -->
+                            <div class="radio-group" style="display: flex; gap: 10px;">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" id="C8a_Yes" value="1"
+                                        formControlName="C8a_Derived_Income_from_IP" name="C8a_Derived_Income_from_IP">
+                                    <label class="form-check-label" for="C8a_Yes">Yes</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" id="C8a_No" value="2"
+                                        formControlName="C8a_Derived_Income_from_IP" name="C8a_Derived_Income_from_IP">
+                                    <label class="form-check-label" for="C8a_No">No</label>
+                                </div>
+                            </div>
                         </div>
                         <div>
                             <label for="C8b_Total_Income_from_IP">Total Income from IP:</label>
@@ -761,10 +863,23 @@
                                 formControlName="C8b_Total_Income_from_IP"></textarea>
                         </div>
                         <div>
-                            <label for="C10_Has_Subsidiary_Outside_Labuan">Has Subsidiary Outside Labuan (1=Yes,
-                                2=No):</label>
-                            <input type="text" id="C10_Has_Subsidiary_Outside_Labuan"
-                                formControlName="C10_Has_Subsidiary_Outside_Labuan">
+                            <label for="C10_Has_Subsidiary_Outside_Labuan">Has Subsidiary Outside Labuan :</label>
+                            <!-- <input type="text" id="C10_Has_Subsidiary_Outside_Labuan"
+                                formControlName="C10_Has_Subsidiary_Outside_Labuan"> -->
+                            <div class="radio-group" style="display: flex; gap: 10px;">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" id="C10a_Yes" value="1"
+                                        formControlName="C10_Has_Subsidiary_Outside_Labuan"
+                                        name="C10_Has_Subsidiary_Outside_Labuan">
+                                    <label class="form-check-label" for="C10a_Yes">Yes</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" id="C10a_No" value="2"
+                                        formControlName="C10_Has_Subsidiary_Outside_Labuan"
+                                        name="C10_Has_Subsidiary_Outside_Labuan">
+                                    <label class="form-check-label" for="C10a_No">No</label>
+                                </div>
+                            </div>
                         </div>
                         <div>
                             <label for="C11_Received_Payments_from_Malaysian_Resident">Received Payments from Malaysian
@@ -788,8 +903,14 @@
                         <tbody>
                             <tr>
                                 <td style="padding: 8px; border: 1px solid #ddd;">
-                                    <input type="text" id="C12_Row1_Incentive_Code"
-                                        formControlName="C12_Row1_Incentive_Code" style="width: 100%;">
+                                    <!-- <input type="text" id="C12_Row1_Incentive_Code"
+                                        formControlName="C12_Row1_Incentive_Code" style="width: 100%;"> -->
+                                    <select formControlName="C12_Row1_Incentive_Code" class="form-select">
+                                        <option value="" disabled>-- Select --</option>
+                                        <option *ngFor="let activity of incentiveCodes" [value]="activity.code">
+                                            {{ activity.code }}
+                                        </option>
+                                    </select>
                                 </td>
                                 <td style="padding: 8px; border: 1px solid #ddd;">
                                     <textarea type="text" id="C12_Row1_Amount_Claimed" appThousandSeparator
@@ -798,8 +919,14 @@
                             </tr>
                             <tr>
                                 <td style="padding: 8px; border: 1px solid #ddd;">
-                                    <input type="text" id="C12_Row2_Incentive_Code"
-                                        formControlName="C12_Row2_Incentive_Code" style="width: 100%;">
+                                    <!-- <input type="text" id="C12_Row2_Incentive_Code"
+                                        formControlName="C12_Row2_Incentive_Code" style="width: 100%;"> -->
+                                    <select formControlName="C12_Row2_Incentive_Code" class="form-select">
+                                        <option value="" disabled>-- Select --</option>
+                                        <option *ngFor="let activity of incentiveCodes" [value]="activity.code">
+                                            {{ activity.code }}
+                                        </option>
+                                    </select>
                                 </td>
                                 <td style="padding: 8px; border: 1px solid #ddd;">
                                     <textarea appThousandSeparator type="text" id="C12_Row2_Amount_Claimed"
@@ -808,8 +935,14 @@
                             </tr>
                             <tr>
                                 <td style="padding: 8px; border: 1px solid #ddd;">
-                                    <input type="text" id="C12_Row3_Incentive_Code"
-                                        formControlName="C12_Row3_Incentive_Code" style="width: 100%;">
+                                    <!-- <input type="text" id="C12_Row3_Incentive_Code"
+                                        formControlName="C12_Row3_Incentive_Code" style="width: 100%;"> -->
+                                    <select formControlName="C12_Row3_Incentive_Code" class="form-select">
+                                        <option value="" disabled>-- Select --</option>
+                                        <option *ngFor="let activity of incentiveCodes" [value]="activity.code">
+                                            {{ activity.code }}
+                                        </option>
+                                    </select>
                                 </td>
                                 <td style="padding: 8px; border: 1px solid #ddd;">
                                     <textarea type="text" id="C12_Row3_Amount_Claimed" appThousandSeparator
@@ -986,8 +1119,7 @@ margin-bottom: 10px;">
                     <label for="Declaration_Date_Day">Declaration Date (DD/MM/YYYY):</label>
                     <div style="display: flex; gap: 5px; align-items: center; padding:5px; 
 margin-bottom: 10px;">
-                        <input  type="date" id="Declaration_Date"
-                            formControlName="Declaration_Date" >
+                        <input type="date" id="Declaration_Date" formControlName="Declaration_Date">
                         <!-- <input style="width:4rem" type="text" id="Declaration_Date_Day"
                             formControlName="Declaration_Date_Day" size="2"> /
                         <input style="width:4rem" type="text" id="Declaration_Date_Month"
@@ -1072,7 +1204,7 @@ margin-bottom: 10px;">
                     <legend>Attachment C3: Compliance Officers</legend>
                     <div
                         style="overflow-x: auto; resize: horizontal; width: 60vw; border:1px solid #ccc ; border-radius: 5px;">
-                        <table style="width: 2000px;" class="data-table">
+                        <table style="width: 2000px;border-width: 1;" class="data-table">
                             <thead>
                                 <tr>
                                     <th style="width: 10%;">Name</th>
@@ -1092,17 +1224,67 @@ margin-bottom: 10px;">
                             <tbody>
                                 <tr>
                                     <td><textarea rows="1" formControlName="Compliance_Officers_0_Name"></textarea></td>
-                                    <td><textarea rows="1"
-                                            formControlName="Compliance_Officers_0_Claim_PUA_419_2011"></textarea>
+                                    <td>
+                                        <select formControlName="Compliance_Officers_0_Claim_PUA_419_2011"
+                                            class="form-select" style="margin-bottom: 10px;">
+                                            <option value="" disabled>-- Select --</option>
+                                            <option value="1">
+                                                Yes
+                                            </option>
+                                            <option value="2">
+                                                No
+                                            </option>
+                                        </select>
+                                        <!-- <textarea rows="1"
+                                            formControlName="Compliance_Officers_0_Claim_PUA_419_2011"></textarea> -->
                                     </td>
-                                    <td><textarea rows="1"
-                                            formControlName="Compliance_Officers_0_Designation"></textarea>
+                                    <td><select formControlName="Compliance_Officers_0_Designation" class="form-select"
+                                            style="margin-bottom: 10px;">
+                                            <option value="" disabled>--Please Select Type Of Designation--</option>
+                                            <option value="1">Manager or principal officer in Malaysia</option>
+                                            <option value="2">Resident director as provided in the Labuan Companies Act
+                                                1990</option>
+                                            <option value="3">Secretary</option>
+                                            <option value="4">Trustee</option>
+                                            <option value="5">Liquidator or receiver</option>
+                                            <option value="6">Partner or general partner</option>
+                                            <option value="7">Designated partner</option>
+                                            <option value="8">Officer</option>
+                                            <option value="9">Others (person performing function 0f 1,2,3,4 or tax
+                                                agent)</option>
+
+                                        </select>
                                     </td>
-                                    <td><textarea appAutoResize rows="1"
+                                    <td style="display: flex;">
+                                        <div style="width:30%">
+                                            <select formControlName="Compliance_Officers_0_Country" class="form-select"
+                                                style="margin-bottom: 10px;">
+                                                <option value="" disabled>-- Select a Country --</option>
+                                                <option *ngFor="let country of countries" [value]="country.code">
+                                                    {{ country.name }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <textarea appAutoResize rows="1"
                                             formControlName="Compliance_Officers_0_Address"></textarea>
                                     </td>
-                                    <td><textarea rows="1"
-                                            formControlName="Compliance_Officers_0_ID_Passport_No"></textarea>
+                                    <td>
+                                        <div style="display: flex;">
+                                            <div style="width:30%">
+                                                <select formControlName="Compliance_Officers_0_ID_type"
+                                                    class="form-select" style="margin-bottom: 10px;">
+                                                    <option value="" disabled>-- Select --</option>
+                                                    <option value="1">
+                                                        Identification No.
+                                                    </option>
+                                                    <option value="2">
+                                                        Passport No.
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <textarea rows="1"
+                                                formControlName="Compliance_Officers_0_ID_Passport_No"></textarea>
+                                        </div>
                                     </td>
                                     <td><textarea rows="1"
                                             formControlName="Compliance_Officers_0_Date_of_Birth"></textarea>
@@ -1126,17 +1308,65 @@ margin-bottom: 10px;">
                                 </tr>
                                 <tr>
                                     <td><textarea rows="1" formControlName="Compliance_Officers_1_Name"></textarea></td>
-                                    <td><textarea rows="1"
-                                            formControlName="Compliance_Officers_1_Claim_PUA_419_2011"></textarea>
+                                    <td>
+                                        <select formControlName="Compliance_Officers_1_Claim_PUA_419_2011"
+                                            class="form-select" style="margin-bottom: 10px;">
+                                            <option value="" disabled>-- Select --</option>
+                                            <option value="1">
+                                                Yes
+                                            </option>
+                                            <option value="2">
+                                                No
+                                            </option>
+                                        </select>
                                     </td>
-                                    <td><textarea rows="1"
-                                            formControlName="Compliance_Officers_1_Designation"></textarea>
+                                    <td><select formControlName="Compliance_Officers_1_Designation" class="form-select"
+                                            style="margin-bottom: 10px;">
+                                            <option value="" disabled>--Please Select Type Of Designation--</option>
+                                            <option value="1">Manager or principal officer in Malaysia</option>
+                                            <option value="2">Resident director as provided in the Labuan Companies Act
+                                                1990</option>
+                                            <option value="3">Secretary</option>
+                                            <option value="4">Trustee</option>
+                                            <option value="5">Liquidator or receiver</option>
+                                            <option value="6">Partner or general partner</option>
+                                            <option value="7">Designated partner</option>
+                                            <option value="8">Officer</option>
+                                            <option value="9">Others (person performing function 0f 1,2,3,4 or tax
+                                                agent)</option>
+
+                                        </select>
                                     </td>
-                                    <td><textarea appAutoResize rows="1"
+                                    <td style="display: flex;">
+                                        <div style="width:30%">
+                                            <select formControlName="Compliance_Officers_1_Country" class="form-select"
+                                                style="margin-bottom: 10px;">
+                                                <option value="" disabled>-- Select a Country --</option>
+                                                <option *ngFor="let country of countries" [value]="country.code">
+                                                    {{ country.name }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <textarea appAutoResize rows="1"
                                             formControlName="Compliance_Officers_1_Address"></textarea>
                                     </td>
-                                    <td><textarea rows="1"
-                                            formControlName="Compliance_Officers_1_ID_Passport_No"></textarea>
+                                    <td>
+                                        <div style="display: flex;">
+                                            <div style="width:30%">
+                                                <select formControlName="Compliance_Officers_1_ID_type"
+                                                    class="form-select" style="margin-bottom: 10px;">
+                                                    <option value="" disabled>-- Select --</option>
+                                                    <option value="1">
+                                                        Identification No.
+                                                    </option>
+                                                    <option value="2">
+                                                        Passport No.
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <textarea rows="1"
+                                                formControlName="Compliance_Officers_1_ID_Passport_No"></textarea>
+                                        </div>
                                     </td>
                                     <td><textarea rows="1"
                                             formControlName="Compliance_Officers_1_Date_of_Birth"></textarea>
@@ -1160,17 +1390,65 @@ margin-bottom: 10px;">
                                 </tr>
                                 <tr>
                                     <td><textarea rows="1" formControlName="Compliance_Officers_2_Name"></textarea></td>
-                                    <td><textarea rows="1"
-                                            formControlName="Compliance_Officers_2_Claim_PUA_419_2011"></textarea>
+                                    <td>
+                                        <select formControlName="Compliance_Officers_2_Claim_PUA_419_2011"
+                                            class="form-select" style="margin-bottom: 10px;">
+                                            <option value="" disabled>-- Select --</option>
+                                            <option value="1">
+                                                Yes
+                                            </option>
+                                            <option value="2">
+                                                No
+                                            </option>
+                                        </select>
                                     </td>
-                                    <td><textarea rows="1"
-                                            formControlName="Compliance_Officers_2_Designation"></textarea>
+                                    <td><select formControlName="Compliance_Officers_2_Designation" class="form-select"
+                                            style="margin-bottom: 10px;">
+                                            <option value="" disabled>--Please Select Type Of Designation--</option>
+                                            <option value="1">Manager or principal officer in Malaysia</option>
+                                            <option value="2">Resident director as provided in the Labuan Companies Act
+                                                1990</option>
+                                            <option value="3">Secretary</option>
+                                            <option value="4">Trustee</option>
+                                            <option value="5">Liquidator or receiver</option>
+                                            <option value="6">Partner or general partner</option>
+                                            <option value="7">Designated partner</option>
+                                            <option value="8">Officer</option>
+                                            <option value="9">Others (person performing function 0f 1,2,3,4 or tax
+                                                agent)</option>
+
+                                        </select>
                                     </td>
-                                    <td><textarea appAutoResize rows="1"
+                                    <td style="display: flex;">
+                                        <div style="width:30%">
+                                            <select formControlName="Compliance_Officers_2_Country" class="form-select"
+                                                style="margin-bottom: 10px;">
+                                                <option value="" disabled>-- Select a Country --</option>
+                                                <option *ngFor="let country of countries" [value]="country.code">
+                                                    {{ country.name }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <textarea appAutoResize rows="1"
                                             formControlName="Compliance_Officers_2_Address"></textarea>
                                     </td>
-                                    <td><textarea rows="1"
-                                            formControlName="Compliance_Officers_2_ID_Passport_No"></textarea>
+                                    <td>
+                                        <div style="display: flex;">
+                                            <div style="width:30%">
+                                                <select formControlName="Compliance_Officers_2_ID_type"
+                                                    class="form-select" style="margin-bottom: 10px;">
+                                                    <option value="" disabled>-- Select --</option>
+                                                    <option value="1">
+                                                        Identification No.
+                                                    </option>
+                                                    <option value="2">
+                                                        Passport No.
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <textarea rows="1"
+                                                formControlName="Compliance_Officers_2_ID_Passport_No"></textarea>
+                                        </div>
                                     </td>
                                     <td><textarea rows="1"
                                             formControlName="Compliance_Officers_2_Date_of_Birth"></textarea>
@@ -1194,17 +1472,66 @@ margin-bottom: 10px;">
                                 </tr>
                                 <tr>
                                     <td><textarea rows="1" formControlName="Compliance_Officers_3_Name"></textarea></td>
-                                    <td><textarea rows="1"
-                                            formControlName="Compliance_Officers_3_Claim_PUA_419_2011"></textarea>
+                                    <td>
+                                        <select formControlName="Compliance_Officers_3_Claim_PUA_419_2011"
+                                            class="form-select" style="margin-bottom: 10px;">
+                                            <option value="" disabled>-- Select --</option>
+                                            <option value="1">
+                                                Yes
+                                            </option>
+                                            <option value="2">
+                                                No
+                                            </option>
+                                        </select>
                                     </td>
-                                    <td><textarea rows="1"
-                                            formControlName="Compliance_Officers_3_Designation"></textarea>
+                                    <td>
+                                        <select formControlName="Compliance_Officers_3_Designation" class="form-select"
+                                            style="margin-bottom: 10px;">
+                                            <option value="" disabled>--Please Select Type Of Designation--</option>
+                                            <option value="1">Manager or principal officer in Malaysia</option>
+                                            <option value="2">Resident director as provided in the Labuan Companies Act
+                                                1990</option>
+                                            <option value="3">Secretary</option>
+                                            <option value="4">Trustee</option>
+                                            <option value="5">Liquidator or receiver</option>
+                                            <option value="6">Partner or general partner</option>
+                                            <option value="7">Designated partner</option>
+                                            <option value="8">Officer</option>
+                                            <option value="9">Others (person performing function 0f 1,2,3,4 or tax
+                                                agent)</option>
+
+                                        </select>
                                     </td>
-                                    <td><textarea appAutoResize rows="1"
+                                    <td style="display: flex;">
+                                        <div style="width:30%">
+                                            <select formControlName="Compliance_Officers_3_Country" class="form-select"
+                                                style="margin-bottom: 10px;">
+                                                <option value="" disabled>-- Select a Country --</option>
+                                                <option *ngFor="let country of countries" [value]="country.code">
+                                                    {{ country.name }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <textarea appAutoResize rows="1"
                                             formControlName="Compliance_Officers_3_Address"></textarea>
                                     </td>
-                                    <td><textarea rows="1"
-                                            formControlName="Compliance_Officers_3_ID_Passport_No"></textarea>
+                                    <td>
+                                        <div style="display: flex;">
+                                            <div style="width:30%">
+                                                <select formControlName="Compliance_Officers_3_ID_type"
+                                                    class="form-select" style="margin-bottom: 10px;">
+                                                    <option value="" disabled>-- Select --</option>
+                                                    <option value="1">
+                                                        Identification No.
+                                                    </option>
+                                                    <option value="2">
+                                                        Passport No.
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <textarea rows="1"
+                                                formControlName="Compliance_Officers_3_ID_Passport_No"></textarea>
+                                        </div>
                                     </td>
                                     <td><textarea rows="1"
                                             formControlName="Compliance_Officers_3_Date_of_Birth"></textarea>
@@ -1228,17 +1555,68 @@ margin-bottom: 10px;">
                                 </tr>
                                 <tr>
                                     <td><textarea rows="1" formControlName="Compliance_Officers_4_Name"></textarea></td>
-                                    <td><textarea rows="1"
-                                            formControlName="Compliance_Officers_4_Claim_PUA_419_2011"></textarea>
+                                    <td>
+                                        <select formControlName="Compliance_Officers_4_Claim_PUA_419_2011"
+                                            class="form-select" style="margin-bottom: 10px;">
+                                            <option value="" disabled>-- Select --</option>
+                                            <option value="1">
+                                                Yes
+                                            </option>
+                                            <option value="2">
+                                                No
+                                            </option>
+                                        </select>
                                     </td>
-                                    <td><textarea rows="1"
-                                            formControlName="Compliance_Officers_4_Designation"></textarea>
+                                    <td>
+                                        <!-- <textarea rows="1"
+                                            formControlName="Compliance_Officers_4_Designation"></textarea> -->
+                                        <select formControlName="Compliance_Officers_4_Designation" class="form-select"
+                                            style="margin-bottom: 10px;">
+                                            <option value="" disabled>--Please Select Type Of Designation--</option>
+                                            <option value="1">Manager or principal officer in Malaysia</option>
+                                            <option value="2">Resident director as provided in the Labuan Companies Act
+                                                1990</option>
+                                            <option value="3">Secretary</option>
+                                            <option value="4">Trustee</option>
+                                            <option value="5">Liquidator or receiver</option>
+                                            <option value="6">Partner or general partner</option>
+                                            <option value="7">Designated partner</option>
+                                            <option value="8">Officer</option>
+                                            <option value="9">Others (person performing function 0f 1,2,3,4 or tax
+                                                agent)</option>
+
+                                        </select>
                                     </td>
-                                    <td><textarea appAutoResize rows="1"
+                                    <td style="display: flex;">
+                                        <div style="width:30%">
+                                            <select formControlName="Compliance_Officers_4_Country" class="form-select"
+                                                style="margin-bottom: 10px;">
+                                                <option value="" disabled>-- Select a Country --</option>
+                                                <option *ngFor="let country of countries" [value]="country.code">
+                                                    {{ country.name }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <textarea appAutoResize rows="1"
                                             formControlName="Compliance_Officers_4_Address"></textarea>
                                     </td>
-                                    <td><textarea rows="1"
-                                            formControlName="Compliance_Officers_4_ID_Passport_No"></textarea>
+                                    <td>
+                                        <div style="display: flex;">
+                                            <div style="width:30%">
+                                                <select formControlName="Compliance_Officers_4_ID_type"
+                                                    class="form-select" style="margin-bottom: 10px;">
+                                                    <option value="" disabled>-- Select --</option>
+                                                    <option value="1">
+                                                        Identification No.
+                                                    </option>
+                                                    <option value="2">
+                                                        Passport No.
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <textarea rows="1"
+                                                formControlName="Compliance_Officers_4_ID_Passport_No"></textarea>
+                                        </div>
                                     </td>
                                     <td><textarea rows="1"
                                             formControlName="Compliance_Officers_4_Date_of_Birth"></textarea>
@@ -1278,7 +1656,7 @@ margin-bottom: 10px;">
                                     <th style="width: 15%;">Address</th>
                                     <th style="width: 10%;">ID/Passport/Reg No.</th>
                                     <th style="width: 10%;">Date of Birth</th>
-                                    <th style="width: 10%;">Country (Code)</th>
+                                    <th style="width: 10%;">Origin Country</th>
                                     <th style="width: 10%;">TIN</th>
                                     <th style="width: 15%;">Shareholding (%)</th>
                                     <th style="width: 15%;">Dividends (RM)</th>
@@ -1289,16 +1667,35 @@ margin-bottom: 10px;">
                                     <td><textarea appAutoResize rows="1"
                                             formControlName="Major_Shareholders_0_Name_of_Shareholder_Partner"></textarea>
                                     </td>
-                                    <td><textarea appAutoResize rows="1"
-                                            formControlName="Major_Shareholders_0_Address"></textarea></td>
+                                    <td style="display: flex;">
+                                        <div style="width:30%">
+                                            <select formControlName="Major_Shareholders_0_Country" class="form-select"
+                                                style="margin-bottom: 10px;">
+                                                <option value="" disabled>-- Select a Country --</option>
+                                                <option *ngFor="let country of countries" [value]="country.code">
+                                                    {{ country.name }}
+                                                </option>
+                                            </select>
+                                        </div>
+
+                                        <textarea appAutoResize rows="1"
+                                            formControlName="Major_Shareholders_0_Address"></textarea>
+                                    </td>
                                     <td><textarea rows="1"
                                             formControlName="Major_Shareholders_0_ID_Passport_Reg_No"></textarea>
                                     </td>
                                     <td><textarea rows="1"
                                             formControlName="Major_Shareholders_0_Date_of_Birth"></textarea>
                                     </td>
-                                    <td><textarea rows="1"
-                                            formControlName="Major_Shareholders_0_Country_of_Origin"></textarea>
+                                    <td>
+                                        <select formControlName="Major_Shareholders_0_Country_of_Origin"
+                                            class="form-select" style="margin-bottom: 10px;">
+                                            <option value="" disabled>-- Select a Country --</option>
+                                            <option *ngFor="let country of countries" [value]="country.code">
+                                                {{ country.name }}
+                                            </option>
+                                        </select>
+
                                     </td>
                                     <td><textarea rows="1" formControlName="Major_Shareholders_0_TIN"></textarea></td>
                                     <td><textarea rows="1"
@@ -1312,16 +1709,33 @@ margin-bottom: 10px;">
                                     <td><textarea appAutoResize rows="1"
                                             formControlName="Major_Shareholders_1_Name_of_Shareholder_Partner"></textarea>
                                     </td>
-                                    <td><textarea appAutoResize rows="1"
-                                            formControlName="Major_Shareholders_1_Address"></textarea></td>
+                                    <td style="display: flex;">
+                                        <div style="width:30%">
+                                            <select formControlName="Major_Shareholders_1_Country" class="form-select"
+                                                style="margin-bottom: 10px;">
+                                                <option value="" disabled>-- Select a Country --</option>
+                                                <option *ngFor="let country of countries" [value]="country.code">
+                                                    {{ country.name }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <textarea appAutoResize rows="1"
+                                            formControlName="Major_Shareholders_1_Address"></textarea>
+                                    </td>
                                     <td><textarea rows="1"
                                             formControlName="Major_Shareholders_1_ID_Passport_Reg_No"></textarea>
                                     </td>
                                     <td><textarea rows="1"
                                             formControlName="Major_Shareholders_1_Date_of_Birth"></textarea>
                                     </td>
-                                    <td><textarea rows="1"
-                                            formControlName="Major_Shareholders_1_Country_of_Origin"></textarea>
+                                    <td>
+                                        <select formControlName="Major_Shareholders_1_Country_of_Origin"
+                                            class="form-select" style="margin-bottom: 10px;">
+                                            <option value="" disabled>-- Select a Country --</option>
+                                            <option *ngFor="let country of countries" [value]="country.code">
+                                                {{ country.name }}
+                                            </option>
+                                        </select>
                                     </td>
                                     <td><textarea rows="1" formControlName="Major_Shareholders_1_TIN"></textarea></td>
                                     <td><textarea rows="1"
@@ -1335,16 +1749,32 @@ margin-bottom: 10px;">
                                     <td><textarea appAutoResize rows="1"
                                             formControlName="Major_Shareholders_2_Name_of_Shareholder_Partner"></textarea>
                                     </td>
-                                    <td><textarea appAutoResize rows="1"
-                                            formControlName="Major_Shareholders_2_Address"></textarea></td>
+                                    <td style="display: flex;">
+                                        <div style="width:30%">
+                                            <select formControlName="Major_Shareholders_2_Country" class="form-select"
+                                                style="margin-bottom: 10px;">
+                                                <option value="" disabled>-- Select a Country --</option>
+                                                <option *ngFor="let country of countries" [value]="country.code">
+                                                    {{ country.name }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <textarea appAutoResize rows="1"
+                                            formControlName="Major_Shareholders_2_Address"></textarea>
+                                    </td>
                                     <td><textarea rows="1"
                                             formControlName="Major_Shareholders_2_ID_Passport_Reg_No"></textarea>
                                     </td>
                                     <td><textarea rows="1"
                                             formControlName="Major_Shareholders_2_Date_of_Birth"></textarea>
                                     </td>
-                                    <td><textarea rows="1"
-                                            formControlName="Major_Shareholders_2_Country_of_Origin"></textarea>
+                                    <td><select formControlName="Major_Shareholders_2_Country_of_Origin"
+                                            class="form-select" style="margin-bottom: 10px;">
+                                            <option value="" disabled>-- Select a Country --</option>
+                                            <option *ngFor="let country of countries" [value]="country.code">
+                                                {{ country.name }}
+                                            </option>
+                                        </select>
                                     </td>
                                     <td><textarea rows="1" formControlName="Major_Shareholders_2_TIN"></textarea></td>
                                     <td><textarea rows="1"
@@ -1358,16 +1788,32 @@ margin-bottom: 10px;">
                                     <td><textarea appAutoResize rows="1"
                                             formControlName="Major_Shareholders_3_Name_of_Shareholder_Partner"></textarea>
                                     </td>
-                                    <td><textarea appAutoResize rows="1"
-                                            formControlName="Major_Shareholders_3_Address"></textarea></td>
+                                    <td style="display: flex;">
+                                        <div style="width:30%">
+                                            <select formControlName="Major_Shareholders_3_Country" class="form-select"
+                                                style="margin-bottom: 10px;">
+                                                <option value="" disabled>-- Select a Country --</option>
+                                                <option *ngFor="let country of countries" [value]="country.code">
+                                                    {{ country.name }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <textarea appAutoResize rows="1"
+                                            formControlName="Major_Shareholders_3_Address"></textarea>
+                                    </td>
                                     <td><textarea rows="1"
                                             formControlName="Major_Shareholders_3_ID_Passport_Reg_No"></textarea>
                                     </td>
                                     <td><textarea rows="1"
                                             formControlName="Major_Shareholders_3_Date_of_Birth"></textarea>
                                     </td>
-                                    <td><textarea rows="1"
-                                            formControlName="Major_Shareholders_3_Country_of_Origin"></textarea>
+                                    <td><select formControlName="Major_Shareholders_3_Country_of_Origin"
+                                            class="form-select" style="margin-bottom: 10px;">
+                                            <option value="" disabled>-- Select a Country --</option>
+                                            <option *ngFor="let country of countries" [value]="country.code">
+                                                {{ country.name }}
+                                            </option>
+                                        </select>
                                     </td>
                                     <td><textarea rows="1" formControlName="Major_Shareholders_3_TIN"></textarea></td>
                                     <td><textarea rows="1"
@@ -1381,16 +1827,32 @@ margin-bottom: 10px;">
                                     <td><textarea appAutoResize rows="1"
                                             formControlName="Major_Shareholders_4_Name_of_Shareholder_Partner"></textarea>
                                     </td>
-                                    <td><textarea appAutoResize rows="1"
-                                            formControlName="Major_Shareholders_4_Address"></textarea></td>
+                                    <td style="display: flex;">
+                                        <div style="width:30%">
+                                            <select formControlName="Major_Shareholders_4_Country" class="form-select"
+                                                style="margin-bottom: 10px;">
+                                                <option value="" disabled>-- Select a Country --</option>
+                                                <option *ngFor="let country of countries" [value]="country.code">
+                                                    {{ country.name }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <textarea appAutoResize rows="1"
+                                            formControlName="Major_Shareholders_4_Address"></textarea>
+                                    </td>
                                     <td><textarea rows="1"
                                             formControlName="Major_Shareholders_4_ID_Passport_Reg_No"></textarea>
                                     </td>
                                     <td><textarea rows="1"
                                             formControlName="Major_Shareholders_4_Date_of_Birth"></textarea>
                                     </td>
-                                    <td><textarea rows="1"
-                                            formControlName="Major_Shareholders_4_Country_of_Origin"></textarea>
+                                    <td><select formControlName="Major_Shareholders_4_Country_of_Origin"
+                                            class="form-select" style="margin-bottom: 10px;">
+                                            <option value="" disabled>-- Select a Country --</option>
+                                            <option *ngFor="let country of countries" [value]="country.code">
+                                                {{ country.name }}
+                                            </option>
+                                        </select>
                                     </td>
                                     <td><textarea rows="1" formControlName="Major_Shareholders_4_TIN"></textarea></td>
                                     <td><textarea rows="1"
@@ -1432,8 +1894,19 @@ margin-bottom: 10px;">
                                 <tr>
                                     <td><textarea appAutoResize rows="1"
                                             formControlName="Beneficial_Owner_0_Name"></textarea></td>
-                                    <td><textarea appAutoResize rows="1"
-                                            formControlName="Beneficial_Owner_0_Address"></textarea></td>
+                                    <td style="display: flex;">
+                                        <div style="width:30%">
+                                            <select formControlName="Beneficial_Owner_0_Country" class="form-select"
+                                                style="margin-bottom: 10px;">
+                                                <option value="" disabled>-- Select a Country --</option>
+                                                <option *ngFor="let country of countries" [value]="country.code">
+                                                    {{ country.name }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <textarea appAutoResize rows="1"
+                                            formControlName="Beneficial_Owner_0_Address"></textarea>
+                                    </td>
                                     <td><textarea rows="1"
                                             formControlName="Beneficial_Owner_0_ID_Passport_No"></textarea>
                                     </td>
@@ -1464,8 +1937,19 @@ margin-bottom: 10px;">
                                 <tr>
                                     <td><textarea appAutoResize rows="1"
                                             formControlName="Beneficial_Owner_1_Name"></textarea></td>
-                                    <td><textarea appAutoResize rows="1"
-                                            formControlName="Beneficial_Owner_1_Address"></textarea></td>
+                                    <td style="display: flex;">
+                                        <div style="width:30%">
+                                            <select formControlName="Beneficial_Owner_1_Country" class="form-select"
+                                                style="margin-bottom: 10px;">
+                                                <option value="" disabled>-- Select a Country --</option>
+                                                <option *ngFor="let country of countries" [value]="country.code">
+                                                    {{ country.name }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <textarea appAutoResize rows="1"
+                                            formControlName="Beneficial_Owner_1_Address"></textarea>
+                                    </td>
                                     <td><textarea rows="1"
                                             formControlName="Beneficial_Owner_1_ID_Passport_No"></textarea>
                                     </td>
@@ -1496,8 +1980,18 @@ margin-bottom: 10px;">
                                 <tr>
                                     <td><textarea appAutoResize rows="1"
                                             formControlName="Beneficial_Owner_2_Name"></textarea></td>
-                                    <td><textarea appAutoResize rows="1"
-                                            formControlName="Beneficial_Owner_2_Address"></textarea></td>
+                                    <td style="display: flex;">
+                                        <div style="width:30%">
+                                            <select formControlName="Beneficial_Owner_2_Country" class="form-select"
+                                                style="margin-bottom: 10px;">
+                                                <option value="" disabled>-- Select a Country --</option>
+                                                <option *ngFor="let country of countries" [value]="country.code">
+                                                    {{ country.name }}
+                                                </option>
+                                            </select>
+                                        </div><textarea appAutoResize rows="1"
+                                            formControlName="Beneficial_Owner_2_Address"></textarea>
+                                    </td>
                                     <td><textarea rows="1"
                                             formControlName="Beneficial_Owner_2_ID_Passport_No"></textarea>
                                     </td>
@@ -1528,8 +2022,18 @@ margin-bottom: 10px;">
                                 <tr>
                                     <td><textarea appAutoResize rows="1"
                                             formControlName="Beneficial_Owner_3_Name"></textarea></td>
-                                    <td><textarea appAutoResize rows="1"
-                                            formControlName="Beneficial_Owner_3_Address"></textarea></td>
+                                    <td style="display: flex;">
+                                        <div style="width:30%">
+                                            <select formControlName="Beneficial_Owner_3_Country" class="form-select"
+                                                style="margin-bottom: 10px;">
+                                                <option value="" disabled>-- Select a Country --</option>
+                                                <option *ngFor="let country of countries" [value]="country.code">
+                                                    {{ country.name }}
+                                                </option>
+                                            </select>
+                                        </div><textarea appAutoResize rows="1"
+                                            formControlName="Beneficial_Owner_3_Address"></textarea>
+                                    </td>
                                     <td><textarea rows="1"
                                             formControlName="Beneficial_Owner_3_ID_Passport_No"></textarea>
                                     </td>
@@ -1560,8 +2064,18 @@ margin-bottom: 10px;">
                                 <tr>
                                     <td><textarea appAutoResize rows="1"
                                             formControlName="Beneficial_Owner_4_Name"></textarea></td>
-                                    <td><textarea appAutoResize rows="1"
-                                            formControlName="Beneficial_Owner_4_Address"></textarea></td>
+                                    <td style="display: flex;">
+                                        <div style="width:30%">
+                                            <select formControlName="Beneficial_Owner_4_Country" class="form-select"
+                                                style="margin-bottom: 10px;">
+                                                <option value="" disabled>-- Select a Country --</option>
+                                                <option *ngFor="let country of countries" [value]="country.code">
+                                                    {{ country.name }}
+                                                </option>
+                                            </select>
+                                        </div><textarea appAutoResize rows="1"
+                                            formControlName="Beneficial_Owner_4_Address"></textarea>
+                                    </td>
                                     <td><textarea rows="1"
                                             formControlName="Beneficial_Owner_4_ID_Passport_No"></textarea>
                                     </td>
@@ -1923,3 +2437,83 @@ margin-bottom: 10px;">
     <h2>Loading Project Data...</h2>
     <p>Please wait a moment.</p>
 </div>
+
+<ng-container *ngIf="isInstructionModalVisible">
+    <div class="modal-overlay" (click)="closeInstructionModal()"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Automation Instructions</h2>
+            <button class="close-button" (click)="closeInstructionModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+
+            <p>Your form data is validated and ready. Follow the steps below to automatically fill the LHDN portal.</p>
+
+            <hr>
+
+            <h4>Step 1: Copy Your Form Data</h4>
+            <p>Click the button below to copy your form data. You will paste this into the extension in a later step.
+            </p>
+            <div class="json-container">
+                <textarea readonly>{{ jsonDataForExtension }}</textarea>
+                <button (click)="copyJsonToClipboard()">{{ copyButtonText }}</button>
+            </div>
+
+            <hr>
+
+            <h4>Step 2: Prepare the Automation Tool (One-Time Setup)</h4>
+            <ol>
+                <li>
+                    <strong>Download the extension:</strong>
+                    <!-- 
+            ACTION REQUIRED: You need to zip your extension folder (containing manifest.json, popup.js, etc.)
+            and host it. A simple way is to place it in your Angular project's 'src/assets' folder.
+          -->
+                    <a href="assets/lhdn-extension.zip" download="lhdn-extension.zip">
+                        Click here to download the LHDN Filler Extension (.zip)
+                    </a>
+                </li>
+                <li><strong>Unzip the file</strong> on your computer. You will have a folder named `lhdn-extension`.
+                </li>
+                <li>
+                    <strong>Open your browser's extensions page:</strong>
+                    <ul>
+                        <li>For Chrome, go to: <code>chrome://extensions</code></li>
+                        <li>For Edge, go to: <code>edge://extensions</code></li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Enable "Developer mode"</strong>. This is usually a toggle switch in the top-right corner of
+                    the
+                    extensions page.
+                </li>
+                <li>
+                    Click the <strong>"Load unpacked"</strong> button and select the `lhdn-extension` folder you
+                    unzipped.
+                    The extension icon (🚀) will now appear in your browser toolbar.
+                </li>
+            </ol>
+
+            <hr>
+
+            <h4>Step 3: Run the Automation</h4>
+            <ol>
+                <li>
+                    <strong>Log in to the LHDN portal:</strong>
+                    <a href="https://mytax.hasil.gov.my/" target="_blank" rel="noopener noreferrer">
+                        Open MyTax Portal in a new tab
+                    </a>
+                </li>
+                <li>Navigate manually through the portal until you are on the <strong>very first page</strong> of the
+                    LE1 form
+                    (the "Maklumat Asas" / "Basic Information" page).</li>
+                <li>Click the LHDN Filler Extension icon (🚀) in your toolbar. A popup will appear.</li>
+                <li><strong>Paste your copied data</strong> into the text box.</li>
+                <li>Click the <strong>"Start Full Automation"</strong> button and the extension will fill and navigate
+                    through
+                    the pages for you.</li>
+            </ol>
+
+        </div>
+    </div>
+</ng-container>

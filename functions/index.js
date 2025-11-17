@@ -564,131 +564,104 @@ app.post('/createProject', async (req, res) => {
     }
 });
 
-app.post('/fill-lhdn-form', async (req, res) => {
-    const { data } = req.body;
-    if (!data) {
-        return res.status(400).send('Form data is missing.');
+app.post('/fill-lhdn-form-headless', async (req, res) => {
+    const { data, cookies } = req.body;
+
+    if (!data || !cookies) {
+        return res.status(400).json({ message: 'Form data or session cookies are missing.' });
     }
 
-    console.log('Received request to fill LHDN form.');
-    openWebBrowser(data).catch(err => {
-        // We add a .catch here to handle any unexpected synchronous errors
-        // during the initial setup of runAutomation, though it's unlikely.
-        console.error("Error initializing automation task:", err);
-    });
-    res.status(202).send({ message: 'Automation process has been successfully started. Please check for a new browser window.' });
+    console.log('Received request for headless LHDN form filling.');
 
+    try {
+        // Await the result to catch any errors here
+        await fillFormHeadlessly(data, cookies);
+        
+        // If it succeeds, send the success message
+        res.status(200).json({ message: 'Automation process has been completed successfully.' });
+
+    } catch (err) {
+        console.error("Critical error during headless automation task:", err.message);
+        
+        // Send a specific JSON error response back to the bookmarklet
+        res.status(500).json({ message: `Automation failed: ${err.message}` });
+    }
 });
 
 
-async function openWebBrowser(data) {
-
-    let browser; // Define browser variable in a higher scope for the catch block
-
+async function fillFormHeadlessly(data, cookies) {
+    let browser;
     try {
-        const CHROME_EXECUTABLE_PATH = '/usr/bin/chromium-browser';
-
-        const browser = await puppeteer.launch({
-            // Set to false to run non-headless
-            headless: false,
-            // executablePath: CHROME_EXECUTABLE_PATH,
-            defaultViewport: null,
+        console.log('Launching headless browser...');
+        browser = await puppeteer.launch({
+            headless: true, // This is the key change to run in the background
+            // Your existing args are good for server environments
             args: [
-                '--start-maximized',
-                '--disable-setuid-sandbox',
                 '--no-sandbox',
-                // Crucial arguments for Xvfb and non-headless mode
+                '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
-                '--window-size=1920,1080' // Set a fixed window size
+                '--window-size=1920,1080'
             ]
         });
 
         const page = await browser.newPage();
-        await page.setViewport({ width: 1520, height: 880 }); // Set a consistent viewport size
+        await page.setViewport({ width: 1920, height: 1080 });
 
-        // 1. Go to the login page
-        console.log('Navigating to MyTax login page...');
-        const loginUrl = 'https://mytax.hasil.gov.my/';
-        await page.goto(loginUrl, { waitUntil: 'networkidle0' });
+        // 1. Set the session cookies BEFORE navigating to the page
+         console.log('Received cookies from client. Transforming for Puppeteer...');
+        console.log(cookies);
+        const puppeteerCookies = cookies.map(cookie => {
+            const puppeteerCookie = {
+                name: cookie.name,
+                value: cookie.value,
+                domain: cookie.domain,
+                path: cookie.path,
+                secure: cookie.secure,
+                httpOnly: cookie.httpOnly,
+            };
 
-        console.log('>>> ACTION REQUIRED: Please log in and navigate through the portal until the new TAEF tab/window opens.');
+            // ** THE CRITICAL PART **
+            // Rename 'expirationDate' to 'expires' if it exists.
+            if (cookie.expirationDate) {
+                puppeteerCookie.expires = cookie.expirationDate;
+            }
 
-        // 2. Create a promise that resolves when the new tab is created and identified.
-        const newPagePromise = new Promise((resolve) => {
-            browser.on('targetcreated', async (target) => {
-                // Check if a new page/tab has been created
-                if (target.type() === 'page') {
-                    const newPage = await target.page();
-                    // Check if the URL of the new page is the one we are looking for
-                    if (newPage && newPage.url().includes('taef.hasil.gov.my')) {
-                        console.log('New TAEF tab detected!');
-                        resolve(newPage); // Resolve the promise with the new page object
-                    }
+            // Handle the 'sameSite' property mapping
+            if (cookie.sameSite) {
+                if (cookie.sameSite === 'no_restriction') {
+                    puppeteerCookie.sameSite = 'None';
+                } else if (cookie.sameSite === 'lax') {
+                    puppeteerCookie.sameSite = 'Lax';
+                } else if (cookie.sameSite === 'strict') {
+                    puppeteerCookie.sameSite = 'Strict';
                 }
-            });
+            }
+            
+            return puppeteerCookie;
         });
+        
+        // Now, use the correctly formatted array of cookies
+        await page.setCookie(...puppeteerCookies);
+        console.log('Session cookies have been successfully set.');
 
-        // 3. Wait for the user's actions to trigger the new tab opening.
-        //    The script will pause here until the promise from step 2 is resolved.
-        const taefPage = await newPagePromise;
-        await taefPage.bringToFront(); // Bring the new tab into focus
-        await taefPage.setViewport({ width: 1520, height: 880 }); // Set viewport for the new page
+        // 2. Directly navigate to the final form-filling page (MakAsas)
+        //    Construct the URL. This might require some investigation.
+        //    It's often a stable URL with a query parameter for the year or form type.
+        const formUrl = 'https://ef.hasil.gov.my/eLE1/MakAsas'; // This is an example, you must find the exact URL
+        console.log(`Navigating directly to the form page: ${formUrl}`);
+        await page.goto(formUrl, { waitUntil: 'networkidle0' });
 
-        // 4. Now that we have the correct page, wait for the dashboard to be visible on IT.
-        console.log('Waiting for the TAEF dashboard to load...');
-        const postLoginSelector = '#carouselDashboard';
-        await taefPage.waitForSelector(postLoginSelector, { timeout: 180000 }); // 3 minute timeout
-
-        // --- END OF NEW TAB LOGIC ---
-
-        console.log('TAEF Dashboard loaded. Navigating to e-Borang selection page...');
-
-        // 5. Navigate to the e-Borang page within the new tab.
-        const eBorangUrl = 'https://taef.hasil.gov.my/e-borang';
-        await taefPage.goto(eBorangUrl, { waitUntil: 'networkidle0' });
-
-        console.log('On e-Borang page. Performing search for the company...');
-
-        // 6. Select "No. Pendaftaran" from the dropdown.
-        const searchTypeDropdownSelector = 'select[aria-label="Search type"]';
-        await taefPage.waitForSelector(searchTypeDropdownSelector);
-        await taefPage.select(searchTypeDropdownSelector, '5');
-
-        // 7. Input the Company Registration Number.
-        const regNoInputSelector = 'input.form-control';
-        await taefPage.waitForSelector(regNoInputSelector);
-        await taefPage.type(regNoInputSelector, data.Company_Registration_No);
-
-        // 8. Click the "Hantar" button and wait for the form page to load.
-        const hantarButtonSelector = 'button.submit-button';
-        await taefPage.waitForSelector(hantarButtonSelector);
-
-        await Promise.all([
-            taefPage.click(hantarButtonSelector),
-            // taefPage.waitForNavigation({ waitUntil: 'networkidle0' })
-        ]);
-
-        console.log('Search complete. Now on the main LE1 data entry form.');
-
-        console.log('>>> ACTION 2: Please click the necessary buttons on the current page to open the final LE1 form.');
-
-        const formPagePromise = new Promise((resolve) => {
-            browser.on('targetcreated', async (target) => {
-                if (target.type() === 'page') {
-                    const finalPage = await target.page();
-                    // We specifically look for the MakAsas (Basic Info) page to start filling
-                    if (finalPage && finalPage.url().includes('ef.hasil.gov.my/eLE1/MakAsas')) {
-                        console.log('Final LE1 form page (MakAsas) detected!');
-                        resolve(finalPage);
-                    }
-                }
-            });
-        });
-
-        const formPage = await formPagePromise;
-        await formPage.bringToFront();
-        await formPage.setViewport({ width: 1520, height: 880 });
-
+        // 3. Verify that the page loaded correctly by checking for a known element
+        const formIdentifierSelector = '#MainContent_ddlPenyata';
+        try {
+            await page.waitForSelector(formIdentifierSelector, { timeout: 30000 });
+            console.log('Successfully loaded the LE1 form page (MakAsas).');
+        } catch (e) {
+            console.error('Failed to load the form page. Cookies might be invalid or expired.');
+            // Save a screenshot for debugging purposes
+            await page.screenshot({ path: 'error_page_load.png' });
+            throw new Error('Could not verify that the form page was loaded.');
+        }
         console.log('Starting to fill the LE1 form...');
 
         // --- DATA FILLING EXAMPLE ---
