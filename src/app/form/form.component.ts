@@ -25,6 +25,10 @@ import { AutoResizeDirective } from '../auto-resize.directive';
 })
 export class FormComponent implements OnInit {
   le1Form: FormGroup;
+  b1AccordionState: boolean[] = [true, false, false, false, false]; // Open the first activity by default
+  officerAccordionState: boolean[] = [true, false, false, false, false];
+  shareholderAccordionState: boolean[] = [true, false, false, false, false];
+  ownerAccordionState: boolean[] = [true, false, false, false, false];
   isInstructionModalVisible = false; // Controls the visibility of our new modal
   jsonDataForExtension = '';         // Will hold the pretty-formatted JSON for the user to copy
   copyButtonText = 'Copy JSON';
@@ -359,7 +363,7 @@ export class FormComponent implements OnInit {
       // Incorp_date_day: [''],
       // Incorp_date_month: [''],
       // Incorp_date_year: [''],
-      // Telephone_no: [''],
+      Telephone_no: [''],
       Email: [''],
       Change_of_Accounting_Period_No: [''],
       Types_of_exchange_of_accounting_periods: [''],
@@ -456,12 +460,14 @@ export class FormComponent implements OnInit {
       B6_Tax_Payable: [''],
 
       // Part C: Entity Details
+      C1_Registered_Address_line1: [''],
+      C1_Registered_Address_line2: [''],
       C1_Correspondence_Address_line1: [''],
       C1_Correspondence_Address_line2: [''],
       C1_Postcode: [''],
       C1_City: [''],
       C1_State: [''],
-      C1_Country: [''],
+      // C1_Country: [''],
       C2_Address_Is_Tax_Agent_or_Trust_Co: [''],
       C6a_Has_Related_Company: [''],
       C6b_Number_of_Related_Companies_Qualifying_Activity: [''],
@@ -479,19 +485,33 @@ export class FormComponent implements OnInit {
       C12_Row3_Amount_Claimed: [''],
       // Part D: CbC Reporting
       D1_Subject_to_CbCR: [''],
+      D1_Subject_as: [''],
       D2_Reporting_Entity_Status: [''],
       D3_Has_Financial_Account_Outside_Malaysia: [''],
       D4_Subject_to_AEOI: [''],
 
+      Auditor_Name: [''],
+      Auditor_Country: [''],
+      Auditor_Address_line1: [''],
+      Auditor_Address_line2: [''],
+
+      Auditor_Postcode: [''],
+      Auditor_City: [''],
+      Auditor_Email: [''],
+      Auditor_Telephone_no: [''],
+      Auditor_TIN: [''],
+
 
       // Part E: Reporting Entity
       E1_MNE_Group_Name: [''],
-      E2_Accounting_Period_From_Day: [''],
-      E2_Accounting_Period_From_Month: [''],
-      E2_Accounting_Period_From_Year: [''],
-      E2_Accounting_Period_To_Day: [''],
-      E2_Accounting_Period_To_Month: [''],
-      E2_Accounting_Period_To_Year: [''],
+      // E2_Accounting_Period_From_Day: [''],
+      // E2_Accounting_Period_From_Month: [''],
+      // E2_Accounting_Period_From_Year: [''],
+      E2_Accounting_Period_From: [''],
+      // E2_Accounting_Period_To_Day: [''],
+      // E2_Accounting_Period_To_Month: [''],
+      // E2_Accounting_Period_To_Year: [''],
+      E2_Accounting_Period_To: [''],
       E3_Constituent_Entities_in_Malaysia: [''],
       E4_Constituent_Entities_outside_Malaysia: [''],
 
@@ -499,12 +519,14 @@ export class FormComponent implements OnInit {
       F1_Reporting_Entity_Name: [''],
       F2_TIN: [''],
       F3_Country_of_Residence: [''],
-      F4_Accounting_Period_From_Day: [''],
-      F4_Accounting_Period_From_Month: [''],
-      F4_Accounting_Period_From_Year: [''],
-      F4_Accounting_Period_To_Day: [''],
-      F4_Accounting_Period_To_Month: [''],
-      F4_Accounting_Period_To_Year: [''],
+      // F4_Accounting_Period_From_Day: [''],
+      // F4_Accounting_Period_From_Month: [''],
+      // F4_Accounting_Period_From_Year: [''],
+      F4_Accounting_Period_From: [''],
+      // F4_Accounting_Period_To_Day: [''],
+      // F4_Accounting_Period_To_Month: [''],
+      // F4_Accounting_Period_To_Year: [''],
+      F4_Accounting_Period_To: [''],
       F5_MNE_Group_Name: [''],
       F6_Status_of_Reporting_Entity: [''],
       F7a_Ultimate_Holding_Entity_Name: [''],
@@ -525,7 +547,10 @@ export class FormComponent implements OnInit {
       Compliance_Officers_0_Claim_PUA_419_2011: [''],
       Compliance_Officers_0_Designation: [''],
       Compliance_Officers_0_Country: [''],
-      Compliance_Officers_0_Address: [''],
+      Compliance_Officers_0_Address1: [''],
+      Compliance_Officers_0_Address2: [''],
+      Compliance_Officers_0_Postcode: [''],
+      Compliance_Officers_0_Town: [''],
       Compliance_Officers_0_ID_type: [''],
       Compliance_Officers_0_ID_Passport_No: [''],
       Compliance_Officers_0_Date_of_Birth: [''],
@@ -540,7 +565,10 @@ export class FormComponent implements OnInit {
       Compliance_Officers_1_Claim_PUA_419_2011: [''],
       Compliance_Officers_1_Designation: [''],
       Compliance_Officers_1_Country: [''],
-      Compliance_Officers_1_Address: [''],
+      Compliance_Officers_1_Address1: [''],
+      Compliance_Officers_1_Address2: [''],
+      Compliance_Officers_1_Postcode: [''],
+      Compliance_Officers_1_Town: [''],
       Compliance_Officers_1_ID_type: [''],
       Compliance_Officers_1_ID_Passport_No: [''],
       Compliance_Officers_1_Date_of_Birth: [''],
@@ -555,7 +583,10 @@ export class FormComponent implements OnInit {
       Compliance_Officers_2_Claim_PUA_419_2011: [''],
       Compliance_Officers_2_Designation: [''],
       Compliance_Officers_2_Country: [''],
-      Compliance_Officers_2_Address: [''],
+      Compliance_Officers_2_Address1: [''],
+      Compliance_Officers_2_Address2: [''],
+      Compliance_Officers_2_Postcode: [''],
+      Compliance_Officers_2_Town: [''],
       Compliance_Officers_2_ID_type: [''],
       Compliance_Officers_2_ID_Passport_No: [''],
       Compliance_Officers_2_Date_of_Birth: [''],
@@ -570,7 +601,10 @@ export class FormComponent implements OnInit {
       Compliance_Officers_3_Claim_PUA_419_2011: [''],
       Compliance_Officers_3_Designation: [''],
       Compliance_Officers_3_Country: [''],
-      Compliance_Officers_3_Address: [''],
+      Compliance_Officers_3_Address1: [''],
+      Compliance_Officers_3_Address2: [''],
+      Compliance_Officers_3_Postcode: [''],
+      Compliance_Officers_3_Town: [''],
       Compliance_Officers_3_ID_type: [''],
       Compliance_Officers_3_ID_Passport_No: [''],
       Compliance_Officers_3_Date_of_Birth: [''],
@@ -585,7 +619,10 @@ export class FormComponent implements OnInit {
       Compliance_Officers_4_Claim_PUA_419_2011: [''],
       Compliance_Officers_4_Designation: [''],
       Compliance_Officers_4_Country: [''],
-      Compliance_Officers_4_Address: [''],
+      Compliance_Officers_4_Address1: [''],
+      Compliance_Officers_4_Address2: [''],
+      Compliance_Officers_4_Postcode: [''],
+      Compliance_Officers_4_Town: [''],
       Compliance_Officers_4_ID_type: [''],
       Compliance_Officers_4_ID_Passport_No: [''],
       Compliance_Officers_4_Date_of_Birth: [''],
@@ -601,6 +638,10 @@ export class FormComponent implements OnInit {
       Major_Shareholders_0_Name_of_Shareholder_Partner: [''],
       Major_Shareholders_0_Country: [''],
       Major_Shareholders_0_Address: [''],
+      Major_Shareholders_0_Address1: [''],
+      Major_Shareholders_0_Address2: [''],
+      Major_Shareholders_0_Postcode: [''],
+      Major_Shareholders_0_Town: [''],
       Major_Shareholders_0_ID_Passport_Reg_No: [''],
       Major_Shareholders_0_Date_of_Birth: [''],
       Major_Shareholders_0_Country_of_Origin: [''],
@@ -610,7 +651,10 @@ export class FormComponent implements OnInit {
       // C4 Row 2
       Major_Shareholders_1_Name_of_Shareholder_Partner: [''],
       Major_Shareholders_1_Country: [''],
-      Major_Shareholders_1_Address: [''],
+      Major_Shareholders_1_Address1: [''],
+      Major_Shareholders_1_Address2: [''],
+      Major_Shareholders_1_Postcode: [''],
+      Major_Shareholders_1Town: [''],
       Major_Shareholders_1_ID_Passport_Reg_No: [''],
       Major_Shareholders_1_Date_of_Birth: [''],
       Major_Shareholders_1_Country_of_Origin: [''],
@@ -620,7 +664,10 @@ export class FormComponent implements OnInit {
       // C4 Row 3
       Major_Shareholders_2_Name_of_Shareholder_Partner: [''],
       Major_Shareholders_2_Country: [''],
-      Major_Shareholders_2_Address: [''],
+      Major_Shareholders_2_Address1: [''],
+      Major_Shareholders_2_Address2: [''],
+      Major_Shareholders_2_Postcode: [''],
+      Major_Shareholders_2_Town: [''],
       Major_Shareholders_2_ID_Passport_Reg_No: [''],
       Major_Shareholders_2_Date_of_Birth: [''],
       Major_Shareholders_2_Country_of_Origin: [''],
@@ -630,7 +677,10 @@ export class FormComponent implements OnInit {
       // C4 Row 4
       Major_Shareholders_3_Name_of_Shareholder_Partner: [''],
       Major_Shareholders_3_Country: [''],
-      Major_Shareholders_3_Address: [''],
+      Major_Shareholders_3_Address1: [''],
+      Major_Shareholders_3_Address2: [''],
+      Major_Shareholders_3_Postcode: [''],
+      Major_Shareholders_3_Town: [''],
       Major_Shareholders_3_ID_Passport_Reg_No: [''],
       Major_Shareholders_3_Date_of_Birth: [''],
       Major_Shareholders_3_Country_of_Origin: [''],
@@ -640,7 +690,10 @@ export class FormComponent implements OnInit {
       // C4 Row 5
       Major_Shareholders_4_Name_of_Shareholder_Partner: [''],
       Major_Shareholders_4_Country: [''],
-      Major_Shareholders_4_Address: [''],
+      Major_Shareholders_4_Address1: [''],
+      Major_Shareholders_4_Address2: [''],
+      Major_Shareholders_4_Postcode: [''],
+      Major_Shareholders_4_Town: [''],
       Major_Shareholders_4_ID_Passport_Reg_No: [''],
       Major_Shareholders_4_Date_of_Birth: [''],
       Major_Shareholders_4_Country_of_Origin: [''],
@@ -658,7 +711,10 @@ export class FormComponent implements OnInit {
       Beneficial_Owner_0_Total_Loan_from_Owner: [''],
       Beneficial_Owner_0_Total_Loan_to_Owner: [''],
       Beneficial_Owner_0_Country: [''],
-      Beneficial_Owner_0_Address: [''],
+      Beneficial_Owner_0_Address1: [''],
+      Beneficial_Owner_0_Address2: [''],
+      Beneficial_Owner_0_Postcode: [''],
+      Beneficial_Owner_0_Town: [''],
       Beneficial_Owner_0_ID_Passport_No: [''],
       Beneficial_Owner_0_Date_of_Birth: [''],
       Beneficial_Owner_0_Telephone_No: [''],
@@ -674,7 +730,10 @@ export class FormComponent implements OnInit {
       Beneficial_Owner_1_Total_Loan_from_Owner: [''],
       Beneficial_Owner_1_Total_Loan_to_Owner: [''],
       Beneficial_Owner_1_Country: [''],
-      Beneficial_Owner_1_Address: [''],
+      Beneficial_Owner_1_Address1: [''],
+      Beneficial_Owner_1_Address2: [''],
+      Beneficial_Owner_1_Postcode: [''],
+      Beneficial_Owner_1_Town: [''],
       Beneficial_Owner_1_ID_Passport_No: [''],
       Beneficial_Owner_1_Date_of_Birth: [''],
       Beneficial_Owner_1_Telephone_No: [''],
@@ -688,7 +747,10 @@ export class FormComponent implements OnInit {
       Beneficial_Owner_2_Total_Loan_from_Owner: [''],
       Beneficial_Owner_2_Total_Loan_to_Owner: [''],
       Beneficial_Owner_2_Country: [''],
-      Beneficial_Owner_2_Address: [''],
+      Beneficial_Owner_2_Address1: [''],
+      Beneficial_Owner_2_Address2: [''],
+      Beneficial_Owner_2_Postcode: [''],
+      Beneficial_Owner_2_Town: [''],
       Beneficial_Owner_2_ID_Passport_No: [''],
       Beneficial_Owner_2_Date_of_Birth: [''],
       Beneficial_Owner_2_Telephone_No: [''],
@@ -702,7 +764,10 @@ export class FormComponent implements OnInit {
       Beneficial_Owner_3_Total_Loan_from_Owner: [''],
       Beneficial_Owner_3_Total_Loan_to_Owner: [''],
       Beneficial_Owner_3_Country: [''],
-      Beneficial_Owner_3_Address: [''],
+      Beneficial_Owner_3_Address1: [''],
+      Beneficial_Owner_3_Address2: [''],
+      Beneficial_Owner_3_Postcode: [''],
+      Beneficial_Owner_3_Town: [''],
       Beneficial_Owner_3_ID_Passport_No: [''],
       Beneficial_Owner_3_Date_of_Birth: [''],
       Beneficial_Owner_3_Telephone_No: [''],
@@ -716,7 +781,10 @@ export class FormComponent implements OnInit {
       Beneficial_Owner_4_Total_Loan_from_Owner: [''],
       Beneficial_Owner_4_Total_Loan_to_Owner: [''],
       Beneficial_Owner_4_Country: [''],
-      Beneficial_Owner_4_Address: [''],
+      Beneficial_Owner_4_Address1: [''],
+      Beneficial_Owner_4_Address2: [''],
+      Beneficial_Owner_4_Postcode: [''],
+      Beneficial_Owner_4_Town: [''],
       Beneficial_Owner_4_ID_Passport_No: [''],
       Beneficial_Owner_4_Date_of_Birth: [''],
       Beneficial_Owner_4_Telephone_No: [''],
@@ -867,15 +935,33 @@ export class FormComponent implements OnInit {
       this.checkAllSectionsCompletion();
     });
 
-    // Handle conditional visibility for CbC Reporting sections
     this.le1Form.get('D1_Subject_to_CbCR')?.valueChanges.subscribe(value => {
+      const a = ['D1_Subject_as'];
+      // const p_F = ['F1_Reporting_Entity_Name', 'F2_TIN', 'F3_Country_of_Residence', 'F4_Accounting_Period_From_Day', 'F4_Accounting_Period_From_Month', 'F4_Accounting_Period_From_Year', 'F4_Accounting_Period_To_Day', 'F4_Accounting_Period_To_Month', 'F4_Accounting_Period_To_Year', 'F5_MNE_Group_Name', 'F6_Status_of_Reporting_Entity', 'F7a_Ultimate_Holding_Entity_Name', 'F7b_Country_of_Residence_UHE'];
+
+      if (value === '1') { // "Yes"
+        a.forEach(c => this.le1Form.get(c)?.enable());
+        // p_F.forEach(c => this.le1Form.get(c)?.enable());
+      } else { // "No" or other values
+        this.le1Form.get('D1_Subject_as')?.setValue('');
+        a.forEach(c => this.le1Form.get(c)?.disable());
+        // p_F.forEach(c => this.le1Form.get(c)?.disable());
+      }
+    });
+
+    // Handle conditional visibility for CbC Reporting sections
+    this.le1Form.get('D1_Subject_as')?.valueChanges.subscribe(value => {
       const p_E = ['E1_MNE_Group_Name', 'E2_Accounting_Period_From_Day', 'E2_Accounting_Period_From_Month', 'E2_Accounting_Period_From_Year', 'E2_Accounting_Period_To_Day', 'E2_Accounting_Period_To_Month', 'E2_Accounting_Period_To_Year', 'E3_Constituent_Entities_in_Malaysia', 'E4_Constituent_Entities_outside_Malaysia'];
       const p_F = ['F1_Reporting_Entity_Name', 'F2_TIN', 'F3_Country_of_Residence', 'F4_Accounting_Period_From_Day', 'F4_Accounting_Period_From_Month', 'F4_Accounting_Period_From_Year', 'F4_Accounting_Period_To_Day', 'F4_Accounting_Period_To_Month', 'F4_Accounting_Period_To_Year', 'F5_MNE_Group_Name', 'F6_Status_of_Reporting_Entity', 'F7a_Ultimate_Holding_Entity_Name', 'F7b_Country_of_Residence_UHE'];
 
       if (value === '1') { // "Yes"
         p_E.forEach(c => this.le1Form.get(c)?.enable());
+        // p_F.forEach(c => this.le1Form.get(c)?.enable());
+      } else if (value === '2') { // "No"
+        // p_E.forEach(c => this.le1Form.get(c)?.disable());
         p_F.forEach(c => this.le1Form.get(c)?.enable());
-      } else { // "No" or other values
+      }
+      else { // "No" or other values
         p_E.forEach(c => this.le1Form.get(c)?.disable());
         p_F.forEach(c => this.le1Form.get(c)?.disable());
       }
@@ -887,6 +973,32 @@ export class FormComponent implements OnInit {
 
     this.le1Form.get('Type_of_Labuan_entity')?.valueChanges.subscribe(value => {
       this.updateFpLabuanEntityType(value);
+    });
+
+    const c9FieldsToWatch = [
+      'Pnl_Sales_Turnover', 'Pnl_Opening_Inventory', 'Pnl_Cost_of_Purchases', 'Pnl_Cost_of_Production',
+      'Pnl_Closing_Inventory', 'Pnl_Foreign_Currency_Exchange_Gain', 'Pnl_Other_Business_Income',
+      'Pnl_Other_Income', 'Pnl_Non_Taxable_Profits', 'Pnl_Interest_Expenditure', 'Pnl_Professional_Fees',
+      'Pnl_Technical_Fees_to_Non_Residents', 'Pnl_Contract_Payments', 'Pnl_Management_Fee',
+      'Pnl_Salaries_Wages', 'Pnl_Cost_of_Employee_Share_Options', 'Pnl_Royalties', 'Pnl_Rental_Lease',
+      'Pnl_Maintenance_Repairs', 'Pnl_Research_Development', 'Pnl_Promotion_Advertisement',
+      'Pnl_Travelling_Accommodation', 'Pnl_Foreign_Currency_Exchange_Loss', 'Pnl_Other_Expenditure',
+      'Fp_Motor_Vehicles', 'Fp_Plant_Equipment', 'Fp_Land_Buildings', 'Fp_Other_Non_Current_Assets',
+      'Fp_Investments', 'Fp_Trade_Debtors', 'Fp_Other_Debtors', 'Fp_Inventory',
+      'Fp_Loans_to_Related_Entities', 'Fp_Cash_in_Hand_Bank', 'Fp_Other_Current_Assets',
+      'Fp_Loans_Bank_Overdrafts', 'Fp_Trade_Creditors', 'Fp_Other_Creditors',
+      'Fp_Loans_from_Related_Entities', 'Fp_Other_Current_Liabilities', 'Fp_Non_Current_Liabilities',
+      'Fp_Issued_Paid_Up_Capital', 'Fp_Profit_Loss_Appropriation', 'Fp_Reserve_Account'
+    ];
+
+    // Subscribes to value changes for each specified field to trigger the updateC9 method.
+    c9FieldsToWatch.forEach(fieldName => {
+      const control = this.le1Form.get(fieldName);
+      if (control) {
+        control.valueChanges.subscribe(() => {
+          this.updateC9();
+        });
+      }
     });
   }
 
@@ -902,6 +1014,102 @@ export class FormComponent implements OnInit {
     this.le1Form.get('Fp_Type_of_Labuan_entity')?.setValue(entityTypeLabel, { emitEvent: false });
   }
 
+  updateC9() {
+    const controls = this.le1Form.controls;
+
+    // Helper to safely convert form values to numbers, returning 0 if invalid.
+    const getNumber = (controlName: string) => Number(controls[controlName].value) || 0;
+
+    // P&L Calculations
+    const costOfSales = getNumber('Pnl_Opening_Inventory') + getNumber('Pnl_Cost_of_Purchases') + getNumber('Pnl_Cost_of_Production') - getNumber('Pnl_Closing_Inventory');
+    const grossProfitLoss = getNumber('Pnl_Sales_Turnover') - costOfSales;
+    const totalExpenditure =
+      getNumber('Pnl_Interest_Expenditure') + getNumber('Pnl_Professional_Fees') + getNumber('Pnl_Technical_Fees_to_Non_Residents') +
+      getNumber('Pnl_Contract_Payments') + getNumber('Pnl_Management_Fee') + getNumber('Pnl_Salaries_Wages') +
+      getNumber('Pnl_Cost_of_Employee_Share_Options') + getNumber('Pnl_Royalties') + getNumber('Pnl_Rental_Lease') +
+      getNumber('Pnl_Maintenance_Repairs') + getNumber('Pnl_Research_Development') + getNumber('Pnl_Promotion_Advertisement') +
+      getNumber('Pnl_Travelling_Accommodation') + getNumber('Pnl_Foreign_Currency_Exchange_Loss') + getNumber('Pnl_Other_Expenditure');
+    const netProfitLoss =
+      grossProfitLoss + getNumber('Pnl_Foreign_Currency_Exchange_Gain') + getNumber('Pnl_Other_Business_Income') +
+      getNumber('Pnl_Other_Income') - getNumber('Pnl_Non_Taxable_Profits') - totalExpenditure;
+
+    // Assets Calculations
+    const totalNonCurrentAssets =
+      getNumber('Fp_Motor_Vehicles') + getNumber('Fp_Plant_Equipment') + getNumber('Fp_Land_Buildings') +
+      getNumber('Fp_Other_Non_Current_Assets') + getNumber('Fp_Investments');
+    const totalCurrentAssets =
+      getNumber('Fp_Trade_Debtors') + getNumber('Fp_Other_Debtors') + getNumber('Fp_Inventory') +
+      getNumber('Fp_Loans_to_Related_Entities') + getNumber('Fp_Cash_in_Hand_Bank') + getNumber('Fp_Other_Current_Assets');
+    const totalAssets = totalNonCurrentAssets + totalCurrentAssets;
+
+    // Liabilities & Equity Calculations
+    const totalCurrentLiabilities =
+      getNumber('Fp_Loans_Bank_Overdrafts') + getNumber('Fp_Trade_Creditors') + getNumber('Fp_Other_Creditors') +
+      getNumber('Fp_Loans_from_Related_Entities') + getNumber('Fp_Other_Current_Liabilities');
+    const totalLiabilities = totalCurrentLiabilities + getNumber('Fp_Non_Current_Liabilities');
+    const totalEquity =
+      getNumber('Fp_Issued_Paid_Up_Capital') + getNumber('Fp_Profit_Loss_Appropriation') + getNumber('Fp_Reserve_Account');
+    const totalLiabilitiesAndEquity = totalLiabilities + totalEquity;
+
+    // Updates the form with calculated values. { emitEvent: false } prevents an infinite loop of updates.
+    this.le1Form.patchValue({
+      Pnl_Cost_of_Sales: costOfSales,
+      Pnl_Gross_Profit_Loss: grossProfitLoss,
+      Pnl_Total_Expenditure: totalExpenditure,
+      Pnl_Net_Profit_Loss: netProfitLoss,
+      Fp_Total_Non_Current_Assets: totalNonCurrentAssets,
+      Fp_Total_Current_Assets: totalCurrentAssets,
+      Fp_Total_Assets: totalAssets,
+      Fp_Total_Current_Liabilities: totalCurrentLiabilities,
+      Fp_Total_Liabilities: totalLiabilities,
+      Fp_Total_Equity: totalEquity,
+      Fp_Total_Liabilities_and_Equity: totalLiabilitiesAndEquity
+    }, { emitEvent: false });
+  }
+
+  private getFormattedData(): any {
+    const rawData = this.le1Form.getRawValue(); // Get all values, including disabled ones
+
+    const formatValue = (value: any) => {
+      // Check if it's a valid yyyy-mm-dd string
+      if (value && typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        const [year, month, day] = value.split('-');
+        return `${day}/${month}/${year}`;
+      }
+      return value; // Return original value if not a date string or in wrong format
+    };
+
+    // List of top-level date fields
+    const dateFields = [
+      'Accounting_Period_From', 'Accounting_Period_To', 'Basis_Period_From', 'Basis_Period_To', 'Declaration_Date',
+      'E2_Accounting_Period_From', 'E2_Accounting_Period_To', 'F4_Accounting_Period_From', 'F4_Accounting_Period_To'
+    ];
+
+    // Format all top-level date fields
+    dateFields.forEach(fieldName => {
+      if (rawData.hasOwnProperty(fieldName)) {
+        rawData[fieldName] = formatValue(rawData[fieldName]);
+      }
+    });
+
+    // List of date fields within tables
+    const tableDateFields = [
+      { prefix: 'Compliance_Officers', suffix: 'Date_of_Birth', count: 5 },
+      { prefix: 'Major_Shareholders', suffix: 'Date_of_Birth', count: 5 },
+      { prefix: 'Beneficial_Owner', suffix: 'Date_of_Birth', count: 5 }
+    ];
+
+    // Format all date fields in tables
+    tableDateFields.forEach(table => {
+      for (let i = 0; i < table.count; i++) {
+        const fieldName = `${table.prefix}_${i}_${table.suffix}`;
+        if (rawData.hasOwnProperty(fieldName)) {
+          rawData[fieldName] = formatValue(rawData[fieldName]);
+        }
+      }
+    });
+    return rawData;
+  }
   /**
    * Checks if a single field has a value.
    */
@@ -1245,8 +1453,9 @@ export class FormComponent implements OnInit {
 
     // 2. Prepare the JSON data for the extension.
     // Using getRawValue() to include all fields, and formatting it with an indent of 2 spaces.
-    const formData = this.le1Form.getRawValue();
-    this.jsonDataForExtension = JSON.stringify(formData, null, 2);
+    // const formData = this.le1Form.getRawValue();
+    // this.jsonDataForExtension = JSON.stringify(formData, null, 2);
+    this.jsonDataForExtension = JSON.stringify(this.getFormattedData(), null, 2);
 
     // 3. Show the instruction modal.
     this.isInstructionModalVisible = true;

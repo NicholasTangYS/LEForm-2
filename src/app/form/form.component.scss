@@ -341,6 +341,124 @@ background-color: #27ae60; /* Darker green */
     field-sizing: content;
 }
 
+.table-wrapper {
+    overflow-x: hidden; // Hide horizontal scroll since the new layout is responsive
+}
+
+.officer-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 1rem; // This creates the space between rows, making them look like cards
+
+    // Style the header
+    thead th {
+        text-align: left;
+        padding: 0 1rem 0.5rem 1rem;
+        border-bottom: 2px solid #e0e0e0;
+        color: #007bff;
+        font-size: 1em;
+    }
+
+    // Each row is a card
+    tbody tr {
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        
+        td {
+            padding: 1rem;
+            vertical-align: top;
+            border: none; // Remove default cell borders
+        }
+    }
+}
+
+.officer-table select {
+    line-height: 1;
+}
+
+// A group for a label and its input
+.field-group {
+    margin-bottom: 1rem;
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+// A field with multiple inputs (e.g., ID type + number)
+.compound-field {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+
+    .id-type {
+        flex: 1;
+        min-width: 100px;
+        line-height: 2;
+    }
+    .id-number {
+        flex: 2;
+    }
+}
+
+// For stacking address fields neatly
+.address-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.accordion-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; // Space between each officer's section
+}
+
+.accordion-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+
+    &.open {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        border-color: #007bff;
+    }
+}
+
+.accordion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+}
+
+.accordion-title {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #333;
+}
+
+.accordion-icon {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.accordion-body {
+    padding: 0 1.5rem 1.5rem 1.5rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); // Responsive columns
+    gap: 1.5rem;
+}
+
 
 /* --- Loading Indicator (Unchanged) --- */
 .loading-overlay {
