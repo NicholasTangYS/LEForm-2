@@ -6,37 +6,88 @@
 <div [hidden]="isLoading" class="page-layout-container">
 
     <!-- <button class="sidebar-toggle" (click)="toggleSidebar()">☰</button> -->
+    <!-- Find the <nav class="sidebar"> section -->
     <nav class="sidebar" [class.sidebar-opened]="sidebarOpen">
         <div>
             <h2>LE1 Form Sections</h2>
             <ul>
-                <li><a [routerLink]="['/form']" fragment="part-a"
-                        [ngClass]="{'incomplete': !sectionStatus['part-a'], 'complete': sectionStatus['part-a']}">Part
-                        A: Basic Particulars</a></li>
-                <li><a [routerLink]="['/form']" fragment="part-b"
-                        [ngClass]="{'incomplete': !sectionStatus['part-b'], 'complete': sectionStatus['part-b']}">Part
-                        B: Tax Computation</a></li>
-                <!-- Add ngClass bindings for all other sections as logic is implemented -->
-                <li><a [routerLink]="['/form']" fragment="part-c">Part C: Entity Details</a></li>
-                <li><a [routerLink]="['/form']" fragment="part-d">Part D: CbC Reporting</a></li>
-                <li><a [routerLink]="['/form']" fragment="auditor">Particular of Auditor</a></li>
-                <li><a [routerLink]="['/form']" fragment="declaration">Declaration</a></li>
-                <li><a [routerLink]="['/form']" fragment="attachment-c3"
-                        [ngClass]="{'incomplete': !sectionStatus['attachment-c3'], 'complete': sectionStatus['attachment-c3']}">Att.
-                        C3: Compliance Officers</a></li>
-                <li><a [routerLink]="['/form']" fragment="attachment-c4">Att. C4: Major Shareholders</a></li>
-                <li><a [routerLink]="['/form']" fragment="attachment-c5">Att. C5: Beneficial Owners</a></li>
-                <li><a [routerLink]="['/form']" fragment="attachment-c9">Att. C9: Financial Particulars</a></li>
-                <li><a [routerLink]="['/form']" fragment="attachment-c10" *ngIf="le1Form.get('C10_Has_Subsidiary_Outside_Labuan')?.value === '1'">Att. C10: Subsidiaries</a></li>
-                <li><a [routerLink]="['/form']" fragment="attachment-c11" *ngIf="le1Form.get('C11_Received_Payments_from_Malaysian_Resident')?.value === '1'">Att. C11: Payments Received</a></li>
+                <li>
+                    <a [routerLink]="['/form']" fragment="part-a"
+                        [ngClass]="{'incomplete': !sectionStatus['part-a'], 'complete': sectionStatus['part-a']}">
+                        Part A: Basic Particulars
+                    </a>
+                </li>
+                <li>
+                    <a [routerLink]="['/form']" fragment="part-b"
+                        [ngClass]="{'incomplete': !sectionStatus['part-b'], 'complete': sectionStatus['part-b']}">
+                        Part B: Tax Computation
+                    </a>
+                </li>
+                <li>
+                    <a [routerLink]="['/form']" fragment="part-c"
+                        [ngClass]="{'incomplete': !sectionStatus['part-c'], 'complete': sectionStatus['part-c']}">
+                        Part C: Entity Details
+                    </a>
+                </li>
+                <li>
+                    <a [routerLink]="['/form']" fragment="part-d"
+                        [ngClass]="{'incomplete': !sectionStatus['part-d'], 'complete': sectionStatus['part-d']}">
+                        Part D: CbC Reporting
+                    </a>
+                </li>
+                <li>
+                    <a [routerLink]="['/form']" fragment="auditor"
+                        [ngClass]="{'incomplete': !sectionStatus['auditor'], 'complete': sectionStatus['auditor']}">
+                        Particular of Auditor
+                    </a>
+                </li>
+                <li>
+                    <a [routerLink]="['/form']" fragment="declaration"
+                        [ngClass]="{'incomplete': !sectionStatus['declaration'], 'complete': sectionStatus['declaration']}">
+                        Declaration
+                    </a>
+                </li>
+                <li>
+                    <a [routerLink]="['/form']" fragment="attachment-c3"
+                        [ngClass]="{'incomplete': !sectionStatus['attachment-c3'], 'complete': sectionStatus['attachment-c3']}">
+                        Att. C3: Compliance Officers
+                    </a>
+                </li>
+                <li>
+                    <a [routerLink]="['/form']" fragment="attachment-c4"
+                        [ngClass]="{'incomplete': !sectionStatus['attachment-c4'], 'complete': sectionStatus['attachment-c4']}">
+                        Att. C4: Major Shareholders
+                    </a>
+                </li>
+                <li>
+                    <a [routerLink]="['/form']" fragment="attachment-c5"
+                        [ngClass]="{'incomplete': !sectionStatus['attachment-c5'], 'complete': sectionStatus['attachment-c5']}">
+                        Att. C5: Beneficial Owners
+                    </a>
+                </li>
+                <li>
+                    <a [routerLink]="['/form']" fragment="attachment-c9"
+                        [ngClass]="{'incomplete': !sectionStatus['attachment-c9'], 'complete': sectionStatus['attachment-c9']}">
+                        Att. C9: Financial Particulars
+                    </a>
+                </li>
+                <!-- Conditional Links -->
+                <li>
+                    <a [routerLink]="['/form']" fragment="attachment-c10"
+                        *ngIf="le1Form.get('C10_Has_Subsidiary_Outside_Labuan')?.value === '1'"
+                        [ngClass]="{'incomplete': !sectionStatus['attachment-c10'], 'complete': sectionStatus['attachment-c10']}">
+                        Att. C10: Subsidiaries
+                    </a>
+                </li>
+                <li>
+                    <a [routerLink]="['/form']" fragment="attachment-c11"
+                        *ngIf="le1Form.get('C11_Received_Payments_from_Malaysian_Resident')?.value === '1'"
+                        [ngClass]="{'incomplete': !sectionStatus['attachment-c11'], 'complete': sectionStatus['attachment-c11']}">
+                        Att. C11: Payments Received
+                    </a>
+                </li>
             </ul>
         </div>
-        <!-- <span style="text-align: center; padding: 5px;">Sections <svg xmlns="http://www.w3.org/2000/svg" height="14"
-                width="14"
-                viewBox="0 0 640 640">
-                <path fill="#ffffff"
-                    d="M297.4 470.6C309.9 483.1 330.2 483.1 342.7 470.6L534.7 278.6C547.2 266.1 547.2 245.8 534.7 233.3C522.2 220.8 501.9 220.8 489.4 233.3L320 402.7L150.6 233.4C138.1 220.9 117.8 220.9 105.3 233.4C92.8 245.9 92.8 266.2 105.3 278.7L297.3 470.7z" />
-            </svg></span> -->
         <div class="sidebar-footer">
             <span class="legend-item"><span class="dot complete"></span> Complete</span>
             <span class="legend-item"><span class="dot incomplete"></span> Incomplete</span>
@@ -49,12 +100,12 @@
                 <h2>Borang LE1 - Data Entry</h2>
             </div>
 
-            <div style="display: flex; gap: 10px; max-width: 73vw; align-items: center;">
+            <!-- <div style="display: flex; gap: 10px; max-width: 73vw; align-items: center;">
                 <button (click)="saveProject()" [disabled]="isLoading">Save</button>
-                <!-- <button type="submit" (click)="generatePdf()">Generate PDF</button> -->
+               
                 <button type="submit" (click)="submit()">Submit</button>
 
-            </div>
+            </div> -->
 
         </div>
 
@@ -117,7 +168,7 @@
 
                     <label for="Incorp_date_day">Incorporation Date (DD/MM/YYYY):</label>
                     <div style="display: flex; gap: 5px; align-items: center;border-radius: 5px;
-    border: 1px solid #ccc; padding:5px; margin-bottom: 10px;">
+        border: 1px solid #ccc; padding:5px; margin-bottom: 10px;">
                         <input style="width:4rem" type="number" id="Incorp_date_day" formControlName="Incorp_date_day"
                             size="2"> /
                         <input style="width:4rem" type="number" id="Incorp_date_month"
@@ -137,60 +188,41 @@
                     <input type="number" min="0" id="Telephone_no" formControlName="Telephone_no">
                     <label for="Company_Registration_No">Registration No:</label>
                     <input type="text" id="Company_Registration_No" formControlName="Company_Registration_No">
+                    <!-- Replace lines around Change_of_Accounting_Period_No -->
                     <label for="Change_of_Accounting_Period_No">Change of Accounting Period:</label>
-                    <div style="display: flex;
-                border: 1px solid #ccc;gap: 3px;
-                border-radius: 5px;
-                margin-bottom: 10px;
-                padding: 5px;">
+                    <div class="btn-group mb-3" role="group">
+                        <input type="radio" class="btn-check" name="Change_of_Accounting_Period_No"
+                            id="Change_of_Accounting_Period_No_Yes" value="1"
+                            formControlName="Change_of_Accounting_Period_No">
+                        <label class="btn btn-outline-primary" for="Change_of_Accounting_Period_No_Yes">Yes</label>
 
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="Change_of_Accounting_Period_No"
-                                id="Change_of_Accounting_Period_No_Yes" value="1"
-                                formControlName="Change_of_Accounting_Period_No">
-                            <label class="form-check-label" for="Change_of_Accounting_Period_No_Yes">
-                                Yes
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="Change_of_Accounting_Period_No"
-                                id="Change_of_Accounting_Period_No_No" value="2"
-                                formControlName="Change_of_Accounting_Period_No">
-                            <label class="form-check-label" for="Change_of_Accounting_Period_No_No">
-                                No
-                            </label>
-                        </div>
-
+                        <input type="radio" class="btn-check" name="Change_of_Accounting_Period_No"
+                            id="Change_of_Accounting_Period_No_No" value="2"
+                            formControlName="Change_of_Accounting_Period_No">
+                        <label class="btn btn-outline-primary" for="Change_of_Accounting_Period_No_No">No</label>
                     </div>
 
                     <label for="Types_of_exchange_of_accounting_periods">Types of exchange of accounting
                         periods:</label>
-                    <div style="display: flex;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                margin-bottom: 10px;
-                padding: 5px;">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" id="Types_of_exchange_of_accounting_periods_1"
-                                formControlName="Types_of_exchange_of_accounting_periods" value="1"
-                                name="Types_of_exchange_of_accounting_periods">
-                            <label class="form-check-label" for="Types_of_exchange_of_accounting_periods_1">Shortened
-                                period</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" id="Types_of_exchange_of_accounting_periods_2"
-                                formControlName="Types_of_exchange_of_accounting_periods" value="2"
-                                name="Types_of_exchange_of_accounting_periods">
-                            <label class="form-check-label" for="Types_of_exchange_of_accounting_periods_2">Extended
-                                period</label>
-                        </div>
+                    <div class="btn-group mb-3" role="group">
+                        <input type="radio" class="btn-check" id="Types_of_exchange_of_accounting_periods_1"
+                            formControlName="Types_of_exchange_of_accounting_periods" value="1"
+                            name="Types_of_exchange_of_accounting_periods">
+                        <label class="btn btn-outline-primary" for="Types_of_exchange_of_accounting_periods_1">Shortened
+                            period</label>
+
+                        <input type="radio" class="btn-check" id="Types_of_exchange_of_accounting_periods_2"
+                            formControlName="Types_of_exchange_of_accounting_periods" value="2"
+                            name="Types_of_exchange_of_accounting_periods">
+                        <label class="btn btn-outline-primary" for="Types_of_exchange_of_accounting_periods_2">Extended
+                            period</label>
                     </div>
 
                     <label>Accounting Period:</label>
                     <div style="display: flex; gap: 5px; align-items: center;border-radius: 5px;
     border: 1px solid #ccc; padding:5px; justify-content: space-between;
     margin-bottom: 10px;">
-                        <label for="Accounting_Period_From_Day">From (DD/MM/YYYY):</label>
+                        <label for="Accounting_Period_From">From (DD/MM/YYYY):</label>
                         <input type="date" id="Accounting_Period_From" formControlName="Accounting_Period_From"
                             size="10">
                         <!-- <input style="width:4rem" type="number" id="Accounting_Period_From_Day"
@@ -215,7 +247,7 @@
                     <div style="display: flex; gap: 5px; align-items: center;border-radius: 5px;
     border: 1px solid #ccc; padding:5px;justify-content: space-between;
     margin-bottom: 10px;">
-                        <label for="Basis_Period_From_Day">From (DD/MM/YYYY):</label>
+                        <label for="Basis_Period_From">From (DD/MM/YYYY):</label>
                         <input type="date" id="Basis_Period_From" formControlName="Basis_Period_From" size="10">
                         <!-- <input style="width:4rem" type="number" id="Basis_Period_From_Day"
                             formControlName="Basis_Period_From_Day" size="2">
@@ -224,7 +256,7 @@
                             formControlName="Basis_Period_From_Month" size="2"> /
                         <input style="width:5rem" type="number" id="Basis_Period_From_Year"
                             formControlName="Basis_Period_From_Year" size="4"> -->
-                        <label for="Basis_Period_To_Day">To (DD/MM/YYYY):</label>
+                        <label for="Basis_Period_To">To (DD/MM/YYYY):</label>
                         <input type="date" id="Basis_Period_To" formControlName="Basis_Period_To" size="10">
                         <!-- <input style="width:4rem" type="number" id="Basis_Period_To_Day"
                             formControlName="Basis_Period_To_Day" size="2">
@@ -237,21 +269,14 @@
                     </div>
 
                     <label for="FS_in_Foreign_Currency_Yes">FS in Foreign Currency:</label>
-                    <div style="display: flex;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                margin-bottom: 10px;
-                padding: 5px;">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" id="FS_in_Foreign_Currency_Yes"
-                                formControlName="FS_in_Foreign_Currency_Yes" value="1" name="FS_in_Foreign_Currency">
-                            <label class="form-check-label" for="FS_in_Foreign_Currency_Yes">Yes</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" id="FS_in_Foreign_Currency_No"
-                                formControlName="FS_in_Foreign_Currency_Yes" value="2" name="FS_in_Foreign_Currency">
-                            <label class="form-check-label" for="FS_in_Foreign_Currency_No">No</label>
-                        </div>
+                    <div class="btn-group mb-3" role="group">
+                        <input type="radio" class="btn-check" id="FS_in_Foreign_Currency_Yes"
+                            formControlName="FS_in_Foreign_Currency_Yes" value="1" name="FS_in_Foreign_Currency">
+                        <label class="btn btn-outline-primary" for="FS_in_Foreign_Currency_Yes">Yes</label>
+
+                        <input type="radio" class="btn-check" id="FS_in_Foreign_Currency_No"
+                            formControlName="FS_in_Foreign_Currency_Yes" value="2" name="FS_in_Foreign_Currency">
+                        <label class="btn btn-outline-primary" for="FS_in_Foreign_Currency_No">No</label>
                     </div>
 
                     <label for="Currency_Reported">Currency Reported:</label>
@@ -261,45 +286,29 @@
                     <input type="number" min="0" id="Currency_Exchange_Rate" formControlName="Currency_Exchange_Rate">
 
                     <label for="Record_keeping">Record keeping:</label>
-                    <div style="display: flex;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                margin-bottom: 10px;
-                padding: 5px;">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" id="Record_keeping_Yes"
-                                formControlName="Record_keeping" value="1" name="Record_keeping">
-                            <label class="form-check-label" for="Record_keeping_Yes">Yes</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" id="Record_keeping_No"
-                                formControlName="Record_keeping" value="2" name="Record_keeping">
-                            <label class="form-check-label" for="Record_keeping_No">No</label>
-                        </div>
+                    <div class="btn-group mb-3" role="group">
+                        <input type="radio" class="btn-check" id="Record_keeping_Yes" formControlName="Record_keeping"
+                            value="1" name="Record_keeping">
+                        <label class="btn btn-outline-primary" for="Record_keeping_Yes">Yes</label>
+
+                        <input type="radio" class="btn-check" id="Record_keeping_No" formControlName="Record_keeping"
+                            value="2" name="Record_keeping">
+                        <label class="btn btn-outline-primary" for="Record_keeping_No">No</label>
                     </div>
 
                     <label for="Business_Status_In_Operation">Business Status:</label>
-                    <div style="display: flex;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                margin-bottom: 10px;
-                padding: 5px;">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" id="Business_Status_In_Operation"
-                                formControlName="Business_Status_In_Operation" value="1" name="Business_Status">
-                            <label class="form-check-label" for="Business_Status_In_Operation">In Operation</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" id="Business_Status_Dormant"
-                                formControlName="Business_Status_In_Operation" value="2" name="Business_Status">
-                            <label class="form-check-label" for="Business_Status_Dormant">Dormant</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" id="Business_Status_Winding"
-                                formControlName="Business_Status_In_Operation" value="3" name="Business_Status">
-                            <label class="form-check-label" for="Business_Status_winding">In the process of
-                                winding-up</label>
-                        </div>
+                    <div class="btn-group mb-3" role="group">
+                        <input type="radio" class="btn-check" id="Business_Status_In_Operation"
+                            formControlName="Business_Status_In_Operation" value="1" name="Business_Status">
+                        <label class="btn btn-outline-primary" for="Business_Status_In_Operation">In Operation</label>
+
+                        <input type="radio" class="btn-check" id="Business_Status_Dormant"
+                            formControlName="Business_Status_In_Operation" value="2" name="Business_Status">
+                        <label class="btn btn-outline-primary" for="Business_Status_Dormant">Dormant</label>
+
+                        <input type="radio" class="btn-check" id="Business_Status_Winding"
+                            formControlName="Business_Status_In_Operation" value="3" name="Business_Status">
+                        <label class="btn btn-outline-primary" for="Business_Status_Winding">Winding-up</label>
                     </div>
 
                     <label for="Type_of_Labuan_entity">Type of Labuan entity:</label>
@@ -451,140 +460,126 @@
                 <!-- Part B: Tax Computation -->
                 <fieldset id="part-b">
                     <legend>Part B: Tax Computation</legend>
-
                     <h4>B1: Particulars of Labuan Business Activity</h4>
-                    <div class="accordion-container">
-        <div *ngFor="let i of [1, 2, 3, 4, 5]" class="accordion-item" [class.open]="b1AccordionState[i-1]">
-            <!-- Accordion Header -->
-            <div class="accordion-header" (click)="b1AccordionState[i-1] = !b1AccordionState[i-1]">
-                <h5 class="accordion-title">
-                    Business Activity {{ i }}: {{ le1Form.get('B1_Row' + i + '_Business_Activity_Code')?.value || 'Not Selected' }}
-                </h5>
-                <span class="accordion-icon">{{ b1AccordionState[i-1] ? '−' : '+' }}</span>
-            </div>
-            <!-- Accordion Body -->
-            <div *ngIf="b1AccordionState[i-1]" class="accordion-body">
-                <div class="details-grid">
-                    <!-- Column 1: Activity & Status -->
-                    <div class="details-column">
-                        <div class="field-group">
-                            <label [for]="'B1_Row' + i + '_Business_Activity_Code'">Activity Code</label>
-                            <select class="form-select" [id]="'B1_Row' + i + '_Business_Activity_Code'" [formControlName]="'B1_Row' + i + '_Business_Activity_Code'">
-                                <option value="" disabled>-- Select --</option>
-                                <option *ngFor="let activity of businessActivities" [value]="activity.code">{{ activity.code }} {{activity.mark}}</option>
-                            </select>
+
+                    <!-- New FormArray Syntax -->
+                    <div class="accordion-container" formArrayName="b1Rows">
+                        <div *ngFor="let row of b1Rows.controls; let i = index" [formGroupName]="i"
+                            class="accordion-item" [class.open]="accordionStates['b1'][i]">
+
+                            <!-- Accordion Header -->
+                            <div class="accordion-header"
+                                (click)="accordionStates['b1'][i] = !accordionStates['b1'][i]">
+                                <h5 class="accordion-title">
+                                    Business Activity {{ i + 1 }}: {{ row.get('Business_Activity_Code')?.value ||
+                                    'Select Activity' }}
+                                </h5>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                        (click)="$event.stopPropagation(); removeRow('b1', i)">
+                                        Remove
+                                    </button>
+                                    <span class="accordion-icon">{{ accordionStates['b1'][i] ? '−' : '+' }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Accordion Body -->
+                            <div *ngIf="accordionStates['b1'][i]" class="accordion-body">
+                                <div class="details-grid">
+                                    <!-- Col 1 -->
+                                    <div class="details-column">
+                                        <div class="field-group">
+                                            <label [for]="'b1_code_'+i">Activity Code</label>
+                                            <select [id]="'b1_code_'+i" class="form-select"
+                                                formControlName="Business_Activity_Code">
+                                                <option value="" disabled>-- Select --</option>
+                                                <option *ngFor="let activity of businessActivities"
+                                                    [value]="activity.code">
+                                                    {{ activity.code }} {{activity.mark}}
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Core Income</label>
+                                            <select class="form-select" formControlName="Core_Income_Activity_Yes">
+                                                <option value="1">Yes</option>
+                                                <option value="2">No</option>
+                                            </select>
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Status</label>
+                                            <select class="form-select"
+                                                formControlName="Business_Activity_Status_Active">
+                                                <option value="1">Active</option>
+                                                <option value="2">Dormant</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Col 2 -->
+                                    <div class="details-column">
+                                        <div class="field-group">
+                                            <label>No. of Employees (Labuan)</label>
+                                            <input type="number" formControlName="No_of_Employees">
+                                        </div>
+                                        <div class="field-group">
+                                            <label>OpEx in Labuan (RM)</label>
+                                            <input type="number" formControlName="Annual_Operating_Expenditure">
+                                        </div>
+                                        <div class="field-group">
+                                            <label>OpEx in Malaysia (RM)</label>
+                                            <input type="text" formControlName="Annual_Operating_Expenditure_MAS">
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Compliance with FPEC</label>
+                                            <select class="form-select" formControlName="Compliance_with_FPEC">
+                                                <option value="1">Yes</option>
+                                                <option value="2">No</option>
+                                            </select>
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Compliance with CML</label>
+                                            <select class="form-select" formControlName="Compliance_with_CML">
+                                                <option value="1">Yes</option>
+                                                <option value="2">No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Col 3 -->
+                                    <div class="details-column">
+                                        <div class="field-group">
+                                            <label>No. of Employees (Malaysia)</label>
+                                            <input type="number" formControlName="No_of_Employees_Malaysia">
+                                        </div>
+                                        <div class="field-group">
+                                            <label>No. of Related Companies</label>
+                                            <input type="number" formControlName="No_of_Related_Company">
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Net Loss (RM)</label>
+                                            <textarea appThousandSeparator type="number"
+                                                formControlName="Amount_of_Net_Loss"></textarea>
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Net Profit (RM)</label>
+                                            <textarea appThousandSeparator type="number" formControlName="Net_Profits_ex_IP"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="field-group">
-                            <label [for]="'B1_Row' + i + '_Core_Income_Activity_Yes'">Core Income</label>
-                            <select class="form-select" [id]="'B1_Row' + i + '_Core_Income_Activity_Yes'" [formControlName]="'B1_Row' + i + '_Core_Income_Activity_Yes'">
-                                <option value="" disabled>-- Select --</option>
-                                <option value="1">Yes</option>
-                                <option value="2">No</option>
-                            </select>
-                        </div>
-                        <div class="field-group">
-                            <label [for]="'B1_Row' + i + '_Business_Activity_Status_Active'">Status</label>
-                            <select class="form-select" [id]="'B1_Row' + i + '_Business_Activity_Status_Active'" [formControlName]="'B1_Row' + i + '_Business_Activity_Status_Active'">
-                                <option value="" disabled>-- Select --</option>
-                                <option value="1">Active</option>
-                                <option value="2">Dormant</option>
-                            </select>
-                        </div>
-                         <!-- <div class="field-group">
-                            <label [for]="'B1_Row' + i + '_Comply_Substantive_Yes'">Substantive</label>
-                            <select class="form-select" [id]="'B1_Row' + i + '_Comply_Substantive_Yes'" [formControlName]="'B1_Row' + i + '_Comply_Substantive_Yes'">
-                                <option value="" disabled>-- Select --</option>
-                                <option value="1">Yes</option>
-                                <option value="2">No</option>
-                                <option value="3">By main trade</option>
-                                <option value="4">NA</option>
-                            </select>
-                        </div> -->
                     </div>
 
-                    <!-- Column 2: Substance & Compliance -->
-                    <div class="details-column">
-                         <div class="field-group">
-                            <label [for]="'B1_Row' + i + '_No_of_Employees'">No. of Employees (Labuan)</label>
-                            <input type="number" [id]="'B1_Row' + i + '_No_of_Employees'" [formControlName]="'B1_Row' + i + '_No_of_Employees'">
-                        </div>
-                        <div class="field-group">
-                            <label [for]="'B1_Row' + i + '_Annual_Operating_Expenditure'">OpEx in Labuan (RM)</label>
-                            <input  type="number" [id]="'B1_Row' + i + '_Annual_Operating_Expenditure'" [formControlName]="'B1_Row' + i + '_Annual_Operating_Expenditure'">
-                        </div>
-                        <div class="field-group">
-                            <label [for]="'B1_Row' + i + '_Annual_Operating_Expenditure'">OpEx in Malaysia (RM)</label>
-                            <input  type="text" [id]="'B1_Row' + i + '_Annual_Operating_Expenditure_MAS'" [formControlName]="'B1_Row' + i + '_Annual_Operating_Expenditure_MAS'">
-                        </div>
-                        <div class="field-group">
-                            <label [for]="'B1_Row' + i + '_Compliance_with_FPEC'">Compliance with FPEC</label>
-                            <select class="form-select" [id]="'B1_Row' + i + '_Compliance_with_FPEC'" [formControlName]="'B1_Row' + i + '_Compliance_with_FPEC'">
-                                <option value="" disabled>-- Select --</option>
-                                <option value="1">Yes</option>
-                                <option value="2">No</option>
-                            </select>
-                        </div>
-                        <div class="field-group">
-                            <label [for]="'B1_Row' + i + '_Compliance_with_CML'">Compliance with CML</label>
-                            <select class="form-select" [id]="'B1_Row' + i + '_Compliance_with_CML'" [formControlName]="'B1_Row' + i + '_Compliance_with_CML'">
-                                <option value="" disabled>-- Select --</option>
-                                <option value="1">Yes</option>
-                                <option value="2">No</option>
-                            </select>
-                        </div>
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-outline-primary" (click)="addRow('b1')">+ Add Business
+                            Activity</button>
                     </div>
 
-                    <!-- Column 3: Related Metrics & Financials -->
-                    <div class="details-column">
-                        <div class="field-group">
-                            <label [for]="'B1_Row' + i + '_No_of_Employees_Malaysia'">No. of Employees (Malaysia)</label>
-                            <input type="number" [id]="'B1_Row' + i + '_No_of_Employees_Malaysia'" [formControlName]="'B1_Row' + i + '_No_of_Employees_Malaysia'">
-                        </div>
-                        <div class="field-group">
-                            <label [for]="'B1_Row' + i + '_No_of_Related_Company'">No. of Related Companies</label>
-                            <input type="number" [id]="'B1_Row' + i + '_No_of_Related_Company'" [formControlName]="'B1_Row' + i + '_No_of_Related_Company'">
-                        </div>
-                        <div class="field-group">
-                            <label [for]="'B1_Row' + i + '_Amount_of_Net_Loss'">Net Loss (RM)</label>
-                            <input appThousandSeparator type="text" [id]="'B1_Row' + i + '_Amount_of_Net_Loss'" [formControlName]="'B1_Row' + i + '_Amount_of_Net_Loss'">
-                        </div>
-                        <div class="field-group">
-                            <label [for]="'B1_Row' + i + '_Net_Profits_ex_IP'">Net Profit (RM)</label>
-                            <input appThousandSeparator type="text" [id]="'B1_Row' + i + '_Net_Profits_ex_IP'" [formControlName]="'B1_Row' + i + '_Net_Profits_ex_IP'">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div style="margin: 10px;"></div>
-                    <h3 for="B2_Total_Net_Profits">B2: Total Net Profits (RM):</h3>
+                    <div style="margin: 10px;"></div>
+                    <h3>B2: Total Net Profits (RM):</h3>
                     <textarea readonly type="number" appThousandSeparator id="B2_Total_Net_Profits"
                         formControlName="B2_Total_Net_Profits"></textarea>
-
-                    <label for="B3a_Chargeable_Profit_0_Percent">B3a: Chargeable Profit (0%):</label>
-                    <textarea type="number" appThousandSeparator id="B3a_Chargeable_Profit_0_Percent"
-                        formControlName="B3a_Chargeable_Profit_0_Percent"></textarea>
-
-                    <label for="B3b_Chargeable_Profit_3_Percent">B3b: Chargeable Profit (3%):</label>
-                    <textarea type="number" appThousandSeparator id="B3b_Chargeable_Profit_3_Percent"
-                        formControlName="B3b_Chargeable_Profit_3_Percent"></textarea>
-
-                    <label for="B3c_Chargeable_Profit_24_Percent">B3c: Chargeable Profit (24%):</label>
-                    <textarea type="number" appThousandSeparator id="B3c_Chargeable_Profit_24_Percent"
-                        formControlName="B3c_Chargeable_Profit_24_Percent"></textarea>
-
-                    <label for="B4_Tax_Charged">B4: Tax Charged:</label>
-                    <textarea type="number" appThousandSeparator id="B4_Tax_Charged"
-                        formControlName="B4_Tax_Charged"></textarea>
-
-                    <label for="B5_Zakat_Paid">B5: Zakat Paid:</label>
-                    <textarea type="number" appThousandSeparator id="B5_Zakat_Paid"
-                        formControlName="B5_Zakat_Paid"></textarea>
-
-                    <label for="B6_Tax_Payable">B6: Tax Payable (MYR):</label>
-                    <textarea type="number" appThousandSeparator id="B6_Tax_Payable"
-                        formControlName="B6_Tax_Payable"></textarea>
                 </fieldset>
 
                 <!-- Part C, D, etc. -->
@@ -671,19 +666,15 @@
                         </select>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
                             <div>
-                                <label for="C6a_Has_Related_Company">Has Related Company:</label>
-                                <!-- <input type="text" id="C6a_Has_Related_Company" formControlName="C6a_Has_Related_Company"> -->
-                                <div class="radio-group" style="display: flex; gap: 10px;">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" id="C6a_Yes" value="1"
-                                            formControlName="C6a_Has_Related_Company" name="C6a_Has_Related_Company">
-                                        <label class="form-check-label" for="C6a_Yes">Yes</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" id="C6a_No" value="2"
-                                            formControlName="C6a_Has_Related_Company" name="C6a_Has_Related_Company">
-                                        <label class="form-check-label" for="C6a_No">No</label>
-                                    </div>
+                                <label>Has Related Company:</label>
+                                <div class="btn-group" role="group">
+                                    <input type="radio" class="btn-check" name="C6a_Has_Related_Company" id="C6a_Yes"
+                                        value="1" formControlName="C6a_Has_Related_Company">
+                                    <label class="btn btn-outline-primary" for="C6a_Yes">Yes</label>
+
+                                    <input type="radio" class="btn-check" name="C6a_Has_Related_Company" id="C6a_No"
+                                        value="2" formControlName="C6a_Has_Related_Company">
+                                    <label class="btn btn-outline-secondary" for="C6a_No">No</label>
                                 </div>
                             </div>
                             <div>
@@ -699,86 +690,69 @@
                         <div>
                             <label for="C7a_Derived_Income_from_Non_Labuan_Activity">Derived Income from Non-Labuan
                                 Activity:</label>
-                            <!-- <input type="text" id="C7a_Derived_Income_from_Non_Labuan_Activity"
-                                formControlName="C7a_Derived_Income_from_Non_Labuan_Activity">
-                                <div class="form-check"> -->
-                            <div class="radio-group" style="display: flex; gap: 10px;">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" id="C7a_Yes" value="1"
-                                        formControlName="C7a_Derived_Income_from_Non_Labuan_Activity"
-                                        name="C7a_Derived_Income_from_Non_Labuan_Activity">
-                                    <label class="form-check-label" for="C7a_Yes">Yes</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" id="C7a_No" value="2"
-                                        formControlName="C7a_Derived_Income_from_Non_Labuan_Activity"
-                                        name="C7a_Derived_Income_from_Non_Labuan_Activity">
-                                    <label class="form-check-label" for="C7a_No">No</label>
-                                </div>
+                            <div class="btn-group mb-3" role="group">
+                                <input type="radio" class="btn-check" id="C7a_Yes" value="1"
+                                    formControlName="C7a_Derived_Income_from_Non_Labuan_Activity"
+                                    name="C7a_Derived_Income_from_Non_Labuan_Activity">
+                                <label class="btn btn-outline-primary" for="C7a_Yes">Yes</label>
+
+                                <input type="radio" class="btn-check" id="C7a_No" value="2"
+                                    formControlName="C7a_Derived_Income_from_Non_Labuan_Activity"
+                                    name="C7a_Derived_Income_from_Non_Labuan_Activity">
+                                <label class="btn btn-outline-primary" for="C7a_No">No</label>
                             </div>
                         </div>
                         <div>
                             <label for="C7b_Total_Income_from_Non_Labuan_Activity">Total Income from Non-Labuan
                                 Activity:</label>
-                            <textarea type="number" appThousandSeparator id="C7b_Total_Income_from_Non_Labuan_Activity"
-                                min="0" formControlName="C7b_Total_Income_from_Non_Labuan_Activity"></textarea>
+                            <input type="number"  id="C7b_Total_Income_from_Non_Labuan_Activity"
+                                min="0" formControlName="C7b_Total_Income_from_Non_Labuan_Activity">
                         </div>
                         <div>
                             <label for="C8a_Derived_Income_from_IP">Derived Income from IP:</label>
-                            <!-- <input type="text" id="C8a_Derived_Income_from_IP"
-                                formControlName="C8a_Derived_Income_from_IP"> -->
-                            <div class="radio-group" style="display: flex; gap: 10px;">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" id="C8a_Yes" value="1"
-                                        formControlName="C8a_Derived_Income_from_IP" name="C8a_Derived_Income_from_IP">
-                                    <label class="form-check-label" for="C8a_Yes">Yes</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" id="C8a_No" value="2"
-                                        formControlName="C8a_Derived_Income_from_IP" name="C8a_Derived_Income_from_IP">
-                                    <label class="form-check-label" for="C8a_No">No</label>
-                                </div>
+                            <div class="btn-group mb-3" role="group">
+                                <input type="radio" class="btn-check" id="C8a_Yes" value="1"
+                                    formControlName="C8a_Derived_Income_from_IP" name="C8a_Derived_Income_from_IP">
+                                <label class="btn btn-outline-primary" for="C8a_Yes">Yes</label>
+
+                                <input type="radio" class="btn-check" id="C8a_No" value="2"
+                                    formControlName="C8a_Derived_Income_from_IP" name="C8a_Derived_Income_from_IP">
+                                <label class="btn btn-outline-primary" for="C8a_No">No</label>
                             </div>
                         </div>
                         <div>
                             <label for="C8b_Total_Income_from_IP">Total Income from IP:</label>
-                            <textarea appThousandSeparator type="number" min="0" id="C8b_Total_Income_from_IP"
-                                formControlName="C8b_Total_Income_from_IP"></textarea>
+                            <input  type="number" min="0" id="C8b_Total_Income_from_IP"
+                                formControlName="C8b_Total_Income_from_IP">
                         </div>
                         <div>
-                            <label for="C10_Has_Subsidiary_Outside_Labuan">Has Subsidiary Outside Labuan :</label>
-                            <!-- <input type="text" id="C10_Has_Subsidiary_Outside_Labuan"
-                                formControlName="C10_Has_Subsidiary_Outside_Labuan"> -->
-                            <div class="radio-group" style="display: flex; gap: 10px;">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" id="C10a_Yes" value="1"
-                                        formControlName="C10_Has_Subsidiary_Outside_Labuan"
-                                        name="C10_Has_Subsidiary_Outside_Labuan">
-                                    <label class="form-check-label" for="C10a_Yes">Yes</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" id="C10a_No" value="2"
-                                        formControlName="C10_Has_Subsidiary_Outside_Labuan"
-                                        name="C10_Has_Subsidiary_Outside_Labuan">
-                                    <label class="form-check-label" for="C10a_No">No</label>
-                                </div>
+                            <label for="C10_Has_Subsidiary_Outside_Labuan">Has Subsidiary Outside Labuan:</label>
+                            <div class="btn-group mb-3" role="group">
+                                <input type="radio" class="btn-check" id="C10a_Yes" value="1"
+                                    formControlName="C10_Has_Subsidiary_Outside_Labuan"
+                                    name="C10_Has_Subsidiary_Outside_Labuan">
+                                <label class="btn btn-outline-primary" for="C10a_Yes">Yes</label>
+
+                                <input type="radio" class="btn-check" id="C10a_No" value="2"
+                                    formControlName="C10_Has_Subsidiary_Outside_Labuan"
+                                    name="C10_Has_Subsidiary_Outside_Labuan">
+                                <label class="btn btn-outline-primary" for="C10a_No">No</label>
                             </div>
                         </div>
                         <div>
                             <label for="C11_Received_Payments_from_Malaysian_Resident">Received Payments from Malaysian
                                 Resident:</label>
-                            <!-- <input type="text" id="C11_Received_Payments_from_Malaysian_Resident"
-                                formControlName="C11_Received_Payments_from_Malaysian_Resident"> -->
-                            <select formControlName="C11_Received_Payments_from_Malaysian_Resident" class="form-select">
-                                <option value="" disabled>-- Select --</option>
-                                <option value="1">
-                                    Yes
-                                </option>
-                                <option value="2">
-                                    No
-                                </option>
+                            <div class="btn-group mb-3" role="group">
+                                <input type="radio" class="btn-check" id="C11_Yes" value="1"
+                                    formControlName="C11_Received_Payments_from_Malaysian_Resident"
+                                    name="C11_Received_Payments_from_Malaysian_Resident">
+                                <label class="btn btn-outline-primary" for="C11_Yes">Yes</label>
 
-                            </select>
+                                <input type="radio" class="btn-check" id="C11_No" value="2"
+                                    formControlName="C11_Received_Payments_from_Malaysian_Resident"
+                                    name="C11_Received_Payments_from_Malaysian_Resident">
+                                <label class="btn btn-outline-primary" for="C11_No">No</label>
+                            </div>
                         </div>
                     </div>
 
@@ -805,7 +779,7 @@
                                     </select>
                                 </td>
                                 <td style="padding: 8px; border: 1px solid #ddd;">
-                                    <textarea type="text" id="C12_Row1_Amount_Claimed" appThousandSeparator
+                                    <textarea type="number" id="C12_Row1_Amount_Claimed" appThousandSeparator
                                         formControlName="C12_Row1_Amount_Claimed" style="width: 100%;"></textarea>
                                 </td>
                             </tr>
@@ -821,7 +795,7 @@
                                     </select>
                                 </td>
                                 <td style="padding: 8px; border: 1px solid #ddd;">
-                                    <textarea appThousandSeparator type="text" id="C12_Row2_Amount_Claimed"
+                                    <textarea appThousandSeparator type="number" id="C12_Row2_Amount_Claimed"
                                         formControlName="C12_Row2_Amount_Claimed" style="width: 100%;"></textarea>
                                 </td>
                             </tr>
@@ -837,7 +811,7 @@
                                     </select>
                                 </td>
                                 <td style="padding: 8px; border: 1px solid #ddd;">
-                                    <textarea type="text" id="C12_Row3_Amount_Claimed" appThousandSeparator
+                                    <textarea type="number" id="C12_Row3_Amount_Claimed" appThousandSeparator
                                         formControlName="C12_Row3_Amount_Claimed" style="width: 100%;"></textarea>
                                 </td>
                             </tr>
@@ -849,30 +823,24 @@
                 <fieldset id="part-d">
                     <legend>Part D: Particulars Of Country-By-Country Reporting</legend>
                     <label>Subject to CbCR?</label>
-                    <div class="radio-group" style="display: flex; gap: 10px;">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" id="D1_CbCR_Yes" value="1"
-                                formControlName="D1_Subject_to_CbCR" name="D1_Subject_to_CbCR">
-                            <label class="form-check-label" for="D1_CbCR_Yes">Yes</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" id="D1_CbCR_No" value="2"
-                                formControlName="D1_Subject_to_CbCR" name="D1_Subject_to_CbCR">
-                            <label class="form-check-label" for="D1_CbCR_No">No</label>
-                        </div>
+                    <div class="btn-group mb-3" role="group">
+                        <input type="radio" class="btn-check" id="D1_CbCR_Yes" value="1"
+                            formControlName="D1_Subject_to_CbCR" name="D1_Subject_to_CbCR">
+                        <label class="btn btn-outline-primary" for="D1_CbCR_Yes">Yes</label>
+
+                        <input type="radio" class="btn-check" id="D1_CbCR_No" value="2"
+                            formControlName="D1_Subject_to_CbCR" name="D1_Subject_to_CbCR">
+                        <label class="btn btn-outline-primary" for="D1_CbCR_No">No</label>
                     </div>
                     <label>Subject as a reporting entity / non-reporting entity</label>
-                    <div class="radio-group" style="display: flex; gap: 10px;">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" id="D1_Subject_as_Yes" value="1"
-                                formControlName="D1_Subject_as" name="D1_Subject_as">
-                            <label class="form-check-label" for="D1_Subject_as_Yes">Reporting entity</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" id="D1_Subject_as_No" value="2"
-                                formControlName="D1_Subject_as" name="D1_Subject_as">
-                            <label class="form-check-label" for="D1_Subject_as_No">Non-reporting entity</label>
-                        </div>
+                    <div class="btn-group mb-3" role="group">
+                        <input type="radio" class="btn-check" id="D1_Subject_as_Yes" value="1"
+                            formControlName="D1_Subject_as" name="D1_Subject_as">
+                        <label class="btn btn-outline-primary" for="D1_Subject_as_Yes">Reporting entity</label>
+
+                        <input type="radio" class="btn-check" id="D1_Subject_as_No" value="2"
+                            formControlName="D1_Subject_as" name="D1_Subject_as">
+                        <label class="btn btn-outline-primary" for="D1_Subject_as_No">Non-reporting entity</label>
                     </div>
                     <div style="display: flex; justify-content: space-between; gap: 10px;">
                         <div style="flex: 1;">
@@ -931,7 +899,7 @@
                             <input style="width:5rem" type="number" id="E2_Accounting_Period_From_Year"
                                 formControlName="E2_Accounting_Period_From_Year" size="4"> -->
                             <input type="date" id="E2_Accounting_Period_From"
-                                formControlName="E2_Accounting_Period_From_Year" size="4">
+                                formControlName="E2_Accounting_Period_From" size="4">
                             <!-- split border Line -->
                             <span></span>
                             <label for="E2_Accounting_Period_To">To (DD/MM/YYYY):</label>
@@ -942,7 +910,7 @@
                             <input style="width:5rem" type="number" id="E2_Accounting_Period_To_Year"
                                 formControlName="E2_Accounting_Period_To_Year" size="4"> -->
                             <input type="date" id="E2_Accounting_Period_To"
-                                formControlName="E2_Accounting_Period_To_Year" size="4">
+                                formControlName="E2_Accounting_Period_To" size="4">
                         </div>
                         <div style="display: flex; justify-content: space-between; gap: 10px;">
                             <div style="flex: 1;">
@@ -960,8 +928,8 @@
                             </div>
                         </div>
                     </fieldset>
-</ng-container>
-<ng-container *ngIf="le1Form.get('D1_Subject_as')?.value === '2'">
+                </ng-container>
+                <ng-container *ngIf="le1Form.get('D1_Subject_as')?.value === '2'">
                     <!-- Part F: Non-Reporting Entity -->
                     <fieldset id="part-f">
                         <legend>Part F: Non-Reporting Entity</legend>
@@ -1122,7 +1090,7 @@ margin-bottom: 10px;">
                     <label for="Declarant_ID_Passport">Declarant ID/Passport:</label>
                     <input type="text" id="Declarant_ID_Passport" formControlName="Declarant_ID_Passport">
 
-                    <label for="Declaration_Date_Day">Declaration Date (DD/MM/YYYY):</label>
+                    <label for="Declaration_Date">Declaration Date (DD/MM/YYYY):</label>
                     <div style="display: flex; gap: 5px; align-items: center; padding:5px; 
 margin-bottom: 10px;">
                         <input type="date" id="Declaration_Date" formControlName="Declaration_Date">
@@ -1207,264 +1175,310 @@ margin-bottom: 10px;">
 
                 <!-- Attachment C3: Compliance Officers -->
                 <!-- in form.component.html -->
-<fieldset id="attachment-c3">
-    <legend>Attachment C3: Compliance Officers</legend>
-    <!-- REMOVE the fixed-height div -->
-    <div class="accordion-container">
-        <!-- Loop through 5 times for 5 officers -->
-        <div *ngFor="let i of [0, 1, 2, 3, 4]" class="accordion-item" [class.open]="officerAccordionState[i]">
-
-            <!-- Accordion Header: Always Visible -->
-            <div class="accordion-header" (click)="officerAccordionState[i] = !officerAccordionState[i]">
-                <h5 class="accordion-title">
-                    <!-- Show Officer number and name if available -->
-                    Officer {{ i + 1 }}: {{ le1Form.get('Compliance_Officers_' + i + '_Name')?.value || 'New Officer' }}
-                </h5>
-                <span class="accordion-icon">{{ officerAccordionState[i] ? '−' : '+' }}</span>
-            </div>
-
-            <!-- Accordion Body: Collapsible Content -->
-            <div *ngIf="officerAccordionState[i]" class="accordion-body">
-                <!-- Use a grid to organize the fields neatly -->
-                <div class="details-grid">
-                    <!-- Column 1: Officer Details -->
-                    <div class="details-column">
-                        <div class="field-group">
-                            <label [for]="'Compliance_Officers_' + i + '_Name'">Name</label>
-                            <input type="text" [id]="'Compliance_Officers_' + i + '_Name'" [formControlName]="'Compliance_Officers_' + i + '_Name'">
-                        </div>
-                        <div class="field-group">
-                            <label [for]="'Compliance_Officers_' + i + '_Designation'">Designation</label>
-                            <select class="form-select" [id]="'Compliance_Officers_' + i + '_Designation'" [formControlName]="'Compliance_Officers_' + i + '_Designation'">
-                                <option value="" disabled>--Please Select--</option>
-                                <option value="1">Manager or principal officer</option>
-                                <option value="2">Resident director</option>
-                                <option value="3">Secretary</option>
-                                <option value="9">Others</option>
-                            </select>
-                        </div>
-                         <div class="field-group">
-                            <label [for]="'Compliance_Officers_' + i + '_Claim_PUA_419_2011'">Claim P.U.(A) 419/2011</label>
-                            <select class="form-select" [id]="'Compliance_Officers_' + i + '_Claim_PUA_419_2011'" [formControlName]="'Compliance_Officers_' + i + '_Claim_PUA_419_2011'">
-                                <option value="" disabled>-- Select --</option>
-                                <option value="1">Yes</option>
-                                <option value="2">No</option>
-                            </select>
-                        </div>
-                    </div>
-                    <!-- Column 2: Identification & Address -->
-                     <div class="details-column">
-                         <div class="field-group">
-                            <label>ID / Passport</label>
-                            <div class="compound-field">
-                                <select  [formControlName]="'Compliance_Officers_' + i + '_ID_type'" class="form-select" style="flex:1;">
-                                    <option value="" disabled>-- Type --</option>
-                                    <option value="1">ID No.</option>
-                                    <option value="2">Passport No.</option>
-                                </select>
-                                <input type="text" [formControlName]="'Compliance_Officers_' + i + '_ID_Passport_No'" class="id-number" placeholder="Enter Number">
+                <fieldset id="attachment-c3">
+                    <legend>Attachment C3: Compliance Officers</legend>
+                    <div class="accordion-container" formArrayName="c3Rows">
+                        <div *ngFor="let row of c3Rows.controls; let i = index" [formGroupName]="i"
+                            class="accordion-item" [class.open]="accordionStates['c3'][i]">
+                            <div class="accordion-header"
+                                (click)="accordionStates['c3'][i] = !accordionStates['c3'][i]">
+                                <h5 class="accordion-title">
+                                    Officer {{ i + 1 }}: {{ row.get('Name')?.value || 'New Officer' }}
+                                </h5>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                        (click)="$event.stopPropagation(); removeRow('c3', i)">
+                                        Remove
+                                    </button>
+                                    <span class="accordion-icon">{{ accordionStates['c3'][i] ? '−' : '+' }}</span>
+                                </div>
+                            </div>
+                            <div *ngIf="accordionStates['c3'][i]" class="accordion-body">
+                                <div class="details-grid">
+                                    <div class="details-column">
+                                        <div class="field-group">
+                                            <label>Name</label>
+                                            <input type="text" class="form-control" formControlName="Name">
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Designation</label>
+                                            <select class="form-select" formControlName="Designation">
+                                                <option value="" disabled>--Please Select--</option>
+                                                <option value="1">Manager or principal officer</option>
+                                                <option value="2">Resident director</option>
+                                                <option value="3">Secretary</option>
+                                                <option value="9">Others</option>
+                                            </select>
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Claim P.U.(A) 419/2011</label>
+                                            <select class="form-select" formControlName="Claim_PUA_419_2011">
+                                                <option value="" disabled>-- Select --</option>
+                                                <option value="1">Yes</option>
+                                                <option value="2">No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="details-column">
+                                        <div class="field-group">
+                                            <label>ID / Passport</label>
+                                            <div class="input-group">
+                                                <select formControlName="ID_type" class="form-select"
+                                                    style="max-width: 100px;">
+                                                    <option value="1">ID</option>
+                                                    <option value="2">Passport</option>
+                                                </select>
+                                                <input type="text" class="form-control" formControlName="ID_Passport_No"
+                                                    placeholder="Number">
+                                            </div>
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Date of Birth</label>
+                                            <input type="date" class="form-control" formControlName="Date_of_Birth">
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Address</label>
+                                            <div class="d-flex flex-column gap-2">
+                                                <select class="form-select" formControlName="Country">
+                                                    <option value="" disabled>-- Country --</option>
+                                                    <option *ngFor="let country of countries" [value]="country.code">{{
+                                                        country.name }}</option>
+                                                </select>
+                                                <textarea class="form-control" appAutoResize placeholder="Line 1"
+                                                    formControlName="Address1"></textarea>
+                                                <textarea class="form-control" appAutoResize placeholder="Line 2"
+                                                    formControlName="Address2"></textarea>
+                                                <input type="text" class="form-control" placeholder="Postcode"
+                                                    formControlName="Postcode">
+                                                <input type="text" class="form-control" placeholder="Town"
+                                                    formControlName="Town">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="details-column">
+                                        <div class="field-group">
+                                            <label>TIN</label>
+                                            <input type="text" class="form-control" formControlName="TIN">
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Telephone No.</label>
+                                            <input type="text" class="form-control" formControlName="Telephone_No">
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Salary/Bonus (RM)</label>
+                                            <textarea class="form-control" appThousandSeparator type="number"
+                                                formControlName="Salary_Bonus"></textarea>
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Fees/Commission (RM)</label>
+                                            <textarea class="form-control" appThousandSeparator type="number"
+                                                formControlName="Fees_Commission_Allowances"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="field-group">
-                            <label [for]="'Compliance_Officers_' + i + '_Date_of_Birth'">Date of Birth</label>
-                            <input type="date" [id]="'Compliance_Officers_' + i + '_Date_of_Birth'" [formControlName]="'Compliance_Officers_' + i + '_Date_of_Birth'">
-                        </div>
-                        <div class="field-group">
-                            <label>Address</label>
-                             <div class="address-group">
-                                <select class="form-select" [formControlName]="'Compliance_Officers_' + i + '_Country'">
-                                    <option value="" disabled>-- Country --</option>
-                                    <option *ngFor="let country of countries" [value]="country.code">{{ country.name }}</option>
-                                </select>
-                                <textarea appAutoResize placeholder="Address Line 1" [formControlName]="'Compliance_Officers_' + i + '_Address1'"></textarea>
-                                <textarea appAutoResize placeholder="Address Line 2" [formControlName]="'Compliance_Officers_' + i + '_Address2'"></textarea>
-                                <input type="text" placeholder="Postcode" [formControlName]="'Compliance_Officers_' + i + '_Postcode'">
-                                <input type="text" placeholder="Town" [formControlName]="'Compliance_Officers_' + i + '_Town'">
-                            </div>
-                        </div>
                     </div>
-                    <!-- Column 3: Financials & Contact -->
-                     <div class="details-column">
-                        <div class="field-group">
-                            <label [for]="'Compliance_Officers_' + i + '_TIN'">TIN</label>
-                            <input type="text" [id]="'Compliance_Officers_' + i + '_TIN'" [formControlName]="'Compliance_Officers_' + i + '_TIN'">
-                        </div>
-                         <div class="field-group">
-                            <label [for]="'Compliance_Officers_' + i + '_Telephone_No'">Telephone No.</label>
-                            <input type="text" [id]="'Compliance_Officers_' + i + '_Telephone_No'" [formControlName]="'Compliance_Officers_' + i + '_Telephone_No'">
-                        </div>
-                         <div class="field-group">
-                            <label [for]="'Compliance_Officers_' + i + '_Salary_Bonus'">Salary/Bonus (RM)</label>
-                            <input appThousandSeparator type="text" [id]="'Compliance_Officers_' + i + '_Salary_Bonus'" [formControlName]="'Compliance_Officers_' + i + '_Salary_Bonus'">
-                        </div>
-                        <div class="field-group">
-                            <label [for]="'Compliance_Officers_' + i + '_Fees_Commission_Allowances'">Fees/Commission (RM)</label>
-                            <input appThousandSeparator type="text" [id]="'Compliance_Officers_' + i + '_Fees_Commission_Allowances'" [formControlName]="'Compliance_Officers_' + i + '_Fees_Commission_Allowances'">
-                        </div>
-                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</fieldset>
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-outline-primary" (click)="addRow('c3')">+ Add
+                            Officer</button>
+                    </div>
+                </fieldset>
 
                 ---
 
-               <fieldset id="attachment-c4">
-    <legend>Attachment C4: Major Shareholders</legend>
-    <div class="accordion-container">
-        <div *ngFor="let i of [0, 1, 2, 3, 4]" class="accordion-item" [class.open]="shareholderAccordionState[i]">
-            <!-- Accordion Header -->
-            <div class="accordion-header" (click)="shareholderAccordionState[i] = !shareholderAccordionState[i]">
-                <h5 class="accordion-title">
-                    Shareholder {{ i + 1 }}: {{ le1Form.get('Major_Shareholders_' + i + '_Name_of_Shareholder_Partner')?.value || 'New Shareholder' }}
-                </h5>
-                <span class="accordion-icon">{{ shareholderAccordionState[i] ? '−' : '+' }}</span>
-            </div>
-            <!-- Accordion Body -->
-            <div *ngIf="shareholderAccordionState[i]" class="accordion-body">
-                <div class="details-grid">
-                    <!-- Column 1: Identity -->
-                    <div class="details-column">
-                        <div class="field-group">
-                            <label [for]="'Major_Shareholders_' + i + '_Name_of_Shareholder_Partner'">Name of Shareholder/Partner</label>
-                            <input type="text" [id]="'Major_Shareholders_' + i + '_Name_of_Shareholder_Partner'" [formControlName]="'Major_Shareholders_' + i + '_Name_of_Shareholder_Partner'">
-                        </div>
-                        <div class="field-group">
-                            <label [for]="'Major_Shareholders_' + i + '_ID_Passport_Reg_No'">ID/Passport/Reg No.</label>
-                            <input type="text" [id]="'Major_Shareholders_' + i + '_ID_Passport_Reg_No'" [formControlName]="'Major_Shareholders_' + i + '_ID_Passport_Reg_No'">
-                        </div>
-                        <div class="field-group">
-                            <label [for]="'Major_Shareholders_' + i + '_Date_of_Birth'">Date of Birth</label>
-                            <input type="date" [id]="'Major_Shareholders_' + i + '_Date_of_Birth'" [formControlName]="'Major_Shareholders_' + i + '_Date_of_Birth'">
-                        </div>
-                        <div class="field-group">
-                            <label [for]="'Major_Shareholders_' + i + '_Country_of_Origin'">Origin Country</label>
-                             <select class="form-select" [id]="'Major_Shareholders_' + i + '_Country_of_Origin'" [formControlName]="'Major_Shareholders_' + i + '_Country_of_Origin'">
-                                <option value="" disabled>-- Select a Country --</option>
-                                <option *ngFor="let country of countries" [value]="country.code">{{ country.name }}</option>
-                            </select>
+                <fieldset id="attachment-c4">
+                    <legend>Attachment C4: Major Shareholders</legend>
+                    <div class="accordion-container" formArrayName="c4Rows">
+                        <div *ngFor="let row of c4Rows.controls; let i = index" [formGroupName]="i"
+                            class="accordion-item" [class.open]="accordionStates['c4'][i]">
+                            <div class="accordion-header"
+                                (click)="accordionStates['c4'][i] = !accordionStates['c4'][i]">
+                                <h5 class="accordion-title">
+                                    Shareholder {{ i + 1 }}: {{ row.get('Name_of_Shareholder_Partner')?.value || 'New
+                                    Shareholder' }}
+                                </h5>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                        (click)="$event.stopPropagation(); removeRow('c4', i)">Remove</button>
+                                    <span class="accordion-icon">{{ accordionStates['c4'][i] ? '−' : '+' }}</span>
+                                </div>
+                            </div>
+                            <div *ngIf="accordionStates['c4'][i]" class="accordion-body">
+                                <div class="details-grid">
+                                    <div class="details-column">
+                                        <div class="field-group">
+                                            <label>Name of Shareholder/Partner</label>
+                                            <input type="text" class="form-control"
+                                                formControlName="Name_of_Shareholder_Partner">
+                                        </div>
+                                        <div class="field-group">
+                                            <label>ID/Passport/Reg No.</label>
+                                            <div class="input-group">
+                                                <select formControlName="ID_type" class="form-select"
+                                                    style="max-width: 100px;">
+                                                    <option value="1">ID</option>
+                                                    <option value="2">Passport</option>
+                                                </select>
+                                                <input type="text" class="form-control" formControlName="ID_Passport_Reg_No"
+                                                    placeholder="Number">
+                                            </div>
+                                            <!-- <input type="text" class="form-control"
+                                                formControlName="ID_Passport_Reg_No"> -->
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Date of Birth</label>
+                                            <input type="date" class="form-control" formControlName="Date_of_Birth">
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Origin Country</label>
+                                            <select class="form-select" formControlName="Country_of_Origin">
+                                                <option value="" disabled>-- Select --</option>
+                                                <option *ngFor="let country of countries" [value]="country.code">{{
+                                                    country.name }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="details-column">
+                                        <div class="field-group">
+                                            <label>Address</label>
+                                            <div class="d-flex flex-column gap-2">
+                                                <select class="form-select" formControlName="Country">
+                                                    <option value="" disabled>-- Country --</option>
+                                                    <option *ngFor="let country of countries" [value]="country.code">{{
+                                                        country.name }}</option>
+                                                </select>
+                                                <textarea class="form-control" appAutoResize placeholder="Line 1"
+                                                    formControlName="Address1"></textarea>
+                                                <textarea class="form-control" appAutoResize placeholder="Line 2"
+                                                    formControlName="Address2"></textarea>
+                                                <input type="text" class="form-control" placeholder="Postcode"
+                                                    formControlName="Postcode">
+                                                <input type="text" class="form-control" placeholder="Town"
+                                                    formControlName="Town">
+                                            </div>
+                                        </div>
+                                        <div class="field-group">
+                                            <label>TIN</label>
+                                            <input type="text" class="form-control" formControlName="TIN">
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Shareholding (%)</label>
+                                            <input type="number" class="form-control"
+                                                formControlName="Direct_Shareholding_Percentage">
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Dividends (RM)</label>
+                                            <textarea class="form-control" appThousandSeparator type="number"
+                                                formControlName="Dividends_Received_in_Basis_Period"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <!-- Column 2: Address & Financials -->
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-outline-primary" (click)="addRow('c4')">+ Add
+                            Shareholder</button>
+                    </div>
+                </fieldset>
+
+
+                <!-- Attachment C5: Beneficial Owners -->
+                <fieldset id="attachment-c5">
+    <legend>Attachment C5: Beneficial Owners</legend>
+    <div class="accordion-container" formArrayName="c5Rows">
+        <div *ngFor="let row of c5Rows.controls; let i = index" [formGroupName]="i" class="accordion-item" [class.open]="accordionStates['c5'][i]">
+            <div class="accordion-header" (click)="accordionStates['c5'][i] = !accordionStates['c5'][i]">
+                 <h5 class="accordion-title">
+                    Beneficial Owner {{ i + 1 }}: {{ row.get('Name')?.value || 'New Owner' }}
+                </h5>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                        (click)="$event.stopPropagation(); removeRow('c5', i)">Remove</button>
+                    <span class="accordion-icon">{{ accordionStates['c5'][i] ? '−' : '+' }}</span>
+                </div>
+            </div>
+            <div *ngIf="accordionStates['c5'][i]" class="accordion-body">
+                <div class="details-grid">
+                    <div class="details-column">
+                        <div class="field-group">
+                            <label>Name</label>
+                            <input type="text" class="form-control" formControlName="Name">
+                        </div>
+                         <div class="field-group">
+                            <label>ID/Passport No.</label>
+                            <div class="input-group">
+                                                <select formControlName="ID_type" class="form-select"
+                                                    style="max-width: 100px;">
+                                                    <option value="1">ID</option>
+                                                    <option value="2">Passport</option>
+                                                </select>
+                                                <input type="text" class="form-control" formControlName="ID_Passport_No"
+                                                    placeholder="Number">
+                                            </div>
+                            <!-- <input type="text" class="form-control" formControlName="ID_Passport_No"> -->
+                        </div>
+                        <div class="field-group">
+                            <label>Date of Birth</label>
+                            <input type="date" class="form-control" formControlName="Date_of_Birth">
+                        </div>
+                         <div class="field-group">
+                            <label>Telephone No.</label>
+                            <input type="text" class="form-control" formControlName="Telephone_No">
+                        </div>
+                    </div>
                     <div class="details-column">
                          <div class="field-group">
                             <label>Address</label>
-                            <div class="address-group">
-                                <select class="form-select" [formControlName]="'Major_Shareholders_' + i + '_Country'">
+                            <div class="d-flex flex-column gap-2">
+                                <select class="form-select" formControlName="Country">
                                     <option value="" disabled>-- Country --</option>
                                     <option *ngFor="let country of countries" [value]="country.code">{{ country.name }}</option>
                                 </select>
-                                <textarea appAutoResize placeholder="Address Line 1" [formControlName]="'Major_Shareholders_' + i + '_Address1'"></textarea>
-                                <textarea appAutoResize placeholder="Address Line 2" [formControlName]="'Major_Shareholders_' + i + '_Address2'"></textarea>
-                                <input type="text" placeholder="Postcode" [formControlName]="'Major_Shareholders_' + i + '_Postcode'">
-                                <input type="text" placeholder="Town" [formControlName]="'Major_Shareholders_' + i + '_Town'">
+                                <textarea class="form-control" appAutoResize placeholder="Line 1" formControlName="Address1"></textarea>
+                                <textarea class="form-control" appAutoResize placeholder="Line 2" formControlName="Address2"></textarea>
+                                <input type="text" class="form-control" placeholder="Postcode" formControlName="Postcode">
+                                <input type="text" class="form-control" placeholder="Town" formControlName="Town">
                             </div>
                         </div>
+                        <div class="field-group">
+                            <label>TIN</label>
+                            <input type="text" class="form-control" formControlName="TIN">
+                        </div>
                          <div class="field-group">
-                            <label [for]="'Major_Shareholders_' + i + '_TIN'">TIN</label>
-                            <input type="text" [id]="'Major_Shareholders_' + i + '_TIN'" [formControlName]="'Major_Shareholders_' + i + '_TIN'">
+                            <label>Shareholding (%)</label>
+                            <input type="number" class="form-control" formControlName="Shareholding_Percentage">
+                        </div>
+                    </div>
+                    <div class="details-column">
+                         <div class="field-group">
+                            <label>Salary/Bonus (RM)</label>
+                            <textarea class="form-control" appThousandSeparator type="number" formControlName="Salary_Bonus"></textarea>
                         </div>
                         <div class="field-group">
-                            <label [for]="'Major_Shareholders_' + i + '_Direct_Shareholding_Percentage'">Shareholding (%)</label>
-                            <input type="number" [id]="'Major_Shareholders_' + i + '_Direct_Shareholding_Percentage'" [formControlName]="'Major_Shareholders_' + i + '_Direct_Shareholding_Percentage'">
+                            <label>Fees/Commission (RM)</label>
+                            <textarea class="form-control" appThousandSeparator type="number" formControlName="Fees_Commission_Allowance"></textarea>
                         </div>
                         <div class="field-group">
-                            <label [for]="'Major_Shareholders_' + i + '_Dividends_Received_in_Basis_Period'">Dividends (RM)</label>
-                            <input appThousandSeparator type="text" [id]="'Major_Shareholders_' + i + '_Dividends_Received_in_Basis_Period'" [formControlName]="'Major_Shareholders_' + i + '_Dividends_Received_in_Basis_Period'">
+                            <label>Loan to Owner (RM)</label>
+                            <textarea class="form-control" appThousandSeparator type="number" formControlName="Total_Loan_to_Owner"></textarea>
+                        </div>
+                        <div class="field-group">
+                            <label>Loan from Owner (RM)</label>
+                            <textarea class="form-control" appThousandSeparator type="number" formControlName="Total_Loan_from_Owner"></textarea>
+                        </div>
+                        <div class="field-group">
+                            <label>Dividends (RM)</label>
+                            <textarea class="form-control" appThousandSeparator type="number" formControlName="Dividends_Received_in_Basis_Period"></textarea>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</fieldset>
-
-
-<!-- Attachment C5: Beneficial Owners -->
-<fieldset id="attachment-c5">
-    <legend>Attachment C5: Beneficial Owners</legend>
-    <div class="accordion-container">
-        <div *ngFor="let i of [0, 1, 2, 3, 4]" class="accordion-item" [class.open]="ownerAccordionState[i]">
-            <!-- Accordion Header -->
-            <div class="accordion-header" (click)="ownerAccordionState[i] = !ownerAccordionState[i]">
-                 <h5 class="accordion-title">
-                    Beneficial Owner {{ i + 1 }}: {{ le1Form.get('Beneficial_Owner_' + i + '_Name')?.value || 'New Owner' }}
-                </h5>
-                <span class="accordion-icon">{{ ownerAccordionState[i] ? '−' : '+' }}</span>
-            </div>
-            <!-- Accordion Body -->
-            <div *ngIf="ownerAccordionState[i]" class="accordion-body">
-                <div class="details-grid">
-                    <!-- Column 1: Identity & Contact -->
-                    <div class="details-column">
-                        <div class="field-group">
-                            <label [for]="'Beneficial_Owner_' + i + '_Name'">Name</label>
-                            <input type="text" [id]="'Beneficial_Owner_' + i + '_Name'" [formControlName]="'Beneficial_Owner_' + i + '_Name'">
-                        </div>
-                         <div class="field-group">
-                            <label [for]="'Beneficial_Owner_' + i + '_ID_Passport_No'">ID/Passport No.</label>
-                            <input type="text" [id]="'Beneficial_Owner_' + i + '_ID_Passport_No'" [formControlName]="'Beneficial_Owner_' + i + '_ID_Passport_No'">
-                        </div>
-                        <div class="field-group">
-                            <label [for]="'Beneficial_Owner_' + i + '_Date_of_Birth'">Date of Birth</label>
-                            <input type="date" [id]="'Beneficial_Owner_' + i + '_Date_of_Birth'" [formControlName]="'Beneficial_Owner_' + i + '_Date_of_Birth'">
-                        </div>
-                         <div class="field-group">
-                            <label [for]="'Beneficial_Owner_' + i + '_Telephone_No'">Telephone No.</label>
-                            <input type="text" [id]="'Beneficial_Owner_' + i + '_Telephone_No'" [formControlName]="'Beneficial_Owner_' + i + '_Telephone_No'">
-                        </div>
-                    </div>
-                    <!-- Column 2: Address & Financials -->
-                    <div class="details-column">
-                         <div class="field-group">
-                            <label>Address</label>
-                            <div class="address-group">
-                                <select class="form-select" [formControlName]="'Beneficial_Owner_' + i + '_Country'">
-                                    <option value="" disabled>-- Country --</option>
-                                    <option *ngFor="let country of countries" [value]="country.code">{{ country.name }}</option>
-                                </select>
-                                <textarea appAutoResize placeholder="Address Line 1" [formControlName]="'Beneficial_Owner_' + i + '_Address1'"></textarea>
-                                <textarea appAutoResize placeholder="Address Line 2" [formControlName]="'Beneficial_Owner_' + i + '_Address2'"></textarea>
-                                <input type="text" placeholder="Postcode" [formControlName]="'Beneficial_Owner_' + i + '_Postcode'">
-                                <input type="text" placeholder="Town" [formControlName]="'Beneficial_Owner_' + i + '_Town'">
-                            </div>
-                        </div>
-                        <div class="field-group">
-                            <label [for]="'Beneficial_Owner_' + i + '_TIN'">TIN</label>
-                            <input type="text" [id]="'Beneficial_Owner_' + i + '_TIN'" [formControlName]="'Beneficial_Owner_' + i + '_TIN'">
-                        </div>
-                         <div class="field-group">
-                            <label [for]="'Beneficial_Owner_' + i + '_Shareholding_Percentage'">Shareholding (%)</label>
-                            <input type="number" [id]="'Beneficial_Owner_' + i + '_Shareholding_Percentage'" [formControlName]="'Beneficial_Owner_' + i + '_Shareholding_Percentage'">
-                        </div>
-                    </div>
-                    <!-- Column 3: Financial Details -->
-                    <div class="details-column">
-                         <div class="field-group">
-                            <label [for]="'Beneficial_Owner_' + i + '_Salary_Bonus'">Salary/Bonus (RM)</label>
-                            <input appThousandSeparator type="text" [id]="'Beneficial_Owner_' + i + '_Salary_Bonus'" [formControlName]="'Beneficial_Owner_' + i + '_Salary_Bonus'">
-                        </div>
-                        <div class="field-group">
-                            <label [for]="'Beneficial_Owner_' + i + '_Fees_Commission_Allowance'">Fees/Commission (RM)</label>
-                            <input appThousandSeparator type="text" [id]="'Beneficial_Owner_' + i + '_Fees_Commission_Allowance'" [formControlName]="'Beneficial_Owner_' + i + '_Fees_Commission_Allowance'">
-                        </div>
-                        <div class="field-group">
-                            <label [for]="'Beneficial_Owner_' + i + '_Total_Loan_to_Owner'">Loan to Owner (RM)</label>
-                            <input appThousandSeparator type="text" [id]="'Beneficial_Owner_' + i + '_Total_Loan_to_Owner'" [formControlName]="'Beneficial_Owner_' + i + '_Total_Loan_to_Owner'">
-                        </div>
-                        <div class="field-group">
-                            <label [for]="'Beneficial_Owner_' + i + '_Total_Loan_from_Owner'">Loan from Owner (RM)</label>
-                            <input appThousandSeparator type="text" [id]="'Beneficial_Owner_' + i + '_Total_Loan_from_Owner'" [formControlName]="'Beneficial_Owner_' + i + '_Total_Loan_from_Owner'">
-                        </div>
-                        <div class="field-group">
-                            <label [for]="'Beneficial_Owner_' + i + '_Dividends_Received_in_Basis_Period'">Dividends (RM)</label>
-                            <input appThousandSeparator type="text" [id]="'Beneficial_Owner_' + i + '_Dividends_Received_in_Basis_Period'" [formControlName]="'Beneficial_Owner_' + i + '_Dividends_Received_in_Basis_Period'">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="mt-3">
+        <button type="button" class="btn btn-outline-primary" (click)="addRow('c5')">+ Add Owner</button>
     </div>
 </fieldset>
 
@@ -1497,138 +1511,142 @@ margin-bottom: 10px;">
 
                         <div class="form-column">
                             <h4>Profit & Loss</h4>
+
                             <label>Sales / Turnover:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Sales_Turnover"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Sales_Turnover"></textarea>
                             <label>Opening Inventory:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Opening_Inventory"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Opening_Inventory"></textarea>
                             <label>Cost of Purchases:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Cost_of_Purchases"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Cost_of_Purchases"></textarea>
                             <label>Cost of Production:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Cost_of_Production"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Cost_of_Production"></textarea>
                             <label>Closing Inventory:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Closing_Inventory"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Closing_Inventory"></textarea>
                             <label>Cost of Sales:</label>
-                            <textarea readonly appThousandSeparator formControlName="Pnl_Cost_of_Sales"></textarea>
+                            <textarea readonly appThousandSeparator type="number" formControlName="Pnl_Cost_of_Sales"></textarea>
                             <label>Gross Profit/Loss:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Gross_Profit_Loss"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Gross_Profit_Loss"></textarea>
                             <label>Foreign Currency Exchange Gain:</label>
-                            <textarea appThousandSeparator
+                            <textarea appThousandSeparator type="number"
                                 formControlName="Pnl_Foreign_Currency_Exchange_Gain"></textarea>
                             <label>Other Business Income:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Other_Business_Income"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Other_Business_Income"></textarea>
                             <label>Other Income:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Other_Income"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Other_Income"></textarea>
                             <label>Non-Taxable Profits:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Non_Taxable_Profits"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Non_Taxable_Profits"></textarea>
                             <label>Interest Expenditure:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Interest_Expenditure"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Interest_Expenditure"></textarea>
                             <label>Professional Fees:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Professional_Fees"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Professional_Fees"></textarea>
                             <label>Technical Fees to Non-Residents:</label>
-                            <textarea appThousandSeparator
+                            <textarea appThousandSeparator type="number"
                                 formControlName="Pnl_Technical_Fees_to_Non_Residents"></textarea>
                             <label>Contract Payments:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Contract_Payments"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Contract_Payments"></textarea>
                             <label>Management Fee:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Management_Fee"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Management_Fee"></textarea>
                             <label>Salaries & Wages:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Salaries_Wages"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Salaries_Wages"></textarea>
                             <label>Cost of Employee Share Options:</label>
-                            <textarea appThousandSeparator
+                            <textarea appThousandSeparator type="number"
                                 formControlName="Pnl_Cost_of_Employee_Share_Options"></textarea>
                             <label>Royalties:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Royalties"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Royalties"></textarea>
                             <label>Rental / Lease:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Rental_Lease"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Rental_Lease"></textarea>
                             <label>Maintenance & Repairs:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Maintenance_Repairs"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Maintenance_Repairs"></textarea>
                             <label>Research & Development:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Research_Development"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Research_Development"></textarea>
                             <label>Promotion & Advertisement:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Promotion_Advertisement"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Promotion_Advertisement"></textarea>
                             <label>Travelling & Accommodation:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Travelling_Accommodation"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Travelling_Accommodation"></textarea>
                             <label>Foreign Currency Exchange Loss:</label>
-                            <textarea appThousandSeparator
+                            <textarea appThousandSeparator type="number"
                                 formControlName="Pnl_Foreign_Currency_Exchange_Loss"></textarea>
                             <label>Other Expenditure:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Other_Expenditure"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Other_Expenditure"></textarea>
                             <label>Total Expenditure:</label>
-                            <textarea readonly appThousandSeparator formControlName="Pnl_Total_Expenditure"></textarea>
+                            <textarea readonly appThousandSeparator type="number" formControlName="Pnl_Total_Expenditure"></textarea>
                             <label>Net Profit/Loss:</label>
-                            <textarea appThousandSeparator formControlName="Pnl_Net_Profit_Loss"></textarea>
+                            <textarea appThousandSeparator type="number" formControlName="Pnl_Net_Profit_Loss"></textarea>
+                            <div class="calculated-field-wrapper">
+
+                            </div>
                         </div>
                         <div>
                             <div class="form-column">
                                 <h4>Assets</h4>
                                 <label>Motor Vehicles:</label>
-                                <textarea appThousandSeparator formControlName="Fp_Motor_Vehicles"></textarea>
+                                <textarea appThousandSeparator type="number" formControlName="Fp_Motor_Vehicles"></textarea>
                                 <label>Plant & Equipment:</label>
-                                <textarea appThousandSeparator formControlName="Fp_Plant_Equipment"></textarea>
+                                <textarea appThousandSeparator type="number" formControlName="Fp_Plant_Equipment"></textarea>
                                 <label>Land & Buildings:</label>
-                                <textarea appThousandSeparator formControlName="Fp_Land_Buildings"></textarea>
+                                <textarea appThousandSeparator type="number" formControlName="Fp_Land_Buildings"></textarea>
                                 <label>Other Non-Current Assets:</label>
-                                <textarea appThousandSeparator formControlName="Fp_Other_Non_Current_Assets"></textarea>
+                                <textarea appThousandSeparator type="number" formControlName="Fp_Other_Non_Current_Assets"></textarea>
                                 <label>Investments:</label>
-                                <textarea appThousandSeparator formControlName="Fp_Investments"></textarea>
+                                <textarea appThousandSeparator type="number" formControlName="Fp_Investments"></textarea>
                                 <label>Total Non-Current Assets:</label>
-                                <textarea readonly appThousandSeparator
+                                <textarea readonly appThousandSeparator type="number"
                                     formControlName="Fp_Total_Non_Current_Assets"></textarea>
                                 <label>Cost of NCA Acquired:</label>
-                                <textarea appThousandSeparator formControlName="Fp_Cost_of_NCA_Acquired"></textarea>
+                                <textarea appThousandSeparator type="number" formControlName="Fp_Cost_of_NCA_Acquired"></textarea>
                                 <label>Trade Debtors:</label>
-                                <textarea appThousandSeparator formControlName="Fp_Trade_Debtors"></textarea>
+                                <textarea appThousandSeparator type="number" formControlName="Fp_Trade_Debtors"></textarea>
                                 <label>Other Debtors:</label>
-                                <textarea appThousandSeparator formControlName="Fp_Other_Debtors"></textarea>
+                                <textarea appThousandSeparator type="number" formControlName="Fp_Other_Debtors"></textarea>
                                 <label>Inventory:</label>
-                                <textarea appThousandSeparator formControlName="Fp_Inventory"></textarea>
+                                <textarea appThousandSeparator type="number" formControlName="Fp_Inventory"></textarea>
                                 <label>Loans to Related Entities:</label>
-                                <textarea appThousandSeparator
+                                <textarea appThousandSeparator type="number"
                                     formControlName="Fp_Loans_to_Related_Entities"></textarea>
                                 <label>Cash in Hand & Bank:</label>
-                                <textarea appThousandSeparator formControlName="Fp_Cash_in_Hand_Bank"></textarea>
+                                <textarea appThousandSeparator type="number" formControlName="Fp_Cash_in_Hand_Bank"></textarea>
                                 <label>Other Current Assets:</label>
-                                <textarea appThousandSeparator formControlName="Fp_Other_Current_Assets"></textarea>
+                                <textarea appThousandSeparator type="number" formControlName="Fp_Other_Current_Assets"></textarea>
                                 <label>Total Current Assets:</label>
-                                <textarea readonly appThousandSeparator
+                                <textarea readonly appThousandSeparator type="number"
                                     formControlName="Fp_Total_Current_Assets"></textarea>
                                 <label>Total Assets:</label>
-                                <textarea readonly appThousandSeparator formControlName="Fp_Total_Assets"></textarea>
+                                <textarea readonly appThousandSeparator type="number" formControlName="Fp_Total_Assets"></textarea>
                             </div>
                             <div class="form-column">
                                 <h4>Liabilities & Equity</h4>
                                 <label>Loans & Bank Overdrafts:</label>
-                                <textarea appThousandSeparator formControlName="Fp_Loans_Bank_Overdrafts"></textarea>
+                                <textarea appThousandSeparator type="number" formControlName="Fp_Loans_Bank_Overdrafts"></textarea>
                                 <label>Trade Creditors:</label>
-                                <textarea appThousandSeparator formControlName="Fp_Trade_Creditors"></textarea>
+                                <textarea appThousandSeparator type="number" formControlName="Fp_Trade_Creditors"></textarea>
                                 <label>Other Creditors:</label>
-                                <textarea appThousandSeparator formControlName="Fp_Other_Creditors"></textarea>
+                                <textarea appThousandSeparator type="number" formControlName="Fp_Other_Creditors"></textarea>
                                 <label>Loans from Related Entities:</label>
-                                <textarea appThousandSeparator
+                                <textarea appThousandSeparator type="number"
                                     formControlName="Fp_Loans_from_Related_Entities"></textarea>
                                 <label>Other Current Liabilities:</label>
-                                <textarea appThousandSeparator
+                                <textarea appThousandSeparator type="number"
                                     formControlName="Fp_Other_Current_Liabilities"></textarea>
                                 <label>Total Current Liabilities:</label>
-                                <textarea appThousandSeparator readonly
+                                <textarea appThousandSeparator type="number" readonly
                                     formControlName="Fp_Total_Current_Liabilities"></textarea>
                                 <label>Non-Current Liabilities:</label>
-                                <textarea readonly appThousandSeparator
+                                <textarea readonly appThousandSeparator type="number"
                                     formControlName="Fp_Non_Current_Liabilities"></textarea>
                                 <label>Total Liabilities:</label>
-                                <textarea readonly appThousandSeparator
+                                <textarea readonly appThousandSeparator type="number"
                                     formControlName="Fp_Total_Liabilities"></textarea>
                                 <label>Issued & Paid-Up Capital:</label>
-                                <textarea appThousandSeparator formControlName="Fp_Issued_Paid_Up_Capital"></textarea>
+                                <textarea appThousandSeparator type="number" formControlName="Fp_Issued_Paid_Up_Capital"></textarea>
                                 <label>Profit & Loss Appropriation:</label>
-                                <textarea appThousandSeparator
+                                <textarea appThousandSeparator type="number"
                                     formControlName="Fp_Profit_Loss_Appropriation"></textarea>
                                 <label>Reserve Account:</label>
-                                <textarea appThousandSeparator formControlName="Fp_Reserve_Account"></textarea>
+                                <textarea appThousandSeparator type="number" formControlName="Fp_Reserve_Account"></textarea>
                                 <label>Total Equity:</label>
-                                <textarea readonly appThousandSeparator formControlName="Fp_Total_Equity"></textarea>
+                                <textarea readonly appThousandSeparator type="number" formControlName="Fp_Total_Equity"></textarea>
                                 <label>Total Liabilities & Equity:</label>
-                                <textarea appThousandSeparator readonly
+                                <textarea appThousandSeparator type="number" readonly
                                     formControlName="Fp_Total_Liabilities_and_Equity"></textarea>
                             </div>
                         </div>
@@ -1637,98 +1655,135 @@ margin-bottom: 10px;">
 
                 <!-- Attachment C10: Subsidiaries or Related Entities -->
                 <fieldset id="attachment-c10" *ngIf="le1Form.get('C10_Has_Subsidiary_Outside_Labuan')?.value === '1'">
-                    <legend>Attachment C10: Subsidiaries or Related Entities</legend>
-                    <div class="accordion-container">
-                        <div *ngFor="let i of [0, 1, 2, 3, 4]" class="accordion-item" [class.open]="subsidiaryAccordionState[i]">
-                            <!-- Accordion Header -->
-                            <div class="accordion-header" (click)="subsidiaryAccordionState[i] = !subsidiaryAccordionState[i]">
-                                <h5 class="accordion-title">
-                                    <!-- Note: C10 fields use 1-based indexing (Name1, Name2...) -->
-                                    Subsidiary {{ i + 1 }}: {{ le1Form.get('Name' + (i + 1))?.value || 'New Subsidiary' }}
-                                </h5>
-                                <span class="accordion-icon">{{ subsidiaryAccordionState[i] ? '−' : '+' }}</span>
-                            </div>
-                            <!-- Accordion Body -->
-                            <div *ngIf="subsidiaryAccordionState[i]" class="accordion-body">
-                                <div class="details-grid">
-                                    <div class="details-column">
-                                        <div class="field-group">
-                                            <label [for]="'Name' + (i + 1)">Name</label>
-                                            <input type="text" [id]="'Name' + (i + 1)" [formControlName]="'Name' + (i + 1)">
-                                        </div>
-                                        <div class="field-group">
-                                            <label [for]="'Registration_No' + (i + 1)">Registration No.</label>
-                                            <input type="text" [id]="'Registration_No' + (i + 1)" [formControlName]="'Registration_No' + (i + 1)">
-                                        </div>
-                                    </div>
-                                    <div class="details-column">
-                                        <div class="field-group">
-                                            <label [for]="'TIN' + (i + 1)">TIN</label>
-                                            <input type="text" [id]="'TIN' + (i + 1)" [formControlName]="'TIN' + (i + 1)">
-                                        </div>
-                                        <div class="field-group">
-                                            <label [for]="'Have_Transactions' + (i + 1)">Transactions (1=Y, 2=N)</label>
-                                            <select [id]="'Have_Transactions' + (i + 1)" [formControlName]="'Have_Transactions' + (i + 1)" class="form-select">
-                                                <option value="" disabled>-- Select --</option>
-                                                <option value="1">Yes</option>
-                                                <option value="2">No</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+    <legend>Attachment C10: Subsidiaries or Related Entities</legend>
+    <div class="accordion-container" formArrayName="c10Rows">
+        <div *ngFor="let row of c10Rows.controls; let i = index" [formGroupName]="i" class="accordion-item" [class.open]="accordionStates['c10'][i]">
+            <div class="accordion-header" (click)="accordionStates['c10'][i] = !accordionStates['c10'][i]">
+                <h5 class="accordion-title">
+                    Subsidiary {{ i + 1 }}: {{ row.get('Name')?.value || 'New Subsidiary' }}
+                </h5>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                        (click)="$event.stopPropagation(); removeRow('c10', i)">Remove</button>
+                    <span class="accordion-icon">{{ accordionStates['c10'][i] ? '−' : '+' }}</span>
+                </div>
+            </div>
+            <div *ngIf="accordionStates['c10'][i]" class="accordion-body">
+                <div class="details-grid">
+                    <div class="details-column">
+                        <div class="field-group">
+                            <label>Name</label>
+                            <input type="text" class="form-control" formControlName="Name">
+                        </div>
+                        <div class="field-group">
+                            <label>Registration No.</label>
+                            <input type="text" class="form-control" formControlName="Registration_No">
                         </div>
                     </div>
-                </fieldset>
+                    <div class="details-column">
+                        <div class="field-group">
+                            <label>TIN</label>
+                            <input type="text" class="form-control" formControlName="TIN">
+                        </div>
+                        <div class="field-group">
+                            <label>Transactions (1=Y, 2=N)</label>
+                            <select formControlName="Have_Transactions" class="form-select">
+                                <option value="" disabled>-- Select --</option>
+                                <option value="1">Yes</option>
+                                <option value="2">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-3">
+        <button type="button" class="btn btn-outline-primary" (click)="addRow('c10')">+ Add Subsidiary</button>
+    </div>
+</fieldset>
 
                 <!-- Attachment C11: Payments Received from Malaysian Residents -->
                 <fieldset id="attachment-c11" *ngIf="le1Form.get('C11_Received_Payments_from_Malaysian_Resident')?.value === '1'">
-                    <legend>Attachment C11: Payments Received from Malaysian Residents</legend>
-                    <div class="accordion-container">
-                        <div *ngFor="let i of [0, 1, 2, 3, 4]" class="accordion-item" [class.open]="paymentAccordionState[i]">
-                            <!-- Accordion Header -->
-                            <div class="accordion-header" (click)="paymentAccordionState[i] = !paymentAccordionState[i]">
-                                <h5 class="accordion-title">
-                                    <!-- Note: C11 fields use 0-based indexing -->
-                                    Payer {{ i + 1 }}: {{ le1Form.get('Payments_From_Malaysian_Residents_' + i + '_Name_of_taxpayer')?.value || 'New Payer' }}
-                                </h5>
-                                <span class="accordion-icon">{{ paymentAccordionState[i] ? '−' : '+' }}</span>
-                            </div>
-                            <!-- Accordion Body -->
-                            <div *ngIf="paymentAccordionState[i]" class="accordion-body">
-                                <div class="details-grid">
-                                    <div class="details-column">
-                                        <div class="field-group">
-                                            <label [for]="'Payments_From_Malaysian_Residents_' + i + '_Name_of_taxpayer'">Payer Name</label>
-                                            <input type="text" [id]="'Payments_From_Malaysian_Residents_' + i + '_Name_of_taxpayer'" 
-                                                [formControlName]="'Payments_From_Malaysian_Residents_' + i + '_Name_of_taxpayer'">
-                                        </div>
-                                        <div class="field-group">
-                                            <label [for]="'Payments_From_Malaysian_Residents_' + i + '_TIN'">Payer TIN</label>
-                                            <input type="text" [id]="'Payments_From_Malaysian_Residents_' + i + '_TIN'" 
-                                                [formControlName]="'Payments_From_Malaysian_Residents_' + i + '_TIN'">
-                                        </div>
-                                    </div>
-                                    <div class="details-column">
-                                        <div class="field-group">
-                                            <label [for]="'Payments_From_Malaysian_Residents_' + i + '_Type_of_payment_received'">Payment Type</label>
-                                            <input type="text" [id]="'Payments_From_Malaysian_Residents_' + i + '_Type_of_payment_received'" 
-                                                [formControlName]="'Payments_From_Malaysian_Residents_' + i + '_Type_of_payment_received'">
-                                        </div>
-                                        <div class="field-group">
-                                            <label [for]="'Payments_From_Malaysian_Residents_' + i + '_Amount'">Amount (RM)</label>
-                                            <textarea appThousandSeparator [id]="'Payments_From_Malaysian_Residents_' + i + '_Amount'" 
-                                                [formControlName]="'Payments_From_Malaysian_Residents_' + i + '_Amount'"></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+    <legend>Attachment C11: Payments Received from Malaysian Residents</legend>
+    <div class="accordion-container" formArrayName="c11Rows">
+        <div *ngFor="let row of c11Rows.controls; let i = index" [formGroupName]="i" class="accordion-item" [class.open]="accordionStates['c11'][i]">
+            <div class="accordion-header" (click)="accordionStates['c11'][i] = !accordionStates['c11'][i]">
+                <h5 class="accordion-title">
+                    Payer {{ i + 1 }}: {{ row.get('Name_of_taxpayer')?.value || 'New Payer' }}
+                </h5>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                        (click)="$event.stopPropagation(); removeRow('c11', i)">Remove</button>
+                    <span class="accordion-icon">{{ accordionStates['c11'][i] ? '−' : '+' }}</span>
+                </div>
+            </div>
+            <div *ngIf="accordionStates['c11'][i]" class="accordion-body">
+                <div class="details-grid">
+                    <div class="details-column">
+                        <div class="field-group">
+                            <label>Payer Name</label>
+                            <input type="text" class="form-control" formControlName="Name_of_taxpayer">
+                        </div>
+                        <div class="field-group">
+                            <label>Payer TIN</label>
+                            <input type="text" class="form-control" formControlName="TIN">
                         </div>
                     </div>
-                </fieldset>
+                    <div class="details-column">
+                        <div class="field-group">
+                            <label>Payment Type</label>
+                             <select formControlName="Type_of_payment_received" class="form-select">
+                                <option value="" disabled>-- Select --</option>
+                                <option value="1">Interest Payment</option>
+                                <option value="2">Lease Rental</option>
+                                <option value="3">Other Payment</option>
+                            </select>
+                        </div>
+                        <div class="field-group">
+                            <label>Payment To Related Entity</label>
+                             <select formControlName="Payment_Related_to" class="form-select">
+                                <option value="" disabled>-- Select --</option>
+                                <option value="1">Yes</option>
+                                <option value="2">No</option>
+                            </select>
+                        </div>
+                        <div class="field-group">
+                            <label>Amount (RM)</label>
+                            <textarea class="form-control" appThousandSeparator type="number" formControlName="Amount"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-3">
+        <button type="button" class="btn btn-outline-primary" (click)="addRow('c11')">+ Add Payer</button>
+    </div>
+</fieldset>
 
 
             </form>
+        </div>
+        <!-- Add this at the bottom of your main .content div -->
+        <div class="sticky-footer">
+            <!-- Saved -->
+            <div class="status-text" *ngIf="!le1Form.dirty">
+                <span class="badge bg-info text-dark">Saved</span>
+            </div>
+            <div class="status-text" *ngIf="le1Form.dirty">
+                <span class="badge bg-warning text-dark">Unsaved Changes</span>
+            </div>
+            <!-- <div class="action-buttons">
+                <button type="button" class="btn btn-outline-secondary me-2" (click)="saveProject()">Save Draft</button>
+                <button type="button" class="btn btn-primary" (click)="submit()">Submit & Export</button>
+            </div> -->
+            <div style="display: flex; gap: 10px; max-width: 73vw; align-items: center;">
+                <button (click)="saveProject()" [disabled]="isLoading">Save</button>
+                <!-- <button type="submit" (click)="generatePdf()">Generate PDF</button> -->
+                <button type="submit" (click)="submit()">Submit</button>
+
+            </div>
         </div>
     </div>
 </div>

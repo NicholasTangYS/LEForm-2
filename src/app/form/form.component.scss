@@ -176,23 +176,53 @@ form {
     border: 1px solid #e0e0e0;
 }
 
+// fieldset {
+//     border: none;
+//     border-radius: 5px;
+//     // max-width: 800px;
+//     padding: 5px;
+//     background-color: #f9f9f9;
+//     margin-bottom: 25px;
+// }
+
+// legend {
+//     font-size: 1.2em;
+//     font-weight: 600;
+//     color: #007bff;
+//     padding-bottom: 10px;
+//     width: 100%;
+//     border-bottom: 1px solid #e0e0e0;
+//     margin-bottom: 20px;
+// }
+
+/* Replace your existing fieldset css with this */
 fieldset {
     border: none;
-    border-radius: 5px;
-    // max-width: 800px;
-    padding: 5px;
-    background-color: #f9f9f9;
-    margin-bottom: 25px;
+    background-color: #ffffff;
+    margin-bottom: 30px;
+    padding: 0; /* Reset padding */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* Soft shadow */
+    border-radius: 12px;
+    overflow: hidden; /* Keeps content inside rounded corners */
 }
 
 legend {
-    font-size: 1.2em;
+    background-color: #f8f9fa;
+    padding: 15px 25px;
+    font-size: 1.1rem;
     font-weight: 600;
-    color: #007bff;
-    padding-bottom: 10px;
+    color: #2c3e50;
+    border-bottom: 1px solid #eaeaea;
+    display: block;
     width: 100%;
-    border-bottom: 1px solid #e0e0e0;
     margin-bottom: 20px;
+}
+
+/* Add padding to the content inside the fieldset, not the legend */
+fieldset > div, 
+fieldset > .form-grid,
+fieldset > .accordion-container {
+    padding: 0 25px 25px 25px;
 }
 
 label {
@@ -220,6 +250,11 @@ input[type='text']:focus, input[type='email']:focus, input[type='number']:focus,
     border-color: #007bff;
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
     outline: none;
+}
+
+// textarea readonly background color change
+textarea[readonly] {
+    background-color: #e9ecef;
 }
 
 /* Validation Highlighting */
@@ -420,7 +455,7 @@ background-color: #27ae60; /* Darker green */
     border-radius: 8px;
     background-color: #ffffff;
     transition: all 0.3s ease;
-
+    
     &.open {
         box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         border-color: #007bff;
@@ -636,4 +671,28 @@ background-color: #27ae60; /* Darker green */
             background-color: #0056b3;
         }
     }
+}
+
+.sticky-footer {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 85vw; /* Match your grid layout (100% - 15vw sidebar) */
+    background-color: #fff;
+    border-top: 1px solid #ccc;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+    z-index: 100;
+    
+    @media (max-width: 768px) {
+        width: 100%;
+    }
+}
+
+/* Add padding to bottom of content so footer doesn't cover fields */
+.content {
+    padding-bottom: 80px; 
 }
