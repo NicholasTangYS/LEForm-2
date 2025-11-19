@@ -27,8 +27,8 @@
                 <li><a [routerLink]="['/form']" fragment="attachment-c4">Att. C4: Major Shareholders</a></li>
                 <li><a [routerLink]="['/form']" fragment="attachment-c5">Att. C5: Beneficial Owners</a></li>
                 <li><a [routerLink]="['/form']" fragment="attachment-c9">Att. C9: Financial Particulars</a></li>
-                <li><a [routerLink]="['/form']" fragment="attachment-c10">Att. C10: Subsidiaries</a></li>
-                <li><a [routerLink]="['/form']" fragment="attachment-c11">Att. C11: Payments Received</a></li>
+                <li><a [routerLink]="['/form']" fragment="attachment-c10" *ngIf="le1Form.get('C10_Has_Subsidiary_Outside_Labuan')?.value === '1'">Att. C10: Subsidiaries</a></li>
+                <li><a [routerLink]="['/form']" fragment="attachment-c11" *ngIf="le1Form.get('C11_Received_Payments_from_Malaysian_Resident')?.value === '1'">Att. C11: Payments Received</a></li>
             </ul>
         </div>
         <!-- <span style="text-align: center; padding: 5px;">Sections <svg xmlns="http://www.w3.org/2000/svg" height="14"
@@ -471,7 +471,7 @@
                             <label [for]="'B1_Row' + i + '_Business_Activity_Code'">Activity Code</label>
                             <select class="form-select" [id]="'B1_Row' + i + '_Business_Activity_Code'" [formControlName]="'B1_Row' + i + '_Business_Activity_Code'">
                                 <option value="" disabled>-- Select --</option>
-                                <option *ngFor="let activity of businessActivities" [value]="activity.code">{{ activity.code }}</option>
+                                <option *ngFor="let activity of businessActivities" [value]="activity.code">{{ activity.code }} {{activity.mark}}</option>
                             </select>
                         </div>
                         <div class="field-group">
@@ -490,7 +490,7 @@
                                 <option value="2">Dormant</option>
                             </select>
                         </div>
-                         <div class="field-group">
+                         <!-- <div class="field-group">
                             <label [for]="'B1_Row' + i + '_Comply_Substantive_Yes'">Substantive</label>
                             <select class="form-select" [id]="'B1_Row' + i + '_Comply_Substantive_Yes'" [formControlName]="'B1_Row' + i + '_Comply_Substantive_Yes'">
                                 <option value="" disabled>-- Select --</option>
@@ -499,7 +499,7 @@
                                 <option value="3">By main trade</option>
                                 <option value="4">NA</option>
                             </select>
-                        </div>
+                        </div> -->
                     </div>
 
                     <!-- Column 2: Substance & Compliance -->
@@ -509,8 +509,12 @@
                             <input type="number" [id]="'B1_Row' + i + '_No_of_Employees'" [formControlName]="'B1_Row' + i + '_No_of_Employees'">
                         </div>
                         <div class="field-group">
-                            <label [for]="'B1_Row' + i + '_Annual_Operating_Expenditure'">OpEx (RM)</label>
-                            <input appThousandSeparator type="text" [id]="'B1_Row' + i + '_Annual_Operating_Expenditure'" [formControlName]="'B1_Row' + i + '_Annual_Operating_Expenditure'">
+                            <label [for]="'B1_Row' + i + '_Annual_Operating_Expenditure'">OpEx in Labuan (RM)</label>
+                            <input  type="number" [id]="'B1_Row' + i + '_Annual_Operating_Expenditure'" [formControlName]="'B1_Row' + i + '_Annual_Operating_Expenditure'">
+                        </div>
+                        <div class="field-group">
+                            <label [for]="'B1_Row' + i + '_Annual_Operating_Expenditure'">OpEx in Malaysia (RM)</label>
+                            <input  type="text" [id]="'B1_Row' + i + '_Annual_Operating_Expenditure_MAS'" [formControlName]="'B1_Row' + i + '_Annual_Operating_Expenditure_MAS'">
                         </div>
                         <div class="field-group">
                             <label [for]="'B1_Row' + i + '_Compliance_with_FPEC'">Compliance with FPEC</label>
@@ -553,9 +557,9 @@
             </div>
         </div>
     </div>
-
-                    <label for="B2_Total_Net_Profits">B2: Total Net Profits (RM):</label>
-                    <textarea type="number" appThousandSeparator id="B2_Total_Net_Profits"
+    <div style="margin: 10px;"></div>
+                    <h3 for="B2_Total_Net_Profits">B2: Total Net Profits (RM):</h3>
+                    <textarea readonly type="number" appThousandSeparator id="B2_Total_Net_Profits"
                         formControlName="B2_Total_Net_Profits"></textarea>
 
                     <label for="B3a_Chargeable_Profit_0_Percent">B3a: Chargeable Profit (0%):</label>
@@ -1632,157 +1636,94 @@ margin-bottom: 10px;">
                 </fieldset>
 
                 <!-- Attachment C10: Subsidiaries or Related Entities -->
-                <fieldset id="attachment-c10">
+                <fieldset id="attachment-c10" *ngIf="le1Form.get('C10_Has_Subsidiary_Outside_Labuan')?.value === '1'">
                     <legend>Attachment C10: Subsidiaries or Related Entities</legend>
-                    <div
-                        style="overflow-x: auto; resize: horizontal; width: 60vw; border:1px solid #ccc ; border-radius: 5px;">
-                        <table style="width: 60vw;" class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Registration No.</th>
-                                    <th>TIN</th>
-                                    <th>Transactions (1=Y, 2=N)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Row 1 -->
-                                <tr>
-                                    <td><input type="text" formControlName="Name1"></td>
-                                    <td><input type="text" formControlName="Registration_No1">
-                                    </td>
-                                    <td><input type="text" formControlName="TIN1"></td>
-                                    <td><input type="text" formControlName="Have_Transactions1">
-                                    </td>
-                                </tr>
-                                <!-- Row 2 -->
-                                <tr>
-                                    <td><input type="text" formControlName="Name2"></td>
-                                    <td><input type="text" formControlName="Registration_No2">
-                                    </td>
-                                    <td><input type="text" formControlName="TIN2"></td>
-                                    <td><input type="text" formControlName="Have_Transactions2">
-                                    </td>
-                                </tr>
-                                <!-- Row 3 -->
-                                <tr>
-                                    <td><input type="text" formControlName="Name3"></td>
-                                    <td><input type="text" formControlName="Registration_No3">
-                                    </td>
-                                    <td><input type="text" formControlName="TIN3"></td>
-                                    <td><input type="text" formControlName="Have_Transactions3">
-                                    </td>
-                                </tr>
-                                <!-- Row 4 -->
-                                <tr>
-                                    <td><input type="text" formControlName="Name4"></td>
-                                    <td><input type="text" formControlName="Registration_No4">
-                                    </td>
-                                    <td><input type="text" formControlName="TIN4"></td>
-                                    <td><input type="text" formControlName="Have_Transactions4">
-                                    </td>
-                                </tr>
-                                <!-- Row 5 -->
-                                <tr>
-                                    <td><input type="text" formControlName="Name5"></td>
-                                    <td><input type="text" formControlName="Registration_No5">
-                                    </td>
-                                    <td><input type="text" formControlName="TIN5"></td>
-                                    <td><input type="text" formControlName="Have_Transactions5">
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="accordion-container">
+                        <div *ngFor="let i of [0, 1, 2, 3, 4]" class="accordion-item" [class.open]="subsidiaryAccordionState[i]">
+                            <!-- Accordion Header -->
+                            <div class="accordion-header" (click)="subsidiaryAccordionState[i] = !subsidiaryAccordionState[i]">
+                                <h5 class="accordion-title">
+                                    <!-- Note: C10 fields use 1-based indexing (Name1, Name2...) -->
+                                    Subsidiary {{ i + 1 }}: {{ le1Form.get('Name' + (i + 1))?.value || 'New Subsidiary' }}
+                                </h5>
+                                <span class="accordion-icon">{{ subsidiaryAccordionState[i] ? '−' : '+' }}</span>
+                            </div>
+                            <!-- Accordion Body -->
+                            <div *ngIf="subsidiaryAccordionState[i]" class="accordion-body">
+                                <div class="details-grid">
+                                    <div class="details-column">
+                                        <div class="field-group">
+                                            <label [for]="'Name' + (i + 1)">Name</label>
+                                            <input type="text" [id]="'Name' + (i + 1)" [formControlName]="'Name' + (i + 1)">
+                                        </div>
+                                        <div class="field-group">
+                                            <label [for]="'Registration_No' + (i + 1)">Registration No.</label>
+                                            <input type="text" [id]="'Registration_No' + (i + 1)" [formControlName]="'Registration_No' + (i + 1)">
+                                        </div>
+                                    </div>
+                                    <div class="details-column">
+                                        <div class="field-group">
+                                            <label [for]="'TIN' + (i + 1)">TIN</label>
+                                            <input type="text" [id]="'TIN' + (i + 1)" [formControlName]="'TIN' + (i + 1)">
+                                        </div>
+                                        <div class="field-group">
+                                            <label [for]="'Have_Transactions' + (i + 1)">Transactions (1=Y, 2=N)</label>
+                                            <select [id]="'Have_Transactions' + (i + 1)" [formControlName]="'Have_Transactions' + (i + 1)" class="form-select">
+                                                <option value="" disabled>-- Select --</option>
+                                                <option value="1">Yes</option>
+                                                <option value="2">No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </fieldset>
 
                 <!-- Attachment C11: Payments Received from Malaysian Residents -->
-                <fieldset id="attachment-c11">
+                <fieldset id="attachment-c11" *ngIf="le1Form.get('C11_Received_Payments_from_Malaysian_Resident')?.value === '1'">
                     <legend>Attachment C11: Payments Received from Malaysian Residents</legend>
-                    <div
-                        style="overflow-x: auto; resize: horizontal; width: 60vw; border:1px solid #ccc ; border-radius: 5px;">
-                        <table style="width: 60vw;" class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Payer Name</th>
-                                    <th>Payer TIN</th>
-                                    <th>Payment Type</th>
-                                    <th>Amount (RM)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Row 1 -->
-                                <tr>
-                                    <td><input type="text"
-                                            formControlName="Payments_From_Malaysian_Residents_0_Name_of_taxpayer">
-                                    </td>
-                                    <td><input type="text" formControlName="Payments_From_Malaysian_Residents_0_TIN">
-                                    </td>
-                                    <td><input type="text"
-                                            formControlName="Payments_From_Malaysian_Residents_0_Type_of_payment_received">
-                                    </td>
-                                    <td><textarea appThousandSeparator type="text"
-                                            formControlName="Payments_From_Malaysian_Residents_0_Amount"></textarea>
-                                    </td>
-                                </tr>
-                                <!-- Row 2 -->
-                                <tr>
-                                    <td><input type="text"
-                                            formControlName="Payments_From_Malaysian_Residents_1_Name_of_taxpayer">
-                                    </td>
-                                    <td><input type="text" formControlName="Payments_From_Malaysian_Residents_1_TIN">
-                                    </td>
-                                    <td><input type="text"
-                                            formControlName="Payments_From_Malaysian_Residents_1_Type_of_payment_received">
-                                    </td>
-                                    <td><textarea appThousandSeparator type="text"
-                                            formControlName="Payments_From_Malaysian_Residents_1_Amount"></textarea>
-                                    </td>
-                                </tr>
-                                <!-- Row 3 -->
-                                <tr>
-                                    <td><input type="text"
-                                            formControlName="Payments_From_Malaysian_Residents_2_Name_of_taxpayer">
-                                    </td>
-                                    <td><input type="text" formControlName="Payments_From_Malaysian_Residents_2_TIN">
-                                    </td>
-                                    <td><input type="text"
-                                            formControlName="Payments_From_Malaysian_Residents_2_Type_of_payment_received">
-                                    </td>
-                                    <td><textarea appThousandSeparator type="text"
-                                            formControlName="Payments_From_Malaysian_Residents_2_Amount"></textarea>
-                                    </td>
-                                </tr>
-                                <!-- Row 4 -->
-                                <tr>
-                                    <td><input type="text"
-                                            formControlName="Payments_From_Malaysian_Residents_3_Name_of_taxpayer">
-                                    </td>
-                                    <td><input type="text" formControlName="Payments_From_Malaysian_Residents_3_TIN">
-                                    </td>
-                                    <td><input type="text"
-                                            formControlName="Payments_From_Malaysian_Residents_3_Type_of_payment_received">
-                                    </td>
-                                    <td><textarea appThousandSeparator type="text"
-                                            formControlName="Payments_From_Malaysian_Residents_3_Amount"></textarea>
-                                    </td>
-                                </tr>
-                                <!-- Row 5 -->
-                                <tr>
-                                    <td><input type="text"
-                                            formControlName="Payments_From_Malaysian_Residents_4_Name_of_taxpayer">
-                                    </td>
-                                    <td><input type="text" formControlName="Payments_From_Malaysian_Residents_4_TIN">
-                                    </td>
-                                    <td><input type="text"
-                                            formControlName="Payments_From_Malaysian_Residents_4_Type_of_payment_received">
-                                    </td>
-                                    <td><textarea appThousandSeparator type="text"
-                                            formControlName="Payments_From_Malaysian_Residents_4_Amount"></textarea>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="accordion-container">
+                        <div *ngFor="let i of [0, 1, 2, 3, 4]" class="accordion-item" [class.open]="paymentAccordionState[i]">
+                            <!-- Accordion Header -->
+                            <div class="accordion-header" (click)="paymentAccordionState[i] = !paymentAccordionState[i]">
+                                <h5 class="accordion-title">
+                                    <!-- Note: C11 fields use 0-based indexing -->
+                                    Payer {{ i + 1 }}: {{ le1Form.get('Payments_From_Malaysian_Residents_' + i + '_Name_of_taxpayer')?.value || 'New Payer' }}
+                                </h5>
+                                <span class="accordion-icon">{{ paymentAccordionState[i] ? '−' : '+' }}</span>
+                            </div>
+                            <!-- Accordion Body -->
+                            <div *ngIf="paymentAccordionState[i]" class="accordion-body">
+                                <div class="details-grid">
+                                    <div class="details-column">
+                                        <div class="field-group">
+                                            <label [for]="'Payments_From_Malaysian_Residents_' + i + '_Name_of_taxpayer'">Payer Name</label>
+                                            <input type="text" [id]="'Payments_From_Malaysian_Residents_' + i + '_Name_of_taxpayer'" 
+                                                [formControlName]="'Payments_From_Malaysian_Residents_' + i + '_Name_of_taxpayer'">
+                                        </div>
+                                        <div class="field-group">
+                                            <label [for]="'Payments_From_Malaysian_Residents_' + i + '_TIN'">Payer TIN</label>
+                                            <input type="text" [id]="'Payments_From_Malaysian_Residents_' + i + '_TIN'" 
+                                                [formControlName]="'Payments_From_Malaysian_Residents_' + i + '_TIN'">
+                                        </div>
+                                    </div>
+                                    <div class="details-column">
+                                        <div class="field-group">
+                                            <label [for]="'Payments_From_Malaysian_Residents_' + i + '_Type_of_payment_received'">Payment Type</label>
+                                            <input type="text" [id]="'Payments_From_Malaysian_Residents_' + i + '_Type_of_payment_received'" 
+                                                [formControlName]="'Payments_From_Malaysian_Residents_' + i + '_Type_of_payment_received'">
+                                        </div>
+                                        <div class="field-group">
+                                            <label [for]="'Payments_From_Malaysian_Residents_' + i + '_Amount'">Amount (RM)</label>
+                                            <textarea appThousandSeparator [id]="'Payments_From_Malaysian_Residents_' + i + '_Amount'" 
+                                                [formControlName]="'Payments_From_Malaysian_Residents_' + i + '_Amount'"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </fieldset>
 

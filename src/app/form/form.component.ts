@@ -29,6 +29,8 @@ export class FormComponent implements OnInit {
   officerAccordionState: boolean[] = [true, false, false, false, false];
   shareholderAccordionState: boolean[] = [true, false, false, false, false];
   ownerAccordionState: boolean[] = [true, false, false, false, false];
+  subsidiaryAccordionState: boolean[] = [true, false, false, false, false];
+  paymentAccordionState: boolean[] = [true, false, false, false, false];
   isInstructionModalVisible = false; // Controls the visibility of our new modal
   jsonDataForExtension = '';         // Will hold the pretty-formatted JSON for the user to copy
   copyButtonText = 'Copy JSON';
@@ -38,30 +40,30 @@ export class FormComponent implements OnInit {
   private apiUrl = baseUrl;
   projectId: any;
   sectionStatus: { [key: string]: boolean } = {};
-  businessActivities: { code: string, description: string }[] = [
-    { code: '00001', description: 'Labuan insurer, Labuan reinsurer, Labuan takaful operator or Labuan retakaful operator' },
-    { code: '00002', description: 'Labuan underwriting manager or Labuan underwriting takaful manager' },
-    { code: '00003', description: 'Labuan insurance manager or Labuan takaful manager' },
-    { code: '00004', description: 'Labuan insurance broker or Labuan takaful broker' },
-    { code: '00005', description: 'Labuan captive insurer or Labuan captive takaful' },
-    { code: '00006', description: 'Labuan International Commodity Trading Company' },
-    { code: '00007', description: 'Labuan bank, Labuan investment bank, Labuan Islamic bank or Labuan Islamic investment bank' },
-    { code: '00008', description: 'Labuan trust company' },
-    { code: '00009', description: 'Labuan leasing company or Labuan Islamic leasing company' },
-    { code: '00010', description: 'Labuan credit token company or Labuan Islamic credit token company' },
-    { code: '00011', description: 'Labuan development finance company or Labuan Islamic development finance company' },
-    { code: '00012', description: 'Labuan building credit company or Labuan Islamic building credit company' },
-    { code: '00013', description: 'Labuan factoring company or Labuan Islamic factoring company' },
-    { code: '00014', description: 'Labuan money broker or Labuan Islamic money broker' },
-    { code: '00015', description: 'Labuan fund manager' },
-    { code: '00016', description: 'Labuan securities licensee or Labuan Islamic securities licensee' },
-    { code: '00017', description: 'Labuan fund administrator' },
-    { code: '00018', description: 'Labuan company management' },
-    { code: '00019', description: 'Labuan International Financial Exchange' },
-    { code: '00020', description: 'Self-regulatory organisation or Islamic self-regulation organisation' },
-    { code: '00021', description: 'Labuan entity that undertakes investment holding activities other than pure equity holding activities' },
-    { code: '00022', description: 'Labuan entity that undertakes pure equity holding activities' },
-    { code: '00023', description: 'Labuan entity that carries out administrative services, accounting services, legal services, backroom processing services, payroll services, talent management services, agency services, insolvency related services and management services other than Labuan company management under code 00018' }
+  businessActivities: { code: string, description: string, mark: string }[] = [
+    { code: '00001', description: 'Labuan insurer, Labuan reinsurer, Labuan takaful operator or Labuan retakaful operator', mark:'' },
+    { code: '00002', description: 'Labuan underwriting manager or Labuan underwriting takaful manager', mark:'' },
+    { code: '00003', description: 'Labuan insurance manager or Labuan takaful manager', mark:'' },
+    { code: '00004', description: 'Labuan insurance broker or Labuan takaful broker', mark:'' },
+    { code: '00005', description: 'Labuan captive insurer or Labuan captive takaful', mark:'' },
+    { code: '00006', description: 'Labuan International Commodity Trading Company',mark: 'LITC' },
+    { code: '00007', description: 'Labuan bank, Labuan investment bank, Labuan Islamic bank or Labuan Islamic investment bank', mark:'' },
+    { code: '00008', description: 'Labuan trust company', mark:'' },
+    { code: '00009', description: 'Labuan leasing company or Labuan Islamic leasing company', mark:'' },
+    { code: '00010', description: 'Labuan credit token company or Labuan Islamic credit token company', mark:'' },
+    { code: '00011', description: 'Labuan development finance company or Labuan Islamic development finance company', mark:'' },
+    { code: '00012', description: 'Labuan building credit company or Labuan Islamic building credit company', mark:'' },
+    { code: '00013', description: 'Labuan factoring company or Labuan Islamic factoring company', mark:'' },
+    { code: '00014', description: 'Labuan money broker or Labuan Islamic money broker', mark:'' },
+    { code: '00015', description: 'Labuan fund manager', mark:'' },
+    { code: '00016', description: 'Labuan securities licensee or Labuan Islamic securities licensee', mark:'' },
+    { code: '00017', description: 'Labuan fund administrator', mark:'' },
+    { code: '00018', description: 'Labuan company management' , mark:''},
+    { code: '00019', description: 'Labuan International Financial Exchange', mark:'' },
+    { code: '00020', description: 'Self-regulatory organisation or Islamic self-regulation organisation', mark:'' },
+    { code: '00021', description: 'Labuan entity that undertakes investment holding activities other than pure equity holding activities',mark: 'Non Trading (Non pure)' },
+    { code: '00022', description: 'Labuan entity that undertakes pure equity holding activities' ,mark: 'Non Trading (Pure)'},
+    { code: '00023', description: 'Labuan entity that carries out administrative services, accounting services, legal services, backroom processing services, payroll services, talent management services, agency services, insolvency related services and management services other than Labuan company management under code 00018', mark:'' }
   ];
 
   incentiveCodes: { code: string }[] = [
@@ -396,6 +398,7 @@ export class FormComponent implements OnInit {
       B1_Row1_Business_Activity_Status_Active: [''],
       B1_Row1_No_of_Employees: [''],
       B1_Row1_Annual_Operating_Expenditure: [''],
+      B1_Row1_Annual_Operating_Expenditure_MAS: [''],
       B1_Row1_Compliance_with_FPEC: [''],
       B1_Row1_Compliance_with_CML: [''],
       B1_Row1_No_of_Employees_Malaysia: [''],
@@ -408,6 +411,7 @@ export class FormComponent implements OnInit {
       B1_Row2_Business_Activity_Status_Active: [''],
       B1_Row2_No_of_Employees: [''],
       B1_Row2_Annual_Operating_Expenditure: [''],
+      B1_Row2_Annual_Operating_Expenditure_MAS: [''],
       B1_Row2_Compliance_with_FPEC: [''],
       B1_Row2_Compliance_with_CML: [''],
       B1_Row2_No_of_Employees_Malaysia: [''],
@@ -420,6 +424,7 @@ export class FormComponent implements OnInit {
       B1_Row3_Business_Activity_Status_Active: [''],
       B1_Row3_No_of_Employees: [''],
       B1_Row3_Annual_Operating_Expenditure: [''],
+      B1_Row3_Annual_Operating_Expenditure_MAS: [''],
       B1_Row3_Compliance_with_FPEC: [''],
       B1_Row3_Compliance_with_CML: [''],
       B1_Row3_No_of_Employees_Malaysia: [''],
@@ -432,6 +437,7 @@ export class FormComponent implements OnInit {
       B1_Row4_Business_Activity_Status_Active: [''],
       B1_Row4_No_of_Employees: [''],
       B1_Row4_Annual_Operating_Expenditure: [''],
+      B1_Row4_Annual_Operating_Expenditure_MAS: [''],
       B1_Row4_Compliance_with_FPEC: [''],
       B1_Row4_Compliance_with_CML: [''],
       B1_Row4_No_of_Employees_Malaysia: [''],
@@ -444,6 +450,7 @@ export class FormComponent implements OnInit {
       B1_Row5_Business_Activity_Status_Active: [''],
       B1_Row5_No_of_Employees: [''],
       B1_Row5_Annual_Operating_Expenditure: [''],
+      B1_Row5_Annual_Operating_Expenditure_MAS: [''],
       B1_Row5_Compliance_with_FPEC: [''],
       B1_Row5_Compliance_with_CML: [''],
       B1_Row5_No_of_Employees_Malaysia: [''],
@@ -935,6 +942,20 @@ export class FormComponent implements OnInit {
       this.checkAllSectionsCompletion();
     });
 
+    this.le1Form.get('Change_of_Accounting_Period_No')?.valueChanges.subscribe(value => {
+      const a = ['Types_of_exchange_of_accounting_periods'];
+      // const p_F = ['F1_Reporting_Entity_Name', 'F2_TIN', 'F3_Country_of_Residence', 'F4_Accounting_Period_From_Day', 'F4_Accounting_Period_From_Month', 'F4_Accounting_Period_From_Year', 'F4_Accounting_Period_To_Day', 'F4_Accounting_Period_To_Month', 'F4_Accounting_Period_To_Year', 'F5_MNE_Group_Name', 'F6_Status_of_Reporting_Entity', 'F7a_Ultimate_Holding_Entity_Name', 'F7b_Country_of_Residence_UHE'];
+
+      if (value === '1') { // "Yes"
+        a.forEach(c => this.le1Form.get(c)?.enable());
+        // p_F.forEach(c => this.le1Form.get(c)?.enable());
+      } else { // "No" or other values
+        this.le1Form.get('Types_of_exchange_of_accounting_periods')?.setValue('');
+        a.forEach(c => this.le1Form.get(c)?.disable());
+        // p_F.forEach(c => this.le1Form.get(c)?.disable());
+      }
+    });
+
     this.le1Form.get('D1_Subject_to_CbCR')?.valueChanges.subscribe(value => {
       const a = ['D1_Subject_as'];
       // const p_F = ['F1_Reporting_Entity_Name', 'F2_TIN', 'F3_Country_of_Residence', 'F4_Accounting_Period_From_Day', 'F4_Accounting_Period_From_Month', 'F4_Accounting_Period_From_Year', 'F4_Accounting_Period_To_Day', 'F4_Accounting_Period_To_Month', 'F4_Accounting_Period_To_Year', 'F5_MNE_Group_Name', 'F6_Status_of_Reporting_Entity', 'F7a_Ultimate_Holding_Entity_Name', 'F7b_Country_of_Residence_UHE'];
@@ -966,6 +987,59 @@ export class FormComponent implements OnInit {
         p_F.forEach(c => this.le1Form.get(c)?.disable());
       }
     });
+
+    this.le1Form.get('C10_Has_Subsidiary_Outside_Labuan')?.valueChanges.subscribe(value => {
+      // Define C10 fields (Rows 1 to 5)
+      const c10AttachmentFields = [
+        'Name1', 'Registration_No1', 'TIN1', 'Have_Transactions1',
+        'Name2', 'Registration_No2', 'TIN2', 'Have_Transactions2',
+        'Name3', 'Registration_No3', 'TIN3', 'Have_Transactions3',
+        'Name4', 'Registration_No4', 'TIN4', 'Have_Transactions4',
+        'Name5', 'Registration_No5', 'TIN5', 'Have_Transactions5'
+      ];
+
+      if (value === '1') { // "Yes" - Enable all fields
+        c10AttachmentFields.forEach(c => this.le1Form.get(c)?.enable());
+      } else { // "No" or other values - Clear and Disable all fields
+        c10AttachmentFields.forEach(c => {
+          this.le1Form.get(c)?.setValue(''); // Clear value
+          this.le1Form.get(c)?.disable();    // Disable control
+        });
+      }
+    });
+
+    this.le1Form.get('C11_Received_Payments_from_Malaysian_Resident')?.valueChanges.subscribe(value => {
+
+
+    // List of all 20 controls within the Attachment C11 table
+    const c11AttachmentFields = [
+        'Payments_From_Malaysian_Residents_0_Name_of_taxpayer', 'Payments_From_Malaysian_Residents_0_TIN',
+        'Payments_From_Malaysian_Residents_0_Type_of_payment_received', 'Payments_From_Malaysian_Residents_0_Amount',
+        'Payments_From_Malaysian_Residents_1_Name_of_taxpayer', 'Payments_From_Malaysian_Residents_1_TIN',
+        'Payments_From_Malaysian_Residents_1_Type_of_payment_received', 'Payments_From_Malaysian_Residents_1_Amount',
+        'Payments_From_Malaysian_Residents_2_Name_of_taxpayer', 'Payments_From_Malaysian_Residents_2_TIN',
+        'Payments_From_Malaysian_Residents_2_Type_of_payment_received', 'Payments_From_Malaysian_Residents_2_Amount',
+        'Payments_From_Malaysian_Residents_3_Name_of_taxpayer', 'Payments_From_Malaysian_Residents_3_TIN',
+        'Payments_From_Malaysian_Residents_3_Type_of_payment_received', 'Payments_From_Malaysian_Residents_3_Amount',
+        'Payments_From_Malaysian_Residents_4_Name_of_taxpayer', 'Payments_From_Malaysian_Residents_4_TIN',
+        'Payments_From_Malaysian_Residents_4_Type_of_payment_received', 'Payments_From_Malaysian_Residents_4_Amount',
+    ];
+
+    // Combine all fields that need to be managed
+    
+
+    if (value === '1') { // "Yes" - Enable all fields
+        c11AttachmentFields.forEach(c => this.le1Form.get(c)?.enable());
+    } else { // "No" or other values - Clear and Disable all fields
+        
+        // 1. Clear the values for all dependent fields
+        // Setting value to an empty string ('') or null will clear the form input.
+        c11AttachmentFields.forEach(c => this.le1Form.get(c)?.setValue(''));
+
+        // 2. Disable all dependent fields
+        c11AttachmentFields.forEach(c => this.le1Form.get(c)?.disable());
+    }
+});
 
     this.le1Form.get('Business_Activity_Code')?.valueChanges.subscribe(code => {
       this.updateBusinessActivityDescription(code);
@@ -999,6 +1073,17 @@ export class FormComponent implements OnInit {
           this.updateC9();
         });
       }
+    });
+
+    for (let i = 1; i <= 5; i++) {
+      this.setupB1RowLogic(i);
+    }
+
+    this.setupB2AutoCalculation();
+    // --------------------------------------------------
+
+    this.le1Form.get('Business_Activity_Code')?.valueChanges.subscribe(code => {
+      this.updateBusinessActivityDescription(code);
     });
   }
 
@@ -1065,6 +1150,147 @@ export class FormComponent implements OnInit {
       Fp_Total_Equity: totalEquity,
       Fp_Total_Liabilities_and_Equity: totalLiabilitiesAndEquity
     }, { emitEvent: false });
+  }
+
+  setupB1RowLogic(row: number): void {
+    const codeControlName = `B1_Row${row}_Business_Activity_Code`;
+    const statusControlName = `B1_Row${row}_Business_Activity_Status_Active`;
+
+    const codeControl = this.le1Form.get(codeControlName);
+    const statusControl = this.le1Form.get(statusControlName);
+
+    const updateRowState = () => {
+      const code = codeControl?.value;
+      const status = statusControl?.value;
+
+      // Define the fields affected by the logic
+      const fieldMap = {
+        cml: `B1_Row${row}_Compliance_with_CML`,
+        employees: `B1_Row${row}_No_of_Employees`,
+        employeesMY: `B1_Row${row}_No_of_Employees_Malaysia`,
+        opex: `B1_Row${row}_Annual_Operating_Expenditure`,
+        opexMY: `B1_Row${row}_Annual_Operating_Expenditure_MAS`,
+        fpec: `B1_Row${row}_Compliance_with_FPEC`,
+        relatedCo: `B1_Row${row}_No_of_Related_Company`,
+        netProfit: `B1_Row${row}_Net_Profits_ex_IP`
+      };
+
+      // Helper to enable/disable a list of fields
+      const setDisabled = (fields: string[], isDisabled: boolean) => {
+        fields.forEach(f => {
+          const control = this.le1Form.get(f);
+          if (isDisabled) {
+            control?.disable({ emitEvent: false });
+            // Optional: Clear value when disabled to ensure data integrity
+            // control?.setValue('', { emitEvent: false }); 
+          } else {
+            control?.enable({ emitEvent: false });
+          }
+        });
+      };
+
+      // 1. Reset: Enable all fields initially to ensure clean state before applying rules
+      setDisabled(Object.values(fieldMap), false);
+
+      // 2. Priority Rule: Business Status is Dormant ('2')
+      if (status === '2') {
+        setDisabled([
+          fieldMap.employees,
+          fieldMap.employeesMY,
+          fieldMap.fpec,
+          fieldMap.relatedCo,
+          fieldMap.opex,
+          fieldMap.opexMY,
+          fieldMap.cml,
+          fieldMap.netProfit
+        ], true);
+        //clear values when disabled
+        this.le1Form.get(fieldMap.employees)?.setValue('', { emitEvent: false });
+        this.le1Form.get(fieldMap.employeesMY)?.setValue('', { emitEvent: false });
+        this.le1Form.get(fieldMap.fpec)?.setValue('', { emitEvent: false });
+        this.le1Form.get(fieldMap.relatedCo)?.setValue('', { emitEvent: false });
+        this.le1Form.get(fieldMap.opex)?.setValue('', { emitEvent: false });
+        this.le1Form.get(fieldMap.cml)?.setValue('', { emitEvent: false });
+        this.le1Form.get(fieldMap.netProfit)?.setValue('', { emitEvent: false });
+        // If dormant, we stop here (dormant rules override activity code rules)
+        return;
+      }
+
+      // 3. Rule: Activity Code '00006' (Labuan International Commodity Trading Company)
+      if (code === '00006') {
+        setDisabled([fieldMap.cml], true);
+        //clear CML value when disabled
+        this.le1Form.get(fieldMap.cml)?.setValue('', { emitEvent: false });
+
+      }
+
+      
+
+      // 4. Rule: Activity Code '00022' (Pure Equity Holding)
+      if (code === '00022') {
+        setDisabled([
+          fieldMap.employees,
+          fieldMap.employeesMY,
+          fieldMap.opex,
+          fieldMap.fpec,
+          fieldMap.relatedCo
+        ], true);
+        //clear values when disabled
+        this.le1Form.get(fieldMap.employees)?.setValue('', { emitEvent: false });
+        this.le1Form.get(fieldMap.employeesMY)?.setValue('', { emitEvent: false });
+        this.le1Form.get(fieldMap.opex)?.setValue('', { emitEvent: false });
+        this.le1Form.get(fieldMap.fpec)?.setValue('', { emitEvent: false });
+        this.le1Form.get(fieldMap.relatedCo)?.setValue('', { emitEvent: false });
+      }
+
+      // 5. Rule: Other Activity Codes (not '00006' or '00022')
+      if (code !== '00006' && code !== '00022') {
+        setDisabled([
+          fieldMap.employeesMY,
+          fieldMap.opexMY,
+          fieldMap.relatedCo,
+          fieldMap.cml
+        ], true);
+        //clear values when disabled
+        this.le1Form.get(fieldMap.employeesMY)?.setValue('', { emitEvent: false });
+        this.le1Form.get(fieldMap.opexMY)?.setValue('', { emitEvent: false });
+        this.le1Form.get(fieldMap.relatedCo)?.setValue('', { emitEvent: false });
+        this.le1Form.get(fieldMap.cml)?.setValue('', { emitEvent: false });
+      }
+    };
+
+    
+
+    // Subscribe to changes
+    codeControl?.valueChanges.subscribe(updateRowState);
+    statusControl?.valueChanges.subscribe(updateRowState);
+  }
+
+  setupB2AutoCalculation(): void {
+    const profitFields = [
+      'B1_Row1_Net_Profits_ex_IP',
+      'B1_Row2_Net_Profits_ex_IP',
+      'B1_Row3_Net_Profits_ex_IP',
+      'B1_Row4_Net_Profits_ex_IP',
+      'B1_Row5_Net_Profits_ex_IP'
+    ];
+
+    const updateB2Total = () => {
+      const total = profitFields.reduce((sum, fieldName) => {
+        const value = this.le1Form.get(fieldName)?.value;
+        // Handle values that might be strings with commas or standard numbers
+        const num = value ? parseFloat(String(value).replace(/,/g, '')) : 0;
+        return sum + (isNaN(num) ? 0 : num);
+      }, 0);
+
+      // Update B2, ensuring we don't emit an event to cause loops (though unlikely here)
+      this.le1Form.get('B2_Total_Net_Profits')?.setValue(total, { emitEvent: false });
+    };
+
+    // Subscribe to changes on all profit fields
+    profitFields.forEach(field => {
+      this.le1Form.get(field)?.valueChanges.subscribe(updateB2Total);
+    });
   }
 
   private getFormattedData(): any {
