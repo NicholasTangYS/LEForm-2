@@ -35,6 +35,8 @@ body {
     background-color: #ffffff;
     border-right: 1px solid #e0e0e0;
     // height: 100vh;
+    height: 100vh;
+    overflow: scroll;
     position: sticky;
     top: 0;
     z-index: 2;
@@ -118,6 +120,8 @@ body {
 /* --- Main Content Area --- */
 .content {
     // flex-grow: 1;
+    height: 100vh;
+
     display: grid;
     padding: 0 30px;
     background-color: #f9f9f9;
@@ -539,9 +543,9 @@ background-color: #27ae60; /* Darker green */
     .sidebar {
         // The form's sidebar no longer needs to be sticky or take up the full height
         position: static;
-        height: auto;
+        height: 100vh;
         width: 100%; // Take full width in the single-column layout
-
+        overflow:scroll;
         // Add some space between the sidebar and the content below it
         margin-bottom: 20px; 
         
@@ -674,10 +678,10 @@ background-color: #27ae60; /* Darker green */
 }
 
 .sticky-footer {
-    position: fixed;
+    // position: fixed;
     bottom: 0;
     right: 0;
-    width: 85vw; /* Match your grid layout (100% - 15vw sidebar) */
+    // width: 85vw; /* Match your grid layout (100% - 15vw sidebar) */
     background-color: #fff;
     border-top: 1px solid #ccc;
     padding: 15px 30px;
@@ -692,7 +696,3 @@ background-color: #27ae60; /* Darker green */
     }
 }
 
-/* Add padding to bottom of content so footer doesn't cover fields */
-.content {
-    padding-bottom: 80px; 
-}

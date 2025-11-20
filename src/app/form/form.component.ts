@@ -21,7 +21,7 @@ import { AutoResizeDirective } from '../auto-resize.directive';
 })
 export class FormComponent implements OnInit {
   le1Form: FormGroup;
-  
+
   // Dynamic accordion states for each section
   accordionStates: { [key: string]: boolean[] } = {
     b1: [],
@@ -40,7 +40,7 @@ export class FormComponent implements OnInit {
   sidebarOpen = false;
   private apiUrl = baseUrl;
   projectId: any;
-  
+
   // Section completion tracking
   sectionStatus: { [key: string]: boolean } = {};
 
@@ -324,7 +324,7 @@ export class FormComponent implements OnInit {
     { "code": "ZMB", "name": "ZAMBIA" },
     { "code": "ZWE", "name": "ZIMBABWE" }
   ]
- labuanEntityTypes = new Map<string, string>([
+  labuanEntityTypes = new Map<string, string>([
     ['1', 'Labuan Company'], ['2', 'Labuan Foundation'], ['3', 'Labuan Islamic Foundation'],
     ['4', 'Labuan Islamic partnership'], ['5', 'Labuan limited partnership'], ['6', 'Labuan Limited Liability Partnership'],
     ['7', 'Labuan Islamic trust'], ['8', 'Labuan trust'], ['9', 'Malaysian Islamic bank licensee'],
@@ -363,7 +363,7 @@ export class FormComponent implements OnInit {
       // Part B: Tax Computation (Now FormArray)
       b1Rows: this.fb.array([]),
       B2_Total_Net_Profits: [''],
-      
+
       // Part B2-B6
       B3a_Chargeable_Profit_0_Percent: [''],
       B3b_Chargeable_Profit_3_Percent: [''],
@@ -430,11 +430,14 @@ export class FormComponent implements OnInit {
       F7b_Country_of_Residence_UHE: [''],
 
       // Declaration
-      Declarant_Name: [''],
-      Declarant_ID_Passport: [''],
-      Declaration_Date: [''],
+      Declarant_Address_line1: [''],
+      Declarant_Address_line2: [''],
+      Declarant_Postcode: [''],
+      Declarant_Telephone_no: [''],
+      Declarant_Email: [''],
+      // Declaration_Date: [''],
       Declarant_Designation: [''],
-      Designation_Others: [''],
+      // Designation_Others: [''],
 
       // Attachments (Now FormArrays)
       c3Rows: this.fb.array([]),
@@ -535,7 +538,7 @@ export class FormComponent implements OnInit {
     // Attach Listeners
     this.setupB1RowLogic(group);
     group.get('Net_Profits_ex_IP')?.valueChanges.subscribe(() => this.calculateB2Total());
-    
+
     return group;
   }
 
@@ -761,7 +764,7 @@ export class FormComponent implements OnInit {
       });
     });
 
-     this.le1Form.get('C6a_Has_Related_Company')?.valueChanges.subscribe(value => {
+    this.le1Form.get('C6a_Has_Related_Company')?.valueChanges.subscribe(value => {
       const target = this.le1Form.get('C6b_Number_of_Related_Companies_Qualifying_Activity');
       if (value === '1') target?.enable();
       else {
@@ -834,6 +837,18 @@ export class FormComponent implements OnInit {
       this.updateFpLabuanEntityType(value);
     });
 
+    this.le1Form.get('Declarant_Designation')?.valueChanges.subscribe(value => {
+      const targetFields =  ['Declarant_Address_line1','Declarant_Address_line2','Declarant_Postcode','Declarant_Telephone_no','Declarant_Email'];
+      if (value === '1') {
+        targetFields.forEach(f => this.le1Form.get(f)?.enable());
+      } else {
+        targetFields.forEach(f => {
+          // this.le1Form.get(f)?.setValue('');
+          this.le1Form.get(f)?.disable();
+        });
+      }
+    });
+
     // C9 Calculations Watcher
     const c9FieldsToWatch = [
       'Pnl_Sales_Turnover', 'Pnl_Opening_Inventory', 'Pnl_Cost_of_Purchases', 'Pnl_Cost_of_Production',
@@ -865,16 +880,16 @@ export class FormComponent implements OnInit {
         if (response && response[0].data) {
           const data = response[0].data;
 
-          
-          
+
+
 
           // 2. Populate FormArrays directly from nested arrays
           // We use a simplified helper now because the data is already an array
           const dateFields = [
-            'Accounting_Period_From', 'Accounting_Period_To', 
-            'Basis_Period_From', 'Basis_Period_To', 
+            'Accounting_Period_From', 'Accounting_Period_To',
+            'Basis_Period_From', 'Basis_Period_To',
             'Declaration_Date',
-            'E2_Accounting_Period_From', 'E2_Accounting_Period_To', 
+            'E2_Accounting_Period_From', 'E2_Accounting_Period_To',
             'F4_Accounting_Period_From', 'F4_Accounting_Period_To'
           ];
 
@@ -929,7 +944,7 @@ export class FormComponent implements OnInit {
   // New, simplified helper method
   populateFormArray(formArray: FormArray, dataArray: any[], createFn: (item: any) => FormGroup) {
     formArray.clear();
-    
+
     if (Array.isArray(dataArray) && dataArray.length > 0) {
       dataArray.forEach(item => {
         formArray.push(createFn(item));
@@ -954,7 +969,7 @@ export class FormComponent implements OnInit {
   }
 
   // Helper to extract flat data into array objects
-  
+
   populateC10Array(formArray: FormArray, rawData: any) {
     formArray.clear();
     // C10 fields are Name1, Registration_No1, etc. No underscore separator after index.
@@ -969,7 +984,7 @@ export class FormComponent implements OnInit {
           Have_Transactions: rawData[`Have_Transactions${i}`]
         }));
       } else {
-         if (i > 5) break;
+        if (i > 5) break;
       }
     }
     if (formArray.length === 0) formArray.push(this.createC10Row({}));
@@ -981,12 +996,12 @@ export class FormComponent implements OnInit {
     if (dateValue && typeof dateValue === 'string' && /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateValue)) {
       const parts = dateValue.split('/'); // [DD, MM, YYYY]
       // Return YYYY-MM-DD
-      return `${parts[2]}-${parts[1]}-${parts[0]}`; 
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
     }
     return dateValue; // Return as-is if it's already correct or empty
   }
   // --- Save & Formatting ---
-  
+
   private getFormattedData(): any {
     // 1. Get the nested object structure directly
     const formData = this.le1Form.getRawValue();
@@ -1055,75 +1070,92 @@ export class FormComponent implements OnInit {
     // Part B
     this.sectionStatus['part-b'] = this.b1Rows.controls.every(g => {
       // all fields of b1 
-       return this.isFieldComplete(g.get('Business_Activity_Code')) && 
-              this.isFieldComplete(g.get('Business_Activity_Status_Active')) && this.isFieldComplete(g.get('Core_Income_Activity_Yes')) 
-              && this.isFieldComplete(g.get('Net_Profits_ex_IP')) &&  (this.isFieldComplete(g.get('No_of_Employees')) || g.get('No_of_Employees')?.disabled)
-              && (this.isFieldComplete(g.get('No_of_Employees_Malaysia')) || g.get('No_of_Employees_Malaysia')?.disabled)
-              && (this.isFieldComplete(g.get('Annual_Operating_Expenditure')) || g.get('Annual_Operating_Expenditure')?.disabled)
-              && (this.isFieldComplete(g.get('Annual_Operating_Expenditure_MAS')) || g.get('Annual_Operating_Expenditure_MAS')?.disabled)
-              && (this.isFieldComplete(g.get('Compliance_with_FPEC')) || g.get('Compliance_with_FPEC')?.disabled)
-              && (this.isFieldComplete(g.get('Compliance_with_CML')) || g.get('Compliance_with_CML')?.disabled)
-              && (this.isFieldComplete(g.get('No_of_Related_Company')) || g.get('No_of_Related_Company')?.disabled)
-              && (this.isFieldComplete(g.get('Amount_of_Net_Loss')) || g.get('Amount_of_Net_Loss')?.disabled)
-              ;
+      return this.isFieldComplete(g.get('Business_Activity_Code')) &&
+        this.isFieldComplete(g.get('Business_Activity_Status_Active')) && this.isFieldComplete(g.get('Core_Income_Activity_Yes'))
+        && this.isFieldComplete(g.get('Net_Profits_ex_IP')) && (this.isFieldComplete(g.get('No_of_Employees')) || g.get('No_of_Employees')?.disabled)
+        && (this.isFieldComplete(g.get('No_of_Employees_Malaysia')) || g.get('No_of_Employees_Malaysia')?.disabled)
+        && (this.isFieldComplete(g.get('Annual_Operating_Expenditure')) || g.get('Annual_Operating_Expenditure')?.disabled)
+        && (this.isFieldComplete(g.get('Annual_Operating_Expenditure_MAS')) || g.get('Annual_Operating_Expenditure_MAS')?.disabled)
+        && (this.isFieldComplete(g.get('Compliance_with_FPEC')) || g.get('Compliance_with_FPEC')?.disabled)
+        && (this.isFieldComplete(g.get('Compliance_with_CML')) || g.get('Compliance_with_CML')?.disabled)
+        && (this.isFieldComplete(g.get('No_of_Related_Company')) || g.get('No_of_Related_Company')?.disabled)
+        && (this.isFieldComplete(g.get('Amount_of_Net_Loss')) || g.get('Amount_of_Net_Loss')?.disabled)
+        ;
     }) && this.isFieldComplete(this.le1Form.get('B2_Total_Net_Profits'));
 
     // Part C
-    this.sectionStatus['part-c'] = ['C1_Registered_Address_line1', 'C2_Address_Is_Tax_Agent_or_Trust_Co', 'C6a_Has_Related_Company', 'C7a_Derived_Income_from_Non_Labuan_Activity', 'C8a_Derived_Income_from_IP', 'C10_Has_Subsidiary_Outside_Labuan', 'C11_Received_Payments_from_Malaysian_Resident'].every(f => this.isFieldComplete(this.le1Form.get(f)));
+    this.sectionStatus['part-c'] = ['C1_Registered_Address_line1', 'C1_Correspondence_Address_line1', 'C1_Postcode', 'C1_City', 'C2_Address_Is_Tax_Agent_or_Trust_Co', 'C6a_Has_Related_Company', 'C7a_Derived_Income_from_Non_Labuan_Activity', 'C8a_Derived_Income_from_IP', 'C10_Has_Subsidiary_Outside_Labuan', 'C11_Received_Payments_from_Malaysian_Resident'].every(f => this.isFieldComplete(this.le1Form.get(f)));
 
     // Part D
     let partD = this.isFieldComplete(this.le1Form.get('D1_Subject_to_CbCR'));
     if (this.le1Form.get('D1_Subject_to_CbCR')?.value === '1') {
-        partD = partD && this.isFieldComplete(this.le1Form.get('D1_Subject_as'));
-        // Logic for E/F is handled by form state (enable/disable) which isFieldComplete checks
-        if(this.le1Form.get('D1_Subject_as')?.value === '1') {
-             partD = partD && this.isFieldComplete(this.le1Form.get('E1_MNE_Group_Name'));
-        } else if(this.le1Form.get('D1_Subject_as')?.value === '2') {
-             partD = partD && this.isFieldComplete(this.le1Form.get('F1_Reporting_Entity_Name'));
-        }
+      partD = partD && this.isFieldComplete(this.le1Form.get('D1_Subject_as'));
+      // Logic for E/F is handled by form state (enable/disable) which isFieldComplete checks
+      if (this.le1Form.get('D1_Subject_as')?.value === '1') {
+        this.sectionStatus['part-f'] = true;
+        this.sectionStatus['part-e'] =  ['E3_Constituent_Entities_in_Malaysia', 'E4_Constituent_Entities_outside_Malaysia'].every(f => this.isFieldComplete(this.le1Form.get(f)));
+      } else if (this.le1Form.get('D1_Subject_as')?.value === '2') {
+        this.sectionStatus['part-f'] =  ['F1_Reporting_Entity_Name', 'F2_TIN', 'F3_Country_of_Residence', 'F4_Accounting_Period_From', 'F4_Accounting_Period_To', 'F5_MNE_Group_Name', 'F6_Status_of_Reporting_Entity', 'F7a_Ultimate_Holding_Entity_Name', 'F7b_Country_of_Residence_UHE'].every(f => this.isFieldComplete(this.le1Form.get(f)));
+        this.sectionStatus['part-e'] = true;
+      } else {
+        this.sectionStatus['part-e'] = true;
+        this.sectionStatus['part-f'] = true;
+      }
+    } else {
+      this.sectionStatus['part-e'] = true;
+      this.sectionStatus['part-f'] = true;
     }
-    partD = partD && this.isFieldComplete(this.le1Form.get('D3_Has_Financial_Account_Outside_Malaysia'));
+    partD = partD && this.isFieldComplete(this.le1Form.get('D3_Has_Financial_Account_Outside_Malaysia')) && this.isFieldComplete(this.le1Form.get('D4_Subject_to_AEOI'));
     this.sectionStatus['part-d'] = partD;
+
+
 
     // Auditor & Declaration
     this.sectionStatus['auditor'] = this.isFieldComplete(this.le1Form.get('Auditor_Name'));
-    this.sectionStatus['declaration'] = this.isFieldComplete(this.le1Form.get('Declarant_Name'));
+    const declarationFields = [ 'Declarant_Designation'];
+    if (this.le1Form.get('Declarant_Designation')?.value === '1') {
+      declarationFields.push( 'Declarant_Address_line1', 'Declarant_Address_line2', 'Declarant_Postcode');
+    }
+    this.sectionStatus['declaration'] = declarationFields.every(f => this.isFieldComplete(this.le1Form.get(f)));
+    // this.sectionStatus['declaration'] = this.isFieldComplete(this.le1Form.get('Declarant_Name'));
 
     // Arrays
-    const c3fields = ['Name', 'Country', 'Address1', 'Postcode', 'Town', 'ID_type', 'ID_Passport_No', 'Date_of_Birth','Claim_PUA_419_2011', 'Telephone_No'];
+    const c3fields = ['Name', 'Country', 'Address1', 'Postcode', 'Town', 'ID_type', 'ID_Passport_No', 'Date_of_Birth', 'Claim_PUA_419_2011', 'Telephone_No'];
     this.sectionStatus['attachment-c3'] = this.c3Rows.controls.every(g => c3fields.every(f => this.isFieldComplete(g.get(f))));
     // this.sectionStatus['attachment-c3'] = this.c3Rows.controls.every(g => this.isFieldComplete(g.get('Name')));
 
-    const c4fields = ['Name_of_Shareholder_Partner', 'Country', 'Address1', 'Postcode', 'Town', 'ID_type', 'ID_Passport_Reg_No', 'Date_of_Birth','Country_of_Origin', 'Direct_Shareholding_Percentage'];
+    const c4fields = ['Name_of_Shareholder_Partner', 'Country', 'Address1', 'Postcode', 'Town', 'ID_type', 'ID_Passport_Reg_No', 'Date_of_Birth', 'Country_of_Origin', 'Direct_Shareholding_Percentage'];
     // this.sectionStatus['attachment-c4'] = this.c4Rows.controls.every(g => this.isFieldComplete(g.get('Name_of_Shareholder_Partner')));
     this.sectionStatus['attachment-c4'] = this.c4Rows.controls.every(g => c4fields.every(f => this.isFieldComplete(g.get(f))));
     const c5fields = ['Name', 'Shareholding_Percentage', 'Country', 'Address1', 'Postcode', 'Town', 'ID_type', 'ID_Passport_No', 'Date_of_Birth'];
     // this.sectionStatus['attachment-c5'] = this.c5Rows.controls.every(g => this.isFieldComplete(g.get('Name')));
     this.sectionStatus['attachment-c5'] = this.c5Rows.controls.every(g => c5fields.every(f => this.isFieldComplete(g.get(f))));
-    
+
     // Conditional Arrays
-    if(this.le1Form.get('C10_Has_Subsidiary_Outside_Labuan')?.value === '1') {
-        this.sectionStatus['attachment-c10'] = this.c10Rows.controls.every(g => this.isFieldComplete(g.get('Name')));
+    if (this.le1Form.get('C10_Has_Subsidiary_Outside_Labuan')?.value === '1') {
+      this.sectionStatus['attachment-c10'] = this.c10Rows.controls.every(g => this.isFieldComplete(g.get('Name')));
     } else {
-        this.sectionStatus['attachment-c10'] = true;
+      this.sectionStatus['attachment-c10'] = true;
     }
 
-    if(this.le1Form.get('C11_Received_Payments_from_Malaysian_Resident')?.value === '1') {
-         this.sectionStatus['attachment-c11'] = this.c11Rows.controls.every(g => this.isFieldComplete(g.get('Name_of_taxpayer')));
+    if (this.le1Form.get('C11_Received_Payments_from_Malaysian_Resident')?.value === '1') {
+      this.sectionStatus['attachment-c11'] = this.c11Rows.controls.every(g => this.isFieldComplete(g.get('Name_of_taxpayer')));
     } else {
-        this.sectionStatus['attachment-c11'] = true;
+      this.sectionStatus['attachment-c11'] = true;
     }
-    const c9fields = ['Business_Activity_Code','Type_of_business_activity', 'Fp_Type_of_Labuan_entity']
+    const c9fields = ['Business_Activity_Code', 'Type_of_business_activity', 'Fp_Type_of_Labuan_entity']
     // this.sectionStatus['attachment-c9'] = this.isFieldComplete(this.le1Form.get('Pnl_Sales_Turnover'));
     this.sectionStatus['attachment-c9'] = c9fields.every(f => this.isFieldComplete(this.le1Form.get(f)));
   }
-  
+
   getSectionFriendlyName(key: string): string {
     const names: { [key: string]: string } = {
       'part-a': 'Part A: Basic Particulars',
       'part-b': 'Part B: Tax Computation',
       'part-c': 'Part C: Entity Details',
       'part-d': 'Part D: CbC Reporting',
+      'part-e': 'Part E: Constituent Entities in MNE Group (if applicable)',
+      'part-f': 'Part F: Reporting Entity Details (if applicable)',
       'auditor': 'Particular of Auditor',
       'declaration': 'Declaration',
       'attachment-c3': 'Att. C3: Compliance Officers',
@@ -1137,65 +1169,65 @@ export class FormComponent implements OnInit {
   }
 
   updateC9() {
-      // [Keep existing calculation logic]
-      const controls = this.le1Form.controls;
-      const getNumber = (controlName: string) => Number(controls[controlName].value) || 0;
+    // [Keep existing calculation logic]
+    const controls = this.le1Form.controls;
+    const getNumber = (controlName: string) => Number(controls[controlName].value) || 0;
 
-      const costOfSales = getNumber('Pnl_Opening_Inventory') + getNumber('Pnl_Cost_of_Purchases') + getNumber('Pnl_Cost_of_Production') - getNumber('Pnl_Closing_Inventory');
-      const grossProfitLoss = getNumber('Pnl_Sales_Turnover') - costOfSales;
-      const totalExpenditure =
-        getNumber('Pnl_Interest_Expenditure') + getNumber('Pnl_Professional_Fees') + getNumber('Pnl_Technical_Fees_to_Non_Residents') +
-        getNumber('Pnl_Contract_Payments') + getNumber('Pnl_Management_Fee') + getNumber('Pnl_Salaries_Wages') +
-        getNumber('Pnl_Cost_of_Employee_Share_Options') + getNumber('Pnl_Royalties') + getNumber('Pnl_Rental_Lease') +
-        getNumber('Pnl_Maintenance_Repairs') + getNumber('Pnl_Research_Development') + getNumber('Pnl_Promotion_Advertisement') +
-        getNumber('Pnl_Travelling_Accommodation') + getNumber('Pnl_Foreign_Currency_Exchange_Loss') + getNumber('Pnl_Other_Expenditure');
-      const netProfitLoss =
-        grossProfitLoss + getNumber('Pnl_Foreign_Currency_Exchange_Gain') + getNumber('Pnl_Other_Business_Income') +
-        getNumber('Pnl_Other_Income') - getNumber('Pnl_Non_Taxable_Profits') - totalExpenditure;
+    const costOfSales = getNumber('Pnl_Opening_Inventory') + getNumber('Pnl_Cost_of_Purchases') + getNumber('Pnl_Cost_of_Production') - getNumber('Pnl_Closing_Inventory');
+    const grossProfitLoss = getNumber('Pnl_Sales_Turnover') - costOfSales;
+    const totalExpenditure =
+      getNumber('Pnl_Interest_Expenditure') + getNumber('Pnl_Professional_Fees') + getNumber('Pnl_Technical_Fees_to_Non_Residents') +
+      getNumber('Pnl_Contract_Payments') + getNumber('Pnl_Management_Fee') + getNumber('Pnl_Salaries_Wages') +
+      getNumber('Pnl_Cost_of_Employee_Share_Options') + getNumber('Pnl_Royalties') + getNumber('Pnl_Rental_Lease') +
+      getNumber('Pnl_Maintenance_Repairs') + getNumber('Pnl_Research_Development') + getNumber('Pnl_Promotion_Advertisement') +
+      getNumber('Pnl_Travelling_Accommodation') + getNumber('Pnl_Foreign_Currency_Exchange_Loss') + getNumber('Pnl_Other_Expenditure');
+    const netProfitLoss =
+      grossProfitLoss + getNumber('Pnl_Foreign_Currency_Exchange_Gain') + getNumber('Pnl_Other_Business_Income') +
+      getNumber('Pnl_Other_Income') - getNumber('Pnl_Non_Taxable_Profits') - totalExpenditure;
 
-      const totalNonCurrentAssets =
-        getNumber('Fp_Motor_Vehicles') + getNumber('Fp_Plant_Equipment') + getNumber('Fp_Land_Buildings') +
-        getNumber('Fp_Other_Non_Current_Assets') + getNumber('Fp_Investments');
-      const totalCurrentAssets =
-        getNumber('Fp_Trade_Debtors') + getNumber('Fp_Other_Debtors') + getNumber('Fp_Inventory') +
-        getNumber('Fp_Loans_to_Related_Entities') + getNumber('Fp_Cash_in_Hand_Bank') + getNumber('Fp_Other_Current_Assets');
-      const totalAssets = totalNonCurrentAssets + totalCurrentAssets;
+    const totalNonCurrentAssets =
+      getNumber('Fp_Motor_Vehicles') + getNumber('Fp_Plant_Equipment') + getNumber('Fp_Land_Buildings') +
+      getNumber('Fp_Other_Non_Current_Assets') + getNumber('Fp_Investments');
+    const totalCurrentAssets =
+      getNumber('Fp_Trade_Debtors') + getNumber('Fp_Other_Debtors') + getNumber('Fp_Inventory') +
+      getNumber('Fp_Loans_to_Related_Entities') + getNumber('Fp_Cash_in_Hand_Bank') + getNumber('Fp_Other_Current_Assets');
+    const totalAssets = totalNonCurrentAssets + totalCurrentAssets;
 
-      const totalCurrentLiabilities =
-        getNumber('Fp_Loans_Bank_Overdrafts') + getNumber('Fp_Trade_Creditors') + getNumber('Fp_Other_Creditors') +
-        getNumber('Fp_Loans_from_Related_Entities') + getNumber('Fp_Other_Current_Liabilities');
-      const totalLiabilities = totalCurrentLiabilities + getNumber('Fp_Non_Current_Liabilities');
-      const totalEquity =
-        getNumber('Fp_Issued_Paid_Up_Capital') + getNumber('Fp_Profit_Loss_Appropriation') + getNumber('Fp_Reserve_Account');
-      const totalLiabilitiesAndEquity = totalLiabilities + totalEquity;
+    const totalCurrentLiabilities =
+      getNumber('Fp_Loans_Bank_Overdrafts') + getNumber('Fp_Trade_Creditors') + getNumber('Fp_Other_Creditors') +
+      getNumber('Fp_Loans_from_Related_Entities') + getNumber('Fp_Other_Current_Liabilities');
+    const totalLiabilities = totalCurrentLiabilities + getNumber('Fp_Non_Current_Liabilities');
+    const totalEquity =
+      getNumber('Fp_Issued_Paid_Up_Capital') + getNumber('Fp_Profit_Loss_Appropriation') + getNumber('Fp_Reserve_Account');
+    const totalLiabilitiesAndEquity = totalLiabilities + totalEquity;
 
-      this.le1Form.patchValue({
-        Pnl_Cost_of_Sales: costOfSales,
-        Pnl_Gross_Profit_Loss: grossProfitLoss,
-        Pnl_Total_Expenditure: totalExpenditure,
-        Pnl_Net_Profit_Loss: netProfitLoss,
-        Fp_Total_Non_Current_Assets: totalNonCurrentAssets,
-        Fp_Total_Current_Assets: totalCurrentAssets,
-        Fp_Total_Assets: totalAssets,
-        Fp_Total_Current_Liabilities: totalCurrentLiabilities,
-        Fp_Total_Liabilities: totalLiabilities,
-        Fp_Total_Equity: totalEquity,
-        Fp_Total_Liabilities_and_Equity: totalLiabilitiesAndEquity
-      }, { emitEvent: false });
+    this.le1Form.patchValue({
+      Pnl_Cost_of_Sales: costOfSales,
+      Pnl_Gross_Profit_Loss: grossProfitLoss,
+      Pnl_Total_Expenditure: totalExpenditure,
+      Pnl_Net_Profit_Loss: netProfitLoss,
+      Fp_Total_Non_Current_Assets: totalNonCurrentAssets,
+      Fp_Total_Current_Assets: totalCurrentAssets,
+      Fp_Total_Assets: totalAssets,
+      Fp_Total_Current_Liabilities: totalCurrentLiabilities,
+      Fp_Total_Liabilities: totalLiabilities,
+      Fp_Total_Equity: totalEquity,
+      Fp_Total_Liabilities_and_Equity: totalLiabilitiesAndEquity
+    }, { emitEvent: false });
   }
 
   // --- Submit / Save / PDF ---
 
-    saveProject(): void {
+  saveProject(): void {
     if (!this.projectId) {
       alert('No project is currently loaded.');
       return;
     }
 
     this.isLoading = true;
-    
+
     // Get the nested JSON data
-    const nestedData = this.getFormattedData(); 
+    const nestedData = this.getFormattedData();
 
     this.http.put(`${this.apiUrl}/updateProjectDetails/${this.projectId}`, { data: nestedData }).subscribe({
       next: (response) => {
@@ -1444,17 +1476,17 @@ export class FormComponent implements OnInit {
     }
 
     // Validation logic (simplified for brevity, ensure runValidations checks the same values)
-    // if (!this.runValidations()) return;
+    if (!this.runValidations()) return;
 
     this.jsonDataForExtension = JSON.stringify(this.getFormattedData(), null, 2);
     this.isInstructionModalVisible = true;
     this.copyButtonText = 'Copy JSON';
   }
 
-  
-  
+
+
   back(event: any) { this.unloadNotification(event); }
-  
+
   @HostListener('window:beforeunload', ['$event'])
   unloadNotification($event: any): void {
     if (this.le1Form.dirty) {
@@ -1474,11 +1506,11 @@ export class FormComponent implements OnInit {
             console.log('Leave canceled.');
           }
         });
-   } else {
+    } else {
       this.router.navigate(['/reports']);
     }
   }
-  
+
   closeInstructionModal() { this.isInstructionModalVisible = false; }
   copyJsonToClipboard() {
     navigator.clipboard.writeText(this.jsonDataForExtension).then(() => {
