@@ -1,7 +1,8 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, AbstractControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, AbstractControl, Validators } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+
 import { CommonModule } from '@angular/common';
 import { forkJoin, lastValueFrom } from 'rxjs';
 import { PDFDocument } from 'pdf-lib';
@@ -341,26 +342,27 @@ export class FormComponent implements OnInit {
   ) {
     this.le1Form = this.fb.group({
       // Part A: Basic Particulars
-      Year_of_Assessment: [''],
-      Company_Name: [''],
-      Company_Registration_No: [''],
-      Telephone_no: [''],
-      Email: [''],
-      Change_of_Accounting_Period_No: [''],
-      Types_of_exchange_of_accounting_periods: [''],
-      Accounting_Period_From: [''],
-      Accounting_Period_To: [''],
-      Basis_Period_From: [''],
-      Basis_Period_To: [''],
-      FS_in_Foreign_Currency_Yes: [''],
+      Year_of_Assessment: ['', Validators.required],
+      Company_Name: ['', Validators.required],
+      Company_Registration_No: ['', Validators.required],
+      Telephone_no: ['', Validators.required],
+      Email: ['', [Validators.required, Validators.email]],
+      Change_of_Accounting_Period_No: ['', Validators.required],
+      // Conditional: Init as required, logic will disable it if needed
+      Types_of_exchange_of_accounting_periods: ['', Validators.required], 
+      Accounting_Period_From: ['', Validators.required],
+      Accounting_Period_To: ['', Validators.required],
+      Basis_Period_From: ['', Validators.required],
+      Basis_Period_To: ['', Validators.required],
+      FS_in_Foreign_Currency_Yes: ['', Validators.required],
       Currency_Reported: [''],
       Currency_Exchange_Rate: [0],
-      Record_keeping: [''],
-      Business_Status_In_Operation: [''],
-      Type_of_Labuan_entity: [''],
-      Incorp_under: [''],
+      Record_keeping: ['', Validators.required],
+      Business_Status_In_Operation: ['', Validators.required],
+      Type_of_Labuan_entity: ['', Validators.required],
+      Incorp_under: ['', Validators.required],
 
-      // Part B: Tax Computation (Now FormArray)
+      // Part B: Tax Computation (Arrays handled separately)
       b1Rows: this.fb.array([]),
       B2_Total_Net_Profits: [''],
 
@@ -373,22 +375,24 @@ export class FormComponent implements OnInit {
       B6_Tax_Payable: [''],
 
       // Part C: Entity Details
-      C1_Registered_Address_line1: [''],
-      C1_Registered_Address_line2: [''],
-      C1_Correspondence_Address_line1: [''],
+      C1_Registered_Address_line1: ['', Validators.required],
+      C1_Registered_Address_line2: [''], // Often optional
+      C1_Correspondence_Address_line1: ['', Validators.required],
       C1_Correspondence_Address_line2: [''],
-      C1_Postcode: [''],
-      C1_City: [''],
-      C1_State: [''],
-      C2_Address_Is_Tax_Agent_or_Trust_Co: [''],
-      C6a_Has_Related_Company: [''],
-      C6b_Number_of_Related_Companies_Qualifying_Activity: [''],
-      C7a_Derived_Income_from_Non_Labuan_Activity: [''],
-      C7b_Total_Income_from_Non_Labuan_Activity: [''],
-      C8a_Derived_Income_from_IP: [''],
-      C8b_Total_Income_from_IP: [''],
-      C10_Has_Subsidiary_Outside_Labuan: [''],
-      C11_Received_Payments_from_Malaysian_Resident: [''],
+      C1_Postcode: ['', Validators.required],
+      C1_City: ['', Validators.required],
+      C1_State: ['', Validators.required],
+      C2_Address_Is_Tax_Agent_or_Trust_Co: ['', Validators.required],
+      C6a_Has_Related_Company: ['', Validators.required],
+      C6b_Number_of_Related_Companies_Qualifying_Activity: ['', Validators.required],
+      C7a_Derived_Income_from_Non_Labuan_Activity: ['', Validators.required],
+      C7b_Total_Income_from_Non_Labuan_Activity: ['', Validators.required],
+      C8a_Derived_Income_from_IP: ['', Validators.required],
+      C8b_Total_Income_from_IP: ['', Validators.required],
+      C10_Has_Subsidiary_Outside_Labuan: ['', Validators.required],
+      C11_Received_Payments_from_Malaysian_Resident: ['', Validators.required],
+      
+      // Incentives (Optional usually, unless logic dictates otherwise)
       C12_Row1_Incentive_Code: [''],
       C12_Row1_Amount_Claimed: [''],
       C12_Row2_Incentive_Code: [''],
@@ -397,37 +401,37 @@ export class FormComponent implements OnInit {
       C12_Row3_Amount_Claimed: [''],
 
       // Part D: CbC Reporting
-      D1_Subject_to_CbCR: [''],
-      D1_Subject_as: [''],
+      D1_Subject_to_CbCR: ['', Validators.required],
+      D1_Subject_as: ['', Validators.required],
       D2_Reporting_Entity_Status: [''],
-      D3_Has_Financial_Account_Outside_Malaysia: [''],
-      D4_Subject_to_AEOI: [''],
+      D3_Has_Financial_Account_Outside_Malaysia: ['', Validators.required],
+      D4_Subject_to_AEOI: ['', Validators.required],
 
-      Auditor_Name: [''],
-      Auditor_Country: [''],
-      Auditor_Address_line1: [''],
+      Auditor_Name: ['', Validators.required],
+      Auditor_Country: ['', Validators.required],
+      Auditor_Address_line1: ['', Validators.required],
       Auditor_Address_line2: [''],
-      Auditor_Postcode: [''],
-      Auditor_City: [''],
-      Auditor_Email: [''],
-      Auditor_Telephone_no: [''],
-      Auditor_TIN: [''],
+      Auditor_Postcode: ['', Validators.required],
+      Auditor_City: ['', Validators.required],
+      Auditor_Email: ['', [Validators.required, Validators.email]],
+      Auditor_Telephone_no: ['', Validators.required],
+      Auditor_TIN: ['', Validators.required],
 
-      // Part E & F
-      E1_MNE_Group_Name: [''],
-      E2_Accounting_Period_From: [''],
-      E2_Accounting_Period_To: [''],
-      E3_Constituent_Entities_in_Malaysia: [''],
-      E4_Constituent_Entities_outside_Malaysia: [''],
-      F1_Reporting_Entity_Name: [''],
-      F2_TIN: [''],
-      F3_Country_of_Residence: [''],
-      F4_Accounting_Period_From: [''],
-      F4_Accounting_Period_To: [''],
-      F5_MNE_Group_Name: [''],
-      F6_Status_of_Reporting_Entity: [''],
-      F7a_Ultimate_Holding_Entity_Name: [''],
-      F7b_Country_of_Residence_UHE: [''],
+      // Part E & F (Conditionals)
+      E1_MNE_Group_Name: ['', Validators.required],
+      E2_Accounting_Period_From: ['', Validators.required],
+      E2_Accounting_Period_To: ['', Validators.required],
+      E3_Constituent_Entities_in_Malaysia: ['', Validators.required],
+      E4_Constituent_Entities_outside_Malaysia: ['', Validators.required],
+      F1_Reporting_Entity_Name: ['', Validators.required],
+      F2_TIN: ['', Validators.required],
+      F3_Country_of_Residence: ['', Validators.required],
+      F4_Accounting_Period_From: ['', Validators.required],
+      F4_Accounting_Period_To: ['', Validators.required],
+      F5_MNE_Group_Name: ['', Validators.required],
+      F6_Status_of_Reporting_Entity: ['', Validators.required],
+      F7a_Ultimate_Holding_Entity_Name: ['', Validators.required],
+      F7b_Country_of_Residence_UHE: ['', Validators.required],
 
       // Declaration
       Declarant_Address_line1: [''],
@@ -435,19 +439,17 @@ export class FormComponent implements OnInit {
       Declarant_Postcode: [''],
       Declarant_Telephone_no: [''],
       Declarant_Email: [''],
-      // Declaration_Date: [''],
-      Declarant_Designation: [''],
-      // Designation_Others: [''],
+      Declarant_Designation: ['', Validators.required],
 
-      // Attachments (Now FormArrays)
+      // Attachments
       c3Rows: this.fb.array([]),
       c4Rows: this.fb.array([]),
       c5Rows: this.fb.array([]),
       c10Rows: this.fb.array([]),
       c11Rows: this.fb.array([]),
 
-      // Attachment C9: Financial Particulars (Single Object)
-      Business_Activity_Code: [0],
+      // C9 Financials - Assuming most are required or 0
+      Business_Activity_Code: [0, Validators.required],
       Type_of_business_activity: [0],
       Fp_Type_of_Labuan_entity: [0],
       Pnl_Sales_Turnover: [0],
@@ -517,22 +519,64 @@ export class FormComponent implements OnInit {
   get c10Rows(): FormArray { return this.le1Form.get('c10Rows') as FormArray; }
   get c11Rows(): FormArray { return this.le1Form.get('c11Rows') as FormArray; }
 
+
+  c9FinancialFields = [
+  'Pnl_Sales_Turnover', 'Pnl_Opening_Inventory', 'Pnl_Cost_of_Purchases', 'Pnl_Cost_of_Production',
+  'Pnl_Closing_Inventory', 'Pnl_Cost_of_Sales', 'Pnl_Gross_Profit_Loss', 'Pnl_Foreign_Currency_Exchange_Gain',
+  'Pnl_Other_Business_Income', 'Pnl_Other_Income', 'Pnl_Non_Taxable_Profits', 'Pnl_Interest_Expenditure',
+  'Pnl_Professional_Fees', 'Pnl_Technical_Fees_to_Non_Residents', 'Pnl_Contract_Payments', 'Pnl_Management_Fee',
+  'Pnl_Salaries_Wages', 'Pnl_Cost_of_Employee_Share_Options', 'Pnl_Royalties', 'Pnl_Rental_Lease',
+  'Pnl_Maintenance_Repairs', 'Pnl_Research_Development', 'Pnl_Promotion_Advertisement',
+  'Pnl_Travelling_Accommodation', 'Pnl_Foreign_Currency_Exchange_Loss', 'Pnl_Other_Expenditure',
+  'Pnl_Total_Expenditure', 'Pnl_Net_Profit_Loss', 
+  'Fp_Motor_Vehicles', 'Fp_Plant_Equipment', 'Fp_Land_Buildings', 'Fp_Other_Non_Current_Assets',
+  'Fp_Investments', 'Fp_Total_Non_Current_Assets', 'Fp_Cost_of_NCA_Acquired', 'Fp_Trade_Debtors',
+  'Fp_Other_Debtors', 'Fp_Inventory', 'Fp_Loans_to_Related_Entities', 'Fp_Cash_in_Hand_Bank',
+  'Fp_Other_Current_Assets', 'Fp_Total_Current_Assets', 'Fp_Total_Assets', 'Fp_Loans_Bank_Overdrafts',
+  'Fp_Trade_Creditors', 'Fp_Other_Creditors', 'Fp_Loans_from_Related_Entities', 'Fp_Other_Current_Liabilities',
+  'Fp_Total_Current_Liabilities', 'Fp_Non_Current_Liabilities', 'Fp_Total_Liabilities',
+  'Fp_Issued_Paid_Up_Capital', 'Fp_Profit_Loss_Appropriation', 'Fp_Reserve_Account', 'Fp_Total_Equity',
+  'Fp_Total_Liabilities_and_Equity'
+];
+
+// 2. Add these Helper Methods inside FormComponent class
+
+get isForeignCurrency(): boolean {
+  return this.le1Form.get('FS_in_Foreign_Currency_Yes')?.value === '1';
+}
+
+get currentExchangeRate(): number {
+  const rate = this.le1Form.get('Currency_Exchange_Rate')?.value;
+  return rate ? parseFloat(String(rate).replace(/,/g, '')) : 1; // Default to 1 if invalid
+}
+
+// Used by HTML to display read-only MYR value
+getMyrValue(controlName: string): number {
+  const controlVal = this.le1Form.get(controlName)?.value;
+  const val = controlVal ? parseFloat(String(controlVal).replace(/,/g, '')) : 0;
+  return val * this.currentExchangeRate;
+}
   // --- Row Creators & Logic ---
   createB1Row(data: any = {}): FormGroup {
     const group = this.fb.group({
-      Business_Activity_Code: [data.Business_Activity_Code || ''],
-      Core_Income_Activity_Yes: [data.Core_Income_Activity_Yes || ''],
-      Business_Activity_Status_Active: [data.Business_Activity_Status_Active || ''],
-      No_of_Employees: [data.No_of_Employees || ''],
-      Annual_Operating_Expenditure: [data.Annual_Operating_Expenditure || ''],
-      Annual_Operating_Expenditure_MAS: [data.Annual_Operating_Expenditure_MAS || ''],
-      Compliance_with_FPEC: [data.Compliance_with_FPEC || ''],
-      Compliance_with_CML: [data.Compliance_with_CML || ''],
-      No_of_Employees_Malaysia: [data.No_of_Employees_Malaysia || ''],
-      No_of_Related_Company: [data.No_of_Related_Company || ''],
+      // Add Validators.required to fields
+      Business_Activity_Code: [data.Business_Activity_Code || '', Validators.required],
+      Core_Income_Activity_Yes: [data.Core_Income_Activity_Yes || '', Validators.required],
+      Business_Activity_Status_Active: [data.Business_Activity_Status_Active || '', Validators.required],
+      
+      // Conditional fields initialized as Required
+      No_of_Employees: [data.No_of_Employees || '', Validators.required],
+      Annual_Operating_Expenditure: [data.Annual_Operating_Expenditure || '', Validators.required],
+      Annual_Operating_Expenditure_MAS: [data.Annual_Operating_Expenditure_MAS || '', Validators.required],
+      Compliance_with_FPEC: [data.Compliance_with_FPEC || '', Validators.required],
+      Compliance_with_CML: [data.Compliance_with_CML || '', Validators.required],
+      No_of_Employees_Malaysia: [data.No_of_Employees_Malaysia || '', Validators.required],
+      No_of_Related_Company: [data.No_of_Related_Company || '', Validators.required],
+      
+      // Standard fields
       Comply_Substantive_Yes: [data.Comply_Substantive_Yes || ''],
       Amount_of_Net_Loss: [data.Amount_of_Net_Loss || ''],
-      Net_Profits_ex_IP: [data.Net_Profits_ex_IP || '']
+      Net_Profits_ex_IP: [data.Net_Profits_ex_IP || '', Validators.required]
     });
 
     // Attach Listeners
@@ -542,21 +586,78 @@ export class FormComponent implements OnInit {
     return group;
   }
 
+  setupB1RowLogic(rowGroup: FormGroup): void {
+    const codeControl = rowGroup.get('Business_Activity_Code');
+    const statusControl = rowGroup.get('Business_Activity_Status_Active');
+
+    const updateRowState = () => {
+      const code = codeControl?.value;
+      const status = statusControl?.value;
+
+      const fieldMap = {
+        cml: 'Compliance_with_CML',
+        employees: 'No_of_Employees',
+        employeesMY: 'No_of_Employees_Malaysia',
+        opex: 'Annual_Operating_Expenditure',
+        opexMY: 'Annual_Operating_Expenditure_MAS',
+        fpec: 'Compliance_with_FPEC',
+        relatedCo: 'No_of_Related_Company',
+        netProfit: 'Net_Profits_ex_IP'
+      };
+
+      // Helper to Enable/Disable inside this specific row
+      const setStatus = (fields: string[], isEnabled: boolean) => {
+        fields.forEach(f => {
+          const control = rowGroup.get(f);
+          if (isEnabled) {
+            control?.enable({ emitEvent: false });
+          } else {
+            control?.disable({ emitEvent: false });
+            control?.setValue('', { emitEvent: false });
+          }
+        });
+      };
+
+      // 1. Default: Enable All
+      setStatus(Object.values(fieldMap), true);
+
+      // 2. Logic
+      if (status === '2') { // Dormant
+        setStatus(Object.values(fieldMap), false); // Disable all except main
+        return;
+      }
+
+      if (code === '00006') setStatus([fieldMap.cml], false);
+      
+      if (code === '00022') {
+        setStatus([fieldMap.employees, fieldMap.employeesMY, fieldMap.opex, fieldMap.fpec, fieldMap.relatedCo], false);
+      }
+      
+      if (code !== '00006' && code !== '00022') {
+        setStatus([fieldMap.employeesMY, fieldMap.opexMY, fieldMap.relatedCo, fieldMap.cml], false);
+      }
+    };
+
+    codeControl?.valueChanges.subscribe(updateRowState);
+    statusControl?.valueChanges.subscribe(updateRowState);
+    updateRowState(); // Run init check
+  }
+
   createC3Row(data: any = {}): FormGroup {
     return this.fb.group({
-      Name: [data.Name || ''],
-      Claim_PUA_419_2011: [data.Claim_PUA_419_2011 || ''],
+      Name: [data.Name || '', Validators.required],
+      Claim_PUA_419_2011: [data.Claim_PUA_419_2011 || '', Validators.required],
       Designation: [data.Designation || ''],
-      Country: [data.Country || ''],
-      Address1: [data.Address1 || ''],
+      Country: [data.Country || '', Validators.required],
+      Address1: [data.Address1 || '', Validators.required],
       Address2: [data.Address2 || ''],
-      Postcode: [data.Postcode || ''],
-      Town: [data.Town || ''],
-      ID_type: [data.ID_type || ''],
-      ID_Passport_No: [data.ID_Passport_No || ''],
-      Date_of_Birth: [data.Date_of_Birth || ''],
-      TIN: [data.TIN || ''],
-      Telephone_No: [data.Telephone_No || ''],
+      Postcode: [data.Postcode || '', Validators.required],
+      Town: [data.Town || '', Validators.required],
+      ID_type: [data.ID_type || '', Validators.required],
+      ID_Passport_No: [data.ID_Passport_No || '', Validators.required],
+      Date_of_Birth: [data.Date_of_Birth || '', Validators.required],
+      TIN: [data.TIN || '', Validators.required],
+      Telephone_No: [data.Telephone_No || '', Validators.required],
       Salary_Bonus: [data.Salary_Bonus || ''],
       Fees_Commission_Allowances: [data.Fees_Commission_Allowances || ''],
       Total_Loan_to_Officer: [data.Total_Loan_to_Officer || ''],
@@ -566,17 +667,17 @@ export class FormComponent implements OnInit {
 
   createC4Row(data: any = {}): FormGroup {
     return this.fb.group({
-      Name_of_Shareholder_Partner: [data.Name_of_Shareholder_Partner || ''],
-      Country: [data.Country || ''],
-      Address1: [data.Address1 || ''],
+      Name_of_Shareholder_Partner: [data.Name_of_Shareholder_Partner || '', Validators.required],
+      Country: [data.Country || '', Validators.required],
+      Address1: [data.Address1 || '', Validators.required],
       Address2: [data.Address2 || ''],
-      Postcode: [data.Postcode || ''],
-      Town: [data.Town || ''],
-      ID_type: [data.ID_type || ''],
-      ID_Passport_Reg_No: [data.ID_Passport_Reg_No || ''],
-      Date_of_Birth: [data.Date_of_Birth || ''],
-      Country_of_Origin: [data.Country_of_Origin || ''],
-      TIN: [data.TIN || ''],
+      Postcode: [data.Postcode || '', Validators.required],
+      Town: [data.Town || '', Validators.required],
+      ID_type: [data.ID_type || '', Validators.required],
+      ID_Passport_Reg_No: [data.ID_Passport_Reg_No || '', Validators.required],
+      Date_of_Birth: [data.Date_of_Birth || '', Validators.required],
+      Country_of_Origin: [data.Country_of_Origin || '', Validators.required],
+      TIN: [data.TIN || '', Validators.required],
       Direct_Shareholding_Percentage: [data.Direct_Shareholding_Percentage || ''],
       Dividends_Received_in_Basis_Period: [data.Dividends_Received_in_Basis_Period || '']
     });
@@ -584,32 +685,32 @@ export class FormComponent implements OnInit {
 
   createC5Row(data: any = {}): FormGroup {
     return this.fb.group({
-      Name: [data.Name || ''],
-      TIN: [data.TIN || ''],
+      Name: [data.Name || '', Validators.required],
+      TIN: [data.TIN || '', Validators.required],
       Shareholding_Percentage: [data.Shareholding_Percentage || ''],
       Salary_Bonus: [data.Salary_Bonus || ''],
       Dividends_Received_in_Basis_Period: [data.Dividends_Received_in_Basis_Period || ''],
       Total_Loan_from_Owner: [data.Total_Loan_from_Owner || ''],
       Total_Loan_to_Owner: [data.Total_Loan_to_Owner || ''],
-      Country: [data.Country || ''],
-      Address1: [data.Address1 || ''],
+      Country: [data.Country || '', Validators.required],
+      Address1: [data.Address1 || '', Validators.required],
       Address2: [data.Address2 || ''],
-      Postcode: [data.Postcode || ''],
-      Town: [data.Town || ''],
-      ID_type: [data.ID_type || ''],
-      ID_Passport_No: [data.ID_Passport_No || ''],
-      Date_of_Birth: [data.Date_of_Birth || ''],
-      Telephone_No: [data.Telephone_No || ''],
+      Postcode: [data.Postcode || '', Validators.required],
+      Town: [data.Town || '', Validators.required],
+      ID_type: [data.ID_type || '', Validators.required],
+      ID_Passport_No: [data.ID_Passport_No || '', Validators.required],
+      Date_of_Birth: [data.Date_of_Birth || '', Validators.required],
+      Telephone_No: [data.Telephone_No || '', Validators.required],
       Fees_Commission_Allowance: [data.Fees_Commission_Allowance || '']
     });
   }
 
   createC10Row(data: any = {}): FormGroup {
     return this.fb.group({
-      Name: [data.Name || ''],
+      Name: [data.Name || '', Validators.required],
       Registration_No: [data.Registration_No || ''],
       TIN: [data.TIN || ''],
-      Have_Transactions: [data.Have_Transactions || '']
+      Have_Transactions: [data.Have_Transactions || '', Validators.required],
     });
   }
 
@@ -617,11 +718,33 @@ export class FormComponent implements OnInit {
     return this.fb.group({
       Name_of_taxpayer: [data.Name_of_taxpayer || ''],
       TIN: [data.TIN || ''],
-      Type_of_payment_received: [data.Type_of_payment_received || ''],
-      Payment_Related_to: [data.Payment_Related_to || ''],
+      Type_of_payment_received: [data.Type_of_payment_received || '', Validators.required],
+      Payment_Related_to: [data.Payment_Related_to || '', Validators.required],
       Amount: [data.Amount || '']
     });
   }
+
+  updateFieldStatus(fieldNames: string | string[], shouldEnable: boolean) {
+  const fields = Array.isArray(fieldNames) ? fieldNames : [fieldNames];
+  
+  fields.forEach(name => {
+    const control = this.le1Form.get(name);
+    if (!control) return;
+
+    if (shouldEnable) {
+      control.enable();
+      // Re-apply required validator just in case it was cleared manually
+      control.addValidators(Validators.required); 
+      console.log(`Enabled and set required: ${name}`);
+    } else {
+      control.disable();
+      control.setValue(''); // Clear value so it doesn't submit junk data
+      control.clearValidators(); // Remove validators when disabled
+      console.log(`Disabled and cleared: ${name}`);
+    }
+    control.updateValueAndValidity(); // Triggers the CSS update
+  });
+}
 
   // --- Add / Remove Methods ---
   addRow(section: 'b1' | 'c3' | 'c4' | 'c5' | 'c10' | 'c11'): void {
@@ -653,58 +776,7 @@ export class FormComponent implements OnInit {
   }
 
   // --- B1 Business Logic ---
-  setupB1RowLogic(rowGroup: FormGroup): void {
-    const codeControl = rowGroup.get('Business_Activity_Code');
-    const statusControl = rowGroup.get('Business_Activity_Status_Active');
-
-    const updateRowState = () => {
-      const code = codeControl?.value;
-      const status = statusControl?.value;
-
-      const fieldMap = {
-        cml: 'Compliance_with_CML',
-        employees: 'No_of_Employees',
-        employeesMY: 'No_of_Employees_Malaysia',
-        opex: 'Annual_Operating_Expenditure',
-        opexMY: 'Annual_Operating_Expenditure_MAS',
-        fpec: 'Compliance_with_FPEC',
-        relatedCo: 'No_of_Related_Company',
-        netProfit: 'Net_Profits_ex_IP'
-      };
-
-      const setDisabled = (fields: string[], isDisabled: boolean) => {
-        fields.forEach(f => {
-          const control = rowGroup.get(f);
-          if (isDisabled) {
-            control?.disable({ emitEvent: false });
-            control?.setValue('', { emitEvent: false });
-          } else {
-            control?.enable({ emitEvent: false });
-          }
-        });
-      };
-
-      // Reset
-      setDisabled(Object.values(fieldMap), false);
-
-      if (status === '2') { // Dormant
-        setDisabled(Object.values(fieldMap), true);
-        return;
-      }
-
-      if (code === '00006') setDisabled([fieldMap.cml], true);
-      if (code === '00022') {
-        setDisabled([fieldMap.employees, fieldMap.employeesMY, fieldMap.opex, fieldMap.fpec, fieldMap.relatedCo], true);
-      }
-      if (code !== '00006' && code !== '00022') {
-        setDisabled([fieldMap.employeesMY, fieldMap.opexMY, fieldMap.relatedCo, fieldMap.cml], true);
-      }
-    };
-
-    codeControl?.valueChanges.subscribe(updateRowState);
-    statusControl?.valueChanges.subscribe(updateRowState);
-    updateRowState(); // Run init check
-  }
+  
 
   calculateB2Total(): void {
     const rows = this.b1Rows.controls as FormGroup[];
@@ -746,55 +818,27 @@ export class FormComponent implements OnInit {
     });
 
     // --- Global Conditional Logic (Non-Array) ---
-    this.le1Form.get('Change_of_Accounting_Period_No')?.valueChanges.subscribe(value => {
-      const target = this.le1Form.get('Types_of_exchange_of_accounting_periods');
-      if (value === '1') target?.enable();
-      else {
-        target?.setValue('');
-        target?.disable();
-      }
+   this.le1Form.get('Change_of_Accounting_Period_No')?.valueChanges.subscribe(value => {
+      this.updateFieldStatus('Types_of_exchange_of_accounting_periods', value === '1');
     });
 
-    this.le1Form.get('FS_in_Foreign_Currency_Yes')?.valueChanges.subscribe(value => {
-      const a = ['Currency_Reported', 'Currency_Exchange_Rate'];
-      if (value === '1') a.forEach(c => this.le1Form.get(c)?.enable());
-      else a.forEach(c => {
-        this.le1Form.get(c)?.setValue('');
-        this.le1Form.get(c)?.disable();
-      });
+   this.le1Form.get('FS_in_Foreign_Currency_Yes')?.valueChanges.subscribe(value => {
+      this.updateFieldStatus(['Currency_Reported', 'Currency_Exchange_Rate'], value === '1');
     });
 
     this.le1Form.get('C6a_Has_Related_Company')?.valueChanges.subscribe(value => {
-      const target = this.le1Form.get('C6b_Number_of_Related_Companies_Qualifying_Activity');
-      if (value === '1') target?.enable();
-      else {
-        target?.setValue('');
-        target?.disable();
-      }
+      this.updateFieldStatus('C6b_Number_of_Related_Companies_Qualifying_Activity', value === '1');
     });
+    
     this.le1Form.get('C7a_Derived_Income_from_Non_Labuan_Activity')?.valueChanges.subscribe(value => {
-      const target = this.le1Form.get('C7b_Total_Income_from_Non_Labuan_Activity');
-      if (value === '1') target?.enable();
-      else {
-        target?.setValue('');
-        target?.disable();
-      }
+      this.updateFieldStatus('C7b_Total_Income_from_Non_Labuan_Activity', value === '1');
     });
     this.le1Form.get('C8a_Derived_Income_from_IP')?.valueChanges.subscribe(value => {
-      const target = this.le1Form.get('C8b_Total_Income_from_IP');
-      if (value === '1') target?.enable();
-      else {
-        target?.setValue('');
-        target?.disable();
-      }
+      this.updateFieldStatus('C8b_Total_Income_from_IP', value === '1');
     });
 
     this.le1Form.get('D1_Subject_to_CbCR')?.valueChanges.subscribe(value => {
-      if (value === '1') this.le1Form.get('D1_Subject_as')?.enable();
-      else {
-        this.le1Form.get('D1_Subject_as')?.setValue('');
-        this.le1Form.get('D1_Subject_as')?.disable();
-      }
+      this.updateFieldStatus('D1_Subject_as', value === '1');
     });
 
     this.le1Form.get('D1_Subject_as')?.valueChanges.subscribe(value => {
@@ -802,31 +846,24 @@ export class FormComponent implements OnInit {
       const p_F = ['F1_Reporting_Entity_Name', 'F2_TIN', 'F3_Country_of_Residence', 'F4_Accounting_Period_From', 'F4_Accounting_Period_To', 'F5_MNE_Group_Name', 'F6_Status_of_Reporting_Entity', 'F7a_Ultimate_Holding_Entity_Name', 'F7b_Country_of_Residence_UHE'];
 
       if (value === '1') {
-        p_E.forEach(c => this.le1Form.get(c)?.enable());
-        p_F.forEach(c => this.le1Form.get(c)?.disable());
+        this.updateFieldStatus(p_E, true);
+        this.updateFieldStatus(p_F, false);
       } else if (value === '2') {
-        p_E.forEach(c => this.le1Form.get(c)?.disable());
-        p_F.forEach(c => this.le1Form.get(c)?.enable());
+        this.updateFieldStatus(p_E, false);
+        this.updateFieldStatus(p_F, true);
       } else {
-        p_E.forEach(c => this.le1Form.get(c)?.disable());
-        p_F.forEach(c => this.le1Form.get(c)?.disable());
+        this.updateFieldStatus(p_E, false);
+        this.updateFieldStatus(p_F, false);
       }
     });
 
-    this.le1Form.get('C10_Has_Subsidiary_Outside_Labuan')?.valueChanges.subscribe(value => {
-      if (value === '1') this.c10Rows.enable();
-      else {
-        this.c10Rows.disable();
-        // Optional: Clear array? Or just disable controls? 
-        // Currently keeping data but disabled.
-      }
+        this.le1Form.get('C10_Has_Subsidiary_Outside_Labuan')?.valueChanges.subscribe(value => {
+      value === '1' ? this.c10Rows.enable() : this.c10Rows.disable();
     });
+
 
     this.le1Form.get('C11_Received_Payments_from_Malaysian_Resident')?.valueChanges.subscribe(value => {
-      if (value === '1') this.c11Rows.enable();
-      else {
-        this.c11Rows.disable();
-      }
+      value === '1' ? this.c11Rows.enable() : this.c11Rows.disable();
     });
 
     this.le1Form.get('Business_Activity_Code')?.valueChanges.subscribe(code => {
@@ -838,15 +875,8 @@ export class FormComponent implements OnInit {
     });
 
     this.le1Form.get('Declarant_Designation')?.valueChanges.subscribe(value => {
-      const targetFields =  ['Declarant_Address_line1','Declarant_Address_line2','Declarant_Postcode','Declarant_Telephone_no','Declarant_Email'];
-      if (value === '1') {
-        targetFields.forEach(f => this.le1Form.get(f)?.enable());
-      } else {
-        targetFields.forEach(f => {
-          // this.le1Form.get(f)?.setValue('');
-          this.le1Form.get(f)?.disable();
-        });
-      }
+      const targetFields = ['Declarant_Address_line1', 'Declarant_Address_line2', 'Declarant_Postcode', 'Declarant_Telephone_no', 'Declarant_Email'];
+      this.updateFieldStatus(targetFields, value === '1');
     });
 
     // C9 Calculations Watcher
@@ -1034,6 +1064,83 @@ export class FormComponent implements OnInit {
     return formData;
   }
 
+  private getSubmissionData(): any {
+  // Get raw form data
+  const formData = this.le1Form.getRawValue();
+  
+  // 1. Handle Dates (existing logic)
+  const topLevelDateFields = [
+    'Accounting_Period_From', 'Accounting_Period_To', 'Basis_Period_From', 'Basis_Period_To', 
+    'E2_Accounting_Period_From', 'E2_Accounting_Period_To', 
+    'F4_Accounting_Period_From', 'F4_Accounting_Period_To'
+  ];
+
+  topLevelDateFields.forEach(field => {
+    if (formData[field]) formData[field] = this.formatDate(formData[field]);
+  });
+
+  if (formData.c3Rows) formData.c3Rows.forEach((row: any) => row.Date_of_Birth = this.formatDate(row.Date_of_Birth));
+  if (formData.c4Rows) formData.c4Rows.forEach((row: any) => row.Date_of_Birth = this.formatDate(row.Date_of_Birth));
+  if (formData.c5Rows) formData.c5Rows.forEach((row: any) => row.Date_of_Birth = this.formatDate(row.Date_of_Birth));
+
+  // 2. Handle Currency Conversion for Submission
+  if (this.isForeignCurrency) {
+    const rate = this.currentExchangeRate;
+    this.c9FinancialFields.forEach(field => {
+      const rawVal = formData[field];
+      // Remove commas, parse to float, multiply by rate
+      const numericVal = rawVal ? parseFloat(String(rawVal).replace(/,/g, '')) : 0;
+      const convertedVal = numericVal * rate;
+      
+      // Update the data object with the MYR value
+      // formatting it back to string/number as expected by your backend/extension
+      formData[field] = convertedVal.toFixed(2); 
+    });
+  }
+
+  return formData;
+}
+
+expandInvalidAccordions(): void {
+    const sections = ['b1', 'c3', 'c4', 'c5', 'c10', 'c11'];
+    
+    sections.forEach(sectionKey => {
+      const formArray = this.le1Form.get(sectionKey + 'Rows') as FormArray;
+      if (formArray) {
+        formArray.controls.forEach((control, index) => {
+          if (control.invalid) {
+            // If the row is invalid, set the accordion state to true (open)
+            if (this.accordionStates[sectionKey]) {
+              this.accordionStates[sectionKey][index] = true;
+            }
+          }
+        });
+      }
+    });
+  }
+
+  // 2. Helper to scroll to the first error
+  scrollToFirstError(): void {
+    setTimeout(() => {
+      // OLD: const firstInvalidControl = document.querySelector('.ng-invalid.ng-touched');
+      
+      // NEW: Target specific input types to avoid selecting the <form> tag
+      const selector = `
+        input.ng-invalid.ng-touched, 
+        select.ng-invalid.ng-touched, 
+        textarea.ng-invalid.ng-touched
+      `;
+
+      const firstInvalidControl = document.querySelector(selector);
+
+      if (firstInvalidControl) {
+        // 'center' ensures the field isn't hidden behind a sticky header
+        firstInvalidControl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        (firstInvalidControl as HTMLElement).focus();
+      }
+    }, 100); // Delay ensures Accordions have time to open before we search
+  }
+
 
   formatDate(value: any) {
     if (value && typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -1133,13 +1240,13 @@ export class FormComponent implements OnInit {
 
     // Conditional Arrays
     if (this.le1Form.get('C10_Has_Subsidiary_Outside_Labuan')?.value === '1') {
-      this.sectionStatus['attachment-c10'] = this.c10Rows.controls.every(g => this.isFieldComplete(g.get('Name')));
+      this.sectionStatus['attachment-c10'] = this.c10Rows.controls.every(g => this.isFieldComplete(g.get('Name')) && this.isFieldComplete(g.get('Have_Transactions')));
     } else {
       this.sectionStatus['attachment-c10'] = true;
     }
 
     if (this.le1Form.get('C11_Received_Payments_from_Malaysian_Resident')?.value === '1') {
-      this.sectionStatus['attachment-c11'] = this.c11Rows.controls.every(g => this.isFieldComplete(g.get('Name_of_taxpayer')));
+      this.sectionStatus['attachment-c11'] = this.c11Rows.controls.every(g => this.isFieldComplete(g.get('Type_of_payment_received')) && this.isFieldComplete(g.get('Payment_Related_to')));
     } else {
       this.sectionStatus['attachment-c11'] = true;
     }
@@ -1240,6 +1347,9 @@ export class FormComponent implements OnInit {
       },
       complete: () => {
         this.isLoading = false;
+        //clean dirty state
+        this.le1Form.markAsPristine();
+        this.le1Form.markAsUntouched();
       }
     });
   }
@@ -1462,23 +1572,76 @@ export class FormComponent implements OnInit {
   }
 
   async submit(): Promise<void> {
+    // 1. Trigger Validation Visuals
     this.le1Form.markAllAsTouched();
+    
+    // 2. Update your custom section status logic (keep existing logic)
     this.checkAllSectionsCompletion();
 
-    const incompleteSections: string[] = [];
-    for (const [key, isComplete] of Object.entries(this.sectionStatus)) {
-      if (!isComplete) incompleteSections.push(this.getSectionFriendlyName(key));
-    }
+    // 3. Expand any closed accordions that have errors inside them
+    this.expandInvalidAccordions();
 
-    if (incompleteSections.length > 0 || this.le1Form.invalid) {
-      alert(`Please complete:\n- ${incompleteSections.join('\n- ')}`);
+    // 4. check for validity
+    if (this.le1Form.invalid) {
+      // --- NEW: Recursive Debugging Logic ---
+      // const getInvalidControls = (control: AbstractControl, path: string = ''): string[] => {
+      //   let invalidList: string[] = [];
+
+      //   if (control instanceof FormGroup) {
+      //     Object.keys(control.controls).forEach(key => {
+      //       const newPath = path ? `${path}.${key}` : key;
+      //       invalidList = invalidList.concat(getInvalidControls(control.get(key)!, newPath));
+      //     });
+      //   } else if (control instanceof FormArray) {
+      //     control.controls.forEach((ctrl, index) => {
+      //       invalidList = invalidList.concat(getInvalidControls(ctrl, `${path}[${index}]`));
+      //     });
+      //   } else if (control.invalid) {
+      //     // We found a specific invalid input
+      //     const errorTypes = control.errors ? Object.keys(control.errors).join(', ') : 'Unknown';
+      //     const msg = `Field: [${path}] is INVALID. Reason: ${errorTypes}`;
+          
+      //     // Log to console for developer
+      //     console.error(msg, control.errors);
+      //     invalidList.push(msg);
+      //   }
+      //   return invalidList;
+      // };
+
+      // console.group('Validation Errors Debugger');
+      // const specificErrors = getInvalidControls(this.le1Form);
+      // console.log('Total Invalid Fields:', specificErrors.length);
+      // console.groupEnd();
+      // ---------------------------------------
+
+      const incompleteSections: string[] = [];
+      for (const [key, isComplete] of Object.entries(this.sectionStatus)) {
+        if (!isComplete) incompleteSections.push(this.getSectionFriendlyName(key));
+      }
+
+      let msg = 'Please complete the required fields highlighted in red.';
+      
+      if (incompleteSections.length > 0) {
+        msg += `\n\nIncomplete Sections:\n- ${incompleteSections.join('\n- ')}`;
+      }
+      
+      // Optional: Add the first 3 specific field errors to the alert box for easier finding
+      // if (specificErrors.length > 0) {
+      //   msg += `\n\nFirst few missing fields:\n- ${specificErrors.slice(0, 3).join('\n- ')}`;
+      // }
+
+      alert(msg);
+      
+      // 5. Scroll to first error
+      this.scrollToFirstError();
       return;
     }
 
-    // Validation logic (simplified for brevity, ensure runValidations checks the same values)
+    // --- Existing Run Validation Logic ---
     if (!this.runValidations()) return;
 
-    this.jsonDataForExtension = JSON.stringify(this.getFormattedData(), null, 2);
+    // --- Existing Submission Logic ---
+    this.jsonDataForExtension = JSON.stringify(this.getSubmissionData(), null, 2);
     this.isInstructionModalVisible = true;
     this.copyButtonText = 'Copy JSON';
   }

@@ -139,7 +139,7 @@
                     <input style="width: 4%;" type="text" id="Year_of_Assessment_4"
                         formControlName="Year_of_Assessment_4" maxlength="1" size="1"> -->
 
-                    <label for="Company_Name">Company Name:<span class="required-asterisk">*</span></label>
+                    <label for="Company_Name">Company Name:</label>
                     <input type="text" id="Company_Name" formControlName="Company_Name">
 
                     <!-- <label for="Company_Address_Line1">Address Line 1:</label>
@@ -1057,25 +1057,25 @@ margin-bottom: 10px;">
                     </select>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <div>
-                            <label for="C1_Correspondence_Address_line1">Auditor Firm Address Line 1:</label>
-                            <input type="text" id="C1_Correspondence_Address_line1"
-                                formControlName="C1_Correspondence_Address_line1">
+                            <label for="Auditor_Address_line1">Auditor Firm Address Line 1:</label>
+                            <input type="text" id="Auditor_Address_line1"
+                                formControlName="Auditor_Address_line1">
 
-                            <label for="C1_Correspondence_Address_line2">Auditor Firm Address Line 2:</label>
-                            <input type="text" id="C1_Correspondence_Address_line2"
-                                formControlName="C1_Correspondence_Address_line2">
+                            <label for="Auditor_Address_line2">Auditor Firm Address Line 2:</label>
+                            <input type="text" id="Auditor_Address_line2"
+                                formControlName="Auditor_Address_line2">
                         </div>
 
                     </div>
 
                     <div style="display: flex; justify-content: space-between; gap: 10px;">
                         <div style="flex: 1;">
-                            <label for="C1_Postcode">Auditor Firm Postcode:</label>
-                            <input type="text" id="C1_Postcode" formControlName="C1_Postcode">
+                            <label for="Auditor_Postcode">Auditor Firm Postcode:</label>
+                            <input type="text" id="Auditor_Postcode" formControlName="Auditor_Postcode">
                         </div>
                         <div style="flex: 1;">
-                            <label for="C1_City">Auditor Firm City:</label>
-                            <input type="text" id="C1_City" formControlName="C1_City">
+                            <label for="Auditor_City">Auditor Firm City:</label>
+                            <input type="text" id="Auditor_City" formControlName="Auditor_City">
                         </div>
 
                         <!-- <div style="flex: 1;">
@@ -1140,7 +1140,7 @@ margin-bottom: 10px;">
                                 <input type="text" id="Declarant_Email" formControlName="Declarant_Email">
                             </div>
                         </div>
-                    </ng-container> 
+                    </ng-container>
                     <!-- <label for="Declaration_Date">Declaration Date (DD/MM/YYYY):</label>
                     <div style="display: flex; gap: 5px; align-items: center; padding:5px; 
 margin-bottom: 10px;">
@@ -1541,212 +1541,657 @@ margin-bottom: 10px;">
 
                 <!-- Attachment C9: Financial Particulars -->
                 <fieldset id="attachment-c9">
-                    <legend>Attachment C9: Financial Particulars</legend>
-                    <div class="form-column">
-                        <h4>General Information</h4>
-                        <!-- <label>Business Activity Code:</label>
-                        <textarea appThousandSeparator formControlName="Business_Activity_Code"></textarea>
-                        <label>Type of Business Activity:</label>
-                        <textarea appThousandSeparator formControlName="Type_of_business_activity"></textarea> -->
-                        <label for="Business_Activity_Code">Business Activity Code:</label>
-                        <select id="Business_Activity_Code" formControlName="Business_Activity_Code" class="form-select"
-                            style="margin-bottom: 10px;">
-                            <option value="" disabled>-- Select a Code --</option>
-                            <option *ngFor="let activity of businessActivities" [value]="activity.code">
-                                {{ activity.code }}
-                            </option>
-                        </select>
+    <legend>Attachment C9: Financial Particulars</legend>
+    <div class="form-column" style="margin-bottom: 20px;">
+        <h4>General Information</h4>
+        <label for="Business_Activity_Code">Business Activity Code:</label>
+        <select id="Business_Activity_Code" formControlName="Business_Activity_Code" class="form-select"
+            style="margin-bottom: 10px;">
+            <option value="" disabled>-- Select a Code --</option>
+            <option *ngFor="let activity of businessActivities" [value]="activity.code">
+                {{ activity.code }}
+            </option>
+        </select>
 
-                        <label for="Type_of_business_activity">Type of Business Activity:</label>
-                        <textarea id="Type_of_business_activity" formControlName="Type_of_business_activity" readonly
-                            style="background-color: #e9ecef; resize: none;"></textarea>
-                        <label>Type of Labuan Entity:</label>
-                        <textarea formControlName="Fp_Type_of_Labuan_entity" readonly
-                            style="background-color: #e9ecef; resize: none;"></textarea>
-                    </div>
-                    <div class="form-grid">
+        <label for="Type_of_business_activity">Type of Business Activity:</label>
+        <textarea id="Type_of_business_activity" formControlName="Type_of_business_activity" readonly
+            style="background-color: #e9ecef; resize: none;"></textarea>
+        <label>Type of Labuan Entity:</label>
+        <textarea formControlName="Fp_Type_of_Labuan_entity" readonly
+            style="background-color: #e9ecef; resize: none;"></textarea>
+    </div>
 
-                        <div class="form-column">
-                            <h4>Profit & Loss</h4>
+    <div class="form-grid">
+        <!-- Left Column: P&L -->
+        <div class="form-column">
+            <h4>Profit & Loss</h4>
 
-                            <label>Sales / Turnover:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Sales_Turnover"></textarea>
-                            <label>Opening Inventory:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Opening_Inventory"></textarea>
-                            <label>Cost of Purchases:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Cost_of_Purchases"></textarea>
-                            <label>Cost of Production:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Cost_of_Production"></textarea>
-                            <label>Closing Inventory:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Closing_Inventory"></textarea>
-                            <label>Cost of Sales:</label>
-                            <textarea readonly appThousandSeparator type="number"
-                                formControlName="Pnl_Cost_of_Sales"></textarea>
-                            <label>Gross Profit/Loss:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Gross_Profit_Loss"></textarea>
-                            <label>Foreign Currency Exchange Gain:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Foreign_Currency_Exchange_Gain"></textarea>
-                            <label>Other Business Income:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Other_Business_Income"></textarea>
-                            <label>Other Income:</label>
-                            <textarea appThousandSeparator type="number" formControlName="Pnl_Other_Income"></textarea>
-                            <label>Non-Taxable Profits:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Non_Taxable_Profits"></textarea>
-                            <label>Interest Expenditure:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Interest_Expenditure"></textarea>
-                            <label>Professional Fees:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Professional_Fees"></textarea>
-                            <label>Technical Fees to Non-Residents:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Technical_Fees_to_Non_Residents"></textarea>
-                            <label>Contract Payments:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Contract_Payments"></textarea>
-                            <label>Management Fee:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Management_Fee"></textarea>
-                            <label>Salaries & Wages:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Salaries_Wages"></textarea>
-                            <label>Cost of Employee Share Options:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Cost_of_Employee_Share_Options"></textarea>
-                            <label>Royalties:</label>
-                            <textarea appThousandSeparator type="number" formControlName="Pnl_Royalties"></textarea>
-                            <label>Rental / Lease:</label>
-                            <textarea appThousandSeparator type="number" formControlName="Pnl_Rental_Lease"></textarea>
-                            <label>Maintenance & Repairs:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Maintenance_Repairs"></textarea>
-                            <label>Research & Development:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Research_Development"></textarea>
-                            <label>Promotion & Advertisement:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Promotion_Advertisement"></textarea>
-                            <label>Travelling & Accommodation:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Travelling_Accommodation"></textarea>
-                            <label>Foreign Currency Exchange Loss:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Foreign_Currency_Exchange_Loss"></textarea>
-                            <label>Other Expenditure:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Other_Expenditure"></textarea>
-                            <label>Total Expenditure:</label>
-                            <textarea readonly appThousandSeparator type="number"
-                                formControlName="Pnl_Total_Expenditure"></textarea>
-                            <label>Net Profit/Loss:</label>
-                            <textarea appThousandSeparator type="number"
-                                formControlName="Pnl_Net_Profit_Loss"></textarea>
-                            <div class="calculated-field-wrapper">
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Sales / Turnover <span *ngIf="isForeignCurrency">(Foreign)</span>:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Sales_Turnover"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Sales / Turnover (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Sales_Turnover') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
 
-                            </div>
-                        </div>
-                        <div>
-                            <div class="form-column">
-                                <h4>Assets</h4>
-                                <label>Motor Vehicles:</label>
-                                <textarea appThousandSeparator type="number"
-                                    formControlName="Fp_Motor_Vehicles"></textarea>
-                                <label>Plant & Equipment:</label>
-                                <textarea appThousandSeparator type="number"
-                                    formControlName="Fp_Plant_Equipment"></textarea>
-                                <label>Land & Buildings:</label>
-                                <textarea appThousandSeparator type="number"
-                                    formControlName="Fp_Land_Buildings"></textarea>
-                                <label>Other Non-Current Assets:</label>
-                                <textarea appThousandSeparator type="number"
-                                    formControlName="Fp_Other_Non_Current_Assets"></textarea>
-                                <label>Investments:</label>
-                                <textarea appThousandSeparator type="number"
-                                    formControlName="Fp_Investments"></textarea>
-                                <label>Total Non-Current Assets:</label>
-                                <textarea readonly appThousandSeparator type="number"
-                                    formControlName="Fp_Total_Non_Current_Assets"></textarea>
-                                <label>Cost of NCA Acquired:</label>
-                                <textarea appThousandSeparator type="number"
-                                    formControlName="Fp_Cost_of_NCA_Acquired"></textarea>
-                                <label>Trade Debtors:</label>
-                                <textarea appThousandSeparator type="number"
-                                    formControlName="Fp_Trade_Debtors"></textarea>
-                                <label>Other Debtors:</label>
-                                <textarea appThousandSeparator type="number"
-                                    formControlName="Fp_Other_Debtors"></textarea>
-                                <label>Inventory:</label>
-                                <textarea appThousandSeparator type="number" formControlName="Fp_Inventory"></textarea>
-                                <label>Loans to Related Entities:</label>
-                                <textarea appThousandSeparator type="number"
-                                    formControlName="Fp_Loans_to_Related_Entities"></textarea>
-                                <label>Cash in Hand & Bank:</label>
-                                <textarea appThousandSeparator type="number"
-                                    formControlName="Fp_Cash_in_Hand_Bank"></textarea>
-                                <label>Other Current Assets:</label>
-                                <textarea appThousandSeparator type="number"
-                                    formControlName="Fp_Other_Current_Assets"></textarea>
-                                <label>Total Current Assets:</label>
-                                <textarea readonly appThousandSeparator type="number"
-                                    formControlName="Fp_Total_Current_Assets"></textarea>
-                                <label>Total Assets:</label>
-                                <textarea readonly appThousandSeparator type="number"
-                                    formControlName="Fp_Total_Assets"></textarea>
-                            </div>
-                            <div class="form-column">
-                                <h4>Liabilities & Equity</h4>
-                                <label>Loans & Bank Overdrafts:</label>
-                                <textarea appThousandSeparator type="number"
-                                    formControlName="Fp_Loans_Bank_Overdrafts"></textarea>
-                                <label>Trade Creditors:</label>
-                                <textarea appThousandSeparator type="number"
-                                    formControlName="Fp_Trade_Creditors"></textarea>
-                                <label>Other Creditors:</label>
-                                <textarea appThousandSeparator type="number"
-                                    formControlName="Fp_Other_Creditors"></textarea>
-                                <label>Loans from Related Entities:</label>
-                                <textarea appThousandSeparator type="number"
-                                    formControlName="Fp_Loans_from_Related_Entities"></textarea>
-                                <label>Other Current Liabilities:</label>
-                                <textarea appThousandSeparator type="number"
-                                    formControlName="Fp_Other_Current_Liabilities"></textarea>
-                                <label>Total Current Liabilities:</label>
-                                <textarea appThousandSeparator type="number" readonly
-                                    formControlName="Fp_Total_Current_Liabilities"></textarea>
-                                <label>Non-Current Liabilities:</label>
-                                <textarea readonly appThousandSeparator type="number"
-                                    formControlName="Fp_Non_Current_Liabilities"></textarea>
-                                <label>Total Liabilities:</label>
-                                <textarea readonly appThousandSeparator type="number"
-                                    formControlName="Fp_Total_Liabilities"></textarea>
-                                <label>Issued & Paid-Up Capital:</label>
-                                <textarea appThousandSeparator type="number"
-                                    formControlName="Fp_Issued_Paid_Up_Capital"></textarea>
-                                <label>Profit & Loss Appropriation:</label>
-                                <textarea appThousandSeparator type="number"
-                                    formControlName="Fp_Profit_Loss_Appropriation"></textarea>
-                                <label>Reserve Account:</label>
-                                <textarea appThousandSeparator type="number"
-                                    formControlName="Fp_Reserve_Account"></textarea>
-                                <label>Total Equity:</label>
-                                <textarea readonly appThousandSeparator type="number"
-                                    formControlName="Fp_Total_Equity"></textarea>
-                                <label>Total Liabilities & Equity:</label>
-                                <textarea appThousandSeparator type="number" readonly
-                                    formControlName="Fp_Total_Liabilities_and_Equity"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </fieldset>
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Opening Inventory:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Opening_Inventory"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Opening Inventory (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Opening_Inventory') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Cost of Purchases:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Cost_of_Purchases"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Cost of Purchases (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Cost_of_Purchases') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Cost of Production:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Cost_of_Production"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Cost of Production (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Cost_of_Production') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Closing Inventory:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Closing_Inventory"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Closing Inventory (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Closing_Inventory') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Cost of Sales:</label>
+                    <textarea readonly appThousandSeparator type="number" formControlName="Pnl_Cost_of_Sales"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Cost of Sales (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Cost_of_Sales') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Gross Profit/Loss:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Gross_Profit_Loss"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Gross Profit/Loss (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Gross_Profit_Loss') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Foreign Currency Exchange Gain:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Foreign_Currency_Exchange_Gain"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Forex Gain (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Foreign_Currency_Exchange_Gain') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Other Business Income:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Other_Business_Income"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Other Biz Income (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Other_Business_Income') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Other Income:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Other_Income"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Other Income (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Other_Income') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Non-Taxable Profits:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Non_Taxable_Profits"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Non-Taxable Profits (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Non_Taxable_Profits') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Interest Expenditure:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Interest_Expenditure"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Interest Exp (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Interest_Expenditure') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Professional Fees:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Professional_Fees"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Professional Fees (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Professional_Fees') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Technical Fees to Non-Residents:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Technical_Fees_to_Non_Residents"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Tech Fees (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Technical_Fees_to_Non_Residents') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Contract Payments:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Contract_Payments"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Contract Payments (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Contract_Payments') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Management Fee:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Management_Fee"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Management Fee (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Management_Fee') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Salaries & Wages:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Salaries_Wages"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Salaries & Wages (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Salaries_Wages') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Cost of Employee Share Options:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Cost_of_Employee_Share_Options"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Share Options (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Cost_of_Employee_Share_Options') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Royalties:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Royalties"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Royalties (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Royalties') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Rental / Lease:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Rental_Lease"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Rental / Lease (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Rental_Lease') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Maintenance & Repairs:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Maintenance_Repairs"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Maint & Repairs (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Maintenance_Repairs') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Research & Development:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Research_Development"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>R & D (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Research_Development') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Promotion & Advertisement:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Promotion_Advertisement"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Promo & Ads (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Promotion_Advertisement') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Travelling & Accommodation:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Travelling_Accommodation"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Travel & Accomm (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Travelling_Accommodation') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Foreign Currency Exchange Loss:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Foreign_Currency_Exchange_Loss"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Forex Loss (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Foreign_Currency_Exchange_Loss') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Other Expenditure:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Other_Expenditure"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Other Exp (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Other_Expenditure') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Total Expenditure:</label>
+                    <textarea readonly appThousandSeparator type="number" formControlName="Pnl_Total_Expenditure"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Total Exp (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Total_Expenditure') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Net Profit/Loss:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Pnl_Net_Profit_Loss"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Net Profit/Loss (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Pnl_Net_Profit_Loss') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Assets & Liabilities -->
+        <div class="form-column">
+            <h4>Assets</h4>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Motor Vehicles:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Fp_Motor_Vehicles"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Motor Vehicles (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Motor_Vehicles') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Plant & Equipment:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Fp_Plant_Equipment"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Plant & Equip (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Plant_Equipment') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Land & Buildings:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Fp_Land_Buildings"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Land & Buildings (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Land_Buildings') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Other Non-Current Assets:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Fp_Other_Non_Current_Assets"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Other NCA (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Other_Non_Current_Assets') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Investments:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Fp_Investments"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Investments (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Investments') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Total Non-Current Assets:</label>
+                    <textarea readonly appThousandSeparator type="number" formControlName="Fp_Total_Non_Current_Assets"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Total NCA (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Total_Non_Current_Assets') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Cost of NCA Acquired:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Fp_Cost_of_NCA_Acquired"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Cost of NCA (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Cost_of_NCA_Acquired') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Trade Debtors:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Fp_Trade_Debtors"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Trade Debtors (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Trade_Debtors') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Other Debtors:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Fp_Other_Debtors"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Other Debtors (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Other_Debtors') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Inventory:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Fp_Inventory"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Inventory (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Inventory') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Loans to Related Entities:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Fp_Loans_to_Related_Entities"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Loans to Related (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Loans_to_Related_Entities') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Cash in Hand & Bank:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Fp_Cash_in_Hand_Bank"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Cash (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Cash_in_Hand_Bank') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Other Current Assets:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Fp_Other_Current_Assets"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Other CA (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Other_Current_Assets') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Total Current Assets:</label>
+                    <textarea readonly appThousandSeparator type="number" formControlName="Fp_Total_Current_Assets"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Total CA (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Total_Current_Assets') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Total Assets:</label>
+                    <textarea readonly appThousandSeparator type="number" formControlName="Fp_Total_Assets"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Total Assets (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Total_Assets') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
+            <h4>Liabilities & Equity</h4>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Loans & Bank Overdrafts:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Fp_Loans_Bank_Overdrafts"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Loans/Overdrafts (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Loans_Bank_Overdrafts') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Trade Creditors:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Fp_Trade_Creditors"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Trade Creditors (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Trade_Creditors') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Other Creditors:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Fp_Other_Creditors"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Other Creditors (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Other_Creditors') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Loans from Related Entities:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Fp_Loans_from_Related_Entities"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Loans from Related (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Loans_from_Related_Entities') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Other Current Liabilities:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Fp_Other_Current_Liabilities"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Other CL (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Other_Current_Liabilities') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Total Current Liabilities:</label>
+                    <textarea appThousandSeparator type="number" readonly formControlName="Fp_Total_Current_Liabilities"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Total CL (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Total_Current_Liabilities') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Non-Current Liabilities:</label>
+                    <textarea readonly appThousandSeparator type="number" formControlName="Fp_Non_Current_Liabilities"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Non-Current Liab (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Non_Current_Liabilities') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Total Liabilities:</label>
+                    <textarea readonly appThousandSeparator type="number" formControlName="Fp_Total_Liabilities"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Total Liab (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Total_Liabilities') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Issued & Paid-Up Capital:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Fp_Issued_Paid_Up_Capital"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Paid-Up Capital (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Issued_Paid_Up_Capital') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Profit & Loss Appropriation:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Fp_Profit_Loss_Appropriation"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>P&L Approp (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Profit_Loss_Appropriation') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Reserve Account:</label>
+                    <textarea appThousandSeparator type="number" formControlName="Fp_Reserve_Account"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Reserve Acc (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Reserve_Account') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Total Equity:</label>
+                    <textarea readonly appThousandSeparator type="number" formControlName="Fp_Total_Equity"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Total Equity (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Total_Equity') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+
+            <div class="currency-pair-row">
+                <div class="input-wrapper">
+                    <label>Total Liabilities & Equity:</label>
+                    <textarea appThousandSeparator type="number" readonly formControlName="Fp_Total_Liabilities_and_Equity"></textarea>
+                </div>
+                <div class="input-wrapper" *ngIf="isForeignCurrency">
+                    <label>Total (MYR):</label>
+                    <input type="text" class="myr-readonly" [value]="getMyrValue('Fp_Total_Liabilities_and_Equity') | number:'1.2-2'" readonly tabindex="-1">
+                </div>
+            </div>
+        </div>
+    </div>
+</fieldset>
 
                 <!-- Attachment C10: Subsidiaries or Related Entities -->
                 <fieldset id="attachment-c10" *ngIf="le1Form.get('C10_Has_Subsidiary_Outside_Labuan')?.value === '1'">

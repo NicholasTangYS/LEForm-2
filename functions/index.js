@@ -13,6 +13,9 @@ const firebase = require("firebase-admin");
 const express = require('express');
 const app = express();
 const puppeteer = require('puppeteer');
+const fs = require("fs");
+const path = require("path");
+const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 const jwt = require('jsonwebtoken');
 const mysql = require('mysql2');
 const logger = require("firebase-functions/logger");
@@ -22,7 +25,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 // const chromium = require('chromium');
 const bcrypt = require('bcrypt');
 const saltRounds = 10; // The cost factor for hashing
-
+// puppeteer.use(StealthPlugin());
 const db = mysql.createConnection({
     host: 'db-mysql-sgp1-44557-do-user-17663198-0.k.db.ondigitalocean.com',  // DigitalOcean's public hostname
     user: 'doadmin',               // MySQL user
@@ -36,13 +39,21 @@ const db = mysql.createConnection({
 const allowedOrigins = [
     'https://le1-form.web.app', // Production Angular app
     'http://localhost:4200',    // Your typical Angular local dev server
-    'http://127.0.0.1:4200'     // Alternative localhost address
+    'http://127.0.0.1:4200',     // Alternative localhost address
+    'https://altomate.io/',
+    'https://www.altomate.io/',
+    'https://altomate.io/my/free-company-name-check/'
 ];
 const corsOptions = {
     origin: allowedOrigins, // ⬅️ ONLY allow your deployed Angular app
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true, // If you need to send cookies/auth headers
 };
+
+const cookiesDir = path.join(__dirname, "cookies");
+const profilesBaseDir = path.join(__dirname, "puppeteer_profiles");
+if (!fs.existsSync(cookiesDir)) fs.mkdirSync(cookiesDir);
+if (!fs.existsSync(profilesBaseDir)) fs.mkdirSync(profilesBaseDir);
 
 app.use(cors(corsOptions)); // 3. Use the middleware
 
@@ -767,6 +778,586 @@ async function fillFormHeadlessly(data, cookies) {
     }
 
 }
+
+////////////// MYdata /////////////
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Simple session tracker (no cookies needed anymore)
+class SessionManager {
+  constructor(name) {
+    this.name = name;
+    this.createdAt = Date.now();
+  }
+}
+
+// Session pool for concurrent requests
+class SessionPool {
+  constructor(maxSessions = 5) {
+    this.maxSessions = maxSessions;
+    this.sessions = new Map();
+    this.queue = [];
+  }
+
+  async acquireSession() {
+    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const profileDir = path.join(profilesBaseDir, sessionId);
+    
+    if (!fs.existsSync(profileDir)) {
+      fs.mkdirSync(profileDir, { recursive: true });
+    }
+
+    const session = {
+      id: sessionId,
+      profileDir: profileDir,
+      manager: new SessionManager(sessionId),
+      inUse: true,
+      createdAt: Date.now()
+    };
+
+    this.sessions.set(sessionId, session);
+    console.log(`🔓 Session acquired: ${sessionId}`);
+    return session;
+  }
+
+  async releaseSession(sessionId) {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.inUse = false;
+      console.log(`🔒 Session released: ${sessionId}`);
+      
+      // Clean up old sessions after 5 minutes
+      setTimeout(() => {
+        this.cleanupSession(sessionId);
+      }, 5 * 60 * 1000);
+    }
+  }
+
+  cleanupSession(sessionId) {
+    const session = this.sessions.get(sessionId);
+    if (session && !session.inUse) {
+      try {
+        if (fs.existsSync(session.profileDir)) {
+          fs.rmSync(session.profileDir, { recursive: true, force: true });
+        }
+        this.sessions.delete(sessionId);
+        console.log(`🗑️ Session cleaned up: ${sessionId}`);
+      } catch (error) {
+        console.error(`⚠️ Error cleaning session ${sessionId}:`, error.message);
+      }
+    }
+  }
+}
+
+const sessionPool = new SessionPool();
+
+// --- Bitrix24 CRM Integration ---
+async function pushLeadToBitrix24(leadData) {
+  const BITRIX24_WEBHOOK = process.env.BITRIX24_WEBHOOK;
+  
+  if (!BITRIX24_WEBHOOK) {
+    console.warn("⚠️ BITRIX24_WEBHOOK not configured in .env");
+    return { success: false, error: "Bitrix24 webhook not configured" };
+  }
+
+  try {
+    const companyNamesText = leadData.companyNames
+      .map(c => `${c.name}: ${c.available ? '✅ Available' : '❌ Taken'} (${c.details.results?.length || 0} matches)`)
+      .join('\n');
+
+    let firstName = '', middleName = '', lastName = '';
+    
+    if (leadData.name) {
+      const nameParts = leadData.name.trim().split(' ');
+      if (nameParts.length === 1) {
+        firstName = nameParts[0];
+      } else if (nameParts.length === 2) {
+        firstName = nameParts[0];
+        lastName = nameParts[1];
+      } else if (nameParts.length >= 3) {
+        firstName = nameParts[0];
+        middleName = nameParts.slice(1, -1).join(' ');
+        lastName = nameParts[nameParts.length - 1];
+      }
+    }
+
+    const availableCount = leadData.companyNames.filter(c => c.available).length;
+    const companyName1 = leadData.companyNames[0] ? leadData.companyNames[0].name : '';
+    const companyName2 = leadData.companyNames[1] ? leadData.companyNames[1].name : '';
+    const companyName3 = leadData.companyNames[2] ? leadData.companyNames[2].name : '';
+
+    const bitrixFields = {
+      TITLE: `[Altomate Website Form] Company Name Check - ${leadData.name || 'Unknown'}`,
+      ASSIGNED_BY_ID: 3807,
+      UF_CRM_1752112857872: leadData.name || '',
+      UF_CRM_LEAD_1714097932490: leadData.email || '',
+      UF_CRM_1714540318506: leadData.phone || '',
+      UF_CRM_1634365929857: companyName1,
+      UF_CRM_LEAD_1650374555137: companyName2,
+      UF_CRM_LEAD_1650374569570: companyName3,
+      COMMENTS: `Company Names Checked:\n${companyNamesText}\n\nAvailable Names: ${availableCount}\nSubmitted: ${leadData.submittedAt}\nSource: ${leadData.source}`,
+    };
+
+    console.log("📤 Sending lead to Bitrix24...");
+    
+    const response = await fetch(`${BITRIX24_WEBHOOK}/crm.lead.add`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        fields: bitrixFields,
+        params: { REGISTER_SONET_EVENT: "Y" }
+      })
+    });
+
+    const result = await response.json();
+
+    if (result.result) {
+      console.log(`✅ Lead created in Bitrix24 with ID: ${result.result}`);
+      return { success: true, leadId: result.result, bitrixResponse: result };
+    } else {
+      console.error("❌ Bitrix24 error:", result.error_description || result.error);
+      return { success: false, error: result.error_description || result.error, bitrixResponse: result };
+    }
+  } catch (error) {
+    console.error("❌ Bitrix24 API error:", error.message);
+    return { success: false, error: error.message };
+  }
+}
+
+// Check if login is required (Sign In prompt appears)
+async function isLoginRequired(page) {
+  const needsLogin = await page.evaluate(() => {
+    const bodyText = document.body.innerText;
+    // Check for "Sign In" message that appears when results are found
+    return bodyText.includes('Sign In') && bodyText.includes('for the full results');
+  });
+  
+  if (needsLogin) {
+    console.log(`🔴 Detected "Sign In" prompt - company name is NOT available`);
+    return true;
+  }
+  
+  return false;
+}
+
+async function checkMyDataMultiSession(companyNames, userData) {
+  const session = await sessionPool.acquireSession();
+  let browser, page;
+
+  try {
+    console.log(`[${session.id}] 🚀 Starting browser...`);
+    
+    browser = await puppeteer.launch({
+      headless: true,
+      userDataDir: session.profileDir,
+      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu"],
+    });
+
+    const pages = await browser.pages();
+    page = pages[0] || (await browser.newPage());
+    await page.setViewport({ width: 1280, height: 800 });
+
+    // Navigate to home
+    await page.goto("https://www.mydata-ssm.com.my/home", { 
+      waitUntil: "domcontentloaded", 
+      timeout: 60000 
+    });
+    await delay(3000);
+
+    // Set Company filter once
+    console.log(`[${session.id}] 🔽 Setting Company filter...`);
+    try {
+      const dropdownClicked = await page.evaluate(() => {
+        const button = document.getElementById('dropdownMenu1');
+        if (button) {
+          button.click();
+          return true;
+        }
+        return false;
+      });
+      
+      if (dropdownClicked) {
+        await delay(1500);
+        
+        const optionClicked = await page.evaluate(() => {
+          const menuItems = Array.from(document.querySelectorAll('a.dropdown-item, li a, .dropdown-menu a, button'));
+          const companyOption = menuItems.find(el => el.textContent.trim() === 'Company');
+          
+          if (companyOption) {
+            companyOption.click();
+            return true;
+          }
+          return false;
+        });
+        
+        if (optionClicked) {
+          console.log(`[${session.id}] ✅ 'Company' filter selected`);
+          await delay(2000);
+        }
+      }
+    } catch (error) {
+      console.log(`[${session.id}] ⚠️ Filter selection error:`, error.message);
+    }
+
+    // Find search box
+    const searchSelectors = [
+      'input[placeholder*="search" i]',
+      'input[name*="search"]',
+      'input[type="text"]'
+    ];
+    
+    let searchBox = null;
+    for (const sel of searchSelectors) {
+      try {
+        await page.waitForSelector(sel, { visible: true, timeout: 5000 });
+        searchBox = sel;
+        break;
+      } catch {}
+    }
+    
+    if (!searchBox) throw new Error("Search box not found");
+
+    const results = [];
+
+    // Search each company name
+// Search each company name
+    for (let idx = 0; idx < companyNames.length; idx++) {
+      // Force Uppercase immediately
+      let companyName = companyNames[idx] ? companyNames[idx].toUpperCase() : "";
+      if (!companyName || !companyName.trim()) continue;
+
+      // Auto-append SDN BHD if not present
+      const upperName = companyName.toUpperCase().trim();
+      if (!upperName.endsWith('SDN BHD') && !upperName.endsWith('SDN. BHD.')) {
+        companyName = `${companyName} SDN BHD`;
+        console.log(`[${session.id}] 📝 Auto-appended: "${companyName}"`);
+      }
+
+      console.log(`[${session.id}] [${idx + 1}/${companyNames.length}] 🔍 Searching: ${companyName}`);
+      
+      // Clear and search
+      await page.click(searchBox, { clickCount: 3 });
+      await page.keyboard.press('Backspace');
+      await delay(500);
+      await page.type(searchBox, companyName, { delay: 100 });
+      await page.keyboard.press("Enter");
+
+      console.log(`[${session.id}] ⏳ Waiting for results...`);
+      await delay(3000);
+      
+      // ⭐ NEW: Check if "Sign In" prompt appears - if so, name is NOT available
+      if (await isLoginRequired(page)) {
+        console.log(`[${session.id}] ❌ Name "${companyName}" is NOT available (login required)`);
+        results.push({
+          name: companyName,
+          available: false,
+          details: {
+            exists: true,
+            results: [{ message: "Name already registered - Sign In required to view details" }],
+            totalPages: 0,
+            reason: "signin_required"
+          }
+        });
+        continue; // Skip to next name without logging in
+      }
+      
+      // Wait for results to load
+      for (let i = 0; i < 20; i++) {
+        const hasResults = await page.evaluate(() => 
+          document.body.innerText.includes('entities found') || 
+          document.body.innerText.includes('entity found')
+        );
+        
+        if (hasResults) {
+          console.log(`[${session.id}] ✅ Results loaded`);
+          break;
+        }
+        await delay(1000);
+      }
+      
+      await delay(2000);
+
+      // Extract results with pagination
+      console.log(`[${session.id}] 📋 Extracting data...`);
+      let allCompanies = [];
+      let currentPage = 1;
+      
+      while (true) {
+        const pageResults = await page.evaluate(() => {
+          const bodyText = document.body.innerText;
+          const lines = bodyText.split('\n').map(l => l.trim()).filter(l => l);
+          const typeIndex = lines.findIndex(l => l === 'Type');
+          const companies = [];
+          
+          if (typeIndex > 0) {
+            let i = typeIndex + 1;
+            let attempts = 0;
+            
+            while (i < lines.length && attempts < 300) {
+              const number = lines[i];
+              const name = lines[i + 1];
+              const type = lines[i + 2];
+              
+              if (number && name && type && 
+                  number.match(/^\d{12,}/) &&
+                  name.length > 3 && 
+                  !name.includes('entities found') &&
+                  !name.includes('Number') &&
+                  !name.includes('Name') &&
+                  type.length > 2 &&
+                  type !== 'Type') {
+                companies.push({ number, name, type });
+                i += 3;
+              } else {
+                if (companies.length > 0 && attempts > 10) break;
+                i++;
+              }
+              attempts++;
+            }
+          }
+          
+          return companies;
+        });
+        
+        allCompanies = allCompanies.concat(pageResults);
+        
+        const paginationInfo = await page.evaluate(() => {
+          const el = document.querySelector(".mat-paginator-range-label");
+          if (!el) return null;
+          const text = el.textContent.trim();
+          const match = text.match(/(\d+)\s*-\s*(\d+)\s*of\s*(\d+)/i);
+          if (!match) return null;
+          return { 
+            start: parseInt(match[1]), 
+            end: parseInt(match[2]), 
+            total: parseInt(match[3]) 
+          };
+        });
+
+        if (paginationInfo && paginationInfo.end >= paginationInfo.total) {
+          break;
+        }
+        
+        const currentState = paginationInfo ? `${paginationInfo.start}-${paginationInfo.end}` : null;
+        
+        const nextClicked = await page.evaluate(() => {
+          const buttons = Array.from(document.querySelectorAll('button'));
+          const nextButton = buttons.find(btn => {
+            if (btn.disabled) return false;
+            const ariaLabel = (btn.getAttribute('aria-label') || '').toLowerCase();
+            return ariaLabel.includes('next page');
+          });
+          
+          if (nextButton) {
+            nextButton.click();
+            return true;
+          }
+          return false;
+        });
+        
+        if (!nextClicked) break;
+        
+        await delay(4000);
+        
+        let pageChanged = false;
+        for (let i = 0; i < 15; i++) {
+          const newState = await page.evaluate(() => {
+            const el = document.querySelector(".mat-paginator-range-label");
+            if (!el) return null;
+            const text = el.textContent.trim();
+            const match = text.match(/(\d+)\s*-\s*(\d+)/);
+            return match ? `${match[1]}-${match[2]}` : null;
+          });
+          
+          if (newState && newState !== currentState) {
+            pageChanged = true;
+            break;
+          }
+          await delay(500);
+        }
+        
+        if (!pageChanged) break;
+        
+        currentPage++;
+        if (currentPage > 100) break;
+      }
+
+      console.log(`[${session.id}] ✅ Found ${allCompanies.length} companies for "${companyName}"`);
+      
+      results.push({
+        name: companyName,
+        available: allCompanies.length === 0,
+        details: {
+          exists: allCompanies.length > 0,
+          results: allCompanies.length > 0 ? allCompanies : [{ message: "No companies found" }],
+          totalPages: currentPage
+        }
+      });
+    }
+
+    await browser.close();
+    console.log(`[${session.id}] 🔒 Browser closed`);
+
+    return results;
+
+  } catch (error) {
+    console.error(`[${session.id}] ❌ Error:`, error.message);
+    if (browser) await browser.close();
+    throw error;
+  } finally {
+    await sessionPool.releaseSession(session.id);
+  }
+}
+
+// ===== API ROUTES =====
+
+// New optimized endpoint with multi-session support
+app.post("/myData/check-names", async (req, res) => {
+  const { companyNames, userData } = req.body;
+  
+  if (!companyNames || companyNames.length === 0) {
+    return res.status(400).json({ error: "At least one company name is required" });
+  }
+
+  console.log(`\n🚀 Checking ${companyNames.length} company name(s)...\n`);
+  
+  try {
+    const results = await checkMyDataMultiSession(companyNames, userData);
+
+    // Prepare lead data
+    const leadData = {
+      ...userData,
+      companyNames: results,
+      submittedAt: new Date().toISOString(),
+      source: 'company-name-checker'
+    };
+
+    // Push to Bitrix24 CRM
+    const bitrixResult = await pushLeadToBitrix24(leadData);
+
+    res.json({
+      success: true,
+      results: results,
+      crm: bitrixResult
+    });
+
+  } catch (error) {
+    console.error("❌ Error:", error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+async function getDealsFromPipeline(pipelineId = 5) {
+    let allDeals = [];
+    let start = 0;
+    const limit = 2000; // Hard limit for maximum deals to retrieve
+
+    try {
+        do {
+            const response = await callBitrixApi('crm.deal.list', {
+                filter: { 'CATEGORY_ID': pipelineId },
+                select: ['ID', 'COMPANY_ID', 'TITLE', 'STAGE_ID', 'ASSIGNED_BY_ID', 'UF_CRM_1615028982', 'UF_CRM_1601022085', 'UF_CRM_1644713831846', 'DATE_CREATE', 'MOVED_TIME'],
+                order: { 'ID': 'desc' },
+                start: start
+            });
+
+            if (response && Array.isArray(response.result)) {
+                allDeals = allDeals.concat(response.result);
+            }
+
+            // Check if we hit the limit early
+            if (allDeals.length >= limit) {
+                // Truncate results if limit is reached during the last fetch
+                allDeals = allDeals.slice(0, limit);
+                break;
+            }
+
+            // Check for the 'next' offset to continue pagination
+            if (response && typeof response.next === 'number') {
+                start = response.next;
+            } else {
+                // No more 'next' indicator, so we stop the loop
+                break;
+            }
+        } while (true);
+    } catch (error) {
+        // Log the actual error that occurred during the API call
+        console.error('Error fetching deals from Bitrix API:', error);
+        // Optionally, throw the error or return an empty array based on desired behavior
+    }
+
+    return allDeals;
+}
+
+async function callBitrixApi(method, params = {}) {
+    const BITRIX_WEBHOOK_URL = process.env.BITRIX24_WEBHOOK || 'YOUR_BITRIX_WEBHOOK_URL_HERE';
+    if (BITRIX_WEBHOOK_URL === 'YOUR_BITRIX_WEBHOOK_URL_HERE') {
+        throw new Error("Bitrix Webhook URL is not configured. Please update BITRIX_WEBHOOK_URL.");
+    }
+
+    const queryUrl = `${BITRIX_WEBHOOK_URL}${method}`;
+    
+    // Equivalent of PHP's http_build_query: converts JS object to URL-encoded string.
+    // This format is required by Bitrix for POST data.
+    const body = new URLSearchParams(params).toString(); 
+
+    try {
+        const response = await fetch(queryUrl, {
+            method: 'POST',
+            // Set headers to match what cURL would typically use for POST data
+            headers: {
+                'Content-Type': 'application/json' 
+            },
+            body: body,
+        });
+
+        if (!response.ok) {
+            // Throw an error if the HTTP status is not 2xx
+            const errorText = await response.text();
+            throw new Error(`Bitrix API returned HTTP error ${response.status}: ${errorText}`);
+        }
+
+        return response.json();
+    } catch (error) {
+        console.error('Error during Bitrix API call:', error.message);
+        throw error;
+    }
+}
+
+app.post('/api/deals/:pipelineId', async (req, res) => {
+    // 1. Extract the pipelineId from the URL parameters
+    // We use parseInt with radix 10 to ensure it's treated as an integer.
+    const pipelineId = parseInt(req.params.pipelineId, 10); 
+
+    // 2. Validate the input
+    if (isNaN(pipelineId) || pipelineId < 1) {
+        return res.status(400).json({ error: 'Invalid pipeline ID provided.' });
+    }
+
+    try {
+        console.log(`Fetching deals for pipeline ID: ${pipelineId}...`);
+        
+        // 3. Call the core function
+        const deals = await getDealsFromPipeline(pipelineId);
+
+        // 4. Return the results
+        res.status(200).json({
+            pipelineId: pipelineId,
+            totalDeals: deals.length,
+            deals: deals
+        });
+
+    } catch (err) {
+        console.error('API Error:', err);
+        // Return a 500 status on internal server errors
+        res.status(500).json({ error: 'An error occurred while retrieving the deals.' });
+    }
+});
 // For cost control, you can set the maximum number of containers that can be
 // running at the same time. This helps mitigate the impact of unexpected
 // traffic spikes by instead downgrading performance. This limit is a
@@ -777,7 +1368,9 @@ async function fillFormHeadlessly(data, cookies) {
 // functions should each use functions.runWith({ maxInstances: 10 }) instead.
 // In the v1 API, each function can only serve one request per container, so
 // this will be the maximum concurrent request count.
-setGlobalOptions({ maxInstances: 10, timeoutSeconds: 540 });
+setGlobalOptions({ maxInstances: 10, timeoutSeconds: 540 ,memory: '2GiB', cpu: 1});
+// setGlobalOptions({  });
+
 
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started

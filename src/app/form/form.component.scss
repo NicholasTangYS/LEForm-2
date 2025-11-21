@@ -696,3 +696,73 @@ background-color: #27ae60; /* Darker green */
     }
 }
 
+/* Wrapper for the pair of inputs */
+.currency-pair-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 15px;
+
+    .input-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+
+        label {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.8em;
+            margin-bottom: 4px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        textarea, input {
+            margin-bottom: 0;
+            width: 100%;
+            height: 38px; /* Fixed height to match */
+        }
+    }
+}
+
+/* Style for the Readonly MYR field */
+.myr-readonly {
+    background-color: #e9ecef;
+    color: #495057;
+    font-weight: bold;
+    text-align: right;
+    border: 1px solid #ced4da;
+}
+
+/* --- Validation Highlighting --- */
+
+/* Apply red border and light red background to invalid fields that have been touched */
+input.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched,
+textarea.ng-invalid.ng-touched,
+.form-select.ng-invalid.ng-touched,
+.form-control.ng-invalid.ng-touched {
+    border: 2px solid #dc3545 !important; /* Bootstrap Danger Red */
+    background-color: #fff8f8 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25); /* Red Glow */
+}
+
+/* Optional: Add an asterisk to labels of required fields */
+label.required:after {
+    content: " *";
+    color: #dc3545;
+}
+
+/* Animation to shake invalid fields slightly (optional polish) */
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+}
+
+.ng-invalid.ng-touched {
+    animation: shake 0.3s ease-in-out;
+}
