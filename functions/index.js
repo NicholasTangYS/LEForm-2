@@ -867,19 +867,16 @@ async function pushLeadToBitrix24(leadData) {
       .map(c => `${c.name}: ${c.available ? '✅ Available' : '❌ Taken'} (${c.details.results?.length || 0} matches)`)
       .join('\n');
 
-    let firstName = '', middleName = '', lastName = '';
+    let firstName = '', lastName = '';
     
     if (leadData.name) {
       const nameParts = leadData.name.trim().split(' ');
       if (nameParts.length === 1) {
         firstName = nameParts[0];
-      } else if (nameParts.length === 2) {
-        firstName = nameParts[0];
-        lastName = nameParts[1];
-      } else if (nameParts.length >= 3) {
-        firstName = nameParts[0];
-        middleName = nameParts.slice(1, -1).join(' ');
-        lastName = nameParts[nameParts.length - 1];
+        lastName = '';
+      } else if (nameParts.length >= 2) {
+        lastName = nameParts[0];
+        firstName = nameParts.slice(1).join(' ');
       }
     }
 
@@ -888,16 +885,19 @@ async function pushLeadToBitrix24(leadData) {
     const companyName2 = leadData.companyNames[1] ? leadData.companyNames[1].name : '';
     const companyName3 = leadData.companyNames[2] ? leadData.companyNames[2].name : '';
 
+    const phoneNumber = leadData.phone ? leadData.phone.replace(/^0/, '') : '';
+
     const bitrixFields = {
       TITLE: `[Altomate Website Form] Company Name Check - ${leadData.name || 'Unknown'}`,
       ASSIGNED_BY_ID: 3807,
-      UF_CRM_1752112857872: leadData.name || '',
+      NAME: firstName,
+      LAST_NAME: lastName,
       UF_CRM_LEAD_1714097932490: leadData.email || '',
-      UF_CRM_1714540318506: leadData.phone || '',
+      UF_CRM_1714540318506: phoneNumber,
       UF_CRM_1634365929857: companyName1,
       UF_CRM_LEAD_1650374555137: companyName2,
       UF_CRM_LEAD_1650374569570: companyName3,
-      COMMENTS: `Company Names Checked:\n${companyNamesText}\n\nAvailable Names: ${availableCount}\nSubmitted: ${leadData.submittedAt}\nSource: ${leadData.source}`,
+      COMMENTS: `Company Names Checked:\n${companyNamesText}`
     };
 
     console.log("📤 Sending lead to Bitrix24...");
