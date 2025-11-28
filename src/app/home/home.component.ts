@@ -218,6 +218,7 @@ export class HomeComponent {
     if (this.failedRequests.length > 0) {
       this.showFailureModal = true;
     } else {
+      console.log(this.successfulResponses);
       this.proceedWithData(this.successfulResponses);
     }
   }
@@ -299,15 +300,42 @@ export class HomeComponent {
     const combinedData = Object.assign({}, ...responses);
     const today = new Date();
     const submissionDate = this._formatDate(today);
-    combinedData.B1_Row1_Business_Activity_Code = this.formatBusinessActivityCode(combinedData.B1_Row1_Business_Activity_Code);
-    combinedData.B1_Row2_Business_Activity_Code = this.formatBusinessActivityCode(combinedData.B1_Row2_Business_Activity_Code);
-    combinedData.B1_Row3_Business_Activity_Code = this.formatBusinessActivityCode(combinedData.B1_Row3_Business_Activity_Code);
-    combinedData.B1_Row4_Business_Activity_Code = this.formatBusinessActivityCode(combinedData.B1_Row4_Business_Activity_Code);
-    combinedData.B1_Row5_Business_Activity_Code = this.formatBusinessActivityCode(combinedData.B1_Row5_Business_Activity_Code);
+
+    // Helper to parse "DD/MM/YYYY" -> "YYYY-MM-DD"
+    const parseDate = (dateStr: string): string | null => {
+      if (!dateStr) return null;
+      const parts = dateStr.split('/');
+      if (parts.length === 3) {
+        // parts[0] = Day, parts[1] = Month, parts[2] = Year
+        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+      return null;
+    };
+
+    // 1. Format top-level Business_Activity_Code
     combinedData.Business_Activity_Code = this.formatBusinessActivityCode(combinedData.Business_Activity_Code);
-    const yearEnd = (combinedData.Accounting_Period_To_Day && combinedData.Accounting_Period_To_Month && combinedData.Accounting_Period_To_Year)
-      ? `${combinedData.Accounting_Period_To_Year}-${combinedData.Accounting_Period_To_Month}-${combinedData.Accounting_Period_To_Day}`
-      : submissionDate;
+
+    // 2. Format Business_Activity_Code inside b1Rows (if it exists)
+    if (Array.isArray(combinedData.b1Rows)) {
+      combinedData.b1Rows.forEach((row: any) => {
+        row.Business_Activity_Code = this.formatBusinessActivityCode(row.Business_Activity_Code);
+      });
+    }
+
+    // 3. Determine year_end
+    // Priority 1: Accounting_Period_To (DD/MM/YYYY) -> convert to YYYY-MM-DD
+    // Priority 2: Old logic (Accounting_Period_To_Year, etc.)
+    // Priority 3: Submission date
+    let yearEnd = submissionDate;
+
+    if (combinedData.Accounting_Period_To) {
+      const parsed = parseDate(combinedData.Accounting_Period_To);
+      if (parsed) {
+        yearEnd = parsed;
+      }
+    } else if (combinedData.Accounting_Period_To_Day && combinedData.Accounting_Period_To_Month && combinedData.Accounting_Period_To_Year) {
+      yearEnd = `${combinedData.Accounting_Period_To_Year}-${combinedData.Accounting_Period_To_Month}-${combinedData.Accounting_Period_To_Day}`;
+    }
 
     const body = {
       userId: this.userID,
@@ -319,9 +347,13 @@ export class HomeComponent {
 
     console.log("Proceeding with combined data:", body);
     this.createProject(body).subscribe({
+      next: (res) => {
+        // Success is handled in the tap() of createProject, but we can add extra logic here if needed
+      },
       error: (err: Error) => {
         console.error('Final project creation failed:', err);
         alert(`Could not create the project: ${err.message}`);
+        this.isLoading = false; // Ensure loader is turned off on error
       }
     });
   }
