@@ -601,209 +601,6 @@ app.post('/createProject', async (req, res) => {
   }
 });
 
-app.post('/fill-lhdn-form-headless', async (req, res) => {
-  const { data, cookies } = req.body;
-
-  if (!data || !cookies) {
-    return res.status(400).json({ message: 'Form data or session cookies are missing.' });
-  }
-
-  console.log('Received request for headless LHDN form filling.');
-
-  try {
-    // Await the result to catch any errors here
-    await fillFormHeadlessly(data, cookies);
-
-    // If it succeeds, send the success message
-    res.status(200).json({ message: 'Automation process has been completed successfully.' });
-
-  } catch (err) {
-    console.error("Critical error during headless automation task:", err.message);
-
-    // Send a specific JSON error response back to the bookmarklet
-    res.status(500).json({ message: `Automation failed: ${err.message}` });
-  }
-});
-
-
-async function fillFormHeadlessly(data, cookies) {
-  let browser;
-  try {
-    console.log('Launching headless browser...');
-    browser = await puppeteer.launch({
-      headless: true, // This is the key change to run in the background
-      // Your existing args are good for server environments
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--window-size=1920,1080'
-      ]
-    });
-
-    const page = await browser.newPage();
-    await page.setViewport({ width: 1920, height: 1080 });
-
-    // 1. Set the session cookies BEFORE navigating to the page
-    console.log('Received cookies from client. Transforming for Puppeteer...');
-    console.log(cookies);
-    const puppeteerCookies = cookies.map(cookie => {
-      const puppeteerCookie = {
-        name: cookie.name,
-        value: cookie.value,
-        domain: cookie.domain,
-        path: cookie.path,
-        secure: cookie.secure,
-        httpOnly: cookie.httpOnly,
-      };
-
-      // ** THE CRITICAL PART **
-      // Rename 'expirationDate' to 'expires' if it exists.
-      if (cookie.expirationDate) {
-        puppeteerCookie.expires = cookie.expirationDate;
-      }
-
-      // Handle the 'sameSite' property mapping
-      if (cookie.sameSite) {
-        if (cookie.sameSite === 'no_restriction') {
-          puppeteerCookie.sameSite = 'None';
-        } else if (cookie.sameSite === 'lax') {
-          puppeteerCookie.sameSite = 'Lax';
-        } else if (cookie.sameSite === 'strict') {
-          puppeteerCookie.sameSite = 'Strict';
-        }
-      }
-
-      return puppeteerCookie;
-    });
-
-    // Now, use the correctly formatted array of cookies
-    await page.setCookie(...puppeteerCookies);
-    console.log('Session cookies have been successfully set.');
-
-    // 2. Directly navigate to the final form-filling page (MakAsas)
-    //    Construct the URL. This might require some investigation.
-    //    It's often a stable URL with a query parameter for the year or form type.
-    const formUrl = 'https://ef.hasil.gov.my/eLE1/MakAsas'; // This is an example, you must find the exact URL
-    console.log(`Navigating directly to the form page: ${formUrl}`);
-    await page.goto(formUrl, { waitUntil: 'networkidle0' });
-
-    // 3. Verify that the page loaded correctly by checking for a known element
-    const formIdentifierSelector = '#MainContent_ddlPenyata';
-    try {
-      await page.waitForSelector(formIdentifierSelector, { timeout: 30000 });
-      console.log('Successfully loaded the LE1 form page (MakAsas).');
-    } catch (e) {
-      console.error('Failed to load the form page. Cookies might be invalid or expired.');
-      // Save a screenshot for debugging purposes
-      await page.screenshot({ path: 'error_page_load.png' });
-      throw new Error('Could not verify that the form page was loaded.');
-    }
-    console.log('Starting to fill the LE1 form...');
-
-    // --- DATA FILLING EXAMPLE ---
-    // Now, all actions will use the `formPage` object.
-
-    // 1. Wait for the dropdown to be available on the page.
-    const foreignCurrencySelector = '#MainContent_ddlPenyata';
-    await formPage.waitForSelector(foreignCurrencySelector);
-
-    // 2. Select the value from your JSON data.
-    //    The `.select()` function automatically finds the <option> with the matching 'value' attribute.
-    //    Your data provides '1' for Yes and '2' for No, which matches the HTML perfectly.
-    await formPage.select(foreignCurrencySelector, (data?.FS_in_Foreign_Currency_Yes));
-
-    console.log(`Selected '${data.FS_in_Foreign_Currency_Yes === '1' ? 'Yes' : 'No'}' for 'FS in Foreign Currency'.`);
-
-    const changePeriodSelector = '#MainContent_ddlTkrTempoh';
-    await formPage.waitForSelector(changePeriodSelector);
-    await formPage.select(changePeriodSelector, (data?.Change_of_Accounting_Period_No));
-
-    const changePeriodTypeSelector = '#MainContent_ddlJnsTempoh';
-    await formPage.waitForSelector(changePeriodTypeSelector);
-    await formPage.select(changePeriodTypeSelector, (data?.Types_of_exchange_of_accounting_periods));
-
-    const foreignCurrencyTypeSelector = '#MainContent_ddlJnsMatawang';
-    await formPage.waitForSelector(foreignCurrencyTypeSelector);
-    await formPage.select(foreignCurrencyTypeSelector, (data?.Currency_Reported));
-
-    const currencyRate = '#MainContent_txtRate';
-    // Extract the value first
-    const rateValue = data?.Currency_Exchange_Rate;
-
-    await formPage.evaluate((selector, value) => {
-      // Finds the element and sets its value property to an empty string (clears the field)
-      const element = document.querySelector(selector);
-      if (element) {
-        element.value = '';
-        // Then, set the new value using the 'value' argument passed from Node.js
-        element.value = value;
-      }
-    }, currencyRate, rateValue); // <-- Pass currencyRate (selector) and rateValue (data) here
-
-    const businessStatusSelector = '#MainContent_ddlStatus_pern';
-    await formPage.waitForSelector(businessStatusSelector);
-    await formPage.select(businessStatusSelector, (data?.Business_Status_In_Operation));
-
-    const recordKeepingSelector = '#MainContent_ddlRekod';
-    await formPage.waitForSelector(recordKeepingSelector);
-    await formPage.select(recordKeepingSelector, (data?.Record_keeping));
-
-    const entityTypeSelector = '#MainContent_ddlEntitiLabuan';
-    await formPage.waitForSelector(entityTypeSelector);
-    await formPage.select(entityTypeSelector, (data?.Type_of_Labuan_entity));
-
-    const incorpUnderSelector = '#MainContent_ddlAktivitiEntiti';
-    await formPage.waitForSelector(incorpUnderSelector);
-    await formPage.select(incorpUnderSelector, (data?.Incorp_under));
-
-    const accountingStart = '#MainContent_txtTarikhMula';
-    await formPage.waitForSelector(accountingStart);
-
-    await formPage.type(accountingStart, (data?.Accounting_Period_From));
-
-    const accountingEnd = '#MainContent_txtTarikhTutup';
-    await formPage.waitForSelector(accountingEnd);
-
-    await formPage.type(accountingEnd, (data?.Accounting_Period_To));
-
-    const basisStart = '#MainContent_txtTarikhMulaAsas';
-    await formPage.waitForSelector(basisStart);
-
-    await formPage.type(basisStart, (data?.Basis_Period_From));
-
-    const basisEnd = '#MainContent_txtTarikhTutupAsas';
-    await formPage.waitForSelector(basisEnd);
-
-    await formPage.type(basisEnd, (data?.Basis_Period_To));
-
-
-    const nextButton1 = '#MainContent_btnNext';
-    await formPage.waitForSelector(nextButton1);
-
-    await formPage.click(nextButton1);
-    // Puppeteer's .select() triggers the 'change' event, which should correctly trigger the website's __doPostBack function.
-    // If it doesn't, you may need to add a short wait for the postback to complete.
-    // For example: await formPage.waitForNavigation({ waitUntil: 'networkidle0' });
-
-    // --- CONTINUE FILLING ALL OTHER FIELDS ---
-    // You would continue adding your field mappings here. For example:
-    // const companyNameSelector = '#MainContent_txtNamaSyarikat'; // <-- IMPORTANT: Replace with actual ID
-    // await formPage.waitForSelector(companyNameSelector);
-    // await formPage.type(companyNameSelector, data.Company_Name);
-
-    console.log('Form filling complete.');
-    // await formPage.screenshot({ path: 'lhdn_final_form_filled.png', fullPage: true });
-
-    console.log('Automation is complete. The user can now review and submit the form manually.');
-  } catch (error) {
-    console.error('An error occurred during the automation process:', error);
-    if (browser) {
-      // await browser.close(); // Uncomment if you want the browser to close on error
-    }
-  }
-
-}
 
 ////////////// MYdata /////////////
 
@@ -861,464 +658,564 @@ class SessionPool {
     }
   }
 
-  cleanupSession(sessionId) {
-    const session = this.sessions.get(sessionId);
-    if (session && !session.inUse) {
-      try {
-        if (fs.existsSync(session.profileDir)) {
-          fs.rmSync(session.profileDir, { recursive: true, force: true });
-        }
-        this.sessions.delete(sessionId);
-        console.log(`🗑️ Session cleaned up: ${sessionId}`);
-      } catch (error) {
-        console.error(`⚠️ Error cleaning session ${sessionId}:`, error.message);
-      }
-    }
-  }
-}
-
-const sessionPool = new SessionPool();
-
-// --- Bitrix24 CRM Integration ---
-async function pushLeadToBitrix24(leadData) {
-  const BITRIX24_WEBHOOK = process.env.BITRIX24_WEBHOOK;
-
-  if (!BITRIX24_WEBHOOK) {
-    console.warn("⚠️ BITRIX24_WEBHOOK not configured in .env");
-    return { success: false, error: "Bitrix24 webhook not configured" };
-  }
-
-  try {
-    const companyNamesText = leadData.companyNames
-      .map(c => `${c.name}: ${c.available ? '✅ Available' : '❌ Taken'} (${c.details.results?.length || 0} matches)`)
-      .join('\n');
-
-    let firstName = '', lastName = '';
-
-    if (leadData.name) {
-      const nameParts = leadData.name.trim().split(' ');
-      if (nameParts.length === 1) {
-        firstName = nameParts[0];
-        lastName = '';
-      } else if (nameParts.length >= 2) {
-        lastName = nameParts[0];
-        firstName = nameParts.slice(1).join(' ');
-      }
-    }
-
-    const availableCount = leadData.companyNames.filter(c => c.available).length;
-    const companyName1 = leadData.companyNames[0] ? leadData.companyNames[0].name : '';
-    const companyName2 = leadData.companyNames[1] ? leadData.companyNames[1].name : '';
-    const companyName3 = leadData.companyNames[2] ? leadData.companyNames[2].name : '';
-
-    const phoneNumber = leadData.phone ? leadData.phone.replace(/^0/, '') : '';
-
-    const bitrixFields = {
-      TITLE: `[Altomate Website Form] Company Name Check - ${leadData.name || 'Unknown'}`,
-      ASSIGNED_BY_ID: 3807,
-      NAME: firstName,
-      LAST_NAME: lastName,
-      UF_CRM_LEAD_1714097932490: leadData.email || '',
-      UF_CRM_1714540318506: phoneNumber,
-      UF_CRM_1634365929857: companyName1,
-      UF_CRM_LEAD_1650374555137: companyName2,
-      UF_CRM_LEAD_1650374569570: companyName3,
-      COMMENTS: `Company Names Checked:\n${companyNamesText}`
-    };
-
-    console.log("📤 Sending lead to Bitrix24...");
-
-    const response = await fetch(`${BITRIX24_WEBHOOK}/crm.lead.add`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({
-        fields: bitrixFields,
-        params: { REGISTER_SONET_EVENT: "Y" }
-      })
-    });
-
-    const result = await response.json();
-
-    if (result.result) {
-      console.log(`✅ Lead created in Bitrix24 with ID: ${result.result}`);
-      return { success: true, leadId: result.result, bitrixResponse: result };
-    } else {
-      console.error("❌ Bitrix24 error:", result.error_description || result.error);
-      return { success: false, error: result.error_description || result.error, bitrixResponse: result };
-    }
-  } catch (error) {
-    console.error("❌ Bitrix24 API error:", error.message);
-    return { success: false, error: error.message };
-  }
-}
-
-// Check if login is required (Sign In prompt appears)
-async function isLoginRequired(page) {
-  const needsLogin = await page.evaluate(() => {
-    const bodyText = document.body.innerText;
-    // Check for "Sign In" message that appears when results are found
-    return bodyText.includes('Sign In') && bodyText.includes('for the full results');
-  });
-
-  if (needsLogin) {
-    console.log(`🔴 Detected "Sign In" prompt - company name is NOT available`);
-    return true;
-  }
-
-  return false;
-}
-
-async function checkMyDataMultiSession(companyNames, userData) {
-  const session = await sessionPool.acquireSession();
-  let browser, page;
-
-  try {
-    console.log(`[${session.id}] 🚀 Starting browser...`);
-
-    browser = await puppeteer.launch({
-      headless: true,
-      userDataDir: session.profileDir,
-      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu"],
-    });
-
-    const pages = await browser.pages();
-    page = pages[0] || (await browser.newPage());
-    await page.setViewport({ width: 1280, height: 800 });
-
-    // Navigate to home
-    await page.goto("https://www.mydata-ssm.com.my/home", {
-      waitUntil: "domcontentloaded",
-      timeout: 60000
-    });
-    await delay(3000);
-
-    // Set Company filter once
-    console.log(`[${session.id}] 🔽 Setting Company filter...`);
-    try {
-      const dropdownClicked = await page.evaluate(() => {
-        const button = document.getElementById('dropdownMenu1');
-        if (button) {
-          button.click();
-          return true;
-        }
-        return false;
-      });
-
-      if (dropdownClicked) {
-        await delay(1500);
-
-        const optionClicked = await page.evaluate(() => {
-          const menuItems = Array.from(document.querySelectorAll('a.dropdown-item, li a, .dropdown-menu a, button'));
-          const companyOption = menuItems.find(el => el.textContent.trim() === 'Company');
-
-          if (companyOption) {
-            companyOption.click();
-            return true;
+  
+    cleanupSession(sessionId) {
+      const session = this.sessions.get(sessionId);
+      if (session && !session.inUse) {
+        try {
+          if (fs.existsSync(session.profileDir)) {
+            fs.rmSync(session.profileDir, { recursive: true, force: true });
           }
-          return false;
-        });
-
-        if (optionClicked) {
-          console.log(`[${session.id}] ✅ 'Company' filter selected`);
-          await delay(2000);
+          this.sessions.delete(sessionId);
+          console.log(`🗑️ Session cleaned up: ${sessionId}`);
+        } catch (error) {
+          console.error(`⚠️ Error cleaning session ${sessionId}:`, error.message);
         }
+      }
+    }
+  }
+  
+  const sessionPool = new SessionPool();
+  
+  // ===== NEW: User Session Manager for Lead Accumulation =====
+  class LeadSessionManager {
+    constructor() {
+      this.sessions = new Map();
+      this.SESSION_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+      this.startCleanupJob();
+    }
+  
+    // Generate unique key from contact info
+    generateSessionKey(userData) {
+      const email = (userData.email || '').toLowerCase().trim();
+      const phone = (userData.phone || '').replace(/\D/g, ''); // Remove non-digits
+      const name = (userData.name || '').toLowerCase().trim();
+      
+      // Use email+phone as primary key, fallback to name if missing
+      const keyString = `${email}|${phone}|${name}`;
+      return crypto.createHash('md5').update(keyString).digest('hex');
+    }
+  
+    // Add or update session
+    addResult(userData, companyNameResults) {
+      const sessionKey = this.generateSessionKey(userData);
+      const now = Date.now();
+      
+      if (this.sessions.has(sessionKey)) {
+        // Existing session - append results
+        const session = this.sessions.get(sessionKey);
+        session.results = session.results.concat(companyNameResults);
+        session.lastUpdated = now;
+        session.expiresAt = now + this.SESSION_TIMEOUT;
+        
+        console.log(`📝 Updated session ${sessionKey}: Total ${session.results.length} names`);
+        
+        return {
+          isNew: false,
+          totalNames: session.results.length,
+          sessionKey: sessionKey
+        };
+      } else {
+        // New session
+        const session = {
+          sessionKey: sessionKey,
+          userData: userData,
+          results: companyNameResults,
+          createdAt: now,
+          lastUpdated: now,
+          expiresAt: now + this.SESSION_TIMEOUT,
+          pushed: false
+        };
+        
+        this.sessions.set(sessionKey, session);
+        console.log(`🆕 Created new session ${sessionKey}: ${companyNameResults.length} names`);
+        
+        return {
+          isNew: true,
+          totalNames: session.results.length,
+          sessionKey: sessionKey
+        };
+      }
+    }
+  
+    // Get session data
+    getSession(sessionKey) {
+      return this.sessions.get(sessionKey);
+    }
+  
+    // Mark session as pushed to CRM
+    markAsPushed(sessionKey, bitrixResult) {
+      const session = this.sessions.get(sessionKey);
+      if (session) {
+        session.pushed = true;
+        session.bitrixResult = bitrixResult;
+        session.pushedAt = Date.now();
+        console.log(`✅ Session ${sessionKey} marked as pushed to Bitrix24`);
+      }
+    }
+  
+    // Check if session should be pushed (3+ names OR expired)
+    shouldPushSession(sessionKey) {
+      const session = this.sessions.get(sessionKey);
+      if (!session || session.pushed) return false;
+      
+      const hasThreeNames = session.results.length >= 3;
+      const isExpired = Date.now() >= session.expiresAt;
+      
+      return hasThreeNames || isExpired;
+    }
+  
+    // Cleanup expired sessions and push to Bitrix24
+    async cleanupExpiredSessions() {
+      const now = Date.now();
+      
+      for (const [sessionKey, session] of this.sessions.entries()) {
+        // Push expired unpushed sessions
+        if (!session.pushed && now >= session.expiresAt) {
+          console.log(`⏰ Session ${sessionKey} expired, pushing to Bitrix24...`);
+          const bitrixResult = await pushLeadToBitrix24(this.prepareLead(session));
+          this.markAsPushed(sessionKey, bitrixResult);
+        }
+        
+        // Delete old pushed sessions (after 10 minutes)
+        if (session.pushed && now - session.pushedAt > 10 * 60 * 1000) {
+          this.sessions.delete(sessionKey);
+          console.log(`🗑️ Removed old session ${sessionKey}`);
+        }
+      }
+    }
+  
+    // Prepare lead data for Bitrix24
+    prepareLead(session) {
+      return {
+        ...session.userData,
+        companyNames: session.results,
+        submittedAt: new Date(session.createdAt).toISOString(),
+        lastUpdatedAt: new Date(session.lastUpdated).toISOString(),
+        source: 'company-name-checker',
+        totalNamesChecked: session.results.length
+      };
+    }
+  
+    // Start background cleanup job
+    startCleanupJob() {
+      setInterval(async () => {
+        await this.cleanupExpiredSessions();
+      }, 30 * 1000); // Check every 30 seconds
+      
+      console.log('🔄 Lead session cleanup job started');
+    }
+  }
+  
+  const leadSessionManager = new LeadSessionManager();
+  
+  // --- Bitrix24 CRM Integration ---
+  async function pushLeadToBitrix24(leadData) {
+    const BITRIX24_WEBHOOK = process.env.BITRIX24_WEBHOOK;
+    
+    if (!BITRIX24_WEBHOOK) {
+      console.warn("⚠️ BITRIX24_WEBHOOK not configured in .env");
+      return { success: false, error: "Bitrix24 webhook not configured" };
+    }
+  
+    try {
+      const companyNamesText = leadData.companyNames
+        .map(c => `${c.name}: ${c.available ? '✅ Available' : '❌ Taken'} (${c.details.results?.length || 0} matches)`)
+        .join('\n');
+  
+      let firstName = '', lastName = '';
+      
+      if (leadData.name) {
+        const nameParts = leadData.name.trim().split(' ');
+        if (nameParts.length === 1) {
+          firstName = nameParts[0];
+          lastName = '';
+        } else if (nameParts.length >= 2) {
+          lastName = nameParts[0];
+          firstName = nameParts.slice(1).join(' ');
+        }
+      }
+  
+      const availableCount = leadData.companyNames.filter(c => c.available).length;
+      const companyName1 = leadData.companyNames[0] ? leadData.companyNames[0].name : '';
+      const companyName2 = leadData.companyNames[1] ? leadData.companyNames[1].name : '';
+      const companyName3 = leadData.companyNames[2] ? leadData.companyNames[2].name : '';
+  
+      const bitrixFields = {
+        TITLE: `[Altomate Website Form] Company Name Check - ${leadData.name || 'Unknown'}`,
+        ASSIGNED_BY_ID: 3807,
+        NAME: firstName,
+        LAST_NAME: lastName,
+        UF_CRM_LEAD_1714097932490: leadData.email || '',
+        UF_CRM_1714540318506: leadData.phone,
+        UF_CRM_1634365929857: companyName1,
+        UF_CRM_LEAD_1650374555137: companyName2,
+        UF_CRM_LEAD_1650374569570: companyName3,
+        COMMENTS: `Company Names Checked (Total: ${leadData.companyNames.length}):\n${companyNamesText}`
+      };
+  
+      console.log("📤 Sending lead to Bitrix24...");
+      
+      const response = await fetch(`${BITRIX24_WEBHOOK}/crm.lead.add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          fields: bitrixFields,
+          params: { REGISTER_SONET_EVENT: "Y" }
+        })
+      });
+  
+      const result = await response.json();
+  
+      if (result.result) {
+        console.log(`✅ Lead created in Bitrix24 with ID: ${result.result}`);
+        return { success: true, leadId: result.result, bitrixResponse: result };
+      } else {
+        console.error("❌ Bitrix24 error:", result.error_description || result.error);
+        return { success: false, error: result.error_description || result.error, bitrixResponse: result };
       }
     } catch (error) {
-      console.log(`[${session.id}] ⚠️ Filter selection error:`, error.message);
+      console.error("❌ Bitrix24 API error:", error.message);
+      return { success: false, error: error.message };
     }
-
-    // Find search box
-    const searchSelectors = [
-      'input[placeholder*="search" i]',
-      'input[name*="search"]',
-      'input[type="text"]'
-    ];
-
-    let searchBox = null;
-    for (const sel of searchSelectors) {
-      try {
-        await page.waitForSelector(sel, { visible: true, timeout: 5000 });
-        searchBox = sel;
-        break;
-      } catch { }
+  }
+  
+  // Check if login is required (Sign In prompt appears)
+  async function isLoginRequired(page) {
+    const needsLogin = await page.evaluate(() => {
+      const bodyText = document.body.innerText;
+      return bodyText.includes('Sign In') && bodyText.includes('for the full results');
+    });
+    
+    if (needsLogin) {
+      console.log(`🔴 Detected "Sign In" prompt - company name is NOT available`);
+      return true;
     }
-
-    if (!searchBox) throw new Error("Search box not found");
-
-    const results = [];
-
-    // Search each company name
-    // Search each company name
-    for (let idx = 0; idx < companyNames.length; idx++) {
-      // Force Uppercase immediately
-      let companyName = companyNames[idx] ? companyNames[idx].toUpperCase() : "";
-      if (!companyName || !companyName.trim()) continue;
-
-      // Auto-append SDN BHD if not present
-      const upperName = companyName.toUpperCase().trim();
-      if (!upperName.endsWith('SDN BHD') && !upperName.endsWith('SDN. BHD.')) {
-        companyName = `${companyName} SDN BHD`;
-        console.log(`[${session.id}] 📝 Auto-appended: "${companyName}"`);
-      }
-
-      console.log(`[${session.id}] [${idx + 1}/${companyNames.length}] 🔍 Searching: ${companyName}`);
-
-      // Clear and search
-      await page.click(searchBox, { clickCount: 3 });
-      await page.keyboard.press('Backspace');
-      await delay(500);
-      await page.type(searchBox, companyName, { delay: 100 });
-      await page.keyboard.press("Enter");
-
-      console.log(`[${session.id}] ⏳ Waiting for results...`);
+    
+    return false;
+  }
+  
+  // Main scraping function with retry logic
+  async function checkMyDataMultiSession(companyNames, userData) {
+    const session = await sessionPool.acquireSession();
+    let browser, page;
+  
+    try {
+      console.log(`[${session.id}] 🚀 Starting browser...`);
+      
+      browser = await puppeteer.launch({
+        headless: true,
+        userDataDir: session.profileDir,
+        args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu"],
+      });
+  
+      const pages = await browser.pages();
+      page = pages[0] || (await browser.newPage());
+      await page.setViewport({ width: 1280, height: 800 });
+  
+      // Navigate to home
+      await page.goto("https://www.mydata-ssm.com.my/home", { 
+        waitUntil: "domcontentloaded", 
+        timeout: 60000 
+      });
       await delay(3000);
-
-      // ⭐ NEW: Check if "Sign In" prompt appears - if so, name is NOT available
-      if (await isLoginRequired(page)) {
-        console.log(`[${session.id}] ❌ Name "${companyName}" is NOT available (login required)`);
-        results.push({
-          name: companyName,
-          available: false,
-          details: {
-            exists: true,
-            results: [{ message: "Name already registered - Sign In required to view details" }],
-            totalPages: 0,
-            reason: "signin_required"
-          }
-        });
-        continue; // Skip to next name without logging in
-      }
-
-      // Wait for results to load
-      for (let i = 0; i < 20; i++) {
-        const hasResults = await page.evaluate(() =>
-          document.body.innerText.includes('entities found') ||
-          document.body.innerText.includes('entity found')
-        );
-
-        if (hasResults) {
-          console.log(`[${session.id}] ✅ Results loaded`);
-          break;
-        }
-        await delay(1000);
-      }
-
-      await delay(2000);
-
-      // Extract results with pagination
-      console.log(`[${session.id}] 📋 Extracting data...`);
-      let allCompanies = [];
-      let currentPage = 1;
-
-      while (true) {
-        const pageResults = await page.evaluate(() => {
-          const bodyText = document.body.innerText;
-          const lines = bodyText.split('\n').map(l => l.trim()).filter(l => l);
-          const typeIndex = lines.findIndex(l => l === 'Type');
-          const companies = [];
-
-          if (typeIndex > 0) {
-            let i = typeIndex + 1;
-            let attempts = 0;
-
-            while (i < lines.length && attempts < 300) {
-              const number = lines[i];
-              const name = lines[i + 1];
-              const type = lines[i + 2];
-
-              if (number && name && type &&
-                number.match(/^\d{12,}/) &&
-                name.length > 3 &&
-                !name.includes('entities found') &&
-                !name.includes('Number') &&
-                !name.includes('Name') &&
-                type.length > 2 &&
-                type !== 'Type') {
-                companies.push({ number, name, type });
-                i += 3;
-              } else {
-                if (companies.length > 0 && attempts > 10) break;
-                i++;
-              }
-              attempts++;
-            }
-          }
-
-          return companies;
-        });
-
-        allCompanies = allCompanies.concat(pageResults);
-
-        const paginationInfo = await page.evaluate(() => {
-          const el = document.querySelector(".mat-paginator-range-label");
-          if (!el) return null;
-          const text = el.textContent.trim();
-          const match = text.match(/(\d+)\s*-\s*(\d+)\s*of\s*(\d+)/i);
-          if (!match) return null;
-          return {
-            start: parseInt(match[1]),
-            end: parseInt(match[2]),
-            total: parseInt(match[3])
-          };
-        });
-
-        if (paginationInfo && paginationInfo.end >= paginationInfo.total) {
-          break;
-        }
-
-        const currentState = paginationInfo ? `${paginationInfo.start}-${paginationInfo.end}` : null;
-
-        const nextClicked = await page.evaluate(() => {
-          const buttons = Array.from(document.querySelectorAll('button'));
-          const nextButton = buttons.find(btn => {
-            if (btn.disabled) return false;
-            const ariaLabel = (btn.getAttribute('aria-label') || '').toLowerCase();
-            return ariaLabel.includes('next page');
-          });
-
-          if (nextButton) {
-            nextButton.click();
+  
+      // Set Company filter once
+      console.log(`[${session.id}] 🔽 Setting Company filter...`);
+      try {
+        const dropdownClicked = await page.evaluate(() => {
+          const button = document.getElementById('dropdownMenu1');
+          if (button) {
+            button.click();
             return true;
           }
           return false;
         });
-
-        if (!nextClicked) break;
-
-        await delay(4000);
-
-        let pageChanged = false;
-        for (let i = 0; i < 15; i++) {
-          const newState = await page.evaluate(() => {
+        
+        if (dropdownClicked) {
+          await delay(1500);
+          
+          const optionClicked = await page.evaluate(() => {
+            const menuItems = Array.from(document.querySelectorAll('a.dropdown-item, li a, .dropdown-menu a, button'));
+            const companyOption = menuItems.find(el => el.textContent.trim() === 'Company');
+            
+            if (companyOption) {
+              companyOption.click();
+              return true;
+            }
+            return false;
+          });
+          
+          if (optionClicked) {
+            console.log(`[${session.id}] ✅ 'Company' filter selected`);
+            await delay(2000);
+          }
+        }
+      } catch (error) {
+        console.log(`[${session.id}] ⚠️ Filter selection error:`, error.message);
+      }
+  
+      // Find search box
+      const searchSelectors = [
+        'input[placeholder*="search" i]',
+        'input[name*="search"]',
+        'input[type="text"]'
+      ];
+      
+      let searchBox = null;
+      for (const sel of searchSelectors) {
+        try {
+          await page.waitForSelector(sel, { visible: true, timeout: 5000 });
+          searchBox = sel;
+          break;
+        } catch {}
+      }
+      
+      if (!searchBox) throw new Error("Search box not found");
+  
+      const results = [];
+  
+      // Search each company name
+      for (let idx = 0; idx < companyNames.length; idx++) {
+        // Force Uppercase immediately
+        let companyName = companyNames[idx] ? companyNames[idx].toUpperCase() : "";
+        if (!companyName || !companyName.trim()) continue;
+  
+        // Auto-append SDN BHD if not present
+        const upperName = companyName.toUpperCase().trim();
+        if (!upperName.endsWith('SDN BHD') && !upperName.endsWith('SDN. BHD.')) {
+          companyName = `${companyName} SDN BHD`;
+          console.log(`[${session.id}] 📝 Auto-appended: "${companyName}"`);
+        }
+  
+        console.log(`[${session.id}] [${idx + 1}/${companyNames.length}] 🔍 Searching: ${companyName}`);
+        
+        // Clear and search
+        await page.click(searchBox, { clickCount: 3 });
+        await page.keyboard.press('Backspace');
+        await delay(500);
+        await page.type(searchBox, companyName, { delay: 100 });
+        await page.keyboard.press("Enter");
+  
+        console.log(`[${session.id}] ⏳ Waiting for results...`);
+        await delay(3000);
+        
+        // Check if "Sign In" prompt appears - if so, name is NOT available
+        if (await isLoginRequired(page)) {
+          console.log(`[${session.id}] ❌ Name "${companyName}" is NOT available (login required)`);
+          results.push({
+            name: companyName,
+            available: false,
+            details: {
+              exists: true,
+              results: [{ message: "Name already registered - Sign In required to view details" }],
+              totalPages: 0,
+              reason: "signin_required"
+            }
+          });
+          continue;
+        }
+        
+        // Wait for results to load
+        for (let i = 0; i < 20; i++) {
+          const hasResults = await page.evaluate(() => 
+            document.body.innerText.includes('entities found') || 
+            document.body.innerText.includes('entity found')
+          );
+          
+          if (hasResults) {
+            console.log(`[${session.id}] ✅ Results loaded`);
+            break;
+          }
+          await delay(1000);
+        }
+        
+        await delay(2000);
+  
+        // Extract results with pagination
+        console.log(`[${session.id}] 📋 Extracting data...`);
+        let allCompanies = [];
+        let currentPage = 1;
+        
+        while (true) {
+          const pageResults = await page.evaluate(() => {
+            const bodyText = document.body.innerText;
+            const lines = bodyText.split('\n').map(l => l.trim()).filter(l => l);
+            const typeIndex = lines.findIndex(l => l === 'Type');
+            const companies = [];
+            
+            if (typeIndex > 0) {
+              let i = typeIndex + 1;
+              let attempts = 0;
+              
+              while (i < lines.length && attempts < 300) {
+                const number = lines[i];
+                const name = lines[i + 1];
+                const type = lines[i + 2];
+                
+                if (number && name && type && 
+                    number.match(/^\d{12,}/) &&
+                    name.length > 3 && 
+                    !name.includes('entities found') &&
+                    !name.includes('Number') &&
+                    !name.includes('Name') &&
+                    type.length > 2 &&
+                    type !== 'Type') {
+                  companies.push({ number, name, type });
+                  i += 3;
+                } else {
+                  if (companies.length > 0 && attempts > 10) break;
+                  i++;
+                }
+                attempts++;
+              }
+            }
+            
+            return companies;
+          });
+          
+          allCompanies = allCompanies.concat(pageResults);
+          
+          const paginationInfo = await page.evaluate(() => {
             const el = document.querySelector(".mat-paginator-range-label");
             if (!el) return null;
             const text = el.textContent.trim();
-            const match = text.match(/(\d+)\s*-\s*(\d+)/);
-            return match ? `${match[1]}-${match[2]}` : null;
+            const match = text.match(/(\d+)\s*-\s*(\d+)\s*of\s*(\d+)/i);
+            if (!match) return null;
+            return { 
+              start: parseInt(match[1]), 
+              end: parseInt(match[2]), 
+              total: parseInt(match[3]) 
+            };
           });
-
-          if (newState && newState !== currentState) {
-            pageChanged = true;
+  
+          if (paginationInfo && paginationInfo.end >= paginationInfo.total) {
             break;
           }
-          await delay(500);
+          
+          const currentState = paginationInfo ? `${paginationInfo.start}-${paginationInfo.end}` : null;
+          
+          const nextClicked = await page.evaluate(() => {
+            const buttons = Array.from(document.querySelectorAll('button'));
+            const nextButton = buttons.find(btn => {
+              if (btn.disabled) return false;
+              const ariaLabel = (btn.getAttribute('aria-label') || '').toLowerCase();
+              return ariaLabel.includes('next page');
+            });
+            
+            if (nextButton) {
+              nextButton.click();
+              return true;
+            }
+            return false;
+          });
+          
+          if (!nextClicked) break;
+          
+          await delay(4000);
+          
+          let pageChanged = false;
+          for (let i = 0; i < 15; i++) {
+            const newState = await page.evaluate(() => {
+              const el = document.querySelector(".mat-paginator-range-label");
+              if (!el) return null;
+              const text = el.textContent.trim();
+              const match = text.match(/(\d+)\s*-\s*(\d+)/);
+              return match ? `${match[1]}-${match[2]}` : null;
+            });
+            
+            if (newState && newState !== currentState) {
+              pageChanged = true;
+              break;
+            }
+            await delay(500);
+          }
+          
+          if (!pageChanged) break;
+          
+          currentPage++;
+          if (currentPage > 100) break;
         }
-
-        if (!pageChanged) break;
-
-        currentPage++;
-        if (currentPage > 100) break;
+  
+        console.log(`[${session.id}] ✅ Found ${allCompanies.length} companies for "${companyName}"`);
+        
+        results.push({
+          name: companyName,
+          available: allCompanies.length === 0,
+          details: {
+            exists: allCompanies.length > 0,
+            results: allCompanies.length > 0 ? allCompanies : [{ message: "No companies found" }],
+            totalPages: currentPage
+          }
+        });
       }
-
-      console.log(`[${session.id}] ✅ Found ${allCompanies.length} companies for "${companyName}"`);
-
-      results.push({
-        name: companyName,
-        available: allCompanies.length === 0,
-        details: {
-          exists: allCompanies.length > 0,
-          results: allCompanies.length > 0 ? allCompanies : [{ message: "No companies found" }],
-          totalPages: currentPage
-        }
-      });
+  
+      await browser.close();
+      console.log(`[${session.id}] 🔒 Browser closed`);
+  
+      return results;
+  
+    } catch (error) {
+      console.error(`[${session.id}] ❌ Error:`, error.message);
+      if (browser) await browser.close();
+      throw error;
+    } finally {
+      await sessionPool.releaseSession(session.id);
     }
-
-    await browser.close();
-    console.log(`[${session.id}] 🔒 Browser closed`);
-
-    return results;
-
-  } catch (error) {
-    console.error(`[${session.id}] ❌ Error:`, error.message);
-    if (browser) await browser.close();
-    throw error;
-  } finally {
-    await sessionPool.releaseSession(session.id);
   }
-}
-
-// ===== API ROUTES =====
-
-// New optimized endpoint with multi-session support
-app.post("/myData/check-names", async (req, res) => {
-  const { companyNames, userData } = req.body;
-
-  if (!companyNames || companyNames.length === 0) {
-    return res.status(400).json({ error: "At least one company name is required" });
-  }
-
-  console.log(`\n🚀 Checking ${companyNames.length} company name(s)...\n`);
-
-  try {
-    const results = await checkMyDataMultiSession(companyNames, userData);
-
-    // Prepare lead data
-    const leadData = {
-      ...userData,
-      companyNames: results,
-      submittedAt: new Date().toISOString(),
-      source: 'company-name-checker'
-    };
-
-    // Push to Bitrix24 CRM
-    const bitrixResult = await pushLeadToBitrix24(leadData);
-
-    res.json({
-      success: true,
-      results: results,
-      crm: bitrixResult
-    });
-
-  } catch (error) {
-    console.error("❌ Error:", error.message);
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-async function getDealsFromPipeline(pipelineId = 5) {
-  let allDeals = [];
-  let start = 0;
-  const limit = 2000; // Hard limit for maximum deals to retrieve
-
-  try {
-    do {
-      const response = await callBitrixApi('crm.deal.list', {
-        filter: { 'CATEGORY_ID': pipelineId },
-        select: ['ID', 'COMPANY_ID', 'TITLE', 'STAGE_ID', 'ASSIGNED_BY_ID', 'UF_CRM_1615028982', 'UF_CRM_1601022085', 'UF_CRM_1644713831846', 'DATE_CREATE', 'MOVED_TIME'],
-        order: { 'ID': 'desc' },
-        start: start
-      });
-
-      if (response && Array.isArray(response.result)) {
-        allDeals = allDeals.concat(response.result);
-      }
-
-      // Check if we hit the limit early
-      if (allDeals.length >= limit) {
-        // Truncate results if limit is reached during the last fetch
-        allDeals = allDeals.slice(0, limit);
-        break;
-      }
-
-      // Check for the 'next' offset to continue pagination
-      if (response && typeof response.next === 'number') {
-        start = response.next;
+  
+  // ===== API ROUTES =====
+  
+  // Updated endpoint with session-based lead accumulation
+  app.post("/myData/check-names", async (req, res) => {
+    const { companyNames, userData } = req.body;
+    
+    if (!companyNames || companyNames.length === 0) {
+      return res.status(400).json({ error: "At least one company name is required" });
+    }
+  
+    console.log(`\n🚀 Checking ${companyNames.length} company name(s)...`);
+    
+    try {
+      // Check the names
+      const results = await checkMyDataMultiSession(companyNames, userData);
+  
+      // Add to session
+      const sessionInfo = leadSessionManager.addResult(userData, results);
+      const sessionKey = sessionInfo.sessionKey;
+      
+      // Check if we should push to Bitrix24 now
+      let bitrixResult = null;
+      if (leadSessionManager.shouldPushSession(sessionKey)) {
+        console.log(`🚀 Session ready, pushing to Bitrix24...`);
+        const session = leadSessionManager.getSession(sessionKey);
+        const leadData = leadSessionManager.prepareLead(session);
+        bitrixResult = await pushLeadToBitrix24(leadData);
+        leadSessionManager.markAsPushed(sessionKey, bitrixResult);
       } else {
-        // No more 'next' indicator, so we stop the loop
-        break;
+        console.log(`⏳ Session ${sessionKey} not ready yet (${sessionInfo.totalNames}/3 names). Waiting...`);
       }
-    } while (true);
-  } catch (error) {
-    // Log the actual error that occurred during the API call
-    console.error('Error fetching deals from Bitrix API:', error);
-    // Optionally, throw the error or return an empty array based on desired behavior
-  }
-
-  return allDeals;
-}
+  
+      res.json({
+        success: true,
+        results: results,
+        session: {
+          key: sessionKey,
+          totalNamesChecked: sessionInfo.totalNames,
+          isNew: sessionInfo.isNew,
+          pushedToCRM: bitrixResult !== null
+        },
+        crm: bitrixResult
+      });
+  
+    } catch (error) {
+      console.error("❌ Error:", error.message);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
 
 async function callBitrixApi(method, params = {}) {
   const BITRIX_WEBHOOK_URL = process.env.BITRIX24_WEBHOOK || 'YOUR_BITRIX_WEBHOOK_URL_HERE';
