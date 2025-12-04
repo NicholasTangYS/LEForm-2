@@ -608,7 +608,9 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Simple session tracker (no cookies needed anymore)
+// ==========================================
+// SESSION MANAGERS
+// ==========================================
 class SessionManager {
   constructor(name) {
     this.name = name;
@@ -616,21 +618,16 @@ class SessionManager {
   }
 }
 
-// Session pool for concurrent requests
 class SessionPool {
   constructor(maxSessions = 5) {
     this.maxSessions = maxSessions;
     this.sessions = new Map();
-    this.queue = [];
   }
 
   async acquireSession() {
     const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const profileDir = path.join(profilesBaseDir, sessionId);
-
-    if (!fs.existsSync(profileDir)) {
-      fs.mkdirSync(profileDir, { recursive: true });
-    }
+    if (!fs.existsSync(profileDir)) fs.mkdirSync(profileDir, { recursive: true });
 
     const session = {
       id: sessionId,
@@ -650,607 +647,644 @@ class SessionPool {
     if (session) {
       session.inUse = false;
       console.log(`🔒 Session released: ${sessionId}`);
-
-      // Clean up old sessions after 5 minutes
-      setTimeout(() => {
-        this.cleanupSession(sessionId);
-      }, 5 * 60 * 1000);
+      setTimeout(() => { this.cleanupSession(sessionId); }, 5 * 60 * 1000);
     }
   }
 
-  
-    cleanupSession(sessionId) {
-      const session = this.sessions.get(sessionId);
-      if (session && !session.inUse) {
-        try {
-          if (fs.existsSync(session.profileDir)) {
-            fs.rmSync(session.profileDir, { recursive: true, force: true });
-          }
-          this.sessions.delete(sessionId);
-          console.log(`🗑️ Session cleaned up: ${sessionId}`);
-        } catch (error) {
-          console.error(`⚠️ Error cleaning session ${sessionId}:`, error.message);
-        }
-      }
-    }
-  }
-  
-  const sessionPool = new SessionPool();
-  
-  // ===== NEW: User Session Manager for Lead Accumulation =====
-  class LeadSessionManager {
-    constructor() {
-      this.sessions = new Map();
-      this.SESSION_TIMEOUT = 5 * 60 * 1000; // 5 minutes
-      this.startCleanupJob();
-    }
-  
-    // Generate unique key from contact info
-    generateSessionKey(userData) {
-      const email = (userData.email || '').toLowerCase().trim();
-      const phone = (userData.phone || '').replace(/\D/g, ''); // Remove non-digits
-      const name = (userData.name || '').toLowerCase().trim();
-      
-      // Use email+phone as primary key, fallback to name if missing
-      const keyString = `${email}|${phone}|${name}`;
-      return crypto.createHash('md5').update(keyString).digest('hex');
-    }
-  
-    // Add or update session
-    addResult(userData, companyNameResults) {
-      const sessionKey = this.generateSessionKey(userData);
-      const now = Date.now();
-      
-      if (this.sessions.has(sessionKey)) {
-        // Existing session - append results
-        const session = this.sessions.get(sessionKey);
-        session.results = session.results.concat(companyNameResults);
-        session.lastUpdated = now;
-        session.expiresAt = now + this.SESSION_TIMEOUT;
-        
-        console.log(`📝 Updated session ${sessionKey}: Total ${session.results.length} names`);
-        
-        return {
-          isNew: false,
-          totalNames: session.results.length,
-          sessionKey: sessionKey
-        };
-      } else {
-        // New session
-        const session = {
-          sessionKey: sessionKey,
-          userData: userData,
-          results: companyNameResults,
-          createdAt: now,
-          lastUpdated: now,
-          expiresAt: now + this.SESSION_TIMEOUT,
-          pushed: false
-        };
-        
-        this.sessions.set(sessionKey, session);
-        console.log(`🆕 Created new session ${sessionKey}: ${companyNameResults.length} names`);
-        
-        return {
-          isNew: true,
-          totalNames: session.results.length,
-          sessionKey: sessionKey
-        };
-      }
-    }
-  
-    // Get session data
-    getSession(sessionKey) {
-      return this.sessions.get(sessionKey);
-    }
-  
-    // Mark session as pushed to CRM
-    markAsPushed(sessionKey, bitrixResult) {
-      const session = this.sessions.get(sessionKey);
-      if (session) {
-        session.pushed = true;
-        session.bitrixResult = bitrixResult;
-        session.pushedAt = Date.now();
-        console.log(`✅ Session ${sessionKey} marked as pushed to Bitrix24`);
-      }
-    }
-  
-    // Check if session should be pushed (3+ names OR expired)
-    shouldPushSession(sessionKey) {
-      const session = this.sessions.get(sessionKey);
-      if (!session || session.pushed) return false;
-      
-      const hasThreeNames = session.results.length >= 3;
-      const isExpired = Date.now() >= session.expiresAt;
-      
-      return hasThreeNames || isExpired;
-    }
-  
-    // Cleanup expired sessions and push to Bitrix24
-    async cleanupExpiredSessions() {
-      const now = Date.now();
-      
-      for (const [sessionKey, session] of this.sessions.entries()) {
-        // Push expired unpushed sessions
-        if (!session.pushed && now >= session.expiresAt) {
-          console.log(`⏰ Session ${sessionKey} expired, pushing to Bitrix24...`);
-          const bitrixResult = await pushLeadToBitrix24(this.prepareLead(session));
-          this.markAsPushed(sessionKey, bitrixResult);
-        }
-        
-        // Delete old pushed sessions (after 10 minutes)
-        if (session.pushed && now - session.pushedAt > 10 * 60 * 1000) {
-          this.sessions.delete(sessionKey);
-          console.log(`🗑️ Removed old session ${sessionKey}`);
-        }
-      }
-    }
-  
-    // Prepare lead data for Bitrix24
-    prepareLead(session) {
-      return {
-        ...session.userData,
-        companyNames: session.results,
-        submittedAt: new Date(session.createdAt).toISOString(),
-        lastUpdatedAt: new Date(session.lastUpdated).toISOString(),
-        source: 'company-name-checker',
-        totalNamesChecked: session.results.length
-      };
-    }
-  
-    // Start background cleanup job
-    startCleanupJob() {
-      setInterval(async () => {
-        await this.cleanupExpiredSessions();
-      }, 30 * 1000); // Check every 30 seconds
-      
-      console.log('🔄 Lead session cleanup job started');
-    }
-  }
-  
-  const leadSessionManager = new LeadSessionManager();
-  
-  // --- Bitrix24 CRM Integration ---
-  async function pushLeadToBitrix24(leadData) {
-    const BITRIX24_WEBHOOK = process.env.BITRIX24_WEBHOOK;
-    
-    if (!BITRIX24_WEBHOOK) {
-      console.warn("⚠️ BITRIX24_WEBHOOK not configured in .env");
-      return { success: false, error: "Bitrix24 webhook not configured" };
-    }
-  
-    try {
-      const companyNamesText = leadData.companyNames
-        .map(c => `${c.name}: ${c.available ? '✅ Available' : '❌ Taken'} (${c.details.results?.length || 0} matches)`)
-        .join('\n');
-  
-      let firstName = '', lastName = '';
-      
-      if (leadData.name) {
-        const nameParts = leadData.name.trim().split(' ');
-        if (nameParts.length === 1) {
-          firstName = nameParts[0];
-          lastName = '';
-        } else if (nameParts.length >= 2) {
-          lastName = nameParts[0];
-          firstName = nameParts.slice(1).join(' ');
-        }
-      }
-  
-      const availableCount = leadData.companyNames.filter(c => c.available).length;
-      const companyName1 = leadData.companyNames[0] ? leadData.companyNames[0].name : '';
-      const companyName2 = leadData.companyNames[1] ? leadData.companyNames[1].name : '';
-      const companyName3 = leadData.companyNames[2] ? leadData.companyNames[2].name : '';
-  
-      const bitrixFields = {
-        TITLE: `[Altomate Website Form] Company Name Check - ${leadData.name || 'Unknown'}`,
-        ASSIGNED_BY_ID: 3807,
-        NAME: firstName,
-        LAST_NAME: lastName,
-        UF_CRM_LEAD_1714097932490: leadData.email || '',
-        UF_CRM_1714540318506: leadData.phone,
-        UF_CRM_1634365929857: companyName1,
-        UF_CRM_LEAD_1650374555137: companyName2,
-        UF_CRM_LEAD_1650374569570: companyName3,
-        COMMENTS: `Company Names Checked (Total: ${leadData.companyNames.length}):\n${companyNamesText}`
-      };
-  
-      console.log("📤 Sending lead to Bitrix24...");
-      
-      const response = await fetch(`${BITRIX24_WEBHOOK}/crm.lead.add`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          fields: bitrixFields,
-          params: { REGISTER_SONET_EVENT: "Y" }
-        })
-      });
-  
-      const result = await response.json();
-  
-      if (result.result) {
-        console.log(`✅ Lead created in Bitrix24 with ID: ${result.result}`);
-        return { success: true, leadId: result.result, bitrixResponse: result };
-      } else {
-        console.error("❌ Bitrix24 error:", result.error_description || result.error);
-        return { success: false, error: result.error_description || result.error, bitrixResponse: result };
-      }
-    } catch (error) {
-      console.error("❌ Bitrix24 API error:", error.message);
-      return { success: false, error: error.message };
-    }
-  }
-  
-  // Check if login is required (Sign In prompt appears)
-  async function isLoginRequired(page) {
-    const needsLogin = await page.evaluate(() => {
-      const bodyText = document.body.innerText;
-      return bodyText.includes('Sign In') && bodyText.includes('for the full results');
-    });
-    
-    if (needsLogin) {
-      console.log(`🔴 Detected "Sign In" prompt - company name is NOT available`);
-      return true;
-    }
-    
-    return false;
-  }
-  
-  // Main scraping function with retry logic
-  async function checkMyDataMultiSession(companyNames, userData) {
-    const session = await sessionPool.acquireSession();
-    let browser, page;
-  
-    try {
-      console.log(`[${session.id}] 🚀 Starting browser...`);
-      
-      browser = await puppeteer.launch({
-        headless: true,
-        userDataDir: session.profileDir,
-        args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu"],
-      });
-  
-      const pages = await browser.pages();
-      page = pages[0] || (await browser.newPage());
-      await page.setViewport({ width: 1280, height: 800 });
-  
-      // Navigate to home
-      await page.goto("https://www.mydata-ssm.com.my/home", { 
-        waitUntil: "domcontentloaded", 
-        timeout: 60000 
-      });
-      await delay(3000);
-  
-      // Set Company filter once
-      console.log(`[${session.id}] 🔽 Setting Company filter...`);
+  cleanupSession(sessionId) {
+    const session = this.sessions.get(sessionId);
+    if (session && !session.inUse) {
       try {
-        const dropdownClicked = await page.evaluate(() => {
-          const button = document.getElementById('dropdownMenu1');
-          if (button) {
-            button.click();
-            return true;
-          }
-          return false;
-        });
-        
-        if (dropdownClicked) {
-          await delay(1500);
-          
-          const optionClicked = await page.evaluate(() => {
-            const menuItems = Array.from(document.querySelectorAll('a.dropdown-item, li a, .dropdown-menu a, button'));
-            const companyOption = menuItems.find(el => el.textContent.trim() === 'Company');
-            
-            if (companyOption) {
-              companyOption.click();
-              return true;
-            }
-            return false;
-          });
-          
-          if (optionClicked) {
-            console.log(`[${session.id}] ✅ 'Company' filter selected`);
-            await delay(2000);
-          }
+        if (fs.existsSync(session.profileDir)) {
+          fs.rmSync(session.profileDir, { recursive: true, force: true });
         }
+        this.sessions.delete(sessionId);
+        console.log(`🗑️ Session cleaned up: ${sessionId}`);
       } catch (error) {
-        console.log(`[${session.id}] ⚠️ Filter selection error:`, error.message);
+        console.error(`⚠️ Error cleaning session ${sessionId}:`, error.message);
       }
-  
-      // Find search box
-      const searchSelectors = [
-        'input[placeholder*="search" i]',
-        'input[name*="search"]',
-        'input[type="text"]'
-      ];
-      
-      let searchBox = null;
-      for (const sel of searchSelectors) {
-        try {
-          await page.waitForSelector(sel, { visible: true, timeout: 5000 });
-          searchBox = sel;
-          break;
-        } catch {}
-      }
-      
-      if (!searchBox) throw new Error("Search box not found");
-  
-      const results = [];
-  
-      // Search each company name
-      for (let idx = 0; idx < companyNames.length; idx++) {
-        // Force Uppercase immediately
-        let companyName = companyNames[idx] ? companyNames[idx].toUpperCase() : "";
-        if (!companyName || !companyName.trim()) continue;
-  
-        // Auto-append SDN BHD if not present
-        const upperName = companyName.toUpperCase().trim();
-        if (!upperName.endsWith('SDN BHD') && !upperName.endsWith('SDN. BHD.')) {
-          companyName = `${companyName} SDN BHD`;
-          console.log(`[${session.id}] 📝 Auto-appended: "${companyName}"`);
-        }
-  
-        console.log(`[${session.id}] [${idx + 1}/${companyNames.length}] 🔍 Searching: ${companyName}`);
-        
-        // Clear and search
-        await page.click(searchBox, { clickCount: 3 });
-        await page.keyboard.press('Backspace');
-        await delay(500);
-        await page.type(searchBox, companyName, { delay: 100 });
-        await page.keyboard.press("Enter");
-  
-        console.log(`[${session.id}] ⏳ Waiting for results...`);
-        await delay(3000);
-        
-        // Check if "Sign In" prompt appears - if so, name is NOT available
-        if (await isLoginRequired(page)) {
-          console.log(`[${session.id}] ❌ Name "${companyName}" is NOT available (login required)`);
-          results.push({
-            name: companyName,
-            available: false,
-            details: {
-              exists: true,
-              results: [{ message: "Name already registered - Sign In required to view details" }],
-              totalPages: 0,
-              reason: "signin_required"
-            }
-          });
-          continue;
-        }
-        
-        // Wait for results to load
-        for (let i = 0; i < 20; i++) {
-          const hasResults = await page.evaluate(() => 
-            document.body.innerText.includes('entities found') || 
-            document.body.innerText.includes('entity found')
-          );
-          
-          if (hasResults) {
-            console.log(`[${session.id}] ✅ Results loaded`);
-            break;
-          }
-          await delay(1000);
-        }
-        
-        await delay(2000);
-  
-        // Extract results with pagination
-        console.log(`[${session.id}] 📋 Extracting data...`);
-        let allCompanies = [];
-        let currentPage = 1;
-        
-        while (true) {
-          const pageResults = await page.evaluate(() => {
-            const bodyText = document.body.innerText;
-            const lines = bodyText.split('\n').map(l => l.trim()).filter(l => l);
-            const typeIndex = lines.findIndex(l => l === 'Type');
-            const companies = [];
-            
-            if (typeIndex > 0) {
-              let i = typeIndex + 1;
-              let attempts = 0;
-              
-              while (i < lines.length && attempts < 300) {
-                const number = lines[i];
-                const name = lines[i + 1];
-                const type = lines[i + 2];
-                
-                if (number && name && type && 
-                    number.match(/^\d{12,}/) &&
-                    name.length > 3 && 
-                    !name.includes('entities found') &&
-                    !name.includes('Number') &&
-                    !name.includes('Name') &&
-                    type.length > 2 &&
-                    type !== 'Type') {
-                  companies.push({ number, name, type });
-                  i += 3;
-                } else {
-                  if (companies.length > 0 && attempts > 10) break;
-                  i++;
-                }
-                attempts++;
-              }
-            }
-            
-            return companies;
-          });
-          
-          allCompanies = allCompanies.concat(pageResults);
-          
-          const paginationInfo = await page.evaluate(() => {
-            const el = document.querySelector(".mat-paginator-range-label");
-            if (!el) return null;
-            const text = el.textContent.trim();
-            const match = text.match(/(\d+)\s*-\s*(\d+)\s*of\s*(\d+)/i);
-            if (!match) return null;
-            return { 
-              start: parseInt(match[1]), 
-              end: parseInt(match[2]), 
-              total: parseInt(match[3]) 
-            };
-          });
-  
-          if (paginationInfo && paginationInfo.end >= paginationInfo.total) {
-            break;
-          }
-          
-          const currentState = paginationInfo ? `${paginationInfo.start}-${paginationInfo.end}` : null;
-          
-          const nextClicked = await page.evaluate(() => {
-            const buttons = Array.from(document.querySelectorAll('button'));
-            const nextButton = buttons.find(btn => {
-              if (btn.disabled) return false;
-              const ariaLabel = (btn.getAttribute('aria-label') || '').toLowerCase();
-              return ariaLabel.includes('next page');
-            });
-            
-            if (nextButton) {
-              nextButton.click();
-              return true;
-            }
-            return false;
-          });
-          
-          if (!nextClicked) break;
-          
-          await delay(4000);
-          
-          let pageChanged = false;
-          for (let i = 0; i < 15; i++) {
-            const newState = await page.evaluate(() => {
-              const el = document.querySelector(".mat-paginator-range-label");
-              if (!el) return null;
-              const text = el.textContent.trim();
-              const match = text.match(/(\d+)\s*-\s*(\d+)/);
-              return match ? `${match[1]}-${match[2]}` : null;
-            });
-            
-            if (newState && newState !== currentState) {
-              pageChanged = true;
-              break;
-            }
-            await delay(500);
-          }
-          
-          if (!pageChanged) break;
-          
-          currentPage++;
-          if (currentPage > 100) break;
-        }
-  
-        console.log(`[${session.id}] ✅ Found ${allCompanies.length} companies for "${companyName}"`);
-        
-        results.push({
-          name: companyName,
-          available: allCompanies.length === 0,
-          details: {
-            exists: allCompanies.length > 0,
-            results: allCompanies.length > 0 ? allCompanies : [{ message: "No companies found" }],
-            totalPages: currentPage
-          }
-        });
-      }
-  
-      await browser.close();
-      console.log(`[${session.id}] 🔒 Browser closed`);
-  
-      return results;
-  
-    } catch (error) {
-      console.error(`[${session.id}] ❌ Error:`, error.message);
-      if (browser) await browser.close();
-      throw error;
-    } finally {
-      await sessionPool.releaseSession(session.id);
     }
-  }
-  
-  // ===== API ROUTES =====
-  
-  // Updated endpoint with session-based lead accumulation
-  app.post("/myData/check-names", async (req, res) => {
-    const { companyNames, userData } = req.body;
-    
-    if (!companyNames || companyNames.length === 0) {
-      return res.status(400).json({ error: "At least one company name is required" });
-    }
-  
-    console.log(`\n🚀 Checking ${companyNames.length} company name(s)...`);
-    
-    try {
-      // Check the names
-      const results = await checkMyDataMultiSession(companyNames, userData);
-  
-      // Add to session
-      const sessionInfo = leadSessionManager.addResult(userData, results);
-      const sessionKey = sessionInfo.sessionKey;
-      
-      // Check if we should push to Bitrix24 now
-      let bitrixResult = null;
-      if (leadSessionManager.shouldPushSession(sessionKey)) {
-        console.log(`🚀 Session ready, pushing to Bitrix24...`);
-        const session = leadSessionManager.getSession(sessionKey);
-        const leadData = leadSessionManager.prepareLead(session);
-        bitrixResult = await pushLeadToBitrix24(leadData);
-        leadSessionManager.markAsPushed(sessionKey, bitrixResult);
-      } else {
-        console.log(`⏳ Session ${sessionKey} not ready yet (${sessionInfo.totalNames}/3 names). Waiting...`);
-      }
-  
-      res.json({
-        success: true,
-        results: results,
-        session: {
-          key: sessionKey,
-          totalNamesChecked: sessionInfo.totalNames,
-          isNew: sessionInfo.isNew,
-          pushedToCRM: bitrixResult !== null
-        },
-        crm: bitrixResult
-      });
-  
-    } catch (error) {
-      console.error("❌ Error:", error.message);
-      res.status(500).json({ success: false, error: error.message });
-    }
-  });
-
-async function callBitrixApi(method, params = {}) {
-  const BITRIX_WEBHOOK_URL = process.env.BITRIX24_WEBHOOK || 'YOUR_BITRIX_WEBHOOK_URL_HERE';
-  if (BITRIX_WEBHOOK_URL === 'YOUR_BITRIX_WEBHOOK_URL_HERE') {
-    throw new Error("Bitrix Webhook URL is not configured. Please update BITRIX_WEBHOOK_URL.");
-  }
-
-  const queryUrl = `${BITRIX_WEBHOOK_URL}${method}`;
-
-  // Equivalent of PHP's http_build_query: converts JS object to URL-encoded string.
-  // This format is required by Bitrix for POST data.
-  const body = new URLSearchParams(params).toString();
-
-  try {
-    const response = await fetch(queryUrl, {
-      method: 'POST',
-      // Set headers to match what cURL would typically use for POST data
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: body,
-    });
-
-    if (!response.ok) {
-      // Throw an error if the HTTP status is not 2xx
-      const errorText = await response.text();
-      throw new Error(`Bitrix API returned HTTP error ${response.status}: ${errorText}`);
-    }
-
-    return response.json();
-  } catch (error) {
-    console.error('Error during Bitrix API call:', error.message);
-    throw error;
   }
 }
+
+const sessionPool = new SessionPool();
+
+// ==========================================
+// USER SESSION MANAGER (Updated to include AI Data)
+// ==========================================
+class LeadSessionManager {
+  constructor() {
+    this.sessions = new Map();
+    this.SESSION_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+    this.startCleanupJob();
+  }
+
+  // Generate unique key from contact info
+  generateSessionKey(userData) {
+    const email = (userData.email || '').toLowerCase().trim();
+    const phone = (userData.phone || '').replace(/\D/g, ''); // Remove non-digits
+    const name = (userData.name || '').toLowerCase().trim();
+
+    // Use email+phone as primary key, fallback to name if missing
+    const keyString = `${email}|${phone}|${name}`;
+    return crypto.createHash('md5').update(keyString).digest('hex');
+  }
+
+  // Add or update session
+  addResult(userData, companyNameResults) {
+    const sessionKey = this.generateSessionKey(userData);
+    const now = Date.now();
+    const existing = this.sessions.get(sessionKey);
+
+    // Combine existing results with new ones
+    const previousResults = existing ? existing.results : [];
+    const allResults = [...previousResults, ...companyNameResults];
+
+    // Create session object
+    const session = {
+      sessionKey: sessionKey,
+      userData: userData,
+      results: allResults,
+      // Preserve AI suggestions if they exist from a previous update
+      aiFinalSuggestions: existing ? existing.aiFinalSuggestions : [],
+      createdAt: existing ? existing.createdAt : now,
+      lastUpdated: now,
+      expiresAt: now + this.SESSION_TIMEOUT,
+      pushed: false
+    };
+
+    this.sessions.set(sessionKey, session);
+    console.log(`📝 Session ${sessionKey}: Total ${session.results.length} names`);
+
+    return {
+      isNew: !existing,
+      totalNames: session.results.length,
+      sessionKey: sessionKey
+    };
+  }
+
+  // Get session data
+  getSession(sessionKey) {
+    return this.sessions.get(sessionKey);
+  }
+
+  // Mark session as pushed to CRM
+  markAsPushed(sessionKey, bitrixResult) {
+    const session = this.sessions.get(sessionKey);
+    if (session) {
+      session.pushed = true;
+      session.bitrixResult = bitrixResult;
+      session.pushedAt = Date.now();
+      console.log(`✅ Session ${sessionKey} marked as pushed to Bitrix24`);
+    }
+  }
+
+  // Check if session should be pushed (3+ names OR expired)
+  shouldPushSession(sessionKey) {
+    const session = this.sessions.get(sessionKey);
+    if (!session || session.pushed) return false;
+
+    const hasThreeNames = session.results.length >= 3;
+    const isExpired = Date.now() >= session.expiresAt;
+
+    return hasThreeNames || isExpired;
+  }
+
+  // Cleanup expired sessions and push to Bitrix24
+  async cleanupExpiredSessions() {
+    const now = Date.now();
+
+    for (const [sessionKey, session] of this.sessions.entries()) {
+      // Push expired unpushed sessions
+      if (!session.pushed && now >= session.expiresAt) {
+        console.log(`⏰ Session ${sessionKey} expired, pushing to Bitrix24...`);
+        const bitrixResult = await pushLeadToBitrix24(this.prepareLead(session));
+        this.markAsPushed(sessionKey, bitrixResult);
+      }
+
+      // Delete old pushed sessions (after 10 minutes)
+      if (session.pushed && now - session.pushedAt > 10 * 60 * 1000) {
+        this.sessions.delete(sessionKey);
+        console.log(`🗑️ Removed old session ${sessionKey}`);
+      }
+    }
+  }
+
+  // Prepare lead data for Bitrix24
+  prepareLead(session) {
+    return {
+      ...session.userData,
+      companyNames: session.results,
+      // IMPORTANT: Pass the AI suggestions to the lead data
+      aiFinalSuggestions: session.aiFinalSuggestions || [],
+      submittedAt: new Date(session.createdAt).toISOString(),
+      lastUpdatedAt: new Date(session.lastUpdated).toISOString(),
+      source: 'company-name-checker',
+      totalNamesChecked: session.results.length
+    };
+  }
+
+  startCleanupJob() {
+    setInterval(async () => {
+      await this.cleanupExpiredSessions();
+    }, 30 * 1000);
+    console.log('🔄 Lead session cleanup job started');
+  }
+}
+
+const leadSessionManager = new LeadSessionManager();
+
+// ==========================================
+// 🛠️ BITRIX24 INTEGRATION (Updated with AI Comments)
+// ==========================================
+async function pushLeadToBitrix24(leadData) {
+  // 🔍 DEBUG: Log the raw incoming data
+  console.log("\n┌──────────────────────────────────────────────┐");
+  console.log("│ 📥 [DEBUG] INCOMING LEAD DATA                │");
+  console.log("└──────────────────────────────────────────────┘");
+  console.dir(leadData, { depth: null, colors: true }); // Prints the full object structure
+  console.log("────────────────────────────────────────────────\n");
+
+  const BITRIX24_WEBHOOK = process.env.BITRIX24_WEBHOOK;
+
+  if (!BITRIX24_WEBHOOK) {
+    console.warn("⚠️ BITRIX24_WEBHOOK not configured in .env");
+    return { success: false, error: "Bitrix24 webhook not configured" };
+  }
+
+  try {
+    // ==========================================
+    // 📞 1. Format Phone Number (+60)
+    // ==========================================
+    let formattedPhone = '';
+    if (leadData.phone) {
+      let clean = leadData.phone.toString().replace(/\D/g, '');
+      if (clean.length > 0) {
+        if (clean.startsWith('60')) formattedPhone = '+' + clean;
+        else if (clean.startsWith('0')) formattedPhone = '+60' + clean.substring(1);
+        else formattedPhone = '+60' + clean;
+      }
+    }
+
+    // ==========================================
+    // 📝 2. Prepare Comments
+    // ==========================================
+    const companyNamesText = leadData.companyNames
+      .map(c => {
+        const matchCount = c.details?.results?.length || c.details?.totalMatches || 0;
+        return `${c.name}: ${c.available ? '✅ Available' : '❌ Taken'} (${matchCount} matches)`;
+      })
+      .join('\n');
+
+    // ==========================================
+    // 🤖 3. Prepare AI Suggestions (Vertical List)
+    // ==========================================
+    let aiSuggestedNamesBlock = '';
+    if (Array.isArray(leadData.aiFinalSuggestions) && leadData.aiFinalSuggestions.length > 0) {
+      // \n creates a new line in the Text Area field
+      aiSuggestedNamesBlock = leadData.aiFinalSuggestions
+        .map((s, i) => `${i + 1}. ${s.name}`)
+        .join('\n');
+    }
+
+    // ==========================================
+    // 👤 4. Parse Name
+    // ==========================================
+    let firstName = '', lastName = '';
+    if (leadData.name) {
+      const nameParts = leadData.name.trim().split(' ');
+      if (nameParts.length === 1) {
+        firstName = nameParts[0];
+        lastName = '';
+      } else if (nameParts.length >= 2) {
+        lastName = nameParts[0];
+        firstName = nameParts.slice(1).join(' ');
+      }
+    }
+
+    // ==========================================
+    // 📤 5. Map Fields
+    // ==========================================
+    const companyName1 = leadData.companyNames[0] ? leadData.companyNames[0].name : '';
+    const companyName2 = leadData.companyNames[1] ? leadData.companyNames[1].name : '';
+    const companyName3 = leadData.companyNames[2] ? leadData.companyNames[2].name : '';
+
+    const bitrixFields = {
+      TITLE: `[Altomate Website Form] Company Name Check - ${leadData.name || 'Unknown'}`,
+      ASSIGNED_BY_ID: 3807,
+      NAME: firstName,
+      LAST_NAME: lastName,
+
+      // Contact Info
+      UF_CRM_LEAD_1714097932490: leadData.email || '',
+      UF_CRM_1714540318506: formattedPhone,
+      PHONE: [{ VALUE: formattedPhone, VALUE_TYPE: "WORK" }],
+
+      // Company Inputs
+      UF_CRM_1634365929857: companyName1,
+      UF_CRM_LEAD_1650374555137: companyName2,
+      UF_CRM_LEAD_1650374569570: companyName3,
+
+      // UTM Parameters
+      UTM_SOURCE: leadData.utm_source || null,
+      UTM_CONTENT: leadData.utm_content || null,
+
+      // AI Suggestions
+      UF_CRM_1764817428: aiSuggestedNamesBlock,
+
+      // Comments
+      COMMENTS: `Company Names Checked (Total: ${leadData.companyNames.length}):\n${companyNamesText}`
+    };
+
+    console.log(`📤 Sending lead to Bitrix24...`);
+
+    const response = await fetch(`${BITRIX24_WEBHOOK}/crm.lead.add`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        fields: bitrixFields,
+        params: { REGISTER_SONET_EVENT: "Y" }
+      })
+    });
+
+    const result = await response.json();
+
+    if (result.result) {
+      console.log(`✅ Lead created in Bitrix24 with ID: ${result.result}`);
+      return { success: true, leadId: result.result, bitrixResponse: result };
+    } else {
+      console.error("❌ Bitrix24 error:", result.error_description || result.error);
+      return { success: false, error: result.error_description || result.error, bitrixResponse: result };
+    }
+  } catch (error) {
+    console.error("❌ Bitrix24 API error:", error.message);
+    return { success: false, error: error.message };
+  }
+}
+// ==========================================
+// 🧠 AI GENERATION LOGIC (Reads ALL 3 Names)
+// ==========================================
+
+async function generateAiCandidates(userIntents, excludeNames = []) {
+  try {
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+    if (!GEMINI_API_KEY) {
+      console.error("⚠️ GEMINI_API_KEY missing");
+      return [];
+    }
+
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash",
+      generationConfig: { responseMimeType: "application/json" }
+    });
+
+    const userContext = userIntents.join(", ");
+
+    // Explicitly list names to avoid so AI doesn't repeat them
+    const excludeContext = excludeNames.length > 0
+      ? `CRITICAL INSTRUCTION: Do NOT generate these names again (they are taken): ${excludeNames.join(", ")}`
+      : "";
+
+    const prompt = `
+      The user wants to register a company in Malaysia.
+      User's original preferences (all taken): [ ${userContext} ]
+
+      YOUR TASK:
+      Generate exactly 8 NEW, DISTINCT candidate names.
+      
+      GUIDELINES:
+      1. Names must end with "SDN BHD".
+      2. Keep the "vibe" or keywords of the user's original preferences.
+      3. ${excludeContext}
+      
+      Return ONLY a JSON array: 
+      [ { "name": "NAME SDN BHD", "reason": "Reasoning here" } ]
+    `;
+
+    console.log(`[AI] Generating batch... Excluded count: ${excludeNames.length}`);
+
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    const suggestions = JSON.parse(text);
+
+    return suggestions.map(s => ({
+      name: s.name.toUpperCase().replace(/\s+SDN\.?\s*BHD\.?$/i, "").trim() + " SDN BHD",
+      reason: s.reason
+    }));
+
+  } catch (error) {
+    console.error("❌ AI Error:", error.message);
+    return [];
+  }
+}
+
+// ==========================================
+// 🤖 BACKGROUND PROCESS
+// ==========================================
+
+async function performAiBackgroundJob(sessionKey, userData, allFailedNames) {
+  try {
+    console.log(`\n🤖 [BG] Starting AI Loop. Context: ${allFailedNames.join(", ")}`);
+
+    const validSuggestions = [];
+
+    // 'triedNamesHistory' prevents AI from suggesting names we already checked (and found taken)
+    const triedNamesHistory = [...allFailedNames];
+
+    let loopCount = 0;
+    const MAX_LOOPS = 5; // Allow up to 5 attempts (5 * 8 = 40 names checked)
+
+    // LOOP: Keep going until we have 3 names OR hit max attempts
+    while (validSuggestions.length < 3 && loopCount < MAX_LOOPS) {
+      loopCount++;
+      const needed = 3 - validSuggestions.length;
+      console.log(`\n[BG] 🔄 Loop ${loopCount}/${MAX_LOOPS}: Found ${validSuggestions.length}/3. Need ${needed} more.`);
+
+      // 1. Generate Batch
+      // We pass 'triedNamesHistory' so AI knows what NOT to give us
+      const candidates = await generateAiCandidates(allFailedNames, triedNamesHistory);
+
+      if (!candidates || candidates.length === 0) {
+        console.log(`[BG] ⚠️ AI returned no names. Waiting before retry...`);
+        await delay(2000);
+        continue;
+      }
+
+      // 2. Filter out duplicates (in case AI ignored instructions)
+      const newCandidates = candidates.filter(c => !triedNamesHistory.includes(c.name));
+      const candidateNamesList = newCandidates.map(c => c.name);
+
+      if (candidateNamesList.length === 0) {
+        console.log(`[BG] ⚠️ AI returned only duplicates. Retrying...`);
+        continue;
+      }
+
+      console.log(`[BG] 🔍 Checking batch of ${candidateNamesList.length}:`, candidateNamesList);
+
+      // 3. Check Availability
+      const checkResults = await checkMyDataMultiSession(candidateNamesList, userData);
+
+      // 4. Process Results
+      for (const res of checkResults) {
+        // Stop immediately if we hit our target of 3
+        if (validSuggestions.length >= 3) break;
+
+        // Add to history (Taken OR Available) so we don't check again
+        if (!triedNamesHistory.includes(res.name)) {
+          triedNamesHistory.push(res.name);
+        }
+
+        if (res.available === true) {
+          const originalInfo = candidates.find(c => c.name === res.name);
+          validSuggestions.push({
+            name: res.name,
+            available: true,
+            reason: originalInfo ? originalInfo.reason : "AI Suggestion"
+          });
+          console.log(`[BG] ✅ Found Available: ${res.name}`);
+        }
+      }
+
+      // Small delay to prevent rate limiting
+      if (validSuggestions.length < 3) await delay(2000);
+    }
+
+    console.log(`\n[BG] 🏁 Process finished. Total Available Found: ${validSuggestions.length}`);
+
+    // 5. Push to Bitrix
+    const leadSession = leadSessionManager.getSession(sessionKey);
+    if (leadSession) {
+      leadSession.aiFinalSuggestions = validSuggestions;
+
+      console.log(`[BG] 📤 Pushing results to Bitrix24...`);
+      const leadData = leadSessionManager.prepareLead(leadSession);
+
+      // Using your corrected push function
+      const bitrixResult = await pushLeadToBitrix24(leadData);
+      leadSessionManager.markAsPushed(sessionKey, bitrixResult);
+    }
+
+  } catch (error) {
+    console.error(`[BG] ❌ Critical Error in AI Job:`, error);
+  }
+}
+
+// ==========================================
+// 🛠️ BITRIX PUSH
+// ==========================================
+
+// ==========================================
+// 🔍 SCRAPING LOGIC
+// ==========================================
+
+async function isLoginRequired(page) {
+  const needsLogin = await page.evaluate(() => {
+    const bodyText = document.body.innerText;
+    return bodyText.includes('Sign In') && bodyText.includes('for the full results');
+  });
+  if (needsLogin) {
+    console.log(`🔴 Detected "Sign In" prompt - company name is NOT available`);
+    return true;
+  }
+  return false;
+}
+
+async function checkMyDataMultiSession(companyNames, userData) {
+  const session = await sessionPool.acquireSession();
+  let browser, page;
+
+  try {
+    console.log(`[${session.id}] 🚀 Starting browser...`);
+
+    browser = await puppeteer.launch({
+      headless: true,
+      userDataDir: session.profileDir,
+      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu"],
+    });
+
+    const pages = await browser.pages();
+    page = pages[0] || (await browser.newPage());
+    await page.setViewport({ width: 1280, height: 800 });
+
+    await page.goto("https://www.mydata-ssm.com.my/home", { waitUntil: "domcontentloaded", timeout: 60000 });
+    await delay(3000);
+
+    // Filter Logic
+    try {
+      const dropdownClicked = await page.evaluate(() => {
+        const button = document.getElementById('dropdownMenu1');
+        if (button) { button.click(); return true; }
+        return false;
+      });
+      if (dropdownClicked) {
+        await delay(1500);
+        await page.evaluate(() => {
+          const menuItems = Array.from(document.querySelectorAll('a.dropdown-item, li a, .dropdown-menu a, button'));
+          const companyOption = menuItems.find(el => el.textContent.trim() === 'Company');
+          if (companyOption) companyOption.click();
+        });
+        await delay(2000);
+      }
+    } catch (error) { }
+
+    const searchSelectors = ['input[placeholder*="search" i]', 'input[name*="search"]', 'input[type="text"]'];
+    let searchBox = null;
+    for (const sel of searchSelectors) {
+      try { await page.waitForSelector(sel, { visible: true, timeout: 5000 }); searchBox = sel; break; } catch { }
+    }
+
+    if (!searchBox) throw new Error("Search box not found");
+
+    const results = [];
+
+    for (let idx = 0; idx < companyNames.length; idx++) {
+      let companyName = companyNames[idx] ? companyNames[idx].toUpperCase() : "";
+      if (!companyName || !companyName.trim()) continue;
+
+      const upperName = companyName.toUpperCase().trim();
+      if (!upperName.endsWith('SDN BHD') && !upperName.endsWith('SDN. BHD.')) {
+        companyName = `${companyName} SDN BHD`;
+      }
+
+      console.log(`[${session.id}] 🔍 Searching: ${companyName}`);
+
+      await page.click(searchBox, { clickCount: 3 });
+      await page.keyboard.press('Backspace');
+      await delay(500);
+      await page.type(searchBox, companyName, { delay: 100 });
+      await page.keyboard.press("Enter");
+
+      await delay(3000);
+
+      if (await isLoginRequired(page)) {
+        results.push({
+          name: companyName,
+          available: false,
+          details: { exists: true, reason: "signin_required" }
+        });
+        continue;
+      }
+
+      // Wait for results
+      for (let i = 0; i < 20; i++) {
+        const hasResults = await page.evaluate(() =>
+          document.body.innerText.includes('entities found') ||
+          document.body.innerText.includes('entity found')
+        );
+        if (hasResults) break;
+        await delay(1000);
+      }
+
+      await delay(2000);
+
+      // Extract
+      const companyCount = await page.evaluate(() => {
+        if (document.body.innerText.includes('No record found')) return 0;
+        const rows = document.querySelectorAll('tbody tr');
+        return rows.length;
+      });
+
+      results.push({
+        name: companyName,
+        available: companyCount === 0, // 0 means available
+        details: { exists: companyCount > 0, totalMatches: companyCount }
+      });
+    }
+
+    await browser.close();
+    console.log(`[${session.id}] 🔒 Browser closed`);
+    return results;
+
+  } catch (error) {
+    if (browser) await browser.close();
+    throw error;
+  } finally {
+    await sessionPool.releaseSession(session.id);
+  }
+}
+
+// ===== API ROUTES =====
+
+// Updated endpoint with session-based lead accumulation
+app.post("/myData/check-names", async (req, res) => {
+  const { companyNames, userData } = req.body;
+
+
+  // 🔍 DEBUG: Check if UTMs are reaching the API endpoint
+  console.log("------------------------------------------------");
+  console.log("📥 API RECEIVED REQUEST");
+  console.log("👤 Name:", userData.name);
+  console.log("🔗 UTM Source:", userData.utm_source);   // Should show "TEST_FACEBOOK"
+  console.log("🔗 UTM Content:", userData.utm_content); // Should show "TEST_AD_ID"
+  console.log("------------------------------------------------");
+  if (!companyNames || companyNames.length === 0) {
+    return res.status(400).json({ error: "At least one company name is required" });
+  }
+
+  try {
+    // 1. Instant Search
+    // This loop checks ALL names sent (1, 2, or 3) before moving to the next line.
+    // This satisfies your requirement: "if 2 wait for 2 name check finish"
+    const currentResults = await checkMyDataMultiSession(companyNames, userData);
+
+    // 2. Add to Session & Get Accumulated History
+    const sessionInfo = leadSessionManager.addResult(userData, currentResults);
+    const sessionKey = sessionInfo.sessionKey;
+    const leadSession = leadSessionManager.getSession(sessionKey);
+
+    // Get ALL results (history + current)
+    const allCheckedNames = leadSession.results;
+    const totalChecked = allCheckedNames.length;
+
+    // Check if ANY name in the history is available
+    const anyNameAvailable = allCheckedNames.some(r => r.available === true);
+
+    res.json({
+      success: true,
+      results: currentResults,
+      session: {
+        key: sessionKey,
+        totalChecked: totalChecked,
+        // If found, we are done. If not, we are analyzing alternatives (AI).
+        // No more "waiting_for_more" status.
+        status: anyNameAvailable ? "completed" : "analyzing_alternatives"
+      }
+    });
+
+    // 3. Background Logic
+    setTimeout(async () => {
+      // CASE A: User found a name! 
+      // We push to CRM immediately and stop.
+      if (anyNameAvailable) {
+        console.log(`\n✨ [Flow] Valid name found (Total checked: ${totalChecked}). Pushing to CRM.`);
+        const leadData = leadSessionManager.prepareLead(leadSession);
+        const bitrixResult = await pushLeadToBitrix24(leadData);
+        leadSessionManager.markAsPushed(sessionKey, bitrixResult);
+      }
+      // CASE B: All names checked so far are TAKEN.
+      // We trigger AI immediately, whether the user checked 1, 2, or 10 names.
+      else {
+        const allFailedNames = allCheckedNames.map(r => r.name);
+        console.log(`\n🤖 [Flow] All ${totalChecked} names taken. Triggering AI...`);
+        console.log(`    👉 Context: ${allFailedNames.join(", ")}`);
+
+        // Pass the FULL LIST of failed names to the background job
+        await performAiBackgroundJob(sessionKey, userData, allFailedNames);
+      }
+    }, 100);
+
+  } catch (error) {
+    console.error("❌ API Error:", error.message);
+    if (!res.headersSent) res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+
+
 
 app.post('/api/deals/:pipelineId', async (req, res) => {
   // 1. Extract the pipelineId from the URL parameters
