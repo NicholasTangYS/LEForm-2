@@ -21,6 +21,7 @@ const mysql = require('mysql2');
 const logger = require("firebase-functions/logger");
 const cors = require('cors');
 const crypto = require('crypto');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 const JWT_SECRET = process.env.JWT_SECRET;
 // const chromium = require('chromium');
 const bcrypt = require('bcrypt');
