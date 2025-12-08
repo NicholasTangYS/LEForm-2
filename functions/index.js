@@ -11,6 +11,7 @@ const { setGlobalOptions } = require("firebase-functions/v2");
 const { onRequest } = require("firebase-functions/https");
 const firebase = require("firebase-admin");
 const express = require('express');
+const os = require("os");
 const app = express();
 const puppeteer = require('puppeteer');
 const fs = require("fs");
@@ -1104,7 +1105,16 @@ async function checkMyDataMultiSession(companyNames, userData) {
     browser = await puppeteer.launch({
       headless: true,
       userDataDir: session.profileDir,
-      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu"],
+      args: [
+        "--no-sandbox",             // Required for root user on cloud
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",    // CRITICAL: Prevents memory crash
+        "--disable-accelerated-2d-canvas",
+        "--no-first-run",
+        "--no-zygote",
+        "--single-process",         // Helps save resources
+        "--disable-gpu",
+     ]
     });
 
     const pages = await browser.pages();
