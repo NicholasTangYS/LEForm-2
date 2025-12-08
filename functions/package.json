@@ -13,7 +13,9 @@
   },
   "main": "index.js",
   "dependencies": {
+    "@google-cloud/pubsub": "^5.2.0",
     "@google/generative-ai": "^0.24.1",
+    "any": "^1.0.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
@@ -25,6 +27,7 @@
     "path": "^0.12.7",
     "puppeteer": "^24.30.0",
     "puppeteer-core": "^24.29.1",
+    "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
   "devDependencies": {

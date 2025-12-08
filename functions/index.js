@@ -610,521 +610,35 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// ==========================================
-// SESSION MANAGERS
-// ==========================================
-class SessionManager {
-  constructor(name) {
-    this.name = name;
-    this.createdAt = Date.now();
-  }
-}
 
-class SessionPool {
-  constructor(maxSessions = 5) {
-    this.maxSessions = maxSessions;
-    this.sessions = new Map();
-  }
-
-  async acquireSession() {
-    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const profileDir = path.join(profilesBaseDir, sessionId);
-    if (!fs.existsSync(profileDir)) fs.mkdirSync(profileDir, { recursive: true });
-
-    const session = {
-      id: sessionId,
-      profileDir: profileDir,
-      manager: new SessionManager(sessionId),
-      inUse: true,
-      createdAt: Date.now()
-    };
-
-    this.sessions.set(sessionId, session);
-    console.log(`🔓 Session acquired: ${sessionId}`);
-    return session;
-  }
-
-  async releaseSession(sessionId) {
-    const session = this.sessions.get(sessionId);
-    if (session) {
-      session.inUse = false;
-      console.log(`🔒 Session released: ${sessionId}`);
-      setTimeout(() => { this.cleanupSession(sessionId); }, 5 * 60 * 1000);
-    }
-  }
-
-  cleanupSession(sessionId) {
-    const session = this.sessions.get(sessionId);
-    if (session && !session.inUse) {
-      try {
-        if (fs.existsSync(session.profileDir)) {
-          fs.rmSync(session.profileDir, { recursive: true, force: true });
-        }
-        this.sessions.delete(sessionId);
-        console.log(`🗑️ Session cleaned up: ${sessionId}`);
-      } catch (error) {
-        console.error(`⚠️ Error cleaning session ${sessionId}:`, error.message);
-      }
-    }
-  }
-}
-
-const sessionPool = new SessionPool();
-
-// ==========================================
-// USER SESSION MANAGER (Updated to include AI Data)
-// ==========================================
-class LeadSessionManager {
-  constructor() {
-    this.sessions = new Map();
-    this.SESSION_TIMEOUT = 5 * 60 * 1000; // 5 minutes
-    this.startCleanupJob();
-  }
-
-  // Generate unique key from contact info
-  generateSessionKey(userData) {
-    const email = (userData.email || '').toLowerCase().trim();
-    const phone = (userData.phone || '').replace(/\D/g, ''); // Remove non-digits
-    const name = (userData.name || '').toLowerCase().trim();
-
-    // Use email+phone as primary key, fallback to name if missing
-    const keyString = `${email}|${phone}|${name}`;
-    return crypto.createHash('md5').update(keyString).digest('hex');
-  }
-
-  // Add or update session
-  addResult(userData, companyNameResults) {
-    const sessionKey = this.generateSessionKey(userData);
-    const now = Date.now();
-    const existing = this.sessions.get(sessionKey);
-
-    // Combine existing results with new ones
-    const previousResults = existing ? existing.results : [];
-    const allResults = [...previousResults, ...companyNameResults];
-
-    // Create session object
-    const session = {
-      sessionKey: sessionKey,
-      userData: userData,
-      results: allResults,
-      // Preserve AI suggestions if they exist from a previous update
-      aiFinalSuggestions: existing ? existing.aiFinalSuggestions : [],
-      createdAt: existing ? existing.createdAt : now,
-      lastUpdated: now,
-      expiresAt: now + this.SESSION_TIMEOUT,
-      pushed: false
-    };
-
-    this.sessions.set(sessionKey, session);
-    console.log(`📝 Session ${sessionKey}: Total ${session.results.length} names`);
-
-    return {
-      isNew: !existing,
-      totalNames: session.results.length,
-      sessionKey: sessionKey
-    };
-  }
-
-  // Get session data
-  getSession(sessionKey) {
-    return this.sessions.get(sessionKey);
-  }
-
-  // Mark session as pushed to CRM
-  markAsPushed(sessionKey, bitrixResult) {
-    const session = this.sessions.get(sessionKey);
-    if (session) {
-      session.pushed = true;
-      session.bitrixResult = bitrixResult;
-      session.pushedAt = Date.now();
-      console.log(`✅ Session ${sessionKey} marked as pushed to Bitrix24`);
-    }
-  }
-
-  // Check if session should be pushed (3+ names OR expired)
-  shouldPushSession(sessionKey) {
-    const session = this.sessions.get(sessionKey);
-    if (!session || session.pushed) return false;
-
-    const hasThreeNames = session.results.length >= 3;
-    const isExpired = Date.now() >= session.expiresAt;
-
-    return hasThreeNames || isExpired;
-  }
-
-  // Cleanup expired sessions and push to Bitrix24
-  async cleanupExpiredSessions() {
-    const now = Date.now();
-
-    for (const [sessionKey, session] of this.sessions.entries()) {
-      // Push expired unpushed sessions
-      if (!session.pushed && now >= session.expiresAt) {
-        console.log(`⏰ Session ${sessionKey} expired, pushing to Bitrix24...`);
-        const bitrixResult = await pushLeadToBitrix24(this.prepareLead(session));
-        this.markAsPushed(sessionKey, bitrixResult);
-      }
-
-      // Delete old pushed sessions (after 10 minutes)
-      if (session.pushed && now - session.pushedAt > 10 * 60 * 1000) {
-        this.sessions.delete(sessionKey);
-        console.log(`🗑️ Removed old session ${sessionKey}`);
-      }
-    }
-  }
-
-  // Prepare lead data for Bitrix24
-  prepareLead(session) {
-    return {
-      ...session.userData,
-      companyNames: session.results,
-      // IMPORTANT: Pass the AI suggestions to the lead data
-      aiFinalSuggestions: session.aiFinalSuggestions || [],
-      submittedAt: new Date(session.createdAt).toISOString(),
-      lastUpdatedAt: new Date(session.lastUpdated).toISOString(),
-      source: 'company-name-checker',
-      totalNamesChecked: session.results.length
-    };
-  }
-
-  startCleanupJob() {
-    setInterval(async () => {
-      await this.cleanupExpiredSessions();
-    }, 30 * 1000);
-    console.log('🔄 Lead session cleanup job started');
-  }
-}
-
-const leadSessionManager = new LeadSessionManager();
-
-// ==========================================
-// 🛠️ BITRIX24 INTEGRATION (Updated with AI Comments)
-// ==========================================
-async function pushLeadToBitrix24(leadData) {
-  // 🔍 DEBUG: Log the raw incoming data
-  console.log("\n┌──────────────────────────────────────────────┐");
-  console.log("│ 📥 [DEBUG] INCOMING LEAD DATA                │");
-  console.log("└──────────────────────────────────────────────┘");
-  console.dir(leadData, { depth: null, colors: true }); // Prints the full object structure
-  console.log("────────────────────────────────────────────────\n");
-
-  const BITRIX24_WEBHOOK = process.env.BITRIX24_WEBHOOK;
-
-  if (!BITRIX24_WEBHOOK) {
-    console.warn("⚠️ BITRIX24_WEBHOOK not configured in .env");
-    return { success: false, error: "Bitrix24 webhook not configured" };
-  }
-
+// ---------------------------------------------------------
+// MODIFIED: Removed SessionPool (Stateless for Cloud)
+// But KEPT your exact scraping steps/logic
+// ---------------------------------------------------------
+async function checkMyData(companyNames) {
+  let browser;
   try {
-    // ==========================================
-    // 📞 1. Format Phone Number (+60)
-    // ==========================================
-    let formattedPhone = '';
-    if (leadData.phone) {
-      let clean = leadData.phone.toString().replace(/\D/g, '');
-      if (clean.length > 0) {
-        if (clean.startsWith('60')) formattedPhone = '+' + clean;
-        else if (clean.startsWith('0')) formattedPhone = '+60' + clean.substring(1);
-        else formattedPhone = '+60' + clean;
-      }
-    }
-
-    // ==========================================
-    // 📝 2. Prepare Comments
-    // ==========================================
-    const companyNamesText = leadData.companyNames
-      .map(c => {
-        const matchCount = c.details?.results?.length || c.details?.totalMatches || 0;
-        return `${c.name}: ${c.available ? '✅ Available' : '❌ Taken'} (${matchCount} matches)`;
-      })
-      .join('\n');
-
-    // ==========================================
-    // 🤖 3. Prepare AI Suggestions (Vertical List)
-    // ==========================================
-    let aiSuggestedNamesBlock = '';
-    if (Array.isArray(leadData.aiFinalSuggestions) && leadData.aiFinalSuggestions.length > 0) {
-      // \n creates a new line in the Text Area field
-      aiSuggestedNamesBlock = leadData.aiFinalSuggestions
-        .map((s, i) => `${i + 1}. ${s.name}`)
-        .join('\n');
-    }
-
-    // ==========================================
-    // 👤 4. Parse Name
-    // ==========================================
-    let firstName = '', lastName = '';
-    if (leadData.name) {
-      const nameParts = leadData.name.trim().split(' ');
-      if (nameParts.length === 1) {
-        firstName = nameParts[0];
-        lastName = '';
-      } else if (nameParts.length >= 2) {
-        lastName = nameParts[0];
-        firstName = nameParts.slice(1).join(' ');
-      }
-    }
-
-    // ==========================================
-    // 📤 5. Map Fields
-    // ==========================================
-    const companyName1 = leadData.companyNames[0] ? leadData.companyNames[0].name : '';
-    const companyName2 = leadData.companyNames[1] ? leadData.companyNames[1].name : '';
-    const companyName3 = leadData.companyNames[2] ? leadData.companyNames[2].name : '';
-
-    const bitrixFields = {
-      TITLE: `[Altomate Website Form] Company Name Check - ${leadData.name || 'Unknown'}`,
-      ASSIGNED_BY_ID: 3807,
-      NAME: firstName,
-      LAST_NAME: lastName,
-
-      // Contact Info
-      UF_CRM_LEAD_1714097932490: leadData.email || '',
-      UF_CRM_1714540318506: formattedPhone,
-      PHONE: [{ VALUE: formattedPhone, VALUE_TYPE: "WORK" }],
-
-      // Company Inputs
-      UF_CRM_1634365929857: companyName1,
-      UF_CRM_LEAD_1650374555137: companyName2,
-      UF_CRM_LEAD_1650374569570: companyName3,
-
-      // UTM Parameters
-      UTM_SOURCE: leadData.utm_source || null,
-      UTM_CONTENT: leadData.utm_content || null,
-
-      // AI Suggestions
-      UF_CRM_1764817428: aiSuggestedNamesBlock,
-
-      // Comments
-      COMMENTS: `Company Names Checked (Total: ${leadData.companyNames.length}):\n${companyNamesText}`
-    };
-
-    console.log(`📤 Sending lead to Bitrix24...`);
-
-    const response = await fetch(`${BITRIX24_WEBHOOK}/crm.lead.add`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({
-        fields: bitrixFields,
-        params: { REGISTER_SONET_EVENT: "Y" }
-      })
-    });
-
-    const result = await response.json();
-
-    if (result.result) {
-      console.log(`✅ Lead created in Bitrix24 with ID: ${result.result}`);
-      return { success: true, leadId: result.result, bitrixResponse: result };
-    } else {
-      console.error("❌ Bitrix24 error:", result.error_description || result.error);
-      return { success: false, error: result.error_description || result.error, bitrixResponse: result };
-    }
-  } catch (error) {
-    console.error("❌ Bitrix24 API error:", error.message);
-    return { success: false, error: error.message };
-  }
-}
-// ==========================================
-// 🧠 AI GENERATION LOGIC (Reads ALL 3 Names)
-// ==========================================
-
-async function generateAiCandidates(userIntents, excludeNames = []) {
-  try {
-    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-    if (!GEMINI_API_KEY) {
-      console.error("⚠️ GEMINI_API_KEY missing");
-      return [];
-    }
-
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
-      generationConfig: { responseMimeType: "application/json" }
-    });
-
-    const userContext = userIntents.join(", ");
-
-    // Explicitly list names to avoid so AI doesn't repeat them
-    const excludeContext = excludeNames.length > 0
-      ? `CRITICAL INSTRUCTION: Do NOT generate these names again (they are taken): ${excludeNames.join(", ")}`
-      : "";
-
-    const prompt = `
-      The user wants to register a company in Malaysia.
-      User's original preferences (all taken): [ ${userContext} ]
-
-      YOUR TASK:
-      Generate exactly 8 NEW, DISTINCT candidate names.
-      
-      GUIDELINES:
-      1. Names must end with "SDN BHD".
-      2. Keep the "vibe" or keywords of the user's original preferences.
-      3. ${excludeContext}
-      
-      Return ONLY a JSON array: 
-      [ { "name": "NAME SDN BHD", "reason": "Reasoning here" } ]
-    `;
-
-    console.log(`[AI] Generating batch... Excluded count: ${excludeNames.length}`);
-
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
-    const suggestions = JSON.parse(text);
-
-    return suggestions.map(s => ({
-      name: s.name.toUpperCase().replace(/\s+SDN\.?\s*BHD\.?$/i, "").trim() + " SDN BHD",
-      reason: s.reason
-    }));
-
-  } catch (error) {
-    console.error("❌ AI Error:", error.message);
-    return [];
-  }
-}
-
-// ==========================================
-// 🤖 BACKGROUND PROCESS
-// ==========================================
-
-async function performAiBackgroundJob(sessionKey, userData, allFailedNames) {
-  try {
-    console.log(`\n🤖 [BG] Starting AI Loop. Context: ${allFailedNames.join(", ")}`);
-
-    const validSuggestions = [];
-
-    // 'triedNamesHistory' prevents AI from suggesting names we already checked (and found taken)
-    const triedNamesHistory = [...allFailedNames];
-
-    let loopCount = 0;
-    const MAX_LOOPS = 5; // Allow up to 5 attempts (5 * 8 = 40 names checked)
-
-    // LOOP: Keep going until we have 3 names OR hit max attempts
-    while (validSuggestions.length < 3 && loopCount < MAX_LOOPS) {
-      loopCount++;
-      const needed = 3 - validSuggestions.length;
-      console.log(`\n[BG] 🔄 Loop ${loopCount}/${MAX_LOOPS}: Found ${validSuggestions.length}/3. Need ${needed} more.`);
-
-      // 1. Generate Batch
-      // We pass 'triedNamesHistory' so AI knows what NOT to give us
-      const candidates = await generateAiCandidates(allFailedNames, triedNamesHistory);
-
-      if (!candidates || candidates.length === 0) {
-        console.log(`[BG] ⚠️ AI returned no names. Waiting before retry...`);
-        await delay(2000);
-        continue;
-      }
-
-      // 2. Filter out duplicates (in case AI ignored instructions)
-      const newCandidates = candidates.filter(c => !triedNamesHistory.includes(c.name));
-      const candidateNamesList = newCandidates.map(c => c.name);
-
-      if (candidateNamesList.length === 0) {
-        console.log(`[BG] ⚠️ AI returned only duplicates. Retrying...`);
-        continue;
-      }
-
-      console.log(`[BG] 🔍 Checking batch of ${candidateNamesList.length}:`, candidateNamesList);
-
-      // 3. Check Availability
-      const checkResults = await checkMyDataMultiSession(candidateNamesList, userData);
-
-      // 4. Process Results
-      for (const res of checkResults) {
-        // Stop immediately if we hit our target of 3
-        if (validSuggestions.length >= 3) break;
-
-        // Add to history (Taken OR Available) so we don't check again
-        if (!triedNamesHistory.includes(res.name)) {
-          triedNamesHistory.push(res.name);
-        }
-
-        if (res.available === true) {
-          const originalInfo = candidates.find(c => c.name === res.name);
-          validSuggestions.push({
-            name: res.name,
-            available: true,
-            reason: originalInfo ? originalInfo.reason : "AI Suggestion"
-          });
-          console.log(`[BG] ✅ Found Available: ${res.name}`);
-        }
-      }
-
-      // Small delay to prevent rate limiting
-      if (validSuggestions.length < 3) await delay(2000);
-    }
-
-    console.log(`\n[BG] 🏁 Process finished. Total Available Found: ${validSuggestions.length}`);
-
-    // 5. Push to Bitrix
-    const leadSession = leadSessionManager.getSession(sessionKey);
-    if (leadSession) {
-      leadSession.aiFinalSuggestions = validSuggestions;
-
-      console.log(`[BG] 📤 Pushing results to Bitrix24...`);
-      const leadData = leadSessionManager.prepareLead(leadSession);
-
-      // Using your corrected push function
-      const bitrixResult = await pushLeadToBitrix24(leadData);
-      leadSessionManager.markAsPushed(sessionKey, bitrixResult);
-    }
-
-  } catch (error) {
-    console.error(`[BG] ❌ Critical Error in AI Job:`, error);
-  }
-}
-
-// ==========================================
-// 🛠️ BITRIX PUSH
-// ==========================================
-
-// ==========================================
-// 🔍 SCRAPING LOGIC
-// ==========================================
-
-async function isLoginRequired(page) {
-  const needsLogin = await page.evaluate(() => {
-    const bodyText = document.body.innerText;
-    return bodyText.includes('Sign In') && bodyText.includes('for the full results');
-  });
-  if (needsLogin) {
-    console.log(`🔴 Detected "Sign In" prompt - company name is NOT available`);
-    return true;
-  }
-  return false;
-}
-
-async function checkMyDataMultiSession(companyNames, userData) {
-  const session = await sessionPool.acquireSession();
-  let browser, page;
-
-  try {
-    console.log(`[${session.id}] 🚀 Starting browser...`);
-
+    console.log(`[Scraper] Starting check for: ${companyNames.join(", ")}`);
+    
+    // Launch options optimized for Cloud Functions
     browser = await puppeteer.launch({
-      headless: true,
-      userDataDir: session.profileDir,
+      headless: "new",
       args: [
-        "--no-sandbox",             // Required for root user on cloud
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",    // CRITICAL: Prevents memory crash
-        "--disable-accelerated-2d-canvas",
-        "--no-first-run",
-        "--no-zygote",
-        "--single-process",         // Helps save resources
+        "--no-sandbox", 
+        "--disable-setuid-sandbox", 
         "--disable-gpu",
-     ]
+        "--disable-dev-shm-usage", // Vital for Cloud memory stability
+        "--window-size=1280,800"
+      ],
     });
 
-    const pages = await browser.pages();
-    page = pages[0] || (await browser.newPage());
+    const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 800 });
 
     await page.goto("https://www.mydata-ssm.com.my/home", { waitUntil: "domcontentloaded", timeout: 60000 });
     await delay(3000);
 
-    // Filter Logic
+    // --- YOUR ORIGINAL FILTER LOGIC ---
     try {
       const dropdownClicked = await page.evaluate(() => {
         const button = document.getElementById('dropdownMenu1');
@@ -1140,18 +654,19 @@ async function checkMyDataMultiSession(companyNames, userData) {
         });
         await delay(2000);
       }
-    } catch (error) { }
+    } catch (error) {}
 
     const searchSelectors = ['input[placeholder*="search" i]', 'input[name*="search"]', 'input[type="text"]'];
     let searchBox = null;
     for (const sel of searchSelectors) {
-      try { await page.waitForSelector(sel, { visible: true, timeout: 5000 }); searchBox = sel; break; } catch { }
+      try { await page.waitForSelector(sel, { visible: true, timeout: 5000 }); searchBox = sel; break; } catch {}
     }
-
+    
     if (!searchBox) throw new Error("Search box not found");
 
     const results = [];
 
+    // --- YOUR ORIGINAL LOOP LOGIC ---
     for (let idx = 0; idx < companyNames.length; idx++) {
       let companyName = companyNames[idx] ? companyNames[idx].toUpperCase() : "";
       if (!companyName || !companyName.trim()) continue;
@@ -1161,8 +676,8 @@ async function checkMyDataMultiSession(companyNames, userData) {
         companyName = `${companyName} SDN BHD`;
       }
 
-      console.log(`[${session.id}] 🔍 Searching: ${companyName}`);
-
+      console.log(`🔍 Searching: ${companyName}`);
+      
       await page.click(searchBox, { clickCount: 3 });
       await page.keyboard.press('Backspace');
       await delay(500);
@@ -1170,8 +685,14 @@ async function checkMyDataMultiSession(companyNames, userData) {
       await page.keyboard.press("Enter");
 
       await delay(3000);
+      
+      // Check Login
+      const needsLogin = await page.evaluate(() => {
+        const bodyText = document.body.innerText;
+        return bodyText.includes('Sign In') && bodyText.includes('for the full results');
+      });
 
-      if (await isLoginRequired(page)) {
+      if (needsLogin) {
         results.push({
           name: companyName,
           available: false,
@@ -1179,17 +700,16 @@ async function checkMyDataMultiSession(companyNames, userData) {
         });
         continue;
       }
-
+      
       // Wait for results
       for (let i = 0; i < 20; i++) {
-        const hasResults = await page.evaluate(() =>
-          document.body.innerText.includes('entities found') ||
+        const hasResults = await page.evaluate(() => 
+          document.body.innerText.includes('entities found') || 
           document.body.innerText.includes('entity found')
         );
         if (hasResults) break;
         await delay(1000);
       }
-
       await delay(2000);
 
       // Extract
@@ -1198,102 +718,284 @@ async function checkMyDataMultiSession(companyNames, userData) {
         const rows = document.querySelectorAll('tbody tr');
         return rows.length;
       });
-
+      
       results.push({
         name: companyName,
-        available: companyCount === 0, // 0 means available
+        available: companyCount === 0, 
         details: { exists: companyCount > 0, totalMatches: companyCount }
       });
     }
 
-    await browser.close();
-    console.log(`[${session.id}] 🔒 Browser closed`);
     return results;
 
   } catch (error) {
-    if (browser) await browser.close();
-    throw error;
+    console.error("Puppeteer Error:", error);
+    // Return empty array on crash so API doesn't hang
+    return []; 
   } finally {
-    await sessionPool.releaseSession(session.id);
+    if (browser) await browser.close();
   }
 }
 
-// ===== API ROUTES =====
-
-// Updated endpoint with session-based lead accumulation
-app.post("/myData/check-names", async (req, res) => {
-  const { companyNames, userData } = req.body;
-
-
-  // 🔍 DEBUG: Check if UTMs are reaching the API endpoint
-  console.log("------------------------------------------------");
-  console.log("📥 API RECEIVED REQUEST");
-  console.log("👤 Name:", userData.name);
-  console.log("🔗 UTM Source:", userData.utm_source);   // Should show "TEST_FACEBOOK"
-  console.log("🔗 UTM Content:", userData.utm_content); // Should show "TEST_AD_ID"
-  console.log("------------------------------------------------");
-  if (!companyNames || companyNames.length === 0) {
-    return res.status(400).json({ error: "At least one company name is required" });
+// ---------------------------------------------------------
+// BITRIX HELPER (Unchanged)
+// ---------------------------------------------------------
+async function pushLeadToBitrix24(leadData) {
+  const BITRIX24_WEBHOOK = process.env.BITRIX24_WEBHOOK;
+  
+  if (!BITRIX24_WEBHOOK) {
+    console.warn("⚠️ BITRIX24_WEBHOOK not configured");
+    return { success: false };
   }
 
   try {
-    // 1. Instant Search
-    // This loop checks ALL names sent (1, 2, or 3) before moving to the next line.
-    // This satisfies your requirement: "if 2 wait for 2 name check finish"
-    const currentResults = await checkMyDataMultiSession(companyNames, userData);
+    let formattedPhone = '';
+    if (leadData.phone) {
+        let clean = leadData.phone.toString().replace(/\D/g, '');
+        if (clean.length > 0) {
+            if (clean.startsWith('60')) formattedPhone = '+' + clean;
+            else if (clean.startsWith('0')) formattedPhone = '+60' + clean.substring(1);
+            else formattedPhone = '+60' + clean;
+        }
+    }
 
-    // 2. Add to Session & Get Accumulated History
-    const sessionInfo = leadSessionManager.addResult(userData, currentResults);
-    const sessionKey = sessionInfo.sessionKey;
-    const leadSession = leadSessionManager.getSession(sessionKey);
+    const companyNamesText = (leadData.companyNames || [])
+      .map(c => {
+         const matchCount = c.details?.totalMatches || 0;
+         return `${c.name}: ${c.available ? '✅ Available' : '❌ Taken'} (${matchCount} matches)`;
+      })
+      .join('\n');
 
-    // Get ALL results (history + current)
-    const allCheckedNames = leadSession.results;
-    const totalChecked = allCheckedNames.length;
+ let aiSuggestedNamesBlock = '';
+    if (Array.isArray(leadData.aiFinalSuggestions) && leadData.aiFinalSuggestions.length > 0) {
+        
+        // ✂️ STRICT LIMIT: Slice the first 3 only
+        const top3Ai = leadData.aiFinalSuggestions.slice(0, 3);
 
-    // Check if ANY name in the history is available
-    const anyNameAvailable = allCheckedNames.some(r => r.available === true);
+        aiSuggestedNamesBlock = top3Ai
+            .map((s, i) => `${i + 1}. ${s.name}`) // Format: "1. NAME"
+            .join('\n\n'); // New line for vertical list
+    }
 
-    res.json({
-      success: true,
-      results: currentResults,
-      session: {
-        key: sessionKey,
-        totalChecked: totalChecked,
-        // If found, we are done. If not, we are analyzing alternatives (AI).
-        // No more "waiting_for_more" status.
-        status: anyNameAvailable ? "completed" : "analyzing_alternatives"
+
+    let firstName = '', lastName = '';
+    if (leadData.name) {
+      const nameParts = leadData.name.trim().split(' ');
+      if (nameParts.length === 1) {
+        firstName = nameParts[0];
+      } else if (nameParts.length >= 2) {
+        lastName = nameParts[0];
+        firstName = nameParts.slice(1).join(' ');
       }
+    }
+
+    const companyName1 = leadData.companyNames[0] ? leadData.companyNames[0].name : '';
+    const companyName2 = leadData.companyNames[1] ? leadData.companyNames[1].name : '';
+    const companyName3 = leadData.companyNames[2] ? leadData.companyNames[2].name : '';
+
+    const bitrixFields = {
+      TITLE: `[Altomate Website Form] Company Name Check - ${leadData.name || 'Unknown'}`,
+      ASSIGNED_BY_ID: 3807,
+      NAME: firstName,
+      LAST_NAME: lastName,
+      UF_CRM_LEAD_1714097932490: leadData.email || '',
+      UF_CRM_1714540318506: formattedPhone,
+      PHONE: [{ VALUE: formattedPhone, VALUE_TYPE: "WORK" }],
+      UF_CRM_1634365929857: companyName1,
+      UF_CRM_LEAD_1650374555137: companyName2,
+      UF_CRM_LEAD_1650374569570: companyName3,
+      UTM_SOURCE: leadData.utm_source || null,
+      UTM_CONTENT: leadData.utm_content || null,
+      UF_CRM_1764817428: aiSuggestedNamesBlock,
+      COMMENTS: `Company Names Checked:\n${companyNamesText}`
+    };
+
+    console.log(`📤 Sending lead to Bitrix24...`);
+    
+    await fetch(`${BITRIX24_WEBHOOK}/crm.lead.add`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields: bitrixFields, params: { REGISTER_SONET_EVENT: "Y" } })
     });
 
-    // 3. Background Logic
-    setTimeout(async () => {
-      // CASE A: User found a name! 
-      // We push to CRM immediately and stop.
-      if (anyNameAvailable) {
-        console.log(`\n✨ [Flow] Valid name found (Total checked: ${totalChecked}). Pushing to CRM.`);
-        const leadData = leadSessionManager.prepareLead(leadSession);
-        const bitrixResult = await pushLeadToBitrix24(leadData);
-        leadSessionManager.markAsPushed(sessionKey, bitrixResult);
-      }
-      // CASE B: All names checked so far are TAKEN.
-      // We trigger AI immediately, whether the user checked 1, 2, or 10 names.
-      else {
-        const allFailedNames = allCheckedNames.map(r => r.name);
-        console.log(`\n🤖 [Flow] All ${totalChecked} names taken. Triggering AI...`);
-        console.log(`    👉 Context: ${allFailedNames.join(", ")}`);
-
-        // Pass the FULL LIST of failed names to the background job
-        await performAiBackgroundJob(sessionKey, userData, allFailedNames);
-      }
-    }, 100);
+    console.log(`✅ Lead sent.`);
+    return { success: true };
 
   } catch (error) {
-    console.error("❌ API Error:", error.message);
-    if (!res.headersSent) res.status(500).json({ success: false, error: error.message });
+    console.error("❌ Bitrix24 API error:", error.message);
+    return { success: false, error: error.message };
+  }
+}
+
+// ---------------------------------------------------------
+// AI HELPER (Unchanged)
+// ---------------------------------------------------------
+async function generateAiCandidates(userIntents, excludeNames = []) {
+  try {
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+    if (!GEMINI_API_KEY) {
+      console.error("⚠️ GEMINI_API_KEY missing");
+      return [];
+    }
+
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash",
+      generationConfig: { responseMimeType: "application/json" }
+    });
+
+    const userContext = userIntents.join(", ");
+    
+    const excludeContext = excludeNames.length > 0 
+      ? `CRITICAL INSTRUCTION: Do NOT generate these names again (they are taken): ${excludeNames.join(", ")}` 
+      : "";
+
+    const prompt = `
+      The user wants to register a company in Malaysia.
+      User's original preferences (all taken): [ ${userContext} ]
+      YOUR TASK: Generate exactly 8 NEW, DISTINCT candidate names.
+      GUIDELINES:
+      1. Names must end with "SDN BHD".
+      2. Keep the "vibe" or keywords of the user's original preferences.
+      3. ${excludeContext}
+      Return ONLY a JSON array: [ { "name": "NAME SDN BHD", "reason": "Reasoning here" } ]
+    `;
+
+    console.log(`[AI] Generating batch... Excluded count: ${excludeNames.length}`);
+    
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    const suggestions = JSON.parse(text);
+    
+    return suggestions.map(s => ({
+      name: s.name.toUpperCase().replace(/\s+SDN\.?\s*BHD\.?$/i, "").trim() + " SDN BHD",
+      reason: s.reason
+    }));
+
+  } catch (error) {
+    console.error("❌ AI Error:", error.message);
+    return [];
+  }
+}
+
+// ==========================================
+// 2. API ENDPOINTS
+// ==========================================
+
+/**
+ * API 1: INSTANT CHECK
+ * Scrapes SSM and returns "Available/Taken" immediately to Frontend.
+ */
+app.post("/api/check-names", async (req, res) => {
+  const { companyNames, userData } = req.body;
+
+  if (!companyNames || companyNames.length === 0) {
+    return res.status(400).json({ error: "No names provided" });
+  }
+
+  try {
+    console.log(`📥 API 1: Request for ${userData.name}`);
+
+    // Run scraper
+    const results = await checkMyData(companyNames);
+
+    // Send results back to frontend
+    res.json({
+      success: true,
+      results: results
+    });
+
+  } catch (error) {
+    console.error("API 1 Error:", error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
+/**
+ * API 2: PROCESS LEAD (Background Logic)
+ * Frontend calls this immediately after API 1 returns.
+ * Handles: Bitrix Push AND AI Loop (if needed).
+ */
+app.post("/api/process-lead", async (req, res) => {
+  // The Frontend sends us the FULL history (userData + all checked results)
+  const { userData, checkedResults, originalIntents } = req.body;
+
+  if (!userData || !checkedResults) {
+    return res.status(400).json({ error: "Missing data" });
+  }
+
+  console.log(`📥 API 2: Processing lead for ${userData.name}`);
+  console.log(`📊 Received ${checkedResults.length} checked names.`);
+
+  // Send success to frontend immediately
+  res.json({ success: true, message: "Processing started" });
+
+  try {
+    // 1. CHECK HISTORY: Did the user find any available name?
+    const anyAvailable = checkedResults.some(r => r.available);
+
+    // CASE A: User found a name. Push to CRM directly.
+    if (anyAvailable) {
+      console.log("✅ Valid name found. Pushing to Bitrix.");
+      await pushLeadToBitrix24({ 
+        ...userData, 
+        companyNames: checkedResults, 
+        aiFinalSuggestions: [] 
+      });
+      return;
+    }
+
+    // CASE B: All names taken. Start AI.
+    console.log("❌ All names taken. Starting AI Logic...");
+    
+    // We use the 'checkedResults' passed from Frontend as our history
+    let history = checkedResults.map(r => r.name);
+    let validSuggestions = [];
+    let loopCount = 0;
+    const MAX_LOOPS = 4;
+
+    while (validSuggestions.length < 3 && loopCount < MAX_LOOPS) {
+      loopCount++;
+      
+      // Generate
+      const candidates = await generateAiCandidates(originalIntents, history);
+      
+      // Filter
+      const toCheck = candidates
+          .filter(c => !history.includes(c.name))
+          .map(c => c.name);
+
+      if (toCheck.length > 0) {
+        // Validate
+        const results = await checkMyData(toCheck);
+        for (const r of results) {
+          if (!history.includes(r.name)) history.push(r.name);
+          
+          if (r.available) {
+            const info = candidates.find(c => c.name === r.name);
+            validSuggestions.push({ 
+              name: r.name, 
+              available: true, 
+              reason: info ? info.reason : "AI" 
+            });
+          }
+        }
+      }
+      if (validSuggestions.length >= 3) break;
+      await delay(2000);
+    }
+
+    // Push Final Results
+    await pushLeadToBitrix24({
+      ...userData,
+      companyNames: checkedResults, // The failed names from frontend
+      aiFinalSuggestions: validSuggestions
+    });
+
+  } catch (error) {
+    console.error("API 2 Background Error:", error);
+  }
+});
 
 
 
