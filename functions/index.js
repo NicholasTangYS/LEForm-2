@@ -621,16 +621,22 @@ async function checkMyData(companyNames) {
     console.log(`[Scraper] Starting check for: ${companyNames.join(", ")}`);
     
     // Launch options optimized for Cloud Functions
-    browser = await puppeteer.launch({
-      headless: "new",
-      args: [
-        "--no-sandbox", 
-        "--disable-setuid-sandbox", 
-        "--disable-gpu",
-        "--disable-dev-shm-usage", // Vital for Cloud memory stability
-        "--window-size=1280,800"
-      ],
-    });
+     browser = await puppeteer.launch({
+        headless: "new", // Use the new headless mode
+        args: [
+         "--no-sandbox",
+         "--disable-setuid-sandbox",
+         "--disable-dev-shm-usage", // CRITICAL: Uses /tmp instead of /dev/shm (prevents crashes)
+         "--disable-accelerated-2d-canvas",
+         "--no-first-run",
+         "--no-zygote",
+         "--single-process", // CRITICAL: Reduces memory overhead significantly
+         "--disable-gpu"
+        ],
+        // Increase timeout to 60s (gives Chrome more time to cold-start)
+        timeout: 60000,
+        protocolTimeout: 120000,
+     });
 
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 800 });
@@ -881,6 +887,519 @@ async function generateAiCandidates(userIntents, excludeNames = []) {
 // ==========================================
 // 2. API ENDPOINTS
 // ==========================================
+////////////// MYdata /////////////
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// ==========================================
+// SESSION MANAGERS
+// ==========================================
+class SessionManager {
+  constructor(name) {
+    this.name = name;
+    this.createdAt = Date.now();
+  }
+}
+
+class SessionPool {
+  constructor(maxSessions = 5) {
+    this.maxSessions = maxSessions;
+    this.sessions = new Map();
+  }
+
+  async acquireSession() {
+    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const profileDir = path.join(profilesBaseDir, sessionId);
+    if (!fs.existsSync(profileDir)) fs.mkdirSync(profileDir, { recursive: true });
+
+    const session = {
+      id: sessionId,
+      profileDir: profileDir,
+      manager: new SessionManager(sessionId),
+      inUse: true,
+      createdAt: Date.now()
+    };
+
+    this.sessions.set(sessionId, session);
+    console.log(`🔓 Session acquired: ${sessionId}`);
+    return session;
+  }
+
+  async releaseSession(sessionId) {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.inUse = false;
+      console.log(`🔒 Session released: ${sessionId}`);
+      setTimeout(() => { this.cleanupSession(sessionId); }, 5 * 60 * 1000);
+    }
+  }
+
+  cleanupSession(sessionId) {
+    const session = this.sessions.get(sessionId);
+    if (session && !session.inUse) {
+      try {
+        if (fs.existsSync(session.profileDir)) {
+          fs.rmSync(session.profileDir, { recursive: true, force: true });
+        }
+        this.sessions.delete(sessionId);
+        console.log(`🗑️ Session cleaned up: ${sessionId}`);
+      } catch (error) {
+        console.error(`⚠️ Error cleaning session ${sessionId}:`, error.message);
+      }
+    }
+  }
+}
+
+const sessionPool = new SessionPool();
+
+// ==========================================
+// USER SESSION MANAGER (Updated to include AI Data)
+// ==========================================
+class LeadSessionManager {
+  constructor() {
+    this.sessions = new Map();
+    this.SESSION_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+    this.startCleanupJob();
+  }
+
+  // Generate unique key from contact info
+  generateSessionKey(userData) {
+    const email = (userData.email || '').toLowerCase().trim();
+    const phone = (userData.phone || '').replace(/\D/g, ''); // Remove non-digits
+    const name = (userData.name || '').toLowerCase().trim();
+
+    // Use email+phone as primary key, fallback to name if missing
+    const keyString = `${email}|${phone}|${name}`;
+    return crypto.createHash('md5').update(keyString).digest('hex');
+  }
+
+  // Add or update session
+// ... inside LeadSessionManager class ...
+
+  addResult(userData, companyNameResults) {
+    const sessionKey = this.generateSessionKey(userData);
+    const now = Date.now();
+    const existing = this.sessions.get(sessionKey);
+
+    // Combine existing results with new ones
+    const previousResults = existing ? existing.results : [];
+    const allResults = [...previousResults, ...companyNameResults];
+
+    // Create session object
+    const session = {
+      sessionKey: sessionKey,
+      userData: userData,
+      results: allResults,
+      aiFinalSuggestions: existing ? existing.aiFinalSuggestions : [],
+      createdAt: existing ? existing.createdAt : now,
+      lastUpdated: now,
+      expiresAt: now + this.SESSION_TIMEOUT,
+      
+      // ✅ FIX: Preserve the pushed status and data from the existing session
+      pushed: existing ? existing.pushed : false,
+      bitrixResult: existing ? existing.bitrixResult : null,
+      pushedAt: existing ? existing.pushedAt : null
+    };
+
+    this.sessions.set(sessionKey, session);
+    console.log(`📝 Session ${sessionKey}: Total ${session.results.length} names. Pushed status: ${session.pushed}`);
+
+    return {
+      isNew: !existing,
+      totalNames: session.results.length,
+      sessionKey: sessionKey,
+      // Return pushed status so the controller knows immediately
+      alreadyPushed: session.pushed 
+    };
+  }
+
+  // Get session data
+  getSession(sessionKey) {
+    return this.sessions.get(sessionKey);
+  }
+
+  // Mark session as pushed to CRM
+  markAsPushed(sessionKey, bitrixResult) {
+    const session = this.sessions.get(sessionKey);
+    if (session) {
+      session.pushed = true;
+      session.bitrixResult = bitrixResult;
+      session.pushedAt = Date.now();
+      console.log(`✅ Session ${sessionKey} marked as pushed to Bitrix24`);
+    }
+  }
+
+  // Check if session should be pushed (3+ names OR expired)
+  shouldPushSession(sessionKey) {
+    const session = this.sessions.get(sessionKey);
+    if (!session || session.pushed) return false;
+
+    const hasThreeNames = session.results.length >= 3;
+    const isExpired = Date.now() >= session.expiresAt;
+
+    return hasThreeNames || isExpired;
+  }
+
+  // Cleanup expired sessions and push to Bitrix24
+  async cleanupExpiredSessions() {
+    const now = Date.now();
+
+    for (const [sessionKey, session] of this.sessions.entries()) {
+      // Push expired unpushed sessions
+      if (!session.pushed && now >= session.expiresAt) {
+        console.log(`⏰ Session ${sessionKey} expired, pushing to Bitrix24...`);
+        const bitrixResult = await pushLeadToBitrix24(this.prepareLead(session));
+        this.markAsPushed(sessionKey, bitrixResult);
+      }
+
+      // Delete old pushed sessions (after 10 minutes)
+      if (session.pushed && now - session.pushedAt > 10 * 60 * 1000) {
+        this.sessions.delete(sessionKey);
+        console.log(`🗑️ Removed old session ${sessionKey}`);
+      }
+    }
+  }
+
+  // Prepare lead data for Bitrix24
+  prepareLead(session) {
+    return {
+      ...session.userData,
+      companyNames: session.results,
+      // IMPORTANT: Pass the AI suggestions to the lead data
+      aiFinalSuggestions: session.aiFinalSuggestions || [],
+      submittedAt: new Date(session.createdAt).toISOString(),
+      lastUpdatedAt: new Date(session.lastUpdated).toISOString(),
+      source: 'company-name-checker',
+      totalNamesChecked: session.results.length
+    };
+  }
+
+  startCleanupJob() {
+    setInterval(async () => {
+      await this.cleanupExpiredSessions();
+    }, 30 * 1000);
+    console.log('🔄 Lead session cleanup job started');
+  }
+}
+
+const leadSessionManager = new LeadSessionManager();
+
+// ==========================================
+// 🛠️ BITRIX24 INTEGRATION (Updated with AI Comments)
+// ==========================================
+
+// ==========================================
+// 🧠 AI GENERATION LOGIC (Reads ALL 3 Names)
+// ==========================================
+
+
+
+// ==========================================
+// 🤖 BACKGROUND PROCESS
+// ==========================================
+
+async function performAiBackgroundJob(sessionKey, userData, allFailedNames) {
+  try {
+    console.log(`\n🤖 [BG] Starting AI Loop. Context: ${allFailedNames.join(", ")}`);
+
+    const validSuggestions = [];
+
+    // 'triedNamesHistory' prevents AI from suggesting names we already checked (and found taken)
+    const triedNamesHistory = [...allFailedNames];
+
+    let loopCount = 0;
+    const MAX_LOOPS = 5; // Allow up to 5 attempts (5 * 8 = 40 names checked)
+
+    // LOOP: Keep going until we have 3 names OR hit max attempts
+    while (validSuggestions.length < 3 && loopCount < MAX_LOOPS) {
+      loopCount++;
+      const needed = 3 - validSuggestions.length;
+      console.log(`\n[BG] 🔄 Loop ${loopCount}/${MAX_LOOPS}: Found ${validSuggestions.length}/3. Need ${needed} more.`);
+
+      // 1. Generate Batch
+      // We pass 'triedNamesHistory' so AI knows what NOT to give us
+      const candidates = await generateAiCandidates(allFailedNames, triedNamesHistory);
+
+      if (!candidates || candidates.length === 0) {
+        console.log(`[BG] ⚠️ AI returned no names. Waiting before retry...`);
+        await delay(2000);
+        continue;
+      }
+
+      // 2. Filter out duplicates (in case AI ignored instructions)
+      const newCandidates = candidates.filter(c => !triedNamesHistory.includes(c.name));
+      const candidateNamesList = newCandidates.map(c => c.name);
+
+      if (candidateNamesList.length === 0) {
+        console.log(`[BG] ⚠️ AI returned only duplicates. Retrying...`);
+        continue;
+      }
+
+      console.log(`[BG] 🔍 Checking batch of ${candidateNamesList.length}:`, candidateNamesList);
+
+      // 3. Check Availability
+      const checkResults = await checkMyDataMultiSession(candidateNamesList, userData);
+
+      // 4. Process Results
+      for (const res of checkResults) {
+        // Stop immediately if we hit our target of 3
+        if (validSuggestions.length >= 3) break;
+
+        // Add to history (Taken OR Available) so we don't check again
+        if (!triedNamesHistory.includes(res.name)) {
+          triedNamesHistory.push(res.name);
+        }
+
+        if (res.available === true) {
+          const originalInfo = candidates.find(c => c.name === res.name);
+          validSuggestions.push({
+            name: res.name,
+            available: true,
+            reason: originalInfo ? originalInfo.reason : "AI Suggestion"
+          });
+          console.log(`[BG] ✅ Found Available: ${res.name}`);
+        }
+      }
+
+      // Small delay to prevent rate limiting
+      if (validSuggestions.length < 3) await delay(2000);
+    }
+
+    console.log(`\n[BG] 🏁 Process finished. Total Available Found: ${validSuggestions.length}`);
+
+    // 5. Push to Bitrix
+    const leadSession = leadSessionManager.getSession(sessionKey);
+    if (leadSession) {
+      leadSession.aiFinalSuggestions = validSuggestions;
+
+      console.log(`[BG] 📤 Pushing results to Bitrix24...`);
+      const leadData = leadSessionManager.prepareLead(leadSession);
+
+      // Using your corrected push function
+      const bitrixResult = await pushLeadToBitrix24(leadData);
+      leadSessionManager.markAsPushed(sessionKey, bitrixResult);
+    }
+
+  } catch (error) {
+    console.error(`[BG] ❌ Critical Error in AI Job:`, error);
+  }
+}
+
+// ==========================================
+// 🛠️ BITRIX PUSH
+// ==========================================
+
+// ==========================================
+// 🔍 SCRAPING LOGIC
+// ==========================================
+
+async function isLoginRequired(page) {
+  const needsLogin = await page.evaluate(() => {
+    const bodyText = document.body.innerText;
+    return bodyText.includes('Sign In') && bodyText.includes('for the full results');
+  });
+  if (needsLogin) {
+    console.log(`🔴 Detected "Sign In" prompt - company name is NOT available`);
+    return true;
+  }
+  return false;
+}
+
+async function checkMyDataMultiSession(companyNames, userData) {
+  const session = await sessionPool.acquireSession();
+  let browser, page;
+
+  try {
+    console.log(`[${session.id}] 🚀 Starting browser...`);
+
+    browser = await puppeteer.launch({
+      headless: "new",
+      args: [
+        "--no-sandbox", 
+        "--disable-setuid-sandbox", 
+        "--disable-gpu",
+        "--disable-dev-shm-usage", // Vital for Cloud memory stability
+        "--window-size=1280,800"
+      ],
+    });
+
+    const pages = await browser.pages();
+    page = pages[0] || (await browser.newPage());
+    await page.setViewport({ width: 1280, height: 800 });
+
+    await page.goto("https://www.mydata-ssm.com.my/home", { waitUntil: "domcontentloaded", timeout: 60000 });
+    await delay(3000);
+
+    // Filter Logic
+    try {
+      const dropdownClicked = await page.evaluate(() => {
+        const button = document.getElementById('dropdownMenu1');
+        if (button) { button.click(); return true; }
+        return false;
+      });
+      if (dropdownClicked) {
+        await delay(1500);
+        await page.evaluate(() => {
+          const menuItems = Array.from(document.querySelectorAll('a.dropdown-item, li a, .dropdown-menu a, button'));
+          const companyOption = menuItems.find(el => el.textContent.trim() === 'Company');
+          if (companyOption) companyOption.click();
+        });
+        await delay(2000);
+      }
+    } catch (error) { }
+
+    const searchSelectors = ['input[placeholder*="search" i]', 'input[name*="search"]', 'input[type="text"]'];
+    let searchBox = null;
+    for (const sel of searchSelectors) {
+      try { await page.waitForSelector(sel, { visible: true, timeout: 5000 }); searchBox = sel; break; } catch { }
+    }
+
+    if (!searchBox) throw new Error("Search box not found");
+
+    const results = [];
+
+    for (let idx = 0; idx < companyNames.length; idx++) {
+      let companyName = companyNames[idx] ? companyNames[idx].toUpperCase() : "";
+      if (!companyName || !companyName.trim()) continue;
+
+      const upperName = companyName.toUpperCase().trim();
+      if (!upperName.endsWith('SDN BHD') && !upperName.endsWith('SDN. BHD.')) {
+        companyName = `${companyName} SDN BHD`;
+      }
+
+      console.log(`[${session.id}] 🔍 Searching: ${companyName}`);
+
+      await page.click(searchBox, { clickCount: 3 });
+      await page.keyboard.press('Backspace');
+      await delay(500);
+      await page.type(searchBox, companyName, { delay: 100 });
+      await page.keyboard.press("Enter");
+
+      await delay(3000);
+
+      if (await isLoginRequired(page)) {
+        results.push({
+          name: companyName,
+          available: false,
+          details: { exists: true, reason: "signin_required" }
+        });
+        continue;
+      }
+
+      // Wait for results
+      for (let i = 0; i < 20; i++) {
+        const hasResults = await page.evaluate(() =>
+          document.body.innerText.includes('entities found') ||
+          document.body.innerText.includes('entity found')
+        );
+        if (hasResults) break;
+        await delay(1000);
+      }
+
+      await delay(2000);
+
+      // Extract
+      const companyCount = await page.evaluate(() => {
+        if (document.body.innerText.includes('No record found')) return 0;
+        const rows = document.querySelectorAll('tbody tr');
+        return rows.length;
+      });
+
+      results.push({
+        name: companyName,
+        available: companyCount === 0, // 0 means available
+        details: { exists: companyCount > 0, totalMatches: companyCount }
+      });
+    }
+
+    await browser.close();
+    console.log(`[${session.id}] 🔒 Browser closed`);
+    return results;
+
+  } catch (error) {
+    if (browser) await browser.close();
+    throw error;
+  } finally {
+    await sessionPool.releaseSession(session.id);
+  }
+}
+
+// ===== API ROUTES =====
+
+// Updated endpoint with session-based lead accumulation
+app.post("/myData/check-names", async (req, res) => {
+  const { companyNames, userData } = req.body;
+
+  // ... logs ...
+  if (!companyNames || companyNames.length === 0) {
+    return res.status(400).json({ error: "At least one company name is required" });
+  }
+
+  try {
+    // 1. Instant Search
+    const currentResults = await checkMyDataMultiSession(companyNames, userData);
+
+    // 2. Add to Session & Get Accumulated History
+    const sessionInfo = leadSessionManager.addResult(userData, currentResults);
+    const sessionKey = sessionInfo.sessionKey;
+    
+    // ✅ Check current state immediately after update
+    const leadSession = leadSessionManager.getSession(sessionKey);
+    const allCheckedNames = leadSession.results;
+    const totalChecked = allCheckedNames.length;
+    const anyNameAvailable = allCheckedNames.some(r => r.available === true);
+
+    res.json({
+      success: true,
+      results: currentResults,
+      session: {
+        key: sessionKey,
+        totalChecked: totalChecked,
+        status: anyNameAvailable ? "completed" : "analyzing_alternatives"
+      }
+    });
+
+    // 3. Background Logic
+    setTimeout(async () => {
+      // ✅ FIX: Re-fetch session to ensure we have the latest state (in case of race conditions)
+      const currentSession = leadSessionManager.getSession(sessionKey);
+      
+      // ✅ FIX: Stop immediately if this user/session was already pushed to Bitrix
+      if (currentSession && currentSession.pushed) {
+        console.log(`🛑 [Flow] Session ${sessionKey} already pushed. Skipping duplicate.`);
+        return;
+      }
+
+      // CASE A: User found a name! 
+      if (anyNameAvailable) {
+        console.log(`\n✨ [Flow] Valid name found (Total checked: ${totalChecked}). Pushing to CRM.`);
+        
+        // Prepare lead data
+        const leadData = leadSessionManager.prepareLead(currentSession);
+        
+        // Push
+        const bitrixResult = await pushLeadToBitrix24(leadData);
+        
+        // Mark as pushed so subsequent requests don't trigger this again
+        leadSessionManager.markAsPushed(sessionKey, bitrixResult);
+      }
+      // CASE B: All names checked so far are TAKEN.
+      else {
+        const allFailedNames = allCheckedNames.map(r => r.name);
+        console.log(`\n🤖 [Flow] All ${totalChecked} names taken. Triggering AI...`);
+        
+        // Pass to AI job
+        await performAiBackgroundJob(sessionKey, userData, allFailedNames);
+      }
+    }, 100);
+
+  } catch (error) {
+    console.error("❌ API Error:", error.message);
+    if (!res.headersSent) res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 /**
  * API 1: INSTANT CHECK
