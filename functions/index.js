@@ -812,6 +812,10 @@ async function pushLeadToBitrix24(leadData) {
       UF_CRM_LEAD_1650374569570: companyName3,
       UTM_SOURCE: leadData.utm_source || null,
       UTM_CONTENT: leadData.utm_content || null,
+      UTM_SOURCE: leadData.utm_source || null,
+      UTM_MEDIUM:leadData.utm_medium || null,
+      UTM_CAMPAIGN:leadData.utm_campaign || null,
+      UTM_TERM:leadData.utm_term || null,
       UF_CRM_1764817428: aiSuggestedNamesBlock,
       COMMENTS: `Company Names Checked:\n${companyNamesText}`
     };
