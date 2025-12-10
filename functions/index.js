@@ -772,14 +772,20 @@ async function pushLeadToBitrix24(leadData) {
       .join('\n');
 
  let aiSuggestedNamesBlock = '';
-    if (Array.isArray(leadData.aiFinalSuggestions) && leadData.aiFinalSuggestions.length > 0) {
+   if (Array.isArray(leadData.aiFinalSuggestions) && leadData.aiFinalSuggestions.length > 0) {
         
-        // ✂️ STRICT LIMIT: Slice the first 3 only
-        const top3Ai = leadData.aiFinalSuggestions.slice(0, 3);
+        let namesToProcess = leadData.aiFinalSuggestions;
 
-        aiSuggestedNamesBlock = top3Ai
-            .map((s, i) => `${i + 1}. ${s.name}`) // Format: "1. NAME"
-            .join('\n\n'); // New line for vertical list
+        // LOGIC CHANGE: 
+        // If it's NOT fallback (Normal mode), we strictly slice to top 3.
+        // If it IS fallback (Puppeteer crashed), we keep the whole list (no slice).
+        if (!leadData.isFallback) {
+             namesToProcess = namesToProcess.slice(0, 3);
+        }
+
+        aiSuggestedNamesBlock = namesToProcess
+            .map((s, i) => `${i + 1}. ${s.name}`) 
+            .join('\n\n'); 
     }
 
 
