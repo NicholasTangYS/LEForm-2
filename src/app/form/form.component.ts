@@ -575,8 +575,8 @@ export class FormComponent implements OnInit {
 
       // Standard fields
       Comply_Substantive_Yes: [data.Comply_Substantive_Yes || ''],
-      Amount_of_Net_Loss: [data.Amount_of_Net_Loss || 0],
-      Net_Profits_ex_IP: [data.Net_Profits_ex_IP || 0, Validators.required]
+      Amount_of_Net_Loss: [data.Amount_of_Net_Loss, Validators.required],
+      Net_Profits_ex_IP: [data.Net_Profits_ex_IP, Validators.required]
     });
 
     // Attach Listeners
@@ -1205,7 +1205,7 @@ export class FormComponent implements OnInit {
   isFieldComplete(control: AbstractControl | null): boolean {
     if (!control) return false;
     if (control.disabled) return true;
-    return control.value !== null && control.value !== undefined && control.value !== '';
+    return !(control.value === null || control.value === undefined || control.value === '');
   }
 
   checkAllSectionsCompletion(): void {
@@ -1226,9 +1226,9 @@ export class FormComponent implements OnInit {
         && (this.isFieldComplete(g.get('Compliance_with_FPEC')) || g.get('Compliance_with_FPEC')?.disabled)
         && (this.isFieldComplete(g.get('Compliance_with_CML')) || g.get('Compliance_with_CML')?.disabled)
         && (this.isFieldComplete(g.get('No_of_Related_Company')) || g.get('No_of_Related_Company')?.disabled)
-        && (this.isFieldComplete(g.get('Amount_of_Net_Loss')) || g.get('Amount_of_Net_Loss')?.disabled)
+        && (this.isFieldComplete(g.get('Amount_of_Net_Loss')) || g.get('Amount_of_Net_Loss')?.value !== null && g.get('Amount_of_Net_Loss')?.value !== '' || g.get('Amount_of_Net_Loss')?.disabled)
         ;
-    }) && this.isFieldComplete(this.le1Form.get('B2_Total_Net_Profits'));
+    }) && (this.isFieldComplete(this.le1Form.get('B2_Total_Net_Profits')) || this.le1Form.get('B2_Total_Net_Profits')?.value !== null && this.le1Form.get('B2_Total_Net_Profits')?.value !== '');
 
     // Part C
     this.sectionStatus['part-c'] = ['C1_Registered_Address_line1', 'C1_Correspondence_Address_line1', 'C1_Postcode', 'C1_City', 'C2_Address_Is_Tax_Agent_or_Trust_Co', 'C6a_Has_Related_Company', 'C7a_Derived_Income_from_Non_Labuan_Activity', 'C8a_Derived_Income_from_IP', 'C10_Has_Subsidiary_Outside_Labuan', 'C11_Received_Payments_from_Malaysian_Resident'].every(f => this.isFieldComplete(this.le1Form.get(f)));
@@ -1274,7 +1274,7 @@ export class FormComponent implements OnInit {
     const c4fields = ['Name_of_Shareholder_Partner', 'Country', 'Address1', 'Postcode', 'Town', 'ID_type', 'ID_Passport_Reg_No', 'Date_of_Birth', 'Country_of_Origin', 'Direct_Shareholding_Percentage'];
     // this.sectionStatus['attachment-c4'] = this.c4Rows.controls.every(g => this.isFieldComplete(g.get('Name_of_Shareholder_Partner')));
     this.sectionStatus['attachment-c4'] = this.c4Rows.controls.every(g => c4fields.every(f => this.isFieldComplete(g.get(f))));
-    const c5fields = ['Name', 'Shareholding_Percentage', 'Country', 'Address1', 'Postcode', 'Town', 'ID_type', 'ID_Passport_No', 'Date_of_Birth'];
+    const c5fields = ['Name', 'Shareholding_Percentage', 'Country', 'Address1', 'Postcode', 'Town', 'ID_type', 'ID_Passport_No', 'Date_of_Birth', 'Telephone_No', 'TIN'];
     // this.sectionStatus['attachment-c5'] = this.c5Rows.controls.every(g => this.isFieldComplete(g.get('Name')));
     this.sectionStatus['attachment-c5'] = this.c5Rows.controls.every(g => c5fields.every(f => this.isFieldComplete(g.get(f))));
 
