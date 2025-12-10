@@ -622,18 +622,17 @@ async function checkMyData(companyNames) {
     
     // Launch options optimized for Cloud Functions
      browser = await puppeteer.launch({
-        headless: "new", // Use the new headless mode
+        headless: "new",
         args: [
          "--no-sandbox",
          "--disable-setuid-sandbox",
-         "--disable-dev-shm-usage", // CRITICAL: Uses /tmp instead of /dev/shm (prevents crashes)
+         "--disable-dev-shm-usage", 
          "--disable-accelerated-2d-canvas",
          "--no-first-run",
          "--no-zygote",
-         "--single-process", // CRITICAL: Reduces memory overhead significantly
+         "--single-process",
          "--disable-gpu"
         ],
-        // Increase timeout to 60s (gives Chrome more time to cold-start)
         timeout: 60000,
         protocolTimeout: 120000,
      });
@@ -644,7 +643,7 @@ async function checkMyData(companyNames) {
     await page.goto("https://www.mydata-ssm.com.my/home", { waitUntil: "domcontentloaded", timeout: 60000 });
     await delay(3000);
 
-    // --- YOUR ORIGINAL FILTER LOGIC ---
+    // --- DROPDOWN LOGIC ---
     try {
       const dropdownClicked = await page.evaluate(() => {
         const button = document.getElementById('dropdownMenu1');
@@ -672,7 +671,7 @@ async function checkMyData(companyNames) {
 
     const results = [];
 
-    // --- YOUR ORIGINAL LOOP LOGIC ---
+    // --- LOOP LOGIC ---
     for (let idx = 0; idx < companyNames.length; idx++) {
       let companyName = companyNames[idx] ? companyNames[idx].toUpperCase() : "";
       if (!companyName || !companyName.trim()) continue;
@@ -736,8 +735,8 @@ async function checkMyData(companyNames) {
 
   } catch (error) {
     console.error("Puppeteer Error:", error);
-    // Return empty array on crash so API doesn't hang
-    return []; 
+    // CRITICAL CHANGE: Throw the error so the main loop detects the crash
+    throw error; 
   } finally {
     if (browser) await browser.close();
   }
@@ -1479,30 +1478,48 @@ app.post("/api/process-lead", async (req, res) => {
     while (validSuggestions.length < 3 && loopCount < MAX_LOOPS) {
       loopCount++;
       
-      // Generate
+      // 1. Generate Candidates
       const candidates = await generateAiCandidates(originalIntents, history);
       
-      // Filter
+      // 2. Filter out names already in history
       const toCheck = candidates
           .filter(c => !history.includes(c.name))
           .map(c => c.name);
 
       if (toCheck.length > 0) {
-        // Validate
-        const results = await checkMyData(toCheck);
-        for (const r of results) {
-          if (!history.includes(r.name)) history.push(r.name);
-          
-          if (r.available) {
-            const info = candidates.find(c => c.name === r.name);
-            validSuggestions.push({ 
-              name: r.name, 
-              available: true, 
-              reason: info ? info.reason : "AI" 
-            });
+        try {
+          // 3. Attempt to Validate via Puppeteer
+          const results = await checkMyData(toCheck);
+
+          // Normal Success Path
+          for (const r of results) {
+            if (!history.includes(r.name)) history.push(r.name);
+            
+            if (r.available) {
+              const info = candidates.find(c => c.name === r.name);
+              validSuggestions.push({ 
+                name: r.name, 
+                available: true, 
+                reason: info ? info.reason : "AI" 
+              });
+            }
           }
+        } catch (puppeteerError) {
+          // --- FALLBACK LOGIC ---
+          console.error("⚠️ Puppeteer crashed. Fallback: Using raw AI candidates without checking.");
+          
+          // Take the candidates generated in this loop (approx 8) and treat them as final
+          validSuggestions = candidates.map(c => ({
+            name: c.name,
+            available: true, // We assume available because we can't check
+            reason: "AI Suggestion (Validation Skipped)" 
+          }));
+
+          // Break the loop immediately to save these to Bitrix
+          break; 
         }
       }
+      
       if (validSuggestions.length >= 3) break;
       await delay(2000);
     }
@@ -1518,8 +1535,6 @@ app.post("/api/process-lead", async (req, res) => {
     console.error("API 2 Background Error:", error);
   }
 });
-
-
 
 app.post('/api/deals/:pipelineId', async (req, res) => {
   // 1. Extract the pipelineId from the URL parameters
