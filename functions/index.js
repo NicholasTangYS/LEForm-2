@@ -708,9 +708,9 @@ async function checkMyData(companyNames) {
          "--disable-setuid-sandbox",
          "--disable-dev-shm-usage", 
          "--disable-accelerated-2d-canvas",
-        "--no-first-run",
-        "--no-zygote",
-        "--single-process",
+        // "--no-first-run",
+         //"--no-zygote",
+         //"--single-process",
          "--disable-gpu",
         "--window-size=1920,1080", // Force Desktop Size
          "--disable-blink-features=AutomationControlled" // Hide automation flag
@@ -1448,52 +1448,103 @@ async function updateBitrixLead(leadId, content) {
 
 // --- MAIN PROCESSOR ---
 app.get('/lead/validate', async (req, res) => {
-    req.setTimeout(300000); // 5 minutes timeout
+    // Critical for Cloud Functions: Set 5 minute timeout
+    req.setTimeout(300000); 
 
     const leadId = req.query.id;
     if (!leadId) return res.status(400).send("Missing Lead ID");
+
+    let browser = null;
 
     try {
         console.log(`\n[Job] Processing Lead ${leadId}...`);
 
         // 1. Get Candidates
         const candidates = await getBitrixLeadCandidates(leadId);
+        if (candidates.length === 0) return res.json({ message: "No candidates to check." });
+
+        console.log(`[Job] Found ${candidates.length} candidates. Launching Browser...`);
+
+        // 2. LAUNCH BROWSER ONCE (Stealth Mode)
+        browser = await puppeteer.launch({
+            headless: "new",
+            args: [
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-accelerated-2d-canvas",
+                "--disable-gpu",
+                "--window-size=1920,1080",
+                "--disable-blink-features=AutomationControlled",
+                "--no-first-run",
+               "--no-zygote",
+               "--single-process",
+            ]
+        });
+
+        const page = await browser.newPage();
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+        await page.setViewport({ width: 1280, height: 800 });
+
+        // 3. Navigate ONCE
+        await page.goto("https://www.mydata-ssm.com.my/home", { waitUntil: "domcontentloaded", timeout: 60000 });
+        await delay(3000);
+
+        // Ensure Search Box exists before starting loop
+        const searchBox = 'input[type="text"][placeholder*="search" i]';
+        await page.waitForSelector(searchBox, { visible: true, timeout: 10000 });
+
+        // 4. THE LOOP (Running inside API now)
+        const results = [];
         
-        if (candidates.length === 0) {
-            return res.json({ message: "No candidates to check." });
+        for (const name of candidates) {
+            // Call the isolated check function
+            const result = await checkSingleCompany(page, name);
+            
+            // Store result immediately
+            results.push(result);
+            
+            // Small delay to prevent rate limiting
+            await delay(1000);
         }
-        
-        console.log(`[Job] Found ${candidates.length} candidates: ${candidates.join(', ')}`);
 
-        // 2. Run Scraper
-        const scrapResults = await checkMyData(candidates);
+        console.log(`[Job] Finished checking all names.`);
 
-        // 3. Filter for Valid Names
-        const validNames = scrapResults
-            .filter(r => r.available === true)
-            .map(r => r.name);
+        // 5. FILTER & FORMAT
+        const validCandidates = results.filter(r => r.available === true);
+        const removedCandidates = results.filter(r => r.available === false);
 
-        // 4. Format Output: "1. Name 2. Name"
-        const resultString = validNames
+        // Format: "1. Name \n\n 2. Name"
+        const validNamesList = validCandidates.map(r => r.name);
+        const resultString = validNamesList
             .map((name, index) => `${index + 1}. ${name}`)
-            .join('\n\n');
-        
-        console.log(`[Job] Updating Bitrix with: "${resultString}"`);
-        
-        // 5. Update Bitrix
-        await updateBitrixLead(leadId, resultString);
+            .join('\n\n'); 
 
+        const updateValue = resultString.length > 0 ? resultString : "All candidates were unavailable.";
+
+        // 6. UPDATE BITRIX
+        console.log(`[Bitrix] Updating with:\n${updateValue}`);
+        await updateBitrixLead(leadId, updateValue);
+
+        // 7. RETURN RESPONSE
         res.json({
             status: "success",
-            original_candidates: candidates,
-            valid_candidates: validNames,
-            updated_string: resultString,
-            message: "Validation Complete"
+            summary: {
+                total: results.length,
+                valid: validCandidates.length,
+                removed: removedCandidates.length
+            },
+            valid_names: validNamesList,
+            bitrix_update: updateValue,
+            removed_details: removedCandidates // Useful for debugging
         });
 
     } catch (error) {
         console.error("[Job] Fatal Error:", error);
         res.status(500).json({ error: error.message });
+    } finally {
+        // Always close browser at the end
+        if (browser) await browser.close();
     }
 });
 
@@ -1605,105 +1656,64 @@ app.post("/api/check-names", async (req, res) => {
  * Frontend calls this immediately after API 1 returns.
  * Handles: Bitrix Push AND AI Loop (if needed).
  */
-app.get('/lead/validate', async (req, res) => {
-    // Critical for Cloud Functions: Set 5 minute timeout
-    req.setTimeout(300000); 
+app.post("/api/process-lead", async (req, res) => {
+  // The Frontend sends us the FULL history (userData + all checked results)
+  const { userData, checkedResults, originalIntents } = req.body;
 
-    const leadId = req.query.id;
-    if (!leadId) return res.status(400).send("Missing Lead ID");
+  if (!userData || !checkedResults) {
+    return res.status(400).json({ error: "Missing data" });
+  }
 
-    let browser = null;
+  console.log(`📥 API 2: Processing lead for ${userData.name}`);
+  
+  // Send success to frontend immediately so UI doesn't freeze
+  res.json({ success: true, message: "Processing started" });
 
-    try {
-        console.log(`\n[Job] Processing Lead ${leadId}...`);
+  try {
+    // 1. CHECK HISTORY: Did the user find any available name?
+    const anyAvailable = checkedResults.some(r => r.available);
 
-        // 1. Get Candidates
-        const candidates = await getBitrixLeadCandidates(leadId);
-        if (candidates.length === 0) return res.json({ message: "No candidates to check." });
-
-        console.log(`[Job] Found ${candidates.length} candidates. Launching Browser...`);
-
-        // 2. LAUNCH BROWSER ONCE (Stealth Mode)
-        browser = await puppeteer.launch({
-            headless: "new",
-            args: [
-                "--no-sandbox",
-                "--disable-setuid-sandbox",
-                "--disable-dev-shm-usage",
-                "--disable-accelerated-2d-canvas",
-                "--disable-gpu",
-                "--window-size=1920,1080",
-                "--disable-blink-features=AutomationControlled",
-                "--no-first-run",
-               "--no-zygote",
-               "--single-process",
-            ]
-        });
-
-        const page = await browser.newPage();
-        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
-        await page.setViewport({ width: 1280, height: 800 });
-
-        // 3. Navigate ONCE
-        await page.goto("https://www.mydata-ssm.com.my/home", { waitUntil: "domcontentloaded", timeout: 60000 });
-        await delay(3000);
-
-        // Ensure Search Box exists before starting loop
-        const searchBox = 'input[type="text"][placeholder*="search" i]';
-        await page.waitForSelector(searchBox, { visible: true, timeout: 10000 });
-
-        // 4. THE LOOP (Running inside API now)
-        const results = [];
-        
-        for (const name of candidates) {
-            // Call the isolated check function
-            const result = await checkSingleCompany(page, name);
-            
-            // Store result immediately
-            results.push(result);
-            
-            // Small delay to prevent rate limiting
-            await delay(1000);
-        }
-
-        console.log(`[Job] Finished checking all names.`);
-
-        // 5. FILTER & FORMAT
-        const validCandidates = results.filter(r => r.available === true);
-        const removedCandidates = results.filter(r => r.available === false);
-
-        // Format: "1. Name \n\n 2. Name"
-        const validNamesList = validCandidates.map(r => r.name);
-        const resultString = validNamesList
-            .map((name, index) => `${index + 1}. ${name}`)
-            .join('\n\n'); 
-
-        const updateValue = resultString.length > 0 ? resultString : "All candidates were unavailable.";
-
-        // 6. UPDATE BITRIX
-        console.log(`[Bitrix] Updating with:\n${updateValue}`);
-        await updateBitrixLead(leadId, updateValue);
-
-        // 7. RETURN RESPONSE
-        res.json({
-            status: "success",
-            summary: {
-                total: results.length,
-                valid: validCandidates.length,
-                removed: removedCandidates.length
-            },
-            valid_names: validNamesList,
-            bitrix_update: updateValue,
-            removed_details: removedCandidates // Useful for debugging
-        });
-
-    } catch (error) {
-        console.error("[Job] Fatal Error:", error);
-        res.status(500).json({ error: error.message });
-    } finally {
-        // Always close browser at the end
-        if (browser) await browser.close();
+    // CASE A: User found a name. Push to CRM directly.
+    if (anyAvailable) {
+      console.log("✅ Valid name found by user. Pushing to Bitrix.");
+      await pushLeadToBitrix24({ 
+        ...userData, 
+        companyNames: checkedResults, 
+        aiFinalSuggestions: [] 
+      });
+      return;
     }
+
+    // CASE B: All names taken. Generate AI Candidates (No Validation).
+    console.log("❌ All names taken. Generating AI Candidates...");
+    
+    // Use history to try and avoid duplicates, though less critical now
+    let history = checkedResults.map(r => r.name);
+
+    // 2. Generate Candidates (Calls OpenAI once)
+    // This typically returns ~8 names
+    const candidates = await generateAiCandidates(originalIntents, history);
+    
+    console.log(`🤖 AI Generated ${candidates.length} candidates. Pushing raw list to Bitrix.`);
+
+    // 3. Format for Bitrix
+    // We pass the raw candidates. The pushLeadToBitrix24 function will join them with commas.
+    const rawSuggestions = candidates.map(c => ({
+        name: c.name,
+        reason: "AI Generated (Unchecked)" 
+    }));
+
+    // 4. Push Final Results
+    await pushLeadToBitrix24({
+      ...userData,
+      companyNames: checkedResults, // The failed names from frontend
+      aiFinalSuggestions: rawSuggestions, // The 8 raw AI names
+      isFallback: true // Flag to ensure pushLeadToBitrix doesn't slice them
+    });
+
+  } catch (error) {
+    console.error("API 2 Background Error:", error);
+  }
 });
 
 app.post('/api/deals/:pipelineId', async (req, res) => {
