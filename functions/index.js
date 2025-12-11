@@ -7,6 +7,7 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 require('dotenv').config();
+const axios = require('axios');
 const { setGlobalOptions } = require("firebase-functions/v2");
 const { onRequest } = require("firebase-functions/https");
 const firebase = require("firebase-admin");
@@ -628,9 +629,9 @@ async function checkMyData(companyNames) {
          "--disable-setuid-sandbox",
          "--disable-dev-shm-usage", 
          "--disable-accelerated-2d-canvas",
-         "--no-first-run",
-         "--no-zygote",
-         "--single-process",
+         //"--no-first-run",
+         //"--no-zygote",
+         //"--single-process",
          "--disable-gpu"
         ],
         timeout: 60000,
@@ -772,23 +773,13 @@ async function pushLeadToBitrix24(leadData) {
       .join('\n');
 
  let aiSuggestedNamesBlock = '';
-   if (Array.isArray(leadData.aiFinalSuggestions) && leadData.aiFinalSuggestions.length > 0) {
-        
-        let namesToProcess = leadData.aiFinalSuggestions;
+ 
+    if (Array.isArray(leadData.aiFinalSuggestions) && leadData.aiFinalSuggestions.length > 0) {
+        aiSuggestedNamesBlock = leadData.aiFinalSuggestions
+            .map(s => s.name)
+            .join(', '); 
 
-        // LOGIC CHANGE: 
-        // If it's NOT fallback (Normal mode), we strictly slice to top 3.
-        // If it IS fallback (Puppeteer crashed), we keep the whole list (no slice).
-        if (!leadData.isFallback) {
-             namesToProcess = namesToProcess.slice(0, 3);
-        }
-
-        aiSuggestedNamesBlock = namesToProcess
-            .map((s, i) => `${i + 1}. ${s.name}`) 
-            .join('\n\n'); 
     }
-
-
     let firstName = '', lastName = '';
     if (leadData.name) {
       const nameParts = leadData.name.trim().split(' ');
@@ -1098,16 +1089,6 @@ const leadSessionManager = new LeadSessionManager();
 // 🛠️ BITRIX24 INTEGRATION (Updated with AI Comments)
 // ==========================================
 
-// ==========================================
-// 🧠 AI GENERATION LOGIC (Reads ALL 3 Names)
-// ==========================================
-
-
-
-// ==========================================
-// 🤖 BACKGROUND PROCESS
-// ==========================================
-
 async function performAiBackgroundJob(sessionKey, userData, allFailedNames) {
   try {
     console.log(`\n🤖 [BG] Starting AI Loop. Context: ${allFailedNames.join(", ")}`);
@@ -1197,10 +1178,6 @@ async function performAiBackgroundJob(sessionKey, userData, allFailedNames) {
 
 // ==========================================
 // 🛠️ BITRIX PUSH
-// ==========================================
-
-// ==========================================
-// 🔍 SCRAPING LOGIC
 // ==========================================
 
 async function isLoginRequired(page) {
@@ -1334,7 +1311,111 @@ async function checkMyDataMultiSession(companyNames, userData) {
   }
 }
 
-// ===== API ROUTES =====
+
+// --- STEP 1: FETCH DATA (Smart Parser) ---
+async function getBitrixLeadCandidates(leadId) {
+    const BITRIX24_WEBHOOK = process.env.BITRIX24_WEBHOOK;
+    try {
+        const url = `${BITRIX24_WEBHOOK}/crm.lead.get?id=${leadId}`;
+        const response = await axios.get(url);
+
+        if (response.data.error || !response.data.result) {
+            throw new Error("Lead not found");
+        }
+        const rawText = response.data.result["UF_CRM_1764817428"];
+        if (!rawText) return [];
+
+        console.log(`[Bitrix] Raw data: "${rawText}"`);
+
+        let candidates = [];
+
+        // Check format: Comma separated OR Numbered list
+        if (rawText.includes(',') && !rawText.includes('1.')) {
+            // Case: "NAME A, NAME B"
+            candidates = rawText.split(',');
+        } else {
+            // Case: "1. NAME A 2. NAME B"
+            candidates = rawText.split(/\d+\.\s+/);
+        }
+
+        return candidates
+            .map(n => n.replace(/^\d+\.\s*/, '').trim()) // Clean formatting
+            .filter(n => n.length > 0);
+
+    } catch (error) {
+        console.error(`[Bitrix] Fetch Error: ${error.message}`);
+        throw error;
+    }
+}
+
+// --- STEP 2: UPDATE BITRIX ---
+async function updateBitrixLead(leadId, content) {
+    const BITRIX24_WEBHOOK = process.env.BITRIX24_WEBHOOK;
+    try {
+        const finalContent = content && content.length > 0 ? content : "No valid candidates found (All Taken).";
+        
+        await axios.post(`${BITRIX24_WEBHOOK}/crm.lead.update`, {
+            id: leadId,
+            fields: { ["UF_CRM_1764817428"]: finalContent }
+        });
+        console.log(`[Bitrix] Updated Lead ${leadId} successfully.`);
+    } catch (error) {
+        console.error(`[Bitrix] Update Error: ${error.message}`);
+    }
+}
+
+
+// --- MAIN PROCESSOR ---
+app.get('/lead/validate', async (req, res) => {
+    req.setTimeout(300000); // 5 minutes timeout
+
+    const leadId = req.query.id;
+    if (!leadId) return res.status(400).send("Missing Lead ID");
+
+    try {
+        console.log(`\n[Job] Processing Lead ${leadId}...`);
+
+        // 1. Get Candidates
+        const candidates = await getBitrixLeadCandidates(leadId);
+        
+        if (candidates.length === 0) {
+            return res.json({ message: "No candidates to check." });
+        }
+        
+        console.log(`[Job] Found ${candidates.length} candidates: ${candidates.join(', ')}`);
+
+        // 2. Run Scraper
+        const scrapResults = await checkMyData(candidates);
+
+        // 3. Filter for Valid Names
+        const validNames = scrapResults
+            .filter(r => r.available === true)
+            .map(r => r.name);
+
+        // 4. Format Output: "1. Name 2. Name"
+        const resultString = validNames
+            .map((name, index) => `${index + 1}. ${name}`)
+            .join('\n\n');
+        
+        console.log(`[Job] Updating Bitrix with: "${resultString}"`);
+        
+        // 5. Update Bitrix
+        await updateBitrixLead(leadId, resultString);
+
+        res.json({
+            status: "success",
+            original_candidates: candidates,
+            valid_candidates: validNames,
+            updated_string: resultString,
+            message: "Validation Complete"
+        });
+
+    } catch (error) {
+        console.error("[Job] Fatal Error:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 
 // Updated endpoint with session-based lead accumulation
 app.post("/myData/check-names", async (req, res) => {
@@ -1452,9 +1533,8 @@ app.post("/api/process-lead", async (req, res) => {
   }
 
   console.log(`📥 API 2: Processing lead for ${userData.name}`);
-  console.log(`📊 Received ${checkedResults.length} checked names.`);
-
-  // Send success to frontend immediately
+  
+  // Send success to frontend immediately so UI doesn't freeze
   res.json({ success: true, message: "Processing started" });
 
   try {
@@ -1463,7 +1543,7 @@ app.post("/api/process-lead", async (req, res) => {
 
     // CASE A: User found a name. Push to CRM directly.
     if (anyAvailable) {
-      console.log("✅ Valid name found. Pushing to Bitrix.");
+      console.log("✅ Valid name found by user. Pushing to Bitrix.");
       await pushLeadToBitrix24({ 
         ...userData, 
         companyNames: checkedResults, 
@@ -1472,69 +1552,31 @@ app.post("/api/process-lead", async (req, res) => {
       return;
     }
 
-    // CASE B: All names taken. Start AI.
-    console.log("❌ All names taken. Starting AI Logic...");
+    // CASE B: All names taken. Generate AI Candidates (No Validation).
+    console.log("❌ All names taken. Generating AI Candidates...");
     
-    // We use the 'checkedResults' passed from Frontend as our history
+    // Use history to try and avoid duplicates, though less critical now
     let history = checkedResults.map(r => r.name);
-    let validSuggestions = [];
-    let loopCount = 0;
-    const MAX_LOOPS = 4;
 
-    while (validSuggestions.length < 3 && loopCount < MAX_LOOPS) {
-      loopCount++;
-      
-      // 1. Generate Candidates
-      const candidates = await generateAiCandidates(originalIntents, history);
-      
-      // 2. Filter out names already in history
-      const toCheck = candidates
-          .filter(c => !history.includes(c.name))
-          .map(c => c.name);
+    // 2. Generate Candidates (Calls OpenAI once)
+    // This typically returns ~8 names
+    const candidates = await generateAiCandidates(originalIntents, history);
+    
+    console.log(`🤖 AI Generated ${candidates.length} candidates. Pushing raw list to Bitrix.`);
 
-      if (toCheck.length > 0) {
-        try {
-          // 3. Attempt to Validate via Puppeteer
-          const results = await checkMyData(toCheck);
+    // 3. Format for Bitrix
+    // We pass the raw candidates. The pushLeadToBitrix24 function will join them with commas.
+    const rawSuggestions = candidates.map(c => ({
+        name: c.name,
+        reason: "AI Generated (Unchecked)" 
+    }));
 
-          // Normal Success Path
-          for (const r of results) {
-            if (!history.includes(r.name)) history.push(r.name);
-            
-            if (r.available) {
-              const info = candidates.find(c => c.name === r.name);
-              validSuggestions.push({ 
-                name: r.name, 
-                available: true, 
-                reason: info ? info.reason : "AI" 
-              });
-            }
-          }
-        } catch (puppeteerError) {
-          // --- FALLBACK LOGIC ---
-          console.error("⚠️ Puppeteer crashed. Fallback: Using raw AI candidates without checking.");
-          
-          // Take the candidates generated in this loop (approx 8) and treat them as final
-          validSuggestions = candidates.map(c => ({
-            name: c.name,
-            available: true, // We assume available because we can't check
-            reason: "AI Suggestion (Validation Skipped)" 
-          }));
-
-          // Break the loop immediately to save these to Bitrix
-          break; 
-        }
-      }
-      
-      if (validSuggestions.length >= 3) break;
-      await delay(2000);
-    }
-
-    // Push Final Results
+    // 4. Push Final Results
     await pushLeadToBitrix24({
       ...userData,
       companyNames: checkedResults, // The failed names from frontend
-      aiFinalSuggestions: validSuggestions
+      aiFinalSuggestions: rawSuggestions, // The 8 raw AI names
+      isFallback: true // Flag to ensure pushLeadToBitrix doesn't slice them
     });
 
   } catch (error) {
