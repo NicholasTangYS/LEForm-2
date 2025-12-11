@@ -7,6 +7,7 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 require('dotenv').config();
+const axios = require('axios');
 const { setGlobalOptions } = require("firebase-functions/v2");
 const { onRequest } = require("firebase-functions/https");
 const firebase = require("firebase-admin");
@@ -610,7 +611,86 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// --- HELPER: CHECK ONE COMPANY ---
+async function checkSingleCompany(page, companyName) {
+    try {
+        let searchName = companyName.toUpperCase().trim();
+        // Ensure standard formatting
+        if (!searchName.endsWith('SDN BHD') && !searchName.endsWith('SDN. BHD.')) {
+            searchName = `${searchName} SDN BHD`;
+        }
 
+        console.log(`   👉 Checking: ${searchName}`);
+
+        const searchBox = 'input[type="text"][placeholder*="search" i]';
+        
+        // 1. ROBUST CLEAR (Fixes the issue where old text remains)
+        await page.click(searchBox, { clickCount: 3 });
+        await page.keyboard.press('Backspace');
+        await page.evaluate((sel) => document.querySelector(sel).value = '', searchBox);
+        await delay(200);
+
+        // 2. TYPE & ENTER
+        await page.type(searchBox, searchName, { delay: 50 });
+        await page.keyboard.press('Enter');
+
+        // 3. WAIT FOR RESULT
+        try {
+            await page.waitForFunction(
+                () => {
+                    const txt = document.body.innerText;
+                    return txt.includes('entities found') || 
+                           txt.includes('entity found') || 
+                           txt.includes('No record found');
+                },
+                { timeout: 8000 } // 8s timeout per company
+            );
+        } catch (e) {
+            console.log("      ⚠️ Timeout (Page slow/blocked)");
+        }
+        await delay(1000);
+
+        // 4. STRICT VALIDATION LOGIC
+        const result = await page.evaluate(() => {
+            const bodyText = document.body.innerText;
+            
+            // Login Wall / Blocked
+            if (bodyText.includes('Sign In') && bodyText.includes('for the full results')) {
+                return { available: false, reason: "Login Wall" };
+            }
+
+            // Explicit Success (The only time we say TRUE)
+            if (bodyText.includes('No record found')) {
+                return { available: true, reason: "No Record Found" };
+            }
+
+            // Check Rows
+            const rows = document.querySelectorAll('tbody tr');
+            if (rows.length > 0) {
+                 if (rows.length === 1 && rows[0].innerText.includes('No matching')) {
+                     return { available: true, reason: "No Matching Rows" };
+                 }
+                 return { available: false, reason: "Taken (Rows Exist)" };
+            }
+
+            // Fallback: Empty table but no "No Record" text -> Assume Failed/Blocked
+            return { available: false, reason: "Page Load Error" };
+        });
+
+        console.log(`      -> Result: ${result.available ? "✅ AVAILABLE" : "❌ TAKEN"} (${result.reason})`);
+
+        return {
+            name: searchName,
+            available: result.available,
+            reason: result.reason
+        };
+
+    } catch (error) {
+        console.error(`      Error checking ${companyName}:`, error.message);
+        // If script fails, mark as taken to be safe
+        return { name: companyName, available: false, reason: "Script Error" };
+    }
+} 
 // ---------------------------------------------------------
 // MODIFIED: Removed SessionPool (Stateless for Cloud)
 // But KEPT your exact scraping steps/logic
@@ -628,10 +708,12 @@ async function checkMyData(companyNames) {
          "--disable-setuid-sandbox",
          "--disable-dev-shm-usage", 
          "--disable-accelerated-2d-canvas",
-         "--no-first-run",
-         "--no-zygote",
-         "--single-process",
-         "--disable-gpu"
+        "--no-first-run",
+        "--no-zygote",
+        "--single-process",
+         "--disable-gpu",
+        "--window-size=1920,1080", // Force Desktop Size
+         "--disable-blink-features=AutomationControlled" // Hide automation flag
         ],
         timeout: 60000,
         protocolTimeout: 120000,
@@ -772,23 +854,13 @@ async function pushLeadToBitrix24(leadData) {
       .join('\n');
 
  let aiSuggestedNamesBlock = '';
-   if (Array.isArray(leadData.aiFinalSuggestions) && leadData.aiFinalSuggestions.length > 0) {
-        
-        let namesToProcess = leadData.aiFinalSuggestions;
+ 
+    if (Array.isArray(leadData.aiFinalSuggestions) && leadData.aiFinalSuggestions.length > 0) {
+        aiSuggestedNamesBlock = leadData.aiFinalSuggestions
+            .map(s => s.name)
+            .join(', '); 
 
-        // LOGIC CHANGE: 
-        // If it's NOT fallback (Normal mode), we strictly slice to top 3.
-        // If it IS fallback (Puppeteer crashed), we keep the whole list (no slice).
-        if (!leadData.isFallback) {
-             namesToProcess = namesToProcess.slice(0, 3);
-        }
-
-        aiSuggestedNamesBlock = namesToProcess
-            .map((s, i) => `${i + 1}. ${s.name}`) 
-            .join('\n\n'); 
     }
-
-
     let firstName = '', lastName = '';
     if (leadData.name) {
       const nameParts = leadData.name.trim().split(' ');
@@ -1098,16 +1170,6 @@ const leadSessionManager = new LeadSessionManager();
 // 🛠️ BITRIX24 INTEGRATION (Updated with AI Comments)
 // ==========================================
 
-// ==========================================
-// 🧠 AI GENERATION LOGIC (Reads ALL 3 Names)
-// ==========================================
-
-
-
-// ==========================================
-// 🤖 BACKGROUND PROCESS
-// ==========================================
-
 async function performAiBackgroundJob(sessionKey, userData, allFailedNames) {
   try {
     console.log(`\n🤖 [BG] Starting AI Loop. Context: ${allFailedNames.join(", ")}`);
@@ -1197,10 +1259,6 @@ async function performAiBackgroundJob(sessionKey, userData, allFailedNames) {
 
 // ==========================================
 // 🛠️ BITRIX PUSH
-// ==========================================
-
-// ==========================================
-// 🔍 SCRAPING LOGIC
 // ==========================================
 
 async function isLoginRequired(page) {
@@ -1334,7 +1392,111 @@ async function checkMyDataMultiSession(companyNames, userData) {
   }
 }
 
-// ===== API ROUTES =====
+
+// --- STEP 1: FETCH DATA (Smart Parser) ---
+async function getBitrixLeadCandidates(leadId) {
+    const BITRIX24_WEBHOOK = process.env.BITRIX24_WEBHOOK;
+    try {
+        const url = `${BITRIX24_WEBHOOK}/crm.lead.get?id=${leadId}`;
+        const response = await axios.get(url);
+
+        if (response.data.error || !response.data.result) {
+            throw new Error("Lead not found");
+        }
+        const rawText = response.data.result["UF_CRM_1764817428"];
+        if (!rawText) return [];
+
+        console.log(`[Bitrix] Raw data: "${rawText}"`);
+
+        let candidates = [];
+
+        // Check format: Comma separated OR Numbered list
+        if (rawText.includes(',') && !rawText.includes('1.')) {
+            // Case: "NAME A, NAME B"
+            candidates = rawText.split(',');
+        } else {
+            // Case: "1. NAME A 2. NAME B"
+            candidates = rawText.split(/\d+\.\s+/);
+        }
+
+        return candidates
+            .map(n => n.replace(/^\d+\.\s*/, '').trim()) // Clean formatting
+            .filter(n => n.length > 0);
+
+    } catch (error) {
+        console.error(`[Bitrix] Fetch Error: ${error.message}`);
+        throw error;
+    }
+}
+
+// --- STEP 2: UPDATE BITRIX ---
+async function updateBitrixLead(leadId, content) {
+    const BITRIX24_WEBHOOK = process.env.BITRIX24_WEBHOOK;
+    try {
+        const finalContent = content && content.length > 0 ? content : "No valid candidates found (All Taken).";
+        
+        await axios.post(`${BITRIX24_WEBHOOK}/crm.lead.update`, {
+            id: leadId,
+            fields: { ["UF_CRM_1764817428"]: finalContent }
+        });
+        console.log(`[Bitrix] Updated Lead ${leadId} successfully.`);
+    } catch (error) {
+        console.error(`[Bitrix] Update Error: ${error.message}`);
+    }
+}
+
+
+// --- MAIN PROCESSOR ---
+app.get('/lead/validate', async (req, res) => {
+    req.setTimeout(300000); // 5 minutes timeout
+
+    const leadId = req.query.id;
+    if (!leadId) return res.status(400).send("Missing Lead ID");
+
+    try {
+        console.log(`\n[Job] Processing Lead ${leadId}...`);
+
+        // 1. Get Candidates
+        const candidates = await getBitrixLeadCandidates(leadId);
+        
+        if (candidates.length === 0) {
+            return res.json({ message: "No candidates to check." });
+        }
+        
+        console.log(`[Job] Found ${candidates.length} candidates: ${candidates.join(', ')}`);
+
+        // 2. Run Scraper
+        const scrapResults = await checkMyData(candidates);
+
+        // 3. Filter for Valid Names
+        const validNames = scrapResults
+            .filter(r => r.available === true)
+            .map(r => r.name);
+
+        // 4. Format Output: "1. Name 2. Name"
+        const resultString = validNames
+            .map((name, index) => `${index + 1}. ${name}`)
+            .join('\n\n');
+        
+        console.log(`[Job] Updating Bitrix with: "${resultString}"`);
+        
+        // 5. Update Bitrix
+        await updateBitrixLead(leadId, resultString);
+
+        res.json({
+            status: "success",
+            original_candidates: candidates,
+            valid_candidates: validNames,
+            updated_string: resultString,
+            message: "Validation Complete"
+        });
+
+    } catch (error) {
+        console.error("[Job] Fatal Error:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 
 // Updated endpoint with session-based lead accumulation
 app.post("/myData/check-names", async (req, res) => {
@@ -1443,103 +1605,105 @@ app.post("/api/check-names", async (req, res) => {
  * Frontend calls this immediately after API 1 returns.
  * Handles: Bitrix Push AND AI Loop (if needed).
  */
-app.post("/api/process-lead", async (req, res) => {
-  // The Frontend sends us the FULL history (userData + all checked results)
-  const { userData, checkedResults, originalIntents } = req.body;
+app.get('/lead/validate', async (req, res) => {
+    // Critical for Cloud Functions: Set 5 minute timeout
+    req.setTimeout(300000); 
 
-  if (!userData || !checkedResults) {
-    return res.status(400).json({ error: "Missing data" });
-  }
+    const leadId = req.query.id;
+    if (!leadId) return res.status(400).send("Missing Lead ID");
 
-  console.log(`📥 API 2: Processing lead for ${userData.name}`);
-  console.log(`📊 Received ${checkedResults.length} checked names.`);
+    let browser = null;
 
-  // Send success to frontend immediately
-  res.json({ success: true, message: "Processing started" });
+    try {
+        console.log(`\n[Job] Processing Lead ${leadId}...`);
 
-  try {
-    // 1. CHECK HISTORY: Did the user find any available name?
-    const anyAvailable = checkedResults.some(r => r.available);
+        // 1. Get Candidates
+        const candidates = await getBitrixLeadCandidates(leadId);
+        if (candidates.length === 0) return res.json({ message: "No candidates to check." });
 
-    // CASE A: User found a name. Push to CRM directly.
-    if (anyAvailable) {
-      console.log("✅ Valid name found. Pushing to Bitrix.");
-      await pushLeadToBitrix24({ 
-        ...userData, 
-        companyNames: checkedResults, 
-        aiFinalSuggestions: [] 
-      });
-      return;
-    }
+        console.log(`[Job] Found ${candidates.length} candidates. Launching Browser...`);
 
-    // CASE B: All names taken. Start AI.
-    console.log("❌ All names taken. Starting AI Logic...");
-    
-    // We use the 'checkedResults' passed from Frontend as our history
-    let history = checkedResults.map(r => r.name);
-    let validSuggestions = [];
-    let loopCount = 0;
-    const MAX_LOOPS = 4;
+        // 2. LAUNCH BROWSER ONCE (Stealth Mode)
+        browser = await puppeteer.launch({
+            headless: "new",
+            args: [
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-accelerated-2d-canvas",
+                "--disable-gpu",
+                "--window-size=1920,1080",
+                "--disable-blink-features=AutomationControlled",
+                "--no-first-run",
+               "--no-zygote",
+               "--single-process",
+            ]
+        });
 
-    while (validSuggestions.length < 3 && loopCount < MAX_LOOPS) {
-      loopCount++;
-      
-      // 1. Generate Candidates
-      const candidates = await generateAiCandidates(originalIntents, history);
-      
-      // 2. Filter out names already in history
-      const toCheck = candidates
-          .filter(c => !history.includes(c.name))
-          .map(c => c.name);
+        const page = await browser.newPage();
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+        await page.setViewport({ width: 1280, height: 800 });
 
-      if (toCheck.length > 0) {
-        try {
-          // 3. Attempt to Validate via Puppeteer
-          const results = await checkMyData(toCheck);
+        // 3. Navigate ONCE
+        await page.goto("https://www.mydata-ssm.com.my/home", { waitUntil: "domcontentloaded", timeout: 60000 });
+        await delay(3000);
 
-          // Normal Success Path
-          for (const r of results) {
-            if (!history.includes(r.name)) history.push(r.name);
+        // Ensure Search Box exists before starting loop
+        const searchBox = 'input[type="text"][placeholder*="search" i]';
+        await page.waitForSelector(searchBox, { visible: true, timeout: 10000 });
+
+        // 4. THE LOOP (Running inside API now)
+        const results = [];
+        
+        for (const name of candidates) {
+            // Call the isolated check function
+            const result = await checkSingleCompany(page, name);
             
-            if (r.available) {
-              const info = candidates.find(c => c.name === r.name);
-              validSuggestions.push({ 
-                name: r.name, 
-                available: true, 
-                reason: info ? info.reason : "AI" 
-              });
-            }
-          }
-        } catch (puppeteerError) {
-          // --- FALLBACK LOGIC ---
-          console.error("⚠️ Puppeteer crashed. Fallback: Using raw AI candidates without checking.");
-          
-          // Take the candidates generated in this loop (approx 8) and treat them as final
-          validSuggestions = candidates.map(c => ({
-            name: c.name,
-            available: true, // We assume available because we can't check
-            reason: "AI Suggestion (Validation Skipped)" 
-          }));
-
-          // Break the loop immediately to save these to Bitrix
-          break; 
+            // Store result immediately
+            results.push(result);
+            
+            // Small delay to prevent rate limiting
+            await delay(1000);
         }
-      }
-      
-      if (validSuggestions.length >= 3) break;
-      await delay(2000);
+
+        console.log(`[Job] Finished checking all names.`);
+
+        // 5. FILTER & FORMAT
+        const validCandidates = results.filter(r => r.available === true);
+        const removedCandidates = results.filter(r => r.available === false);
+
+        // Format: "1. Name \n\n 2. Name"
+        const validNamesList = validCandidates.map(r => r.name);
+        const resultString = validNamesList
+            .map((name, index) => `${index + 1}. ${name}`)
+            .join('\n\n'); 
+
+        const updateValue = resultString.length > 0 ? resultString : "All candidates were unavailable.";
+
+        // 6. UPDATE BITRIX
+        console.log(`[Bitrix] Updating with:\n${updateValue}`);
+        await updateBitrixLead(leadId, updateValue);
+
+        // 7. RETURN RESPONSE
+        res.json({
+            status: "success",
+            summary: {
+                total: results.length,
+                valid: validCandidates.length,
+                removed: removedCandidates.length
+            },
+            valid_names: validNamesList,
+            bitrix_update: updateValue,
+            removed_details: removedCandidates // Useful for debugging
+        });
+
+    } catch (error) {
+        console.error("[Job] Fatal Error:", error);
+        res.status(500).json({ error: error.message });
+    } finally {
+        // Always close browser at the end
+        if (browser) await browser.close();
     }
-
-    // Push Final Results
-    await pushLeadToBitrix24({
-      ...userData,
-      companyNames: checkedResults, // The failed names from frontend
-      aiFinalSuggestions: validSuggestions
-    });
-
-  } catch (error) {
-    console.error("API 2 Background Error:", error);
-  }
 });
 
 app.post('/api/deals/:pipelineId', async (req, res) => {
