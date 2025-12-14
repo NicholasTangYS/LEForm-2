@@ -1768,7 +1768,7 @@ setGlobalOptions({ maxInstances: 10, timeoutSeconds: 540, memory: '2GiB', cpu: 1
 //   logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 // });
-exports.altomateLE = onRequest({ invoker: 'public' }, app);
+exports.altomateLE = onRequest(app);
 
 // const PORT = process.env.PORT || 8080;
 
