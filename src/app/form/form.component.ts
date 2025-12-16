@@ -715,11 +715,13 @@ export class FormComponent implements OnInit {
   }
 
   createC11Row(data: any = {}): FormGroup {
+    const isRequired = this.le1Form?.get('C11_Received_Payments_from_Malaysian_Resident')?.value === '1';
+
     return this.fb.group({
       Name_of_taxpayer: [data.Name_of_taxpayer || ''],
       TIN: [data.TIN || ''],
-      Type_of_payment_received: [data.Type_of_payment_received || '', Validators.required],
-      Payment_Related_to: [data.Payment_Related_to || '', Validators.required],
+      Type_of_payment_received: [data.Type_of_payment_received || '', isRequired ? Validators.required : []],
+      Payment_Related_to: [data.Payment_Related_to || '', isRequired ? Validators.required : []],
       Amount: [data.Amount || '']
     });
   }
@@ -904,6 +906,21 @@ export class FormComponent implements OnInit {
 
     this.le1Form.get('C11_Received_Payments_from_Malaysian_Resident')?.valueChanges.subscribe(value => {
       value === '1' ? this.c11Rows.enable() : this.c11Rows.disable();
+
+      this.c11Rows.controls.forEach(row => {
+        const typeControl = row.get('Type_of_payment_received');
+        const relatedControl = row.get('Payment_Related_to');
+
+        if (value === '1') {
+          typeControl?.setValidators(Validators.required);
+          relatedControl?.setValidators(Validators.required);
+        } else {
+          typeControl?.clearValidators();
+          relatedControl?.clearValidators();
+        }
+        typeControl?.updateValueAndValidity({ emitEvent: false });
+        relatedControl?.updateValueAndValidity({ emitEvent: false });
+      });
     });
 
     this.le1Form.get('Business_Activity_Code')?.valueChanges.subscribe(code => {
@@ -1315,6 +1332,27 @@ export class FormComponent implements OnInit {
     return names[key] || key;
   }
 
+  getAvailableBusinessActivities(rowIndex: number): typeof this.businessActivities {
+    const rows = this.b1Rows.value;
+    const firstRowCode = rows[0]?.Business_Activity_Code;
+    const selectedCodes = rows
+      .map((row: any, i: number) => i !== rowIndex ? row.Business_Activity_Code : null)
+      .filter((code: string | null) => code);
+
+    // If first row is '00021', subsequent rows can ONLY be '00022'
+    if (rowIndex > 0 && firstRowCode === '00021') {
+      return this.businessActivities.filter(a => a.code === '00022' && !selectedCodes.includes(a.code));
+    }
+    // If first row is '00022', subsequent rows can ONLY be '00021'
+    if (rowIndex > 0 && firstRowCode === '00022') {
+      return this.businessActivities.filter(a => a.code === '00021' && !selectedCodes.includes(a.code));
+    }
+    // Otherwise, allow all except what's already selected
+    return this.businessActivities.filter(a => !selectedCodes.includes(a.code));
+  }
+
+
+
   updateC9() {
     // [Keep existing calculation logic]
     const controls = this.le1Form.controls;
@@ -1623,36 +1661,38 @@ export class FormComponent implements OnInit {
 
     // 4. check for validity
     if (this.le1Form.invalid) {
-      // --- NEW: Recursive Debugging Logic ---
-      // const getInvalidControls = (control: AbstractControl, path: string = ''): string[] => {
-      //   let invalidList: string[] = [];
+      function getFormValidationErrors(form: FormGroup | FormArray): { controlName: string, error: string }[] {
+        const errors: { controlName: string, error: string }[] = [];
 
-      //   if (control instanceof FormGroup) {
-      //     Object.keys(control.controls).forEach(key => {
-      //       const newPath = path ? `${path}.${key}` : key;
-      //       invalidList = invalidList.concat(getInvalidControls(control.get(key)!, newPath));
-      //     });
-      //   } else if (control instanceof FormArray) {
-      //     control.controls.forEach((ctrl, index) => {
-      //       invalidList = invalidList.concat(getInvalidControls(ctrl, `${path}[${index}]`));
-      //     });
-      //   } else if (control.invalid) {
-      //     // We found a specific invalid input
-      //     const errorTypes = control.errors ? Object.keys(control.errors).join(', ') : 'Unknown';
-      //     const msg = `Field: [${path}] is INVALID. Reason: ${errorTypes}`;
+        // Cast to the correct type for iteration
+        const controls = (form as FormGroup).controls || (form as FormArray).controls;
 
-      //     // Log to console for developer
-      //     console.error(msg, control.errors);
-      //     invalidList.push(msg);
-      //   }
-      //   return invalidList;
-      // };
+        Object.keys(controls).forEach(key => {
+          const control = controls[key];
 
-      // console.group('Validation Errors Debugger');
-      // const specificErrors = getInvalidControls(this.le1Form);
-      // console.log('Total Invalid Fields:', specificErrors.length);
-      // console.groupEnd();
-      // ---------------------------------------
+          if (control instanceof FormGroup || control instanceof FormArray) {
+            // Recursively check nested form groups/arrays
+            errors.push(...getFormValidationErrors(control));
+          } else if (control.invalid) {
+            // Only controls have errors property directly
+            const controlErrors = control.errors;
+            if (controlErrors) {
+              Object.keys(controlErrors).forEach(errorKey => {
+                errors.push({
+                  controlName: key,
+                  error: errorKey
+                });
+              });
+            }
+          }
+        });
+
+        return errors;
+      }
+
+      // How to use it:
+      const invalidControls = getFormValidationErrors(this.le1Form);
+      console.log(invalidControls);
 
       const incompleteSections: string[] = [];
       for (const [key, isComplete] of Object.entries(this.sectionStatus)) {

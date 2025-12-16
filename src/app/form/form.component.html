@@ -197,7 +197,7 @@
                         <input type="email" id="Email" formControlName="Email">
                     </div>
                     <label for="Telephone_no">Telephone No:</label>
-                    <input type="number" min="0" id="Telephone_no" formControlName="Telephone_no">
+                    <input type="text" id="Telephone_no" formControlName="Telephone_no">
                     <label for="Company_Registration_No">Registration No:</label>
                     <input type="text" id="Company_Registration_No" formControlName="Company_Registration_No">
                     <!-- Replace lines around Change_of_Accounting_Period_No -->
@@ -505,9 +505,9 @@
                                             <select [id]="'b1_code_'+i" class="form-select"
                                                 formControlName="Business_Activity_Code">
                                                 <option value="" disabled>-- Select --</option>
-                                                <option *ngFor="let activity of businessActivities"
+                                                <option *ngFor="let activity of getAvailableBusinessActivities(i)"
                                                     [value]="activity.code">
-                                                    {{ activity.code }} {{activity.mark}}
+                                                    {{ activity.code }} {{activity.description}} - {{activity.mark}}
                                                 </option>
                                             </select>
                                         </div>
