@@ -14,9 +14,10 @@ const firebase = require("firebase-admin");
 const express = require('express');
 const os = require("os");
 const app = express();
-const puppeteer = require('puppeteer');
+//const puppeteer = require('puppeteer');
 const fs = require("fs");
 const path = require("path");
+const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 const jwt = require('jsonwebtoken');
 const mysql = require('mysql2');
@@ -29,6 +30,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const bcrypt = require('bcrypt');
 const saltRounds = 10; // The cost factor for hashing
 // puppeteer.use(StealthPlugin());
+puppeteer.use(StealthPlugin());
 const db = mysql.createConnection({
   host: 'db-mysql-sgp1-44557-do-user-17663198-0.k.db.ondigitalocean.com',  // DigitalOcean's public hostname
   user: 'doadmin',               // MySQL user
@@ -613,84 +615,84 @@ function delay(ms) {
 
 // --- HELPER: CHECK ONE COMPANY ---
 async function checkSingleCompany(page, companyName) {
-    try {
-        let searchName = companyName.toUpperCase().trim();
-        // Ensure standard formatting
-        if (!searchName.endsWith('SDN BHD') && !searchName.endsWith('SDN. BHD.')) {
-            searchName = `${searchName} SDN BHD`;
-        }
-
-        console.log(`   👉 Checking: ${searchName}`);
-
-        const searchBox = 'input[type="text"][placeholder*="search" i]';
-        
-        // 1. ROBUST CLEAR (Fixes the issue where old text remains)
-        await page.click(searchBox, { clickCount: 3 });
-        await page.keyboard.press('Backspace');
-        await page.evaluate((sel) => document.querySelector(sel).value = '', searchBox);
-        await delay(200);
-
-        // 2. TYPE & ENTER
-        await page.type(searchBox, searchName, { delay: 50 });
-        await page.keyboard.press('Enter');
-
-        // 3. WAIT FOR RESULT
-        try {
-            await page.waitForFunction(
-                () => {
-                    const txt = document.body.innerText;
-                    return txt.includes('entities found') || 
-                           txt.includes('entity found') || 
-                           txt.includes('No record found');
-                },
-                { timeout: 8000 } // 8s timeout per company
-            );
-        } catch (e) {
-            console.log("      ⚠️ Timeout (Page slow/blocked)");
-        }
-        await delay(1000);
-
-        // 4. STRICT VALIDATION LOGIC
-        const result = await page.evaluate(() => {
-            const bodyText = document.body.innerText;
-            
-            // Login Wall / Blocked
-            if (bodyText.includes('Sign In') && bodyText.includes('for the full results')) {
-                return { available: false, reason: "Login Wall" };
-            }
-
-            // Explicit Success (The only time we say TRUE)
-            if (bodyText.includes('No record found')) {
-                return { available: true, reason: "No Record Found" };
-            }
-
-            // Check Rows
-            const rows = document.querySelectorAll('tbody tr');
-            if (rows.length > 0) {
-                 if (rows.length === 1 && rows[0].innerText.includes('No matching')) {
-                     return { available: true, reason: "No Matching Rows" };
-                 }
-                 return { available: false, reason: "Taken (Rows Exist)" };
-            }
-
-            // Fallback: Empty table but no "No Record" text -> Assume Failed/Blocked
-            return { available: false, reason: "Page Load Error" };
-        });
-
-        console.log(`      -> Result: ${result.available ? "✅ AVAILABLE" : "❌ TAKEN"} (${result.reason})`);
-
-        return {
-            name: searchName,
-            available: result.available,
-            reason: result.reason
-        };
-
-    } catch (error) {
-        console.error(`      Error checking ${companyName}:`, error.message);
-        // If script fails, mark as taken to be safe
-        return { name: companyName, available: false, reason: "Script Error" };
+  try {
+    let searchName = companyName.toUpperCase().trim();
+    // Ensure standard formatting
+    if (!searchName.endsWith('SDN BHD') && !searchName.endsWith('SDN. BHD.')) {
+      searchName = `${searchName} SDN BHD`;
     }
-} 
+
+    console.log(`   👉 Checking: ${searchName}`);
+
+    const searchBox = 'input[type="text"][placeholder*="search" i]';
+
+    // 1. ROBUST CLEAR (Fixes the issue where old text remains)
+    await page.click(searchBox, { clickCount: 3 });
+    await page.keyboard.press('Backspace');
+    await page.evaluate((sel) => document.querySelector(sel).value = '', searchBox);
+    await delay(200);
+
+    // 2. TYPE & ENTER
+    await page.type(searchBox, searchName, { delay: 50 });
+    await page.keyboard.press('Enter');
+
+    // 3. WAIT FOR RESULT
+    try {
+      await page.waitForFunction(
+        () => {
+          const txt = document.body.innerText;
+          return txt.includes('entities found') ||
+            txt.includes('entity found') ||
+            txt.includes('No record found');
+        },
+        { timeout: 20000 } // 20s timeout per company (Increased for Cloud)
+      );
+    } catch (e) {
+      console.log("      ⚠️ Timeout (Page slow/blocked)");
+    }
+    await delay(1000);
+
+    // 4. STRICT VALIDATION LOGIC
+    const result = await page.evaluate(() => {
+      const bodyText = document.body.innerText;
+
+      // Login Wall / Blocked
+      if (bodyText.includes('Sign In') && bodyText.includes('for the full results')) {
+        return { available: false, reason: "Login Wall" };
+      }
+
+      // Explicit Success (The only time we say TRUE)
+      if (bodyText.includes('No record found') || bodyText.includes('No entity found')) {
+        return { available: true, reason: "No Record Found" };
+      }
+
+      // Check Rows
+      const rows = document.querySelectorAll('tbody tr');
+      if (rows.length > 0) {
+        if (rows.length === 1 && rows[0].innerText.includes('No matching')) {
+          return { available: true, reason: "No Matching Rows" };
+        }
+        return { available: false, reason: "Taken (Rows Exist)" };
+      }
+
+      // Fallback: Empty table but no "No Record" text -> Assume Failed/Blocked
+      return { available: false, reason: "Page Load Error" };
+    });
+
+    console.log(`      -> Result: ${result.available ? "✅ AVAILABLE" : "❌ TAKEN"} (${result.reason})`);
+
+    return {
+      name: searchName,
+      available: result.available,
+      reason: result.reason
+    };
+
+  } catch (error) {
+    console.error(`      Error checking ${companyName}:`, error.message);
+    // If script fails, mark as taken to be safe
+    return { name: companyName, available: false, reason: "Script Error" };
+  }
+}
 // ---------------------------------------------------------
 // MODIFIED: Removed SessionPool (Stateless for Cloud)
 // But KEPT your exact scraping steps/logic
@@ -699,25 +701,25 @@ async function checkMyData(companyNames) {
   let browser;
   try {
     console.log(`[Scraper] Starting check for: ${companyNames.join(", ")}`);
-    
+
     // Launch options optimized for Cloud Functions
-     browser = await puppeteer.launch({
-        headless: "new",
-        args: [
-         "--no-sandbox",
-         "--disable-setuid-sandbox",
-         "--disable-dev-shm-usage", 
-         "--disable-accelerated-2d-canvas",
-         "--no-first-run",
-         "--no-zygote",
-         "--single-process",
-         "--disable-gpu",
+    browser = await puppeteer.launch({
+      headless: "new",
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-accelerated-2d-canvas",
+        "--no-first-run",
+        "--no-zygote",
+        "--single-process",
+        "--disable-gpu",
         "--window-size=1920,1080", // Force Desktop Size
-         "--disable-blink-features=AutomationControlled" // Hide automation flag
-        ],
-        timeout: 60000,
-        protocolTimeout: 120000,
-     });
+        "--disable-blink-features=AutomationControlled" // Hide automation flag
+      ],
+      timeout: 60000,
+      protocolTimeout: 120000,
+    });
 
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 800 });
@@ -741,14 +743,14 @@ async function checkMyData(companyNames) {
         });
         await delay(2000);
       }
-    } catch (error) {}
+    } catch (error) { }
 
     const searchSelectors = ['input[placeholder*="search" i]', 'input[name*="search"]', 'input[type="text"]'];
     let searchBox = null;
     for (const sel of searchSelectors) {
-      try { await page.waitForSelector(sel, { visible: true, timeout: 5000 }); searchBox = sel; break; } catch {}
+      try { await page.waitForSelector(sel, { visible: true, timeout: 5000 }); searchBox = sel; break; } catch { }
     }
-    
+
     if (!searchBox) throw new Error("Search box not found");
 
     const results = [];
@@ -764,7 +766,7 @@ async function checkMyData(companyNames) {
       }
 
       console.log(`🔍 Searching: ${companyName}`);
-      
+
       await page.click(searchBox, { clickCount: 3 });
       await page.keyboard.press('Backspace');
       await delay(500);
@@ -772,7 +774,7 @@ async function checkMyData(companyNames) {
       await page.keyboard.press("Enter");
 
       await delay(3000);
-      
+
       // Check Login
       const needsLogin = await page.evaluate(() => {
         const bodyText = document.body.innerText;
@@ -787,11 +789,11 @@ async function checkMyData(companyNames) {
         });
         continue;
       }
-      
+
       // Wait for results
       for (let i = 0; i < 20; i++) {
-        const hasResults = await page.evaluate(() => 
-          document.body.innerText.includes('entities found') || 
+        const hasResults = await page.evaluate(() =>
+          document.body.innerText.includes('entities found') ||
           document.body.innerText.includes('entity found')
         );
         if (hasResults) break;
@@ -801,14 +803,14 @@ async function checkMyData(companyNames) {
 
       // Extract
       const companyCount = await page.evaluate(() => {
-        if (document.body.innerText.includes('No record found')) return 0;
+        if (document.body.innerText.includes('No record found') || document.body.innerText.includes('No entity found')) return 0;
         const rows = document.querySelectorAll('tbody tr');
         return rows.length;
       });
-      
+
       results.push({
         name: companyName,
-        available: companyCount === 0, 
+        available: companyCount === 0,
         details: { exists: companyCount > 0, totalMatches: companyCount }
       });
     }
@@ -818,7 +820,7 @@ async function checkMyData(companyNames) {
   } catch (error) {
     console.error("Puppeteer Error:", error);
     // CRITICAL CHANGE: Throw the error so the main loop detects the crash
-    throw error; 
+    throw error;
   } finally {
     if (browser) await browser.close();
   }
@@ -829,7 +831,7 @@ async function checkMyData(companyNames) {
 // ---------------------------------------------------------
 async function pushLeadToBitrix24(leadData) {
   const BITRIX24_WEBHOOK = process.env.BITRIX24_WEBHOOK;
-  
+
   if (!BITRIX24_WEBHOOK) {
     console.warn("⚠️ BITRIX24_WEBHOOK not configured");
     return { success: false };
@@ -838,27 +840,27 @@ async function pushLeadToBitrix24(leadData) {
   try {
     let formattedPhone = '';
     if (leadData.phone) {
-        let clean = leadData.phone.toString().replace(/\D/g, '');
-        if (clean.length > 0) {
-            if (clean.startsWith('60')) formattedPhone = '+' + clean;
-            else if (clean.startsWith('0')) formattedPhone = '+60' + clean.substring(1);
-            else formattedPhone = '+60' + clean;
-        }
+      let clean = leadData.phone.toString().replace(/\D/g, '');
+      if (clean.length > 0) {
+        if (clean.startsWith('60')) formattedPhone = '+' + clean;
+        else if (clean.startsWith('0')) formattedPhone = '+60' + clean.substring(1);
+        else formattedPhone = '+60' + clean;
+      }
     }
 
     const companyNamesText = (leadData.companyNames || [])
       .map(c => {
-         const matchCount = c.details?.totalMatches || 0;
-         return `${c.name}: ${c.available ? '✅ Available' : '❌ Taken'} (${matchCount} matches)`;
+        const matchCount = c.details?.totalMatches || 0;
+        return `${c.name}: ${c.available ? '✅ Available' : '❌ Taken'} (${matchCount} matches)`;
       })
       .join('\n');
 
- let aiSuggestedNamesBlock = '';
- 
+    let aiSuggestedNamesBlock = '';
+
     if (Array.isArray(leadData.aiFinalSuggestions) && leadData.aiFinalSuggestions.length > 0) {
-        aiSuggestedNamesBlock = leadData.aiFinalSuggestions
-            .map(s => s.name)
-            .join(', '); 
+      aiSuggestedNamesBlock = leadData.aiFinalSuggestions
+        .map(s => s.name)
+        .join(', ');
 
     }
     let firstName = '', lastName = '';
@@ -889,15 +891,15 @@ async function pushLeadToBitrix24(leadData) {
       UF_CRM_LEAD_1650374569570: companyName3,
       UTM_SOURCE: leadData.utm_source || null,
       UTM_CONTENT: leadData.utm_content || null,
-      UTM_MEDIUM:leadData.utm_medium || null,
-      UTM_CAMPAIGN:leadData.utm_campaign || null,
-      UTM_TERM:leadData.utm_term || null,
+      UTM_MEDIUM: leadData.utm_medium || null,
+      UTM_CAMPAIGN: leadData.utm_campaign || null,
+      UTM_TERM: leadData.utm_term || null,
       UF_CRM_1764817428: aiSuggestedNamesBlock,
       COMMENTS: `Company Names Checked:\n${companyNamesText}`
     };
 
     console.log(`📤 Sending lead to Bitrix24...`);
-    
+
     await fetch(`${BITRIX24_WEBHOOK}/crm.lead.add`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -931,9 +933,9 @@ async function generateAiCandidates(userIntents, excludeNames = []) {
     });
 
     const userContext = userIntents.join(", ");
-    
-    const excludeContext = excludeNames.length > 0 
-      ? `CRITICAL INSTRUCTION: Do NOT generate these names again (they are taken): ${excludeNames.join(", ")}` 
+
+    const excludeContext = excludeNames.length > 0
+      ? `CRITICAL INSTRUCTION: Do NOT generate these names again (they are taken): ${excludeNames.join(", ")}`
       : "";
 
     const prompt = `
@@ -948,11 +950,11 @@ async function generateAiCandidates(userIntents, excludeNames = []) {
     `;
 
     console.log(`[AI] Generating batch... Excluded count: ${excludeNames.length}`);
-    
+
     const result = await model.generateContent(prompt);
     const text = result.response.text();
     const suggestions = JSON.parse(text);
-    
+
     return suggestions.map(s => ({
       name: s.name.toUpperCase().replace(/\s+SDN\.?\s*BHD\.?$/i, "").trim() + " SDN BHD",
       reason: s.reason
@@ -1056,7 +1058,7 @@ class LeadSessionManager {
   }
 
   // Add or update session
-// ... inside LeadSessionManager class ...
+  // ... inside LeadSessionManager class ...
 
   addResult(userData, companyNameResults) {
     const sessionKey = this.generateSessionKey(userData);
@@ -1076,7 +1078,7 @@ class LeadSessionManager {
       createdAt: existing ? existing.createdAt : now,
       lastUpdated: now,
       expiresAt: now + this.SESSION_TIMEOUT,
-      
+
       // ✅ FIX: Preserve the pushed status and data from the existing session
       pushed: existing ? existing.pushed : false,
       bitrixResult: existing ? existing.bitrixResult : null,
@@ -1091,7 +1093,7 @@ class LeadSessionManager {
       totalNames: session.results.length,
       sessionKey: sessionKey,
       // Return pushed status so the controller knows immediately
-      alreadyPushed: session.pushed 
+      alreadyPushed: session.pushed
     };
   }
 
@@ -1283,8 +1285,8 @@ async function checkMyDataMultiSession(companyNames, userData) {
     browser = await puppeteer.launch({
       headless: "new",
       args: [
-        "--no-sandbox", 
-        "--disable-setuid-sandbox", 
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
         "--disable-gpu",
         "--disable-dev-shm-usage", // Vital for Cloud memory stability
         "--window-size=1280,800"
@@ -1368,7 +1370,7 @@ async function checkMyDataMultiSession(companyNames, userData) {
 
       // Extract
       const companyCount = await page.evaluate(() => {
-        if (document.body.innerText.includes('No record found')) return 0;
+        if (document.body.innerText.includes('No record found') || document.body.innerText.includes('No entity found')) return 0;
         const rows = document.querySelectorAll('tbody tr');
         return rows.length;
       });
@@ -1395,157 +1397,157 @@ async function checkMyDataMultiSession(companyNames, userData) {
 
 // --- STEP 1: FETCH DATA (Smart Parser) ---
 async function getBitrixLeadCandidates(leadId) {
-    const BITRIX24_WEBHOOK = process.env.BITRIX24_WEBHOOK;
-    try {
-        const url = `${BITRIX24_WEBHOOK}/crm.lead.get?id=${leadId}`;
-        const response = await axios.get(url);
+  const BITRIX24_WEBHOOK = process.env.BITRIX24_WEBHOOK;
+  try {
+    const url = `${BITRIX24_WEBHOOK}/crm.lead.get?id=${leadId}`;
+    const response = await axios.get(url);
 
-        if (response.data.error || !response.data.result) {
-            throw new Error("Lead not found");
-        }
-        const rawText = response.data.result["UF_CRM_1764817428"];
-        if (!rawText) return [];
-
-        console.log(`[Bitrix] Raw data: "${rawText}"`);
-
-        let candidates = [];
-
-        // Check format: Comma separated OR Numbered list
-        if (rawText.includes(',') && !rawText.includes('1.')) {
-            // Case: "NAME A, NAME B"
-            candidates = rawText.split(',');
-        } else {
-            // Case: "1. NAME A 2. NAME B"
-            candidates = rawText.split(/\d+\.\s+/);
-        }
-
-        return candidates
-            .map(n => n.replace(/^\d+\.\s*/, '').trim()) // Clean formatting
-            .filter(n => n.length > 0);
-
-    } catch (error) {
-        console.error(`[Bitrix] Fetch Error: ${error.message}`);
-        throw error;
+    if (response.data.error || !response.data.result) {
+      throw new Error("Lead not found");
     }
+    const rawText = response.data.result["UF_CRM_1764817428"];
+    if (!rawText) return [];
+
+    console.log(`[Bitrix] Raw data: "${rawText}"`);
+
+    let candidates = [];
+
+    // Check format: Comma separated OR Numbered list
+    if (rawText.includes(',') && !rawText.includes('1.')) {
+      // Case: "NAME A, NAME B"
+      candidates = rawText.split(',');
+    } else {
+      // Case: "1. NAME A 2. NAME B"
+      candidates = rawText.split(/\d+\.\s+/);
+    }
+
+    return candidates
+      .map(n => n.replace(/^\d+\.\s*/, '').trim()) // Clean formatting
+      .filter(n => n.length > 0);
+
+  } catch (error) {
+    console.error(`[Bitrix] Fetch Error: ${error.message}`);
+    throw error;
+  }
 }
 
 // --- STEP 2: UPDATE BITRIX ---
 async function updateBitrixLead(leadId, content) {
-    const BITRIX24_WEBHOOK = process.env.BITRIX24_WEBHOOK;
-    try {
-        const finalContent = content && content.length > 0 ? content : "No valid candidates found (All Taken).";
-        
-        await axios.post(`${BITRIX24_WEBHOOK}/crm.lead.update`, {
-            id: leadId,
-            fields: { ["UF_CRM_1764817428"]: finalContent }
-        });
-        console.log(`[Bitrix] Updated Lead ${leadId} successfully.`);
-    } catch (error) {
-        console.error(`[Bitrix] Update Error: ${error.message}`);
-    }
+  const BITRIX24_WEBHOOK = process.env.BITRIX24_WEBHOOK;
+  try {
+    const finalContent = content && content.length > 0 ? content : "No valid candidates found (All Taken).";
+
+    await axios.post(`${BITRIX24_WEBHOOK}/crm.lead.update`, {
+      id: leadId,
+      fields: { ["UF_CRM_1764817428"]: finalContent }
+    });
+    console.log(`[Bitrix] Updated Lead ${leadId} successfully.`);
+  } catch (error) {
+    console.error(`[Bitrix] Update Error: ${error.message}`);
+  }
 }
 
 
 // --- MAIN PROCESSOR ---
 app.get('/lead/validate', async (req, res) => {
-    // Critical for Cloud Functions: Set 5 minute timeout
-    req.setTimeout(300000); 
+  // Critical for Cloud Functions: Set 5 minute timeout
+  req.setTimeout(300000);
 
-    const leadId = req.query.id;
-    if (!leadId) return res.status(400).send("Missing Lead ID");
+  const leadId = req.query.id;
+  if (!leadId) return res.status(400).send("Missing Lead ID");
 
-    let browser = null;
+  let browser = null;
 
-    try {
-        console.log(`\n[Job] Processing Lead ${leadId}...`);
+  try {
+    console.log(`\n[Job] Processing Lead ${leadId}...`);
 
-        // 1. Get Candidates
-        const candidates = await getBitrixLeadCandidates(leadId);
-        if (candidates.length === 0) return res.json({ message: "No candidates to check." });
+    // 1. Get Candidates
+    const candidates = await getBitrixLeadCandidates(leadId);
+    if (candidates.length === 0) return res.json({ message: "No candidates to check." });
 
-        console.log(`[Job] Found ${candidates.length} candidates. Launching Browser...`);
+    console.log(`[Job] Found ${candidates.length} candidates. Launching Browser...`);
 
-        // 2. LAUNCH BROWSER ONCE (Stealth Mode)
-        browser = await puppeteer.launch({
-            headless: "new",
-            args: [
-                "--no-sandbox",
-                "--disable-setuid-sandbox",
-                "--disable-dev-shm-usage",
-                "--disable-accelerated-2d-canvas",
-                "--disable-gpu",
-                "--window-size=1920,1080",
-                "--disable-blink-features=AutomationControlled",
-                "--no-first-run",
-               "--no-zygote",
-               "--single-process",
-            ]
-        });
+    // 2. LAUNCH BROWSER ONCE (Stealth Mode)
+    browser = await puppeteer.launch({
+      headless: "new",
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-accelerated-2d-canvas",
+        "--disable-gpu",
+        "--window-size=1920,1080",
+        "--disable-blink-features=AutomationControlled",
+        "--no-first-run",
+        "--no-zygote",
+        "--single-process",
+      ]
+    });
 
-        const page = await browser.newPage();
-        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
-        await page.setViewport({ width: 1280, height: 800 });
+    const page = await browser.newPage();
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+    await page.setViewport({ width: 1280, height: 800 });
 
-        // 3. Navigate ONCE
-        await page.goto("https://www.mydata-ssm.com.my/home", { waitUntil: "domcontentloaded", timeout: 60000 });
-        await delay(3000);
+    // 3. Navigate ONCE
+    await page.goto("https://www.mydata-ssm.com.my/home", { waitUntil: "domcontentloaded", timeout: 60000 });
+    await delay(3000);
 
-        // Ensure Search Box exists before starting loop
-        const searchBox = 'input[type="text"][placeholder*="search" i]';
-        await page.waitForSelector(searchBox, { visible: true, timeout: 10000 });
+    // Ensure Search Box exists before starting loop
+    const searchBox = 'input[type="text"][placeholder*="search" i]';
+    await page.waitForSelector(searchBox, { visible: true, timeout: 10000 });
 
-        // 4. THE LOOP (Running inside API now)
-        const results = [];
-        
-        for (const name of candidates) {
-            // Call the isolated check function
-            const result = await checkSingleCompany(page, name);
-            
-            // Store result immediately
-            results.push(result);
-            
-            // Small delay to prevent rate limiting
-            await delay(1000);
-        }
+    // 4. THE LOOP (Running inside API now)
+    const results = [];
 
-        console.log(`[Job] Finished checking all names.`);
+    for (const name of candidates) {
+      // Call the isolated check function
+      const result = await checkSingleCompany(page, name);
 
-        // 5. FILTER & FORMAT
-        const validCandidates = results.filter(r => r.available === true);
-        const removedCandidates = results.filter(r => r.available === false);
+      // Store result immediately
+      results.push(result);
 
-        // Format: "1. Name \n\n 2. Name"
-        const validNamesList = validCandidates.map(r => r.name);
-        const resultString = validNamesList
-            .map((name, index) => `${index + 1}. ${name}`)
-            .join('\n\n'); 
-
-        const updateValue = resultString.length > 0 ? resultString : "All candidates were unavailable.";
-
-        // 6. UPDATE BITRIX
-        console.log(`[Bitrix] Updating with:\n${updateValue}`);
-        await updateBitrixLead(leadId, updateValue);
-
-        // 7. RETURN RESPONSE
-        res.json({
-            status: "success",
-            summary: {
-                total: results.length,
-                valid: validCandidates.length,
-                removed: removedCandidates.length
-            },
-            valid_names: validNamesList,
-            bitrix_update: updateValue,
-            removed_details: removedCandidates // Useful for debugging
-        });
-
-    } catch (error) {
-        console.error("[Job] Fatal Error:", error);
-        res.status(500).json({ error: error.message });
-    } finally {
-        // Always close browser at the end
-        if (browser) await browser.close();
+      // Small delay to prevent rate limiting
+      await delay(1000);
     }
+
+    console.log(`[Job] Finished checking all names.`);
+
+    // 5. FILTER & FORMAT
+    const validCandidates = results.filter(r => r.available === true);
+    const removedCandidates = results.filter(r => r.available === false);
+
+    // Format: "1. Name \n\n 2. Name"
+    const validNamesList = validCandidates.map(r => r.name);
+    const resultString = validNamesList
+      .map((name, index) => `${index + 1}. ${name}`)
+      .join('\n\n');
+
+    const updateValue = resultString.length > 0 ? resultString : "All candidates were unavailable.";
+
+    // 6. UPDATE BITRIX
+    console.log(`[Bitrix] Updating with:\n${updateValue}`);
+    await updateBitrixLead(leadId, updateValue);
+
+    // 7. RETURN RESPONSE
+    res.json({
+      status: "success",
+      summary: {
+        total: results.length,
+        valid: validCandidates.length,
+        removed: removedCandidates.length
+      },
+      valid_names: validNamesList,
+      bitrix_update: updateValue,
+      removed_details: removedCandidates // Useful for debugging
+    });
+
+  } catch (error) {
+    console.error("[Job] Fatal Error:", error);
+    res.status(500).json({ error: error.message });
+  } finally {
+    // Always close browser at the end
+    if (browser) await browser.close();
+  }
 });
 
 
@@ -1565,7 +1567,7 @@ app.post("/myData/check-names", async (req, res) => {
     // 2. Add to Session & Get Accumulated History
     const sessionInfo = leadSessionManager.addResult(userData, currentResults);
     const sessionKey = sessionInfo.sessionKey;
-    
+
     // ✅ Check current state immediately after update
     const leadSession = leadSessionManager.getSession(sessionKey);
     const allCheckedNames = leadSession.results;
@@ -1586,7 +1588,7 @@ app.post("/myData/check-names", async (req, res) => {
     setTimeout(async () => {
       // ✅ FIX: Re-fetch session to ensure we have the latest state (in case of race conditions)
       const currentSession = leadSessionManager.getSession(sessionKey);
-      
+
       // ✅ FIX: Stop immediately if this user/session was already pushed to Bitrix
       if (currentSession && currentSession.pushed) {
         console.log(`🛑 [Flow] Session ${sessionKey} already pushed. Skipping duplicate.`);
@@ -1596,13 +1598,13 @@ app.post("/myData/check-names", async (req, res) => {
       // CASE A: User found a name! 
       if (anyNameAvailable) {
         console.log(`\n✨ [Flow] Valid name found (Total checked: ${totalChecked}). Pushing to CRM.`);
-        
+
         // Prepare lead data
         const leadData = leadSessionManager.prepareLead(currentSession);
-        
+
         // Push
         const bitrixResult = await pushLeadToBitrix24(leadData);
-        
+
         // Mark as pushed so subsequent requests don't trigger this again
         leadSessionManager.markAsPushed(sessionKey, bitrixResult);
       }
@@ -1610,7 +1612,7 @@ app.post("/myData/check-names", async (req, res) => {
       else {
         const allFailedNames = allCheckedNames.map(r => r.name);
         console.log(`\n🤖 [Flow] All ${totalChecked} names taken. Triggering AI...`);
-        
+
         // Pass to AI job
         await performAiBackgroundJob(sessionKey, userData, allFailedNames);
       }
@@ -1665,7 +1667,7 @@ app.post("/api/process-lead", async (req, res) => {
   }
 
   console.log(`📥 API 2: Processing lead for ${userData.name}`);
-  
+
   // Send success to frontend immediately so UI doesn't freeze
   res.json({ success: true, message: "Processing started" });
 
@@ -1676,31 +1678,31 @@ app.post("/api/process-lead", async (req, res) => {
     // CASE A: User found a name. Push to CRM directly.
     if (anyAvailable) {
       console.log("✅ Valid name found by user. Pushing to Bitrix.");
-      await pushLeadToBitrix24({ 
-        ...userData, 
-        companyNames: checkedResults, 
-        aiFinalSuggestions: [] 
+      await pushLeadToBitrix24({
+        ...userData,
+        companyNames: checkedResults,
+        aiFinalSuggestions: []
       });
       return;
     }
 
     // CASE B: All names taken. Generate AI Candidates (No Validation).
     console.log("❌ All names taken. Generating AI Candidates...");
-    
+
     // Use history to try and avoid duplicates, though less critical now
     let history = checkedResults.map(r => r.name);
 
     // 2. Generate Candidates (Calls OpenAI once)
     // This typically returns ~8 names
     const candidates = await generateAiCandidates(originalIntents, history);
-    
+
     console.log(`🤖 AI Generated ${candidates.length} candidates. Pushing raw list to Bitrix.`);
 
     // 3. Format for Bitrix
     // We pass the raw candidates. The pushLeadToBitrix24 function will join them with commas.
     const rawSuggestions = candidates.map(c => ({
-        name: c.name,
-        reason: "AI Generated (Unchecked)" 
+      name: c.name,
+      reason: "AI Generated (Unchecked)"
     }));
 
     // 4. Push Final Results
@@ -1768,7 +1770,7 @@ setGlobalOptions({ maxInstances: 10, timeoutSeconds: 540, memory: '2GiB', cpu: 1
 // });
 exports.altomateLE = onRequest(app);
 
-// const PORT = process.env.PORT || 8080; 
+// const PORT = process.env.PORT || 8080;
 
 // // Start the Express server
 // app.listen(PORT, () => {
