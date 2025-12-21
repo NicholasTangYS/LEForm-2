@@ -9,7 +9,7 @@
 require('dotenv').config();
 const axios = require('axios');
 const { setGlobalOptions } = require("firebase-functions/v2");
-const { onRequest } = require("firebase-functions/https");
+const { onRequest } = require("firebase-functions/v2/https");
 const firebase = require("firebase-admin");
 const express = require('express');
 const os = require("os");
@@ -1768,7 +1768,7 @@ setGlobalOptions({ maxInstances: 10, timeoutSeconds: 540, memory: '2GiB', cpu: 1
 //   logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 // });
-exports.altomateLE = onRequest(app);
+exports.altomateLE = onRequest({ invoker: 'public' }, app);
 
 // const PORT = process.env.PORT || 8080;
 
