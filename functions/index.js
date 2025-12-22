@@ -47,7 +47,8 @@ const allowedOrigins = [
   'http://127.0.0.1:4200',     // Alternative localhost address
   'https://altomate.io',
   'https://www.altomate.io',
-  'https://altomate.io/my/free-company-name-check'
+  'https://altomate.io/my/free-company-name-check',
+  'https://crm.eta-co.com.my'
 ];
 const corsOptions = {
   origin: allowedOrigins, // ⬅️ ONLY allow your deployed Angular app
