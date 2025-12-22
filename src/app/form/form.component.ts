@@ -364,7 +364,7 @@ export class FormComponent implements OnInit {
 
       // Part B: Tax Computation (Arrays handled separately)
       b1Rows: this.fb.array([]),
-      B2_Total_Net_Profits: [''],
+      B2_Total_Net_Profits: [0],
 
       // Part B2-B6
       B3a_Chargeable_Profit_0_Percent: [''],
@@ -576,7 +576,7 @@ export class FormComponent implements OnInit {
       // Standard fields
       Comply_Substantive_Yes: [data.Comply_Substantive_Yes || ''],
       Amount_of_Net_Loss: [data.Amount_of_Net_Loss, Validators.required],
-      Net_Profits_ex_IP: [data.Net_Profits_ex_IP, Validators.required]
+      Net_Profits_ex_IP: [data.Net_Profits_ex_IP || 0]
     });
 
     // Attach Listeners
@@ -1236,7 +1236,7 @@ export class FormComponent implements OnInit {
       // all fields of b1 
       return this.isFieldComplete(g.get('Business_Activity_Code')) &&
         this.isFieldComplete(g.get('Business_Activity_Status_Active')) && this.isFieldComplete(g.get('Core_Income_Activity_Yes'))
-        && this.isFieldComplete(g.get('Net_Profits_ex_IP')) && (this.isFieldComplete(g.get('No_of_Employees')) || g.get('No_of_Employees')?.disabled)
+        && (this.isFieldComplete(g.get('Net_Profits_ex_IP')) || g.get('Net_Profits_ex_IP')?.value === '' || g.get('Net_Profits_ex_IP')?.value === null) && (this.isFieldComplete(g.get('No_of_Employees')) || g.get('No_of_Employees')?.disabled)
         && (this.isFieldComplete(g.get('No_of_Employees_Malaysia')) || g.get('No_of_Employees_Malaysia')?.disabled)
         && (this.isFieldComplete(g.get('Annual_Operating_Expenditure')) || g.get('Annual_Operating_Expenditure')?.disabled)
         && (this.isFieldComplete(g.get('Annual_Operating_Expenditure_MAS')) || g.get('Annual_Operating_Expenditure_MAS')?.disabled)
@@ -1288,7 +1288,7 @@ export class FormComponent implements OnInit {
     this.sectionStatus['attachment-c3'] = this.c3Rows.controls.every(g => c3fields.every(f => this.isFieldComplete(g.get(f))));
     // this.sectionStatus['attachment-c3'] = this.c3Rows.controls.every(g => this.isFieldComplete(g.get('Name')));
 
-    const c4fields = ['Name_of_Shareholder_Partner', 'Country', 'Address1', 'Postcode', 'Town', 'ID_type', 'ID_Passport_Reg_No', 'Date_of_Birth', 'Country_of_Origin', 'Direct_Shareholding_Percentage'];
+    const c4fields = ['Name_of_Shareholder_Partner', 'Country', 'Address1', 'Postcode', 'Town', 'ID_type', 'ID_Passport_Reg_No', 'Date_of_Birth', 'Country_of_Origin', 'Direct_Shareholding_Percentage', 'TIN'];
     // this.sectionStatus['attachment-c4'] = this.c4Rows.controls.every(g => this.isFieldComplete(g.get('Name_of_Shareholder_Partner')));
     this.sectionStatus['attachment-c4'] = this.c4Rows.controls.every(g => c4fields.every(f => this.isFieldComplete(g.get(f))));
     const c5fields = ['Name', 'Shareholding_Percentage', 'Country', 'Address1', 'Postcode', 'Town', 'ID_type', 'ID_Passport_No', 'Date_of_Birth', 'Telephone_No', 'TIN'];
@@ -1310,6 +1310,55 @@ export class FormComponent implements OnInit {
     const c9fields = ['Business_Activity_Code', 'Type_of_business_activity', 'Fp_Type_of_Labuan_entity']
     // this.sectionStatus['attachment-c9'] = this.isFieldComplete(this.le1Form.get('Pnl_Sales_Turnover'));
     this.sectionStatus['attachment-c9'] = c9fields.every(f => this.isFieldComplete(this.le1Form.get(f)));
+  }
+
+  getFormValidationErrors(form: FormGroup | FormArray, path: string = ''): { controlName: string, error: string }[] {
+    const errors: { controlName: string, error: string }[] = [];
+    const controls = (form as FormGroup).controls || (form as FormArray).controls;
+
+    Object.keys(controls).forEach(key => {
+      const control = controls[key];
+      const currentPath = path ? `${path} > ${key}` : key;
+
+      if (control instanceof FormGroup || control instanceof FormArray) {
+        errors.push(...this.getFormValidationErrors(control, currentPath));
+      } else if (control.invalid) {
+        const controlErrors = control.errors;
+        if (controlErrors) {
+          Object.keys(controlErrors).forEach(errorKey => {
+            errors.push({
+              controlName: currentPath,
+              error: errorKey
+            });
+          });
+        }
+      }
+    });
+
+    return errors;
+  }
+
+  getFieldFriendlyName(path: string): string {
+    let friendly = path;
+
+    // Handle FormArrays
+    friendly = friendly.replace(/b1Rows > (\d+)/g, (_, index) => `Part B Row ${parseInt(index) + 1}`);
+    friendly = friendly.replace(/c3Rows > (\d+)/g, (_, index) => `Att. C3 Row ${parseInt(index) + 1}`);
+    friendly = friendly.replace(/c4Rows > (\d+)/g, (_, index) => `Att. C4 Row ${parseInt(index) + 1}`);
+    friendly = friendly.replace(/c5Rows > (\d+)/g, (_, index) => `Att. C5 Row ${parseInt(index) + 1}`);
+    friendly = friendly.replace(/c10Rows > (\d+)/g, (_, index) => `Att. C10 Row ${parseInt(index) + 1}`);
+    friendly = friendly.replace(/c11Rows > (\d+)/g, (_, index) => `Att. C11 Row ${parseInt(index) + 1}`);
+
+    // Replace underscores with spaces
+    friendly = friendly.replace(/_/g, ' ');
+
+    // Basic Title Case
+    friendly = friendly.split(' ').map(word => {
+      if (!word) return '';
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    }).join(' ');
+
+    return friendly;
   }
 
   getSectionFriendlyName(key: string): string {
@@ -1661,37 +1710,7 @@ export class FormComponent implements OnInit {
 
     // 4. check for validity
     if (this.le1Form.invalid) {
-      function getFormValidationErrors(form: FormGroup | FormArray): { controlName: string, error: string }[] {
-        const errors: { controlName: string, error: string }[] = [];
-
-        // Cast to the correct type for iteration
-        const controls = (form as FormGroup).controls || (form as FormArray).controls;
-
-        Object.keys(controls).forEach(key => {
-          const control = controls[key];
-
-          if (control instanceof FormGroup || control instanceof FormArray) {
-            // Recursively check nested form groups/arrays
-            errors.push(...getFormValidationErrors(control));
-          } else if (control.invalid) {
-            // Only controls have errors property directly
-            const controlErrors = control.errors;
-            if (controlErrors) {
-              Object.keys(controlErrors).forEach(errorKey => {
-                errors.push({
-                  controlName: key,
-                  error: errorKey
-                });
-              });
-            }
-          }
-        });
-
-        return errors;
-      }
-
-      // How to use it:
-      const invalidControls = getFormValidationErrors(this.le1Form);
+      const invalidControls = this.getFormValidationErrors(this.le1Form);
       console.log(invalidControls);
 
       const incompleteSections: string[] = [];
@@ -1705,10 +1724,17 @@ export class FormComponent implements OnInit {
         msg += `\n\nIncomplete Sections:\n- ${incompleteSections.join('\n- ')}`;
       }
 
-      // Optional: Add the first 3 specific field errors to the alert box for easier finding
-      // if (specificErrors.length > 0) {
-      //   msg += `\n\nFirst few missing fields:\n- ${specificErrors.slice(0, 3).join('\n- ')}`;
-      // }
+      // Show specific field errors
+      if (invalidControls.length > 0) {
+        // Deduplicate by controlName
+        const uniqueErrors = Array.from(new Set(invalidControls.map(e => e.controlName)))
+          .map(name => this.getFieldFriendlyName(name));
+
+        msg += `\n\nSpecific Field Errors (First 10):\n- ${uniqueErrors.slice(0, 10).join('\n- ')}`;
+        if (uniqueErrors.length > 10) {
+          msg += `\n... and ${uniqueErrors.length - 10} more.`;
+        }
+      }
 
       alert(msg);
 
