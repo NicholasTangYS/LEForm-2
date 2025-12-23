@@ -18,10 +18,30 @@ export class DialogService {
       data: data,
       width: '400px',
       // hasBackdrop: true, 
-     
-    hasBackdrop: true, 
+
+      hasBackdrop: true,
       disableClose: true, // Prevent closing by clicking outside or pressing ESC
-      panelClass: 'blurred-dialog-panel' 
+      panelClass: 'blurred-dialog-panel'
+    });
+
+    return dialogRef.afterClosed();
+  }
+
+  /**
+   * Opens an alert dialog (confirmation dialog without cancel button).
+   */
+  alert(message: string, title: string = 'Notification'): Observable<void> {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: title,
+        message: message,
+        confirmText: 'OK',
+        hideCancel: true
+      },
+      width: '400px',
+      hasBackdrop: true,
+      disableClose: true,
+      panelClass: 'blurred-dialog-panel'
     });
 
     return dialogRef.afterClosed();

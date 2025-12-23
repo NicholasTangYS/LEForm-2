@@ -5,6 +5,6 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button (click)="onCancel()">{{ data.cancelText || 'Cancel' }}</button>
+  <button mat-button (click)="onCancel()" *ngIf="!data.hideCancel">{{ data.cancelText || 'Cancel' }}</button>
   <button mat-raised-button color="primary" (click)="onConfirm()">{{ data.confirmText || 'Confirm' }}</button>
 </mat-dialog-actions>

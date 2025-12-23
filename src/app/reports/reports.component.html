@@ -2,8 +2,16 @@
     <header class="reports-header">
         <div style="display: flex ;gap: 10px;align-items: center;">
             <h1>Reports</h1>
+
+            <!-- Credit Balance Display -->
+            <!-- <div class="credit-balance-badge">
+
+                <span class="balance-amount" *ngIf="!isLoadingBalance">{{ creditBalance }} credits</span>
+                <span class="balance-amount" *ngIf="isLoadingBalance">Loading...</span>
+            </div> -->
+
             <!-- From Uiverse.io by ilkhoeri -->
-            <button type="button" class="button2">
+            <button type="button" class="button2" (click)="openTopUpModal()">
                 <span class="fold"></span>
 
                 <div class="points_wrapper">
@@ -25,7 +33,10 @@
                         <polyline
                             points="13.18 1.37 13.18 9.64 21.45 9.64 10.82 22.63 10.82 14.36 2.55 14.36 13.18 1.37">
                         </polyline>
-                    </svg>Credits</span>
+                    </svg>
+                    <span class="balance-amount" *ngIf="!isLoadingBalance">{{ creditBalance }} credits</span>
+                    <span class="balance-amount" *ngIf="isLoadingBalance">Loading...</span>
+                </span>
             </button>
         </div>
         <button (click)="createNewReport()" class="btn btn-primary">

@@ -5,6 +5,8 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { baseUrl } from '../../environments/environment';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { TopupModalComponent } from '../topup-modal/topup-modal.component';
 
 interface Project {
   ID: number;
@@ -18,7 +20,7 @@ interface Project {
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatDialogModule],
   templateUrl: './reports.component.html',
   styleUrl: './reports.component.scss'
 })
@@ -32,21 +34,25 @@ export class ReportsComponent implements OnInit {
   currentPage: number = 1;
   itemsPerPage: number = 10;
   itemsPerPageOptions = [5, 10, 25, 50];
+  creditBalance: number = 0;
+  isLoadingBalance: boolean = false;
 
   constructor(
     private router: Router,
     private auth: AuthService,
-    private http: HttpClient
+    private http: HttpClient,
+    private dialog: MatDialog
   ) {
     effect(() => {
       this.userID = this.auth.getUserId();
       if (this.userID) {
         this.getProjects();
+        this.loadCreditBalance();
       }
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   getProjects(): void {
     this.http.get<Project[]>(`${this.apiUrl}/getProjectByUser/${this.userID}`).subscribe(
@@ -54,7 +60,7 @@ export class ReportsComponent implements OnInit {
         this.projects = data.map(project => {
           // Assuming the date field is called 'dueDate'
           if (project.year_end && typeof project.year_end === 'string') {
-            
+
             // The split() method creates an array ['2024-12-31', '00:00:00.000Z']
             // We take the first element [0]
             project.year_end = project.year_end.split('T')[0];
@@ -114,9 +120,44 @@ export class ReportsComponent implements OnInit {
   }
 
   editReport(project: Project): void {
-     this.auth.setProjectId(project.ID);
-     this.router.navigate(['/form']);
+    this.auth.setProjectId(project.ID);
+    this.router.navigate(['/form']);
     // Navigate to the component for editing a report, passing the project ID
     // this.router.navigate(['/edit-report', project.name]);
+  }
+
+  loadCreditBalance(): void {
+    if (!this.userID) return;
+
+    this.isLoadingBalance = true;
+    this.http.get<any>(`${this.apiUrl}/api/credits/balance/${this.userID}`).subscribe({
+      next: (response) => {
+        this.creditBalance = parseFloat(response.balance);
+        this.isLoadingBalance = false;
+      },
+      error: (error) => {
+        console.error('Error loading credit balance:', error);
+        this.creditBalance = 0;
+        this.isLoadingBalance = false;
+      }
+    });
+  }
+
+  openTopUpModal(): void {
+    const dialogRef = this.dialog.open(TopupModalComponent, {
+      width: '600px',
+      data: {
+        userId: this.userID,
+        currentBalance: this.creditBalance
+      },
+      disableClose: true
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.success) {
+        // Reload balance after successful purchase
+        this.loadCreditBalance();
+      }
+    });
   }
 }

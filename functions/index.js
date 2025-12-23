@@ -23,6 +23,11 @@ const jwt = require('jsonwebtoken');
 const mysql = require('mysql2');
 const logger = require("firebase-functions/logger");
 const cors = require('cors');
+
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+// Important: Stripe webhooks require the raw body to verify the signature.
+// We'll use a specific route for the webhook that handles raw body.
 const crypto = require('crypto');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -46,6 +51,7 @@ const allowedOrigins = [
   'http://localhost:4200',    // Your typical Angular local dev server
   'http://127.0.0.1:4200',     // Alternative localhost address
   'https://altomate.io',
+  'http://localhost:5001',
   'https://www.altomate.io',
   'https://altomate.io/my/free-company-name-check'
 ];
@@ -62,7 +68,120 @@ if (!fs.existsSync(profilesBaseDir)) fs.mkdirSync(profilesBaseDir);
 
 app.use(cors(corsOptions)); // 3. Use the middleware
 
+// 1. Stripe Webhook - MUST be before express.json() for raw body
+app.post('/api/payment/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    logger.error(`Webhook Signature verification failed: ${err.message}`);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Handle the event
+  if (event.type === 'payment_intent.succeeded') {
+    const paymentIntent = event.data.object;
+    const { userId, tokens, discountCode } = paymentIntent.metadata;
+
+    logger.info(`✨ Payment succeeded for user ${userId}: ${paymentIntent.id}`);
+
+    try {
+      await processCreditPurchase(
+        userId,
+        paymentIntent.amount / 100, // Stripe amount is in cents
+        tokens,
+        'STRIPE',
+        paymentIntent.id,
+        discountCode
+      );
+      logger.info(`✅ Credits added successfully for user ${userId}`);
+    } catch (purchaseErr) {
+      logger.error(`❌ Failed to add credits for user ${userId}: ${purchaseErr.message}`);
+      // Note: We return 200 to Stripe because we received the event, 
+      // but we should log the error for manual intervention.
+    }
+  }
+
+  res.json({ received: true });
+});
+
 app.use(express.json());
+
+// 2. Create Stripe Payment Intent
+app.post('/api/payment/stripe/create-payment-intent', async (req, res) => {
+  const { userId, tokens, discountCode, amount } = req.body;
+
+  if (!userId || !tokens || !amount) {
+    return res.status(400).json({ message: 'Missing required payment details' });
+  }
+
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100), // Stripe expects cents
+      currency: 'usd', // Adjust as needed
+      payment_method_types: ['card', 'google_pay', 'apple_pay'],
+      metadata: {
+        userId: userId.toString(),
+        tokens: tokens.toString(),
+        discountCode: discountCode || ''
+      },
+    });
+
+    res.json({
+      clientSecret: paymentIntent.client_secret
+    });
+  } catch (err) {
+    logger.error(`Error creating payment intent: ${err.message}`);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// 3. Confirm payment and fulfill (Explicit confirmation from frontend)
+app.post('/api/payment/stripe/confirm-payment', async (req, res) => {
+  const { paymentIntentId } = req.body;
+
+  if (!paymentIntentId) {
+    return res.status(400).json({ success: false, message: 'Missing payment intent ID' });
+  }
+
+  try {
+    // Retrieve the payment intent from Stripe to verify status
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+    if (paymentIntent.status !== 'succeeded') {
+      return res.status(400).json({
+        success: false,
+        message: `Payment status is ${paymentIntent.status}. Expected 'succeeded'.`
+      });
+    }
+
+    const { userId, tokens, discountCode } = paymentIntent.metadata;
+
+    if (!userId || !tokens) {
+      return res.status(500).json({
+        success: false,
+        message: 'Payment metadata missing. Manual verification required.'
+      });
+    }
+
+    // Call processCreditPurchase (idempotent)
+    const result = await processCreditPurchase(
+      userId,
+      paymentIntent.amount / 100,
+      tokens,
+      'STRIPE',
+      paymentIntent.id,
+      discountCode
+    );
+
+    res.json(result);
+  } catch (err) {
+    logger.error(`Error confirm-payment: ${err.message}`);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
 
 app.get('/getUser', async (req, res) => {
   // const { invoiceId } = req.params;
@@ -343,20 +462,64 @@ app.post('/request-password-reset', (req, res) => {
 
     // 3. Store the token and expiry in the database
     const updateTokenQuery = 'UPDATE le_user SET reset_token = ?, reset_token_expiry = ? WHERE email = ?';
-    db.query(updateTokenQuery, [resetCode, expiry, email], (updateErr, updateResult) => {
+    db.query(updateTokenQuery, [resetCode, expiry, email], async (updateErr, updateResult) => {
       if (updateErr) {
         console.error('DB error storing reset token:', updateErr);
         return res.status(500).json({ message: 'An internal error occurred.' });
       }
 
-      // 4. Send the email (In a real app, you'd use a service like Nodemailer/SendGrid)
-      // For now, we just log it and send it in the response for testing.
-      logger.info(`Password reset code for ${email}: ${resetCode}`);
+      // 4. Send the email using EngineMailer
+      try {
+        const subject = "Password Reset Code - Altomate Support";
+        const body = `
+          <div style="font-family: sans-serif; padding: 20px; color: #333;">
+            <h2>Password Reset Request</h2>
+            <p>You requested a password reset for your Altomate account.</p>
+            <p>Your 6-digit reset code is:</p>
+            <div style="font-size: 32px; font-weight: bold; color: #7a5af8; padding: 10px; background: #f4f4f4; border-radius: 8px; display: inline-block;">
+              ${resetCode}
+            </div>
+            <p>This code is valid for 1 hour. If you did not request this, please ignore this email.</p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+            <p style="font-size: 12px; color: #777;">Altomate Support Team</p>
+          </div>
+        `;
 
-      res.status(200).json({
-        message: 'A password reset code has been sent to your email.',
-        resetCode: resetCode // NOTE: Only for development/testing. Remove in production.
-      });
+        const sendMailData = JSON.stringify({
+          "ToEmail": email,
+          "Subject": subject,
+          "SenderEmail": "info@altomate.io",
+          "SubmittedContent": body,
+          "SenderName": "Altomate Support"
+        });
+
+        const config = {
+          method: 'post',
+          url: 'https://api.enginemailer.com/RESTAPI/V2/Submission/SendEmail',
+          headers: {
+            'APIKey': process.env.ENGINE_MAILER_KEY,
+            'Content-Type': 'application/json',
+          },
+          data: sendMailData
+        };
+
+        if (process.env.ENGINE_MAILER_KEY) {
+          await axios.request(config);
+          logger.info(`Password reset code sent to ${email} via EngineMailer.`);
+        } else {
+          logger.warn(`ENGINE_MAILER_KEY missing. Reset code for ${email} is ${resetCode}`);
+        }
+
+        res.status(200).json({
+          message: 'A password reset code has been sent to your email.'
+        });
+
+      } catch (mailErr) {
+        console.error('Error sending reset email:', mailErr.response?.data || mailErr.message);
+        // Even if mail fails, we don't want to necessarily fail the whole request, 
+        // but since we haven't provided the code in the response anymore, we should inform the user.
+        res.status(500).json({ message: 'Failed to send reset email. Please try again later.' });
+      }
     });
   });
 });
@@ -398,6 +561,7 @@ app.post('/reset-password', async (req, res) => {
           return res.status(500).json({ message: 'An internal error occurred.' });
         }
 
+        logger.info(`Password successfully reset for user ID: ${userId}`);
         res.status(200).json({ message: 'Your password has been reset successfully. You can now log in.' });
       });
     } catch (hashError) {
@@ -1759,6 +1923,659 @@ app.post('/api/deals/:pipelineId', async (req, res) => {
 // this will be the maximum concurrent request count.
 setGlobalOptions({ maxInstances: 10, timeoutSeconds: 540, memory: '2GiB', cpu: 1 });
 // setGlobalOptions({  });
+
+// ============================================
+// CREDIT SYSTEM ENDPOINTS
+// ============================================
+
+// Helper function to calculate user balance from ledger
+async function getUserBalance(userId) {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT COALESCE(SUM(
+        CASE 
+          WHEN transaction_type IN ('PURCHASE', 'REFUND', 'ADJUSTMENT', 'BONUS') THEN amount
+          WHEN transaction_type = 'DEDUCTION' THEN -amount
+          ELSE 0
+        END
+      ), 0) as balance
+      FROM le_credit_ledger
+      WHERE user_id = ?
+    `;
+
+    db.query(query, [userId], (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results[0].balance);
+      }
+    });
+  });
+}
+
+// 1. Get User Credit Balance
+app.get('/api/credits/balance/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const balance = await getUserBalance(userId);
+    res.json({
+      balance: parseFloat(balance).toFixed(2),
+      currency: 'MYR'
+    });
+  } catch (err) {
+    console.error('Error fetching balance:', err);
+    res.status(500).json({ message: 'Error fetching credit balance' });
+  }
+});
+
+// 2. Mock Payment Gateway
+app.post('/api/payment/mock-process', (req, res) => {
+  const { amount, paymentMethod } = req.body;
+  if (amount < 0 || amount === undefined || amount === null || amount === '') {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid amount'
+    });
+  }
+
+  // Simulate payment processing delay
+  setTimeout(() => {
+    // Mock successful payment (90% success rate for testing)
+    const isSuccess = Math.random() > 0.1;
+
+    if (isSuccess) {
+      const transactionId = `mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      res.json({
+        success: true,
+        transactionId: transactionId,
+        amount: amount,
+        paymentMethod: paymentMethod || 'MOCK',
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: 'Payment failed (mock failure for testing)'
+      });
+    }
+  }, 1000); // 1 second delay to simulate processing
+});
+
+// 3. Validate Discount Code
+app.post('/api/discount-codes/validate', (req, res) => {
+  const { code, userId, purchaseAmount } = req.body;
+
+  if (!code || !userId || !purchaseAmount) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
+  const query = `
+    SELECT * FROM le_discount_codes 
+    WHERE code = ? 
+    AND is_active = 1 
+    AND (valid_from IS NULL OR valid_from <= NOW())
+    AND (valid_until IS NULL OR valid_until >= NOW())
+  `;
+
+  db.query(query, [code.toUpperCase()], (err, results) => {
+    if (err) {
+      console.error('Error validating discount code:', err);
+      return res.status(500).json({ message: 'Error validating discount code' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({
+        valid: false,
+        message: 'Invalid or expired discount code'
+      });
+    }
+
+    const discountCode = results[0];
+
+    // Check usage limits
+    if (discountCode.usage_limit && discountCode.usage_count >= discountCode.usage_limit) {
+      return res.status(400).json({
+        valid: false,
+        message: 'Discount code usage limit reached'
+      });
+    }
+
+    // Check minimum purchase amount
+    if (purchaseAmount < discountCode.min_purchase_amount) {
+      return res.status(400).json({
+        valid: false,
+        message: `Minimum purchase amount is ${discountCode.min_purchase_amount}`
+      });
+    }
+
+    // Check per-user usage limit
+    const usageQuery = `
+      SELECT COUNT(*) as count 
+      FROM le_discount_code_usage 
+      WHERE discount_code_id = ? AND user_id = ?
+    `;
+
+    db.query(usageQuery, [discountCode.id, userId], (usageErr, usageResults) => {
+      if (usageErr) {
+        console.error('Error checking usage:', usageErr);
+        return res.status(500).json({ message: 'Error checking discount code usage' });
+      }
+
+      if (usageResults[0].count >= discountCode.usage_per_user) {
+        return res.status(400).json({
+          valid: false,
+          message: 'You have already used this discount code'
+        });
+      }
+
+      // Calculate discount
+      let discountAmount = 0;
+      let finalAmount = purchaseAmount;
+
+      if (discountCode.discount_type === 'PERCENTAGE') {
+        discountAmount = (purchaseAmount * discountCode.discount_value) / 100;
+        if (discountCode.max_discount_amount && discountAmount > discountCode.max_discount_amount) {
+          discountAmount = discountCode.max_discount_amount;
+        }
+        finalAmount = purchaseAmount - discountAmount;
+      } else if (discountCode.discount_type === 'FIXED_AMOUNT') {
+        discountAmount = discountCode.discount_value;
+        finalAmount = Math.max(0, purchaseAmount - discountAmount);
+      } else if (discountCode.discount_type === 'BONUS_CREDITS') {
+        discountAmount = 0; // No discount on payment
+        finalAmount = purchaseAmount;
+      }
+
+      res.json({
+        valid: true,
+        discount: {
+          id: discountCode.id,
+          code: discountCode.code,
+          type: discountCode.discount_type,
+          value: discountCode.discount_value,
+          discountAmount: parseFloat(discountAmount).toFixed(2),
+          bonusCredits: discountCode.discount_type === 'BONUS_CREDITS' ? discountCode.discount_value : 0,
+          finalAmount: parseFloat(finalAmount).toFixed(2)
+        }
+      });
+    });
+  });
+});
+
+const processCreditPurchase = async (userId, amount, tokens, paymentMethod, paymentTransactionId, discountCode) => {
+  // 1. Idempotency Check: Check if this transaction has already been processed
+  if (paymentTransactionId) {
+    const existingTx = await new Promise((resolve, reject) => {
+      db.query(
+        'SELECT * FROM le_credit_ledger WHERE payment_transaction_id = ? AND payment_method = ?',
+        [paymentTransactionId, paymentMethod],
+        (err, results) => {
+          if (err) reject(err);
+          else resolve(results);
+        }
+      );
+    });
+
+    if (existingTx.length > 0) {
+      logger.info(`♻️ Transaction ${paymentTransactionId} already processed. Skipping.`);
+      return {
+        success: true,
+        alreadyProcessed: true,
+        newBalance: existingTx[0].balance_after,
+        creditsAdded: existingTx[0].amount,
+        transactionId: existingTx[0].id
+      };
+    }
+  }
+
+  return new Promise((resolve, reject) => {
+    db.beginTransaction(async (err) => {
+      if (err) return reject(new Error('Transaction error'));
+
+      try {
+        const currentBalance = await getUserBalance(userId);
+        let creditsToAdd = parseFloat(tokens || amount);
+        let discountCodeId = null;
+        let discountApplied = null;
+
+        if (discountCode) {
+          const validateQuery = `
+            SELECT * FROM le_discount_codes 
+            WHERE code = ? AND is_active = 1 
+            AND (valid_from IS NULL OR valid_from <= NOW())
+            AND (valid_until IS NULL OR valid_until >= NOW())
+          `;
+
+          const discountResults = await new Promise((resQ, rejQ) => {
+            db.query(validateQuery, [discountCode.toUpperCase()], (err, results) => {
+              if (err) rejQ(err);
+              else resQ(results);
+            });
+          });
+
+          if (discountResults.length > 0) {
+            const dc = discountResults[0];
+            discountCodeId = dc.id;
+
+            if (dc.discount_type === 'BONUS_CREDITS') {
+              creditsToAdd += parseFloat(dc.discount_value);
+              discountApplied = {
+                code: dc.code,
+                bonusCredits: parseFloat(dc.discount_value)
+              };
+            }
+
+            await new Promise((resU, rejU) => {
+              db.query(
+                'UPDATE le_discount_codes SET usage_count = usage_count + 1 WHERE id = ?',
+                [dc.id],
+                (err) => {
+                  if (err) rejU(err);
+                  else resU();
+                }
+              );
+            });
+          }
+        }
+
+        const newBalance = parseFloat(currentBalance) + creditsToAdd;
+        const insertQuery = `
+          INSERT INTO le_credit_ledger 
+          (user_id, transaction_type, amount, balance_after, description, payment_method, payment_transaction_id, discount_code_id)
+          VALUES (?, 'PURCHASE', ?, ?, ?, ?, ?, ?)
+        `;
+
+        const description = discountApplied
+          ? `Credit Purchase with ${discountApplied.bonusCredits} bonus credits`
+          : 'Credit Purchase';
+
+        const insertResult = await new Promise((resI, rejI) => {
+          db.query(
+            insertQuery,
+            [userId, creditsToAdd, newBalance, description, paymentMethod, paymentTransactionId, discountCodeId],
+            (err, result) => {
+              if (err) rejI(err);
+              else resI(result);
+            }
+          );
+        });
+
+        if (discountCodeId) {
+          await new Promise((resUsage, rejUsage) => {
+            db.query(
+              'INSERT INTO le_discount_code_usage (discount_code_id, user_id, credit_ledger_id) VALUES (?, ?, ?)',
+              [discountCodeId, userId, insertResult.insertId],
+              (err) => {
+                if (err) rejUsage(err);
+                else resUsage();
+              }
+            );
+          });
+        }
+
+        db.commit((commitErr) => {
+          if (commitErr) {
+            return db.rollback(() => {
+              reject(commitErr);
+            });
+          }
+          resolve({
+            success: true,
+            newBalance: parseFloat(newBalance).toFixed(2),
+            creditsAdded: parseFloat(creditsToAdd).toFixed(2),
+            transactionId: insertResult.insertId,
+            discountApplied: discountApplied
+          });
+        });
+
+      } catch (error) {
+        db.rollback(() => {
+          reject(error);
+        });
+      }
+    });
+  });
+};
+
+// 4. Purchase Credits
+app.post('/api/credits/purchase', async (req, res) => {
+  const { userId, amount, paymentMethod, paymentTransactionId, discountCode } = req.body;
+
+  if (!userId || !amount || !paymentTransactionId) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
+  try {
+    const result = await processCreditPurchase(userId, amount, amount, paymentMethod || 'MOCK', paymentTransactionId, discountCode);
+    res.json(result);
+  } catch (err) {
+    console.error('Purchase error:', err);
+    res.status(500).json({ message: err.message || 'Error processing purchase' });
+  }
+});
+
+// 5. Deduct Credits
+app.post('/api/credits/deduct', async (req, res) => {
+  const { userId, amount, description, referenceType, referenceId } = req.body;
+
+  if (!userId || !amount) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
+  try {
+    db.beginTransaction(async (err) => {
+      if (err) {
+        console.error('Transaction error:', err);
+        return res.status(500).json({ message: 'Transaction error' });
+      }
+
+      try {
+        // Lock and get current balance
+        const currentBalance = await getUserBalance(userId);
+
+        if (parseFloat(currentBalance) < parseFloat(amount)) {
+          return db.rollback(() => {
+            res.status(400).json({
+              success: false,
+              message: 'Insufficient credits',
+              currentBalance: parseFloat(currentBalance).toFixed(2),
+              required: parseFloat(amount).toFixed(2)
+            });
+          });
+        }
+
+        const newBalance = parseFloat(currentBalance) - parseFloat(amount);
+
+        // Insert deduction record
+        const insertQuery = `
+          INSERT INTO le_credit_ledger 
+          (user_id, transaction_type, amount, balance_after, description, reference_type, reference_id)
+          VALUES (?, 'DEDUCTION', ?, ?, ?, ?, ?)
+        `;
+
+        const insertResult = await new Promise((resolve, reject) => {
+          db.query(
+            insertQuery,
+            [userId, amount, newBalance, description || 'Credit Deduction', referenceType, referenceId],
+            (err, result) => {
+              if (err) reject(err);
+              else resolve(result);
+            }
+          );
+        });
+
+        db.commit((commitErr) => {
+          if (commitErr) {
+            return db.rollback(() => {
+              console.error('Commit error:', commitErr);
+              res.status(500).json({ message: 'Error completing deduction' });
+            });
+          }
+
+          res.json({
+            success: true,
+            newBalance: parseFloat(newBalance).toFixed(2),
+            transactionId: insertResult.insertId
+          });
+        });
+
+      } catch (error) {
+        db.rollback(() => {
+          console.error('Deduction error:', error);
+          res.status(500).json({ message: 'Error processing deduction' });
+        });
+      }
+    });
+
+  } catch (err) {
+    console.error('Error deducting credits:', err);
+    res.status(500).json({ message: 'Error deducting credits' });
+  }
+});
+
+// 6. Get Transaction History
+app.get('/api/credits/transactions/:userId', async (req, res) => {
+  const { userId } = req.params;
+  const limit = parseInt(req.query.limit) || 50;
+  const offset = parseInt(req.query.offset) || 0;
+
+  try {
+    const currentBalance = await getUserBalance(userId);
+
+    const query = `
+      SELECT 
+        cl.id,
+        cl.transaction_type,
+        cl.amount,
+        cl.balance_after,
+        cl.description,
+        cl.reference_type,
+        cl.reference_id,
+        cl.payment_method,
+        cl.created_at,
+        dc.code as discount_code
+      FROM le_credit_ledger cl
+      LEFT JOIN le_discount_codes dc ON cl.discount_code_id = dc.id
+      WHERE cl.user_id = ?
+      ORDER BY cl.created_at DESC
+      LIMIT ? OFFSET ?
+    `;
+
+    db.query(query, [userId, limit, offset], (err, results) => {
+      if (err) {
+        console.error('Error fetching transactions:', err);
+        return res.status(500).json({ message: 'Error fetching transactions' });
+      }
+
+      res.json({
+        currentBalance: parseFloat(currentBalance).toFixed(2),
+        transactions: results.map(t => ({
+          id: t.id,
+          type: t.transaction_type,
+          amount: parseFloat(t.amount).toFixed(2),
+          balanceAfter: parseFloat(t.balance_after).toFixed(2),
+          description: t.description,
+          referenceType: t.reference_type,
+          referenceId: t.reference_id,
+          paymentMethod: t.payment_method,
+          discountCode: t.discount_code,
+          createdAt: t.created_at
+        }))
+      });
+    });
+
+  } catch (err) {
+    console.error('Error fetching transaction history:', err);
+    res.status(500).json({ message: 'Error fetching transaction history' });
+  }
+});
+
+// 7. Create Discount Code (Admin)
+app.post('/api/discount-codes', (req, res) => {
+  const {
+    code,
+    description,
+    discountType,
+    discountValue,
+    minPurchaseAmount,
+    maxDiscountAmount,
+    usageLimit,
+    usagePerUser,
+    validUntil
+  } = req.body;
+
+  if (!code || !discountType || !discountValue) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
+  const query = `
+    INSERT INTO le_discount_codes 
+    (code, description, discount_type, discount_value, min_purchase_amount, max_discount_amount, usage_limit, usage_per_user, valid_until)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  db.query(
+    query,
+    [
+      code.toUpperCase(),
+      description,
+      discountType,
+      discountValue,
+      minPurchaseAmount || 0,
+      maxDiscountAmount,
+      usageLimit,
+      usagePerUser || 1,
+      validUntil
+    ],
+    (err, result) => {
+      if (err) {
+        if (err.code === 'ER_DUP_ENTRY') {
+          return res.status(409).json({ message: 'Discount code already exists' });
+        }
+        console.error('Error creating discount code:', err);
+        return res.status(500).json({ message: 'Error creating discount code' });
+      }
+
+      res.status(201).json({
+        success: true,
+        id: result.insertId,
+        code: code.toUpperCase()
+      });
+    }
+  );
+});
+
+// 8. List Discount Codes
+app.get('/api/discount-codes', (req, res) => {
+  const activeOnly = req.query.active === 'true';
+
+  let query = 'SELECT * FROM le_discount_codes';
+  if (activeOnly) {
+    query += ` WHERE is_active = 1 
+      AND (valid_from IS NULL OR valid_from <= NOW())
+      AND (valid_until IS NULL OR valid_until >= NOW())`;
+  }
+  query += ' ORDER BY created_at DESC';
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching discount codes:', err);
+      return res.status(500).json({ message: 'Error fetching discount codes' });
+    }
+
+    res.json(results);
+  });
+});
+
+// 9. Get Single Discount Code
+app.get('/api/discount-codes/:id', (req, res) => {
+  const { id } = req.params;
+  const query = 'SELECT * FROM le_discount_codes WHERE id = ?';
+
+  db.query(query, [id], (err, results) => {
+    if (err) {
+      console.error('Error fetching discount code:', err);
+      return res.status(500).json({ message: 'Error fetching discount code' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'Discount code not found' });
+    }
+
+    res.json(results[0]);
+  });
+});
+
+// 10. Update Discount Code
+app.put('/api/discount-codes/:id', (req, res) => {
+  const { id } = req.params;
+  const {
+    code,
+    description,
+    discountType,
+    discountValue,
+    minPurchaseAmount,
+    maxDiscountAmount,
+    usageLimit,
+    usagePerUser,
+    validUntil,
+    is_active
+  } = req.body;
+
+  if (!code || !discountType || !discountValue) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
+  const query = `
+    UPDATE le_discount_codes 
+    SET code = ?, description = ?, discount_type = ?, discount_value = ?, 
+        min_purchase_amount = ?, max_discount_amount = ?, usage_limit = ?, 
+        usage_per_user = ?, valid_until = ?, is_active = ?
+    WHERE id = ?
+  `;
+
+  db.query(
+    query,
+    [
+      code.toUpperCase(),
+      description,
+      discountType,
+      discountValue,
+      minPurchaseAmount || 0,
+      maxDiscountAmount,
+      usageLimit,
+      usagePerUser || 1,
+      validUntil,
+      is_active !== undefined ? is_active : 1,
+      id
+    ],
+    (err, result) => {
+      if (err) {
+        if (err.code === 'ER_DUP_ENTRY') {
+          return res.status(409).json({ message: 'Discount code with this name already exists' });
+        }
+        console.error('Error updating discount code:', err);
+        return res.status(500).json({ message: 'Error updating discount code' });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: 'Discount code not found' });
+      }
+
+      res.json({ success: true, message: 'Discount code updated successfully' });
+    }
+  );
+});
+
+// 11. Toggle Discount Code Active Status
+app.patch('/api/discount-codes/:id/toggle-active', (req, res) => {
+  const { id } = req.params;
+  const { is_active } = req.body;
+
+  if (is_active === undefined) {
+    return res.status(400).json({ message: 'is_active field is required' });
+  }
+
+  const query = 'UPDATE le_discount_codes SET is_active = ? WHERE id = ?';
+
+  db.query(query, [is_active ? 1 : 0, id], (err, result) => {
+    if (err) {
+      console.error('Error toggling discount code status:', err);
+      return res.status(500).json({ message: 'Error toggling discount code status' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Discount code not found' });
+    }
+
+    res.json({
+      success: true,
+      message: `Discount code ${is_active ? 'activated' : 'archived'} successfully`,
+      is_active: !!is_active
+    });
+  });
+});
 
 
 // Create and deploy your first functions

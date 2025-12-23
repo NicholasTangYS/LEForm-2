@@ -29,7 +29,8 @@
     "puppeteer": "^24.30.0",
     "puppeteer-core": "^24.29.1",
     "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2"
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "stripe": "^20.1.0"
   },
   "devDependencies": {
     "firebase-functions-test": "^3.1.0"

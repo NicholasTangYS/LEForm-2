@@ -30,6 +30,24 @@
   }
 }
 
+.credit-balance-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  margin-right: 10px;
+
+  svg {
+    opacity: 0.9;
+  }
+}
+
 .controls-container {
   display: flex;
   justify-content: space-between;
@@ -111,24 +129,26 @@
 }
 
 .status {
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    text-transform: capitalize;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
 
-    &.completed {
-        background-color: #d1fae5;
-        color: #065f46;
-    }
-    &.in-progress {
-        background-color: #dbeafe;
-        color: #1e40af;
-    }
-    &.pending {
-        background-color: #fef3c7;
-        color: #92400e;
-    }
+  &.completed {
+    background-color: #d1fae5;
+    color: #065f46;
+  }
+
+  &.in-progress {
+    background-color: #dbeafe;
+    color: #1e40af;
+  }
+
+  &.pending {
+    background-color: #fef3c7;
+    color: #92400e;
+  }
 }
 
 .pagination-container {
@@ -176,7 +196,7 @@
   transition: background-color 0.2s, transform 0.1s;
 
   &:hover {
-      transform: translateY(-1px);
+    transform: translateY(-1px);
   }
 }
 
@@ -199,65 +219,69 @@
 }
 
 .no-results {
-    text-align: center;
-    padding: 2rem;
-    color: #6b7280;
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
 }
 
 // Responsive adjustments
 @media (max-width: 768px) {
-    .reports-header, .controls-container {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 1rem;
+
+  .reports-header,
+  .controls-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .reports-table {
+    thead {
+      display: none;
     }
 
-    .reports-table {
-        thead {
-            display: none;
-        }
-
-        tbody, tr, td {
-            display: block;
-            width: 100%;
-        }
-
-        tr {
-            margin-bottom: 1rem;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        td {
-            text-align: right;
-            padding-left: 50%;
-            position: relative;
-            border-bottom: 1px solid #e5e7eb;
-
-            &::before {
-                content: attr(data-label);
-                position: absolute;
-                left: 1rem;
-                width: calc(50% - 2rem);
-                padding-right: 1rem;
-                text-align: left;
-                font-weight: 600;
-                color: #374151;
-            }
-
-             &:last-child {
-                border-bottom: none;
-            }
-        }
+    tbody,
+    tr,
+    td {
+      display: block;
+      width: 100%;
     }
 
-    .pagination-container {
-        justify-content: center;
+    tr {
+      margin-bottom: 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
     }
+
+    td {
+      text-align: right;
+      padding-left: 50%;
+      position: relative;
+      border-bottom: 1px solid #e5e7eb;
+
+      &::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 1rem;
+        width: calc(50% - 2rem);
+        padding-right: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #374151;
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+
+  .pagination-container {
+    justify-content: center;
+  }
 }
 
-/* From Uiverse.io by ilkhoeri */ 
+/* From Uiverse.io by ilkhoeri */
 .button2 {
   --h-button: 48px;
   --w-button: 102px;
@@ -269,11 +293,9 @@
   justify-content: center;
   overflow: hidden;
   transition: all 0.25s ease;
-  background: radial-gradient(
-      65.28% 65.28% at 50% 100%,
+  background: radial-gradient(65.28% 65.28% at 50% 100%,
       rgba(223, 113, 255, 0.8) 0%,
-      rgba(223, 113, 255, 0) 100%
-    ),
+      rgba(223, 113, 255, 0) 100%),
     linear-gradient(0deg, #7a5af8, #7a5af8);
   border-radius: var(--round);
   border: none;
@@ -281,6 +303,7 @@
   padding: 12px 18px;
   height: 40px;
 }
+
 .button2::before,
 .button2::after {
   content: "";
@@ -290,23 +313,22 @@
   border-radius: calc(var(--round) - var(--space));
   z-index: 0;
 }
+
 .button2::before {
   --space: 1px;
-  background: linear-gradient(
-    177.95deg,
-    rgba(255, 255, 255, 0.19) 0%,
-    rgba(255, 255, 255, 0) 100%
-  );
+  background: linear-gradient(177.95deg,
+      rgba(255, 255, 255, 0.19) 0%,
+      rgba(255, 255, 255, 0) 100%);
 }
+
 .button2::after {
   --space: 2px;
-  background: radial-gradient(
-      65.28% 65.28% at 50% 100%,
+  background: radial-gradient(65.28% 65.28% at 50% 100%,
       rgba(223, 113, 255, 0.8) 0%,
-      rgba(223, 113, 255, 0) 100%
-    ),
+      rgba(223, 113, 255, 0) 100%),
     linear-gradient(0deg, #7a5af8, #7a5af8);
 }
+
 .button2:active {
   transform: scale(0.95);
 }
@@ -320,15 +342,14 @@
   width: 1rem;
   display: inline-block;
   transition: all 0.5s ease-in-out;
-  background: radial-gradient(
-    100% 75% at 55%,
-    rgba(223, 113, 255, 0.8) 0%,
-    rgba(223, 113, 255, 0) 100%
-  );
+  background: radial-gradient(100% 75% at 55%,
+      rgba(223, 113, 255, 0.8) 0%,
+      rgba(223, 113, 255, 0) 100%);
   box-shadow: 0 0 3px black;
   border-bottom-left-radius: 0.5rem;
   border-top-right-radius: var(--round);
 }
+
 .fold::after {
   content: "";
   position: absolute;
@@ -340,6 +361,7 @@
   background-color: #e8e8e8;
   pointer-events: none;
 }
+
 .button2:hover .fold {
   margin-top: -1rem;
   margin-right: -1rem;
@@ -364,70 +386,83 @@
   background-color: #fff;
   border-radius: 9999px;
 }
+
 @keyframes floating-points {
   0% {
     transform: translateY(0);
   }
+
   85% {
     opacity: 0;
   }
+
   100% {
     transform: translateY(-55px);
     opacity: 0;
   }
 }
+
 .points_wrapper .point:nth-child(1) {
   left: 10%;
   opacity: 1;
   animation-duration: 2.35s;
   animation-delay: 0.2s;
 }
+
 .points_wrapper .point:nth-child(2) {
   left: 30%;
   opacity: 0.7;
   animation-duration: 2.5s;
   animation-delay: 0.5s;
 }
+
 .points_wrapper .point:nth-child(3) {
   left: 25%;
   opacity: 0.8;
   animation-duration: 2.2s;
   animation-delay: 0.1s;
 }
+
 .points_wrapper .point:nth-child(4) {
   left: 44%;
   opacity: 0.6;
   animation-duration: 2.05s;
 }
+
 .points_wrapper .point:nth-child(5) {
   left: 50%;
   opacity: 1;
   animation-duration: 1.9s;
 }
+
 .points_wrapper .point:nth-child(6) {
   left: 75%;
   opacity: 0.5;
   animation-duration: 1.5s;
   animation-delay: 1.5s;
 }
+
 .points_wrapper .point:nth-child(7) {
   left: 88%;
   opacity: 0.9;
   animation-duration: 2.2s;
   animation-delay: 0.2s;
 }
+
 .points_wrapper .point:nth-child(8) {
   left: 58%;
   opacity: 0.8;
   animation-duration: 2.25s;
   animation-delay: 0.2s;
 }
+
 .points_wrapper .point:nth-child(9) {
   left: 98%;
   opacity: 0.6;
   animation-duration: 2.6s;
   animation-delay: 0.1s;
 }
+
 .points_wrapper .point:nth-child(10) {
   left: 65%;
   opacity: 1;
@@ -459,20 +494,24 @@
 .button2:focus svg.icon {
   fill: white;
 }
+
 .button2:hover svg.icon {
   fill: transparent;
   animation:
     dasharray 1s linear forwards,
     filled 0.1s linear forwards 0.95s;
 }
+
 @keyframes dasharray {
   from {
     stroke-dasharray: 0 0 0 0;
   }
+
   to {
     stroke-dasharray: 68 68 0 0;
   }
 }
+
 @keyframes filled {
   to {
     fill: white;

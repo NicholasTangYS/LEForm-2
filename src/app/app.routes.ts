@@ -7,16 +7,18 @@ import { AuthGuard } from './auth/auth.guard';
 import { ReportsComponent } from './reports/reports.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { SettingsComponent } from './settings/settings.component';
+import { DiscountComponent } from './discount/discount.component';
 import { CanDeactivateGuard } from './auth/can-deactivate.guard';
 
 export const routes: Routes = [
-    { path: 'home', component: HomeComponent,  canActivate: [AuthGuard] },
-    { path: 'form', component: FormComponent, canActivate: [AuthGuard] },
-    { path: 'login', component: LoginComponent },
-    { path: 'reports', component: ReportsComponent, canActivate: [AuthGuard],canDeactivate: [CanDeactivateGuard] },
-    { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-    { path: 'settings', component: SettingsComponent, canActivate: [AuthGuard] },
-    { path: '', redirectTo: '/login', pathMatch: 'full' } // Default route
+  { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
+  { path: 'form', component: FormComponent, canActivate: [AuthGuard] },
+  { path: 'login', component: LoginComponent },
+  { path: 'reports', component: ReportsComponent, canActivate: [AuthGuard], canDeactivate: [CanDeactivateGuard] },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'settings', component: SettingsComponent, canActivate: [AuthGuard] },
+  { path: 'discount', component: DiscountComponent, canActivate: [AuthGuard] },
+  { path: '', redirectTo: '/login', pathMatch: 'full' } // Default route
 ];
 @NgModule({
   imports: [RouterModule.forRoot(routes, {

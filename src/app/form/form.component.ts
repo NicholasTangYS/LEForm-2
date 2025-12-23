@@ -556,6 +556,19 @@ export class FormComponent implements OnInit {
     const val = controlVal ? parseFloat(String(controlVal).replace(/,/g, '')) : 0;
     return val * this.currentExchangeRate;
   }
+
+  // Validator: Ensure Year is earlier than current year
+  yearEarlierThanCurrentValidator = (control: AbstractControl): { [key: string]: any } | null => {
+    if (!control.value) return null;
+    // value is typically 'YYYY-MM-DD' from <input type="date">
+    const yearStr = String(control.value).split('-')[0];
+    const year = parseInt(yearStr, 10);
+    const currentYear = new Date().getFullYear();
+    if (!isNaN(year) && year >= currentYear) {
+      return { 'notEarlierThanCurrentYear': true };
+    }
+    return null;
+  }
   // --- Row Creators & Logic ---
   createB1Row(data: any = {}): FormGroup {
     const group = this.fb.group({
@@ -655,7 +668,7 @@ export class FormComponent implements OnInit {
       Town: [data.Town || '', Validators.required],
       ID_type: [data.ID_type || '', Validators.required],
       ID_Passport_No: [data.ID_Passport_No || '', Validators.required],
-      Date_of_Birth: [data.Date_of_Birth || '', Validators.required],
+      Date_of_Birth: [data.Date_of_Birth || '', [Validators.required, this.yearEarlierThanCurrentValidator]],
       TIN: [data.TIN || '', Validators.required],
       Telephone_No: [data.Telephone_No || '', Validators.required],
       Salary_Bonus: [data.Salary_Bonus || ''],
@@ -675,7 +688,7 @@ export class FormComponent implements OnInit {
       Town: [data.Town || '', Validators.required],
       ID_type: [data.ID_type || '', Validators.required],
       ID_Passport_Reg_No: [data.ID_Passport_Reg_No || '', Validators.required],
-      Date_of_Birth: [data.Date_of_Birth || '', Validators.required],
+      Date_of_Birth: [data.Date_of_Birth || '', [Validators.required, this.yearEarlierThanCurrentValidator]],
       Country_of_Origin: [data.Country_of_Origin || '', Validators.required],
       TIN: [data.TIN || '', Validators.required],
       Direct_Shareholding_Percentage: [data.Direct_Shareholding_Percentage || ''],
@@ -699,22 +712,25 @@ export class FormComponent implements OnInit {
       Town: [data.Town || '', Validators.required],
       ID_type: [data.ID_type || '', Validators.required],
       ID_Passport_No: [data.ID_Passport_No || '', Validators.required],
-      Date_of_Birth: [data.Date_of_Birth || '', Validators.required],
+      Date_of_Birth: [data.Date_of_Birth || '', [Validators.required, this.yearEarlierThanCurrentValidator]],
       Telephone_No: [data.Telephone_No || '', Validators.required],
       Fees_Commission_Allowance: [data.Fees_Commission_Allowance || '']
     });
   }
 
   createC10Row(data: any = {}): FormGroup {
+    console.log('c10 create');
+    const isRequired = this.le1Form?.get('C10_Has_Subsidiary_Outside_Labuan')?.value === '1';
     return this.fb.group({
-      Name: [data.Name || '', Validators.required],
+      Name: [data.Name || '', isRequired ? Validators.required : null],
       Registration_No: [data.Registration_No || ''],
       TIN: [data.TIN || ''],
-      Have_Transactions: [data.Have_Transactions || '', Validators.required],
+      Have_Transactions: [data.Have_Transactions || '', isRequired ? Validators.required : null],
     });
   }
 
   createC11Row(data: any = {}): FormGroup {
+
     const isRequired = this.le1Form?.get('C11_Received_Payments_from_Malaysian_Resident')?.value === '1';
 
     return this.fb.group({
@@ -804,7 +820,7 @@ export class FormComponent implements OnInit {
     this.checkAllSectionsCompletion();
 
     // Optional: Scroll to the new row or show a notification
-    // alert('Copied to Beneficial Owner successfully. Please fill in the missing Telephone No.');
+    // this.dialogService.alert('Copied to Beneficial Owner successfully. Please fill in the missing Telephone No.').subscribe();
   }
 
   removeRow(section: 'b1' | 'c3' | 'c4' | 'c5' | 'c10' | 'c11', index: number): void {
@@ -901,6 +917,23 @@ export class FormComponent implements OnInit {
 
     this.le1Form.get('C10_Has_Subsidiary_Outside_Labuan')?.valueChanges.subscribe(value => {
       value === '1' ? this.c10Rows.enable() : this.c10Rows.disable();
+      //make sure the c10 validation is disabled if the value is not 1
+      if (value !== '1') {
+        this.c10Rows.controls.forEach(row => {
+          row.get('Name')?.clearValidators();
+          row.get('Registration_No')?.clearValidators();
+          row.get('Name')?.updateValueAndValidity({ emitEvent: false });
+          row.get('Registration_No')?.updateValueAndValidity({ emitEvent: false });
+          row.reset();
+        });
+      } else {
+        this.c10Rows.controls.forEach(row => {
+          row.get('Name')?.setValidators(Validators.required);
+          row.get('Registration_No')?.setValidators(Validators.required);
+          row.get('Name')?.updateValueAndValidity({ emitEvent: false });
+          row.get('Registration_No')?.updateValueAndValidity({ emitEvent: false });
+        });
+      }
     });
 
 
@@ -1454,7 +1487,7 @@ export class FormComponent implements OnInit {
 
   saveProject(): void {
     if (!this.projectId) {
-      alert('No project is currently loaded.');
+      this.dialogService.alert('No project is currently loaded.').subscribe();
       return;
     }
 
@@ -1466,11 +1499,11 @@ export class FormComponent implements OnInit {
     this.http.put(`${this.apiUrl}/updateProjectDetails/${this.projectId}`, { data: nestedData }).subscribe({
       next: (response) => {
         console.log('Project update successful', response);
-        alert('Project data has been saved successfully!');
+        this.dialogService.alert('Project data has been saved successfully!').subscribe();
       },
       error: (err) => {
         console.error('Error updating project details:', err);
-        alert('An error occurred while saving the project.');
+        this.dialogService.alert('An error occurred while saving the project.').subscribe();
       },
       complete: () => {
         this.isLoading = false;
@@ -1483,7 +1516,7 @@ export class FormComponent implements OnInit {
 
   async generatePdf(): Promise<void> {
     if (this.le1Form.invalid) {
-      alert('The form is invalid. Please check all fields.');
+      this.dialogService.alert('The form is invalid. Please check all fields.').subscribe();
       return;
     }
     this.isLoading = true;
@@ -1536,9 +1569,9 @@ export class FormComponent implements OnInit {
       const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
       saveAs(blob, 'LE1_completed.pdf');
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating PDF:', error);
-      alert('An error occurred while generating the PDF. Check the console for details.');
+      this.dialogService.alert(error.message || 'An error occurred while generating the PDF. Check the console for details.').subscribe();
     } finally {
       this.isLoading = false;
     }
@@ -1646,53 +1679,53 @@ export class FormComponent implements OnInit {
     // Perform validations
 
     if (Pnl_Net_Profit_Loss !== calculated_Net_Profit_Loss) {
-      alert(`Validation Error: Net Profit/Loss should be equal to Gross Profit/Loss + Other Income - Total Expenditure.\n\nCurrent Value: ${Pnl_Net_Profit_Loss}\nCalculated Value: ${calculated_Net_Profit_Loss}`);
+      this.dialogService.alert(`Validation Error: Net Profit/Loss should be equal to Gross Profit/Loss + Other Income - Total Expenditure.\n\nCurrent Value: ${Pnl_Net_Profit_Loss}\nCalculated Value: ${calculated_Net_Profit_Loss}`).subscribe();
       return false;
     }
     if (fp_Total_Liabilities_and_Equity !== calculated_Total_Liabilities_and_Equity) {
       console.log(calculated_Total_Liabilities)
       console.log(calculated_Total_Equity)
-      alert(`Validation Error: Total Liabilities and Equity should be equal to the sum of Total Liabilities and Total Equity.\n\nCurrent Value: ${fp_Total_Liabilities_and_Equity}\nCalculated Value: ${calculated_Total_Liabilities_and_Equity}`);
+      this.dialogService.alert(`Validation Error: Total Liabilities and Equity should be equal to the sum of Total Liabilities and Total Equity.\n\nCurrent Value: ${fp_Total_Liabilities_and_Equity}\nCalculated Value: ${calculated_Total_Liabilities_and_Equity}`).subscribe();
       return false;
     }
     if (fp_Total_Equity !== calculated_Total_Equity) {
-      alert(`Validation Error: Total Equity should be equal to the sum of Issued Paid-Up Capital, Profit/Loss Appropriation, and Reserve Account.\n\nCurrent Value: ${fp_Total_Equity}\nCalculated Value: ${calculated_Total_Equity}`);
+      this.dialogService.alert(`Validation Error: Total Equity should be equal to the sum of Issued Paid-Up Capital, Profit/Loss Appropriation, and Reserve Account.\n\nCurrent Value: ${fp_Total_Equity}\nCalculated Value: ${calculated_Total_Equity}`).subscribe();
       return false;
     }
     if (fp_Total_Liabilities !== calculated_Total_Liabilities) {
-      alert(`Validation Error: Total Liabilities should be equal to the sum of Total Current Liabilities and Non-Current Liabilities.\n\nCurrent Value: ${fp_Total_Liabilities}\nCalculated Value: ${calculated_Total_Liabilities}`);
+      this.dialogService.alert(`Validation Error: Total Liabilities should be equal to the sum of Total Current Liabilities and Non-Current Liabilities.\n\nCurrent Value: ${fp_Total_Liabilities}\nCalculated Value: ${calculated_Total_Liabilities}`).subscribe();
       return false;
     }
     if (fp_Total_Current_Liabilities !== calculated_Total_Current_Liabilities) {
-      alert(`Validation Error: Total Current Liabilities should be equal to the sum of all current liabilities fields.\n\nCurrent Value: ${fp_Total_Current_Liabilities}\nCalculated Value: ${calculated_Total_Current_Liabilities}`);
+      this.dialogService.alert(`Validation Error: Total Current Liabilities should be equal to the sum of all current liabilities fields.\n\nCurrent Value: ${fp_Total_Current_Liabilities}\nCalculated Value: ${calculated_Total_Current_Liabilities}`).subscribe();
       return false;
     }
     if (fp_Total_Assets !== calculated_Total_Assets) {
-      alert(`Validation Error: Total Assets should be equal to the sum of Total Current Assets and Total Non-Current Assets.\n\nCurrent Value: ${fp_Total_Assets}\nCalculated Value: ${calculated_Total_Assets}`);
+      this.dialogService.alert(`Validation Error: Total Assets should be equal to the sum of Total Current Assets and Total Non-Current Assets.\n\nCurrent Value: ${fp_Total_Assets}\nCalculated Value: ${calculated_Total_Assets}`).subscribe();
       return false;
     }
     if (fp_Total_Current_Assets !== calculated_Total_Current_Assets) {
-      alert(`Validation Error: Total Current Assets should be equal to the sum of all current asset fields.\n\nCurrent Value: ${fp_Total_Current_Assets}\nCalculated Value: ${calculated_Total_Current_Assets}`);
+      this.dialogService.alert(`Validation Error: Total Current Assets should be equal to the sum of all current asset fields.\n\nCurrent Value: ${fp_Total_Current_Assets}\nCalculated Value: ${calculated_Total_Current_Assets}`).subscribe();
       return false;
     }
     if (fp_Total_Non_Current_Assets !== calculated_Total_Non_Current_Assets) {
-      alert(`Validation Error: Total Non-Current Assets should be equal to the sum of all non-current asset fields.\n\nCurrent Value: ${fp_Total_Non_Current_Assets}\nCalculated Value: ${calculated_Total_Non_Current_Assets}`);
+      this.dialogService.alert(`Validation Error: Total Non-Current Assets should be equal to the sum of all non-current asset fields.\n\nCurrent Value: ${fp_Total_Non_Current_Assets}\nCalculated Value: ${calculated_Total_Non_Current_Assets}`).subscribe();
       return false;
     }
     if (pnl_Total_Expenditure !== calculated_Total_Expenditure) {
-      alert(`Validation Error: Total Expenditure should be equal to the sum of all expenditure fields.\n\nCurrent Value: ${pnl_Total_Expenditure}\nCalculated Value: ${calculated_Total_Expenditure}`);
+      this.dialogService.alert(`Validation Error: Total Expenditure should be equal to the sum of all expenditure fields.\n\nCurrent Value: ${pnl_Total_Expenditure}\nCalculated Value: ${calculated_Total_Expenditure}`).subscribe();
       return false;
     }
     if (pnl_Gross_Profit_Loss !== calculated_Gross_Profit_Loss) {
-      alert(`Validation Error: Gross Profit/Loss should be equal to Sales Turnover - Cost of Sales.\n\nCurrent Value: ${pnl_Gross_Profit_Loss}\nCalculated Value: ${calculated_Gross_Profit_Loss}`);
+      this.dialogService.alert(`Validation Error: Gross Profit/Loss should be equal to Sales Turnover - Cost of Sales.\n\nCurrent Value: ${pnl_Gross_Profit_Loss}\nCalculated Value: ${calculated_Gross_Profit_Loss}`).subscribe();
       return false;
     }
     if (pnl_Cost_of_Sales !== calculated_Cost_of_Sales) {
-      alert(`Validation Error: Pnl_Cost_of_Sales should be equal to Pnl_Opening_Inventory + Pnl_Cost_of_Purchases + Pnl_Cost_of_Production - Pnl_Closing_Inventory.\n\nCurrent Value: ${pnl_Cost_of_Sales}\nCalculated Value: ${calculated_Cost_of_Sales}`);
+      this.dialogService.alert(`Validation Error: Pnl_Cost_of_Sales should be equal to Pnl_Opening_Inventory + Pnl_Cost_of_Purchases + Pnl_Cost_of_Production - Pnl_Closing_Inventory.\n\nCurrent Value: ${pnl_Cost_of_Sales}\nCalculated Value: ${calculated_Cost_of_Sales}`).subscribe();
       return false;
     }
     if (fp_Total_Liabilities_and_Equity !== fp_Total_Assets) {
-      alert(`Validation Error: Total Liabilities and Equity should be equal to Total Assets.\n\nTotal Liabilities and Equity: ${fp_Total_Liabilities_and_Equity}\nTotal Assets: ${fp_Total_Assets}`);
+      this.dialogService.alert(`Validation Error: Total Liabilities and Equity should be equal to Total Assets.\n\nTotal Liabilities and Equity: ${fp_Total_Liabilities_and_Equity}\nTotal Assets: ${fp_Total_Assets}`).subscribe();
       return false;
     }
     return true;
@@ -1736,7 +1769,7 @@ export class FormComponent implements OnInit {
         }
       }
 
-      alert(msg);
+      this.dialogService.alert(msg).subscribe();
 
       // 5. Scroll to first error
       this.scrollToFirstError();
