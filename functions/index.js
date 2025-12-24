@@ -1732,7 +1732,7 @@ async function updateBitrixLead(leadId, content) {
 
 
 // --- MAIN PROCESSOR ---
-app.get('/lead/validate', async (req, res) => {
+app.post('/lead/validate', async (req, res) => {
   // Critical for Cloud Functions: Set 5 minute timeout
   req.setTimeout(300000);
 
