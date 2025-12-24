@@ -7,11 +7,12 @@ import { FormsModule } from '@angular/forms';
 import { baseUrl } from '../../environments/environment';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TopupModalComponent } from '../topup-modal/topup-modal.component';
+import { DialogService } from '../dialog.service';
 
 interface Project {
   ID: number;
   name: string;
-  status: string;
+  status: string | number;
   year_end: string;
   created_on: string;
   updated_on: string;
@@ -31,6 +32,7 @@ export class ReportsComponent implements OnInit {
   filteredProjects: Project[] = [];
   paginatedProjects: Project[] = [];
   searchTerm: string = '';
+  statusFilter: string = 'all';
   currentPage: number = 1;
   itemsPerPage: number = 10;
   itemsPerPageOptions = [5, 10, 25, 50];
@@ -41,7 +43,8 @@ export class ReportsComponent implements OnInit {
     private router: Router,
     private auth: AuthService,
     private http: HttpClient,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private dialogService: DialogService
   ) {
     effect(() => {
       this.userID = this.auth.getUserId();
@@ -76,10 +79,12 @@ export class ReportsComponent implements OnInit {
   }
 
   filterAndPaginateProjects(): void {
-    // Filter projects by search term
-    this.filteredProjects = this.projects.filter((project) =>
-      project.name.toLowerCase().includes(this.searchTerm.toLowerCase())
-    );
+    // Filter projects by search term and status
+    this.filteredProjects = this.projects.filter((project) => {
+      const matchesSearch = project.name.toLowerCase().includes(this.searchTerm.toLowerCase());
+      const matchesStatus = this.statusFilter === 'all' || project.status.toString() === this.statusFilter;
+      return matchesSearch && matchesStatus;
+    });
 
     // Paginate the filtered projects
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
@@ -114,7 +119,39 @@ export class ReportsComponent implements OnInit {
     return pages;
   }
 
+  getStatusLabel(status: any): string {
+    const s = status.toString();
+    if (s === '2') return 'Complete';
+    if (s === '1') return 'In Progress';
+    return s;
+  }
+
+  getStatusClass(status: any): string {
+    const s = status.toString();
+    if (s === '2') return 'status-complete';
+    if (s === '1') return 'status-in-progress';
+    return 'status-unknown';
+  }
+
+  onStatusFilterChange(): void {
+    this.currentPage = 1;
+    this.filterAndPaginateProjects();
+  }
+
   createNewReport(): void {
+    if (this.creditBalance < 1) {
+      this.dialogService.confirm({
+        title: 'Insufficient Credits',
+        message: 'You need at least 1 credit to create a new report. Would you like to top up now?',
+        confirmText: 'Top Up',
+        cancelText: 'Maybe Later'
+      }).subscribe(confirm => {
+        if (confirm) {
+          this.openTopUpModal();
+        }
+      });
+      return;
+    }
     // Navigate to the component for creating a new report
     this.router.navigate(['/home']);
   }

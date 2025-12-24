@@ -16,26 +16,26 @@ import { baseUrl } from '../environments/environment';
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet,
-    CommonModule,  
+    CommonModule,
     RouterModule,
     MatDialogModule, // ⬅️ Add this here
-    MatButtonModule 
+    MatButtonModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-    private apiUrl = baseUrl;
+  private apiUrl = baseUrl;
   title = 'ng';
   userID: any;
   username: any;
   isLoginPage = false;
   constructor(private idle: IdleService,
     private router: Router,
-     private auth: AuthService,
-     private dialogService: DialogService,
+    private auth: AuthService,
+    private dialogService: DialogService,
 
-         private http: HttpClient,
+    private http: HttpClient,
   ) {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -43,15 +43,15 @@ export class AppComponent {
         this.isLoginPage = event.urlAfterRedirects === '/login';
       });
 
-       effect(() => {
-            this.userID = this.auth.userId();
-            if (this.userID) {
-              this.loadUserData();
-            } else {
-              // Clear user data on logout
-              this.username = null;
-            }
-          });
+    effect(() => {
+      this.userID = this.auth.userId();
+      if (this.userID) {
+        this.loadUserData();
+      } else {
+        // Clear user data on logout
+        this.username = null;
+      }
+    });
   }
   isCollapsed = false;
 
@@ -59,8 +59,8 @@ export class AppComponent {
     // this.isLoading = true;
     this.http.get<any>(`${this.apiUrl}/getUserDetails/${this.userID}`).subscribe({
       next: (userData) => {
-        if(userData.length>0){
-          this.username= userData[0].Name
+        if (userData.length > 0) {
+          this.username = userData[0].Name
         }
         // this.settingsForm.patchValue(userData[0]);
       },
@@ -68,7 +68,7 @@ export class AppComponent {
         console.error('Failed to load user data:', err);
         alert('Could not load your profile data. Please try again later.');
       },
-      
+
     });
   }
 
@@ -95,7 +95,13 @@ export class AppComponent {
           console.log('Deletion canceled.');
         }
       });
-    
-    // this.router.navigate(['/login']);
+
+  }
+
+  openSupport() {
+    this.dialogService.alert(
+      'Need help? Contact our support team at support@altomate.io or call +6012-3456789. We are available Mon-Fri, 9 AM - 6 PM.',
+      'Customer Support'
+    ).subscribe();
   }
 }

@@ -49,6 +49,15 @@
             <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()" placeholder="Search by report name..."
                 class="search-input" />
         </div>
+        <div class="filter-container">
+            <label for="statusFilter">Status:</label>
+            <select id="statusFilter" [(ngModel)]="statusFilter" (change)="onStatusFilterChange()"
+                class="status-filter-select">
+                <option value="all">All</option>
+                <option value="1">In Progress</option>
+                <option value="2">Complete</option>
+            </select>
+        </div>
         <div class="items-per-page-container">
             <label for="itemsPerPage">Show:</label>
             <select id="itemsPerPage" [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange()"
@@ -76,8 +85,11 @@
             <tbody>
                 <tr *ngFor="let project of paginatedProjects">
                     <td data-label="Name">{{ project.name }}</td>
-                    <td data-label="Status"><span class="status" [ngClass]="project.status">{{
-                            project.status }}</span></td>
+                    <td data-label="Status">
+                        <span class="status-badge" [ngClass]="getStatusClass(project.status)">
+                            {{ getStatusLabel(project.status) }}
+                        </span>
+                    </td>
                     <td data-label="Year End">{{ project.year_end }}</td>
                     <td data-label="Created On">{{ project.created_on | date:'short' }}</td>
                     <td data-label="Updated On">{{ project.updated_on | date:'short' }}</td>

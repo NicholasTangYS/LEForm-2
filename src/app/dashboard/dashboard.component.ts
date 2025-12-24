@@ -7,6 +7,7 @@ import { AuthService } from '../auth/auth.service';
 import { baseUrl } from '../../environments/environment';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TopupModalComponent } from '../topup-modal/topup-modal.component';
+import { DialogService } from '../dialog.service';
 
 interface Project {
   ID: number;
@@ -14,6 +15,7 @@ interface Project {
   status: string;
   year_end: string;
   created_on: string;
+  updated_on: string;
 }
 
 interface Transaction {
@@ -41,12 +43,14 @@ export class DashboardComponent implements OnInit {
   recentProjects: Project[] = [];
   recentTransactions: Transaction[] = [];
   isLoading: boolean = false;
+  usageRate: number = 0;
 
   constructor(
     private http: HttpClient,
     private router: Router,
     private auth: AuthService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private dialogService: DialogService
   ) {
     effect(() => {
       this.userID = this.auth.getUserId();
@@ -57,12 +61,7 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Chart initialization will happen after data is loaded if needed
-    // or we can use fixed data for now with improved UI
-    setTimeout(() => {
-      this.initCashFlowChart();
-      this.initIncomeExpenseChart();
-    }, 500);
+    // We let the data loading trigger chart initialization
   }
 
   loadDashboardData(): void {
@@ -72,6 +71,7 @@ export class DashboardComponent implements OnInit {
     this.loadCreditBalance();
     this.getRecentProjects();
     this.getRecentTransactions();
+    this.loadDashboardStats();
   }
 
   loadCreditBalance(): void {
@@ -98,6 +98,21 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  loadDashboardStats(): void {
+    this.http.get<any>(`${this.apiUrl}/api/credits/stats/${this.userID}`).subscribe({
+      next: (stats) => {
+        this.usageRate = stats.usageRate;
+        this.initCashFlowChart(stats.distribution);
+        this.initIncomeExpenseChart(stats.trends);
+      },
+      error: (err) => {
+        console.error('Error stats:', err);
+        this.initCashFlowChart([]);
+        this.initIncomeExpenseChart([]);
+      }
+    });
+  }
+
   openTopUpModal(): void {
     const dialogRef = this.dialog.open(TopupModalComponent, {
       width: '600px',
@@ -114,6 +129,19 @@ export class DashboardComponent implements OnInit {
   }
 
   createNewReport(): void {
+    if (this.creditBalance < 1) {
+      this.dialogService.confirm({
+        title: 'Insufficient Credits',
+        message: 'You need at least 1 credit to create a new report. Would you like to top up now?',
+        confirmText: 'Top Up',
+        cancelText: 'Maybe Later'
+      }).subscribe(confirm => {
+        if (confirm) {
+          this.openTopUpModal();
+        }
+      });
+      return;
+    }
     this.router.navigate(['/home']);
   }
 
@@ -131,10 +159,14 @@ export class DashboardComponent implements OnInit {
     return new Date(dateStr).toLocaleDateString();
   }
 
-  initCashFlowChart(): void {
+  initCashFlowChart(data: any[] = []): void {
     const chartDom = document.getElementById('cash-flow-chart');
     if (!chartDom) return;
-    const myChart = echarts.init(chartDom);
+    const myChart = echarts.getInstanceByDom(chartDom) || echarts.init(chartDom);
+
+    const displayData = data.length > 0 ? data : [
+      { value: 0, name: 'No data' }
+    ];
 
     const option: echarts.EChartsOption = {
       tooltip: { trigger: 'item' },
@@ -147,30 +179,33 @@ export class DashboardComponent implements OnInit {
           avoidLabelOverlap: false,
           itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
           label: { show: false, position: 'center' },
-          emphasis: { label: { show: true, fontSize: 20, fontWeight: 'bold' } },
-          data: [
-            { value: 1048, name: 'Form Generation' },
-            { value: 735, name: 'Top-ups' },
-            { value: 580, name: 'Bonus' },
-          ]
+          emphasis: { label: { show: true, fontSize: 16, fontWeight: 'bold' } },
+          data: displayData
         }
       ]
     };
     myChart.setOption(option);
   }
 
-  initIncomeExpenseChart(): void {
+  initIncomeExpenseChart(trends: any[] = []): void {
     const chartDom = document.getElementById('income-expense-chart');
     if (!chartDom) return;
-    const myChart = echarts.init(chartDom);
+    const myChart = echarts.getInstanceByDom(chartDom) || echarts.init(chartDom);
+
+    const xAxisData = trends.length > 0 ? trends.map(t => {
+      const d = new Date(t.date);
+      return d.toLocaleDateString(undefined, { weekday: 'short' });
+    }) : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    const seriesData = trends.length > 0 ? trends.map(t => t.value) : [0, 0, 0, 0, 0, 0, 0];
 
     const option: echarts.EChartsOption = {
       tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
       grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-      xAxis: [{ type: 'category', data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] }],
+      xAxis: [{ type: 'category', data: xAxisData }],
       yAxis: [{ type: 'value' }],
       series: [
-        { name: 'Usage', type: 'line', smooth: true, data: [15, 22, 18, 32, 25, 10, 8], color: '#667eea' },
+        { name: 'Usage', type: 'line', smooth: true, data: seriesData, color: '#667eea', areaStyle: { opacity: 0.1 } },
       ]
     };
     myChart.setOption(option);

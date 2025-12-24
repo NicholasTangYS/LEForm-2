@@ -43,7 +43,7 @@
       <div class="kpi-card">
         <div class="kpi-info">
           <span class="label">Usage Rate</span>
-          <span class="value">92%</span>
+          <span class="value">{{ usageRate }}%</span>
         </div>
         <div class="kpi-icon usage">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -71,7 +71,7 @@
             </div>
             <div class="report-details">
               <span class="name">{{ project.name }}</span>
-              <span class="date">Updated {{ formatDate(project.created_on) }}</span>
+              <span class="date">Updated {{ formatDate(project.updated_on) }}</span>
             </div>
             <!-- <div class="report-status" [class]="project.status.toLowerCase()">
               {{ project.status }}

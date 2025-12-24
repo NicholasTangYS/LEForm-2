@@ -10,7 +10,7 @@ import { saveAs } from 'file-saver';
 import { AuthService } from '../auth/auth.service';
 import { baseUrl } from '../../environments/environment';
 import { DialogService } from '../dialog.service';
-import { ThousandSeparatorDirective } from '../thousand-separator.directive.ts';
+import { ThousandSeparatorDirective } from '../thousand-separator.directive';
 import { AutoResizeDirective } from '../auto-resize.directive';
 
 @Component({
@@ -41,6 +41,7 @@ export class FormComponent implements OnInit {
   sidebarOpen = false;
   private apiUrl = baseUrl;
   projectId: any;
+  projectStatus: number = 1; // 1: In Progress, 2: Complete
 
   // Section completion tracking
   sectionStatus: { [key: string]: boolean } = {};
@@ -545,6 +546,10 @@ export class FormComponent implements OnInit {
     return this.le1Form.get('FS_in_Foreign_Currency_Yes')?.value === '1';
   }
 
+  get isReadOnly(): boolean {
+    return this.projectStatus === 2;
+  }
+
   get currentExchangeRate(): number {
     const rate = this.le1Form.get('Currency_Exchange_Rate')?.value;
     return rate ? parseFloat(String(rate).replace(/,/g, '')) : 1; // Default to 1 if invalid
@@ -571,6 +576,7 @@ export class FormComponent implements OnInit {
   }
   // --- Row Creators & Logic ---
   createB1Row(data: any = {}): FormGroup {
+
     const group = this.fb.group({
       // Add Validators.required to fields
       Business_Activity_Code: [data.Business_Activity_Code || '', Validators.required],
@@ -607,6 +613,9 @@ export class FormComponent implements OnInit {
       const code = codeControl?.value;
       const status = statusControl?.value;
 
+      // Robustness: If project is completed, do not re-enable fields via this logic
+      if (this.projectStatus === 2) return;
+
       const fieldMap = {
         cml: 'Compliance_with_CML',
         employees: 'No_of_Employees',
@@ -622,12 +631,23 @@ export class FormComponent implements OnInit {
       const setStatus = (fields: string[], isEnabled: boolean) => {
         fields.forEach(f => {
           const control = rowGroup.get(f);
+          if (!control) return;
+
+          // Defense in depth: prevent re-enabling if project is completed
+          if (this.projectStatus === 2 && isEnabled) return;
+
           if (isEnabled) {
-            control?.enable({ emitEvent: false });
+            control.enable({ emitEvent: false });
+            control.setValidators(Validators.required);
           } else {
-            control?.disable({ emitEvent: false });
-            control?.setValue('', { emitEvent: false });
+            control.disable({ emitEvent: false });
+            // Only clear value if not loading to preserve initial parsed data
+            if (!this.isLoading) {
+              control.setValue('', { emitEvent: false });
+            }
+            control.clearValidators();
           }
+          control.updateValueAndValidity({ emitEvent: false });
         });
       };
 
@@ -653,7 +673,9 @@ export class FormComponent implements OnInit {
 
     codeControl?.valueChanges.subscribe(updateRowState);
     statusControl?.valueChanges.subscribe(updateRowState);
-    updateRowState(); // Run init check
+
+    // Defer initial run to ensure values are fully set
+    setTimeout(() => updateRowState(), 10);
   }
 
   createC3Row(data: any = {}): FormGroup {
@@ -671,10 +693,10 @@ export class FormComponent implements OnInit {
       Date_of_Birth: [data.Date_of_Birth || '', [Validators.required, this.yearEarlierThanCurrentValidator]],
       TIN: [data.TIN || '', Validators.required],
       Telephone_No: [data.Telephone_No || '', Validators.required],
-      Salary_Bonus: [data.Salary_Bonus || ''],
-      Fees_Commission_Allowances: [data.Fees_Commission_Allowances || ''],
-      Total_Loan_to_Officer: [data.Total_Loan_to_Officer || ''],
-      Total_Loan_from_Officer: [data.Total_Loan_from_Officer || '']
+      Salary_Bonus: [data.Salary_Bonus || 0],
+      Fees_Commission_Allowances: [data.Fees_Commission_Allowances || 0],
+      Total_Loan_to_Officer: [data.Total_Loan_to_Officer || 0],
+      Total_Loan_from_Officer: [data.Total_Loan_from_Officer || 0]
     });
   }
 
@@ -691,8 +713,8 @@ export class FormComponent implements OnInit {
       Date_of_Birth: [data.Date_of_Birth || '', [Validators.required, this.yearEarlierThanCurrentValidator]],
       Country_of_Origin: [data.Country_of_Origin || '', Validators.required],
       TIN: [data.TIN || '', Validators.required],
-      Direct_Shareholding_Percentage: [data.Direct_Shareholding_Percentage || ''],
-      Dividends_Received_in_Basis_Period: [data.Dividends_Received_in_Basis_Period || '']
+      Direct_Shareholding_Percentage: [data.Direct_Shareholding_Percentage || 0],
+      Dividends_Received_in_Basis_Period: [data.Dividends_Received_in_Basis_Period || 0]
     });
   }
 
@@ -700,11 +722,11 @@ export class FormComponent implements OnInit {
     return this.fb.group({
       Name: [data.Name || '', Validators.required],
       TIN: [data.TIN || '', Validators.required],
-      Shareholding_Percentage: [data.Shareholding_Percentage || ''],
-      Salary_Bonus: [data.Salary_Bonus || ''],
-      Dividends_Received_in_Basis_Period: [data.Dividends_Received_in_Basis_Period || ''],
-      Total_Loan_from_Owner: [data.Total_Loan_from_Owner || ''],
-      Total_Loan_to_Owner: [data.Total_Loan_to_Owner || ''],
+      Shareholding_Percentage: [data.Shareholding_Percentage || 0],
+      Salary_Bonus: [data.Salary_Bonus || 0],
+      Dividends_Received_in_Basis_Period: [data.Dividends_Received_in_Basis_Period || 0],
+      Total_Loan_from_Owner: [data.Total_Loan_from_Owner || 0],
+      Total_Loan_to_Owner: [data.Total_Loan_to_Owner || 0],
       Country: [data.Country || '', Validators.required],
       Address1: [data.Address1 || '', Validators.required],
       Address2: [data.Address2 || ''],
@@ -714,7 +736,7 @@ export class FormComponent implements OnInit {
       ID_Passport_No: [data.ID_Passport_No || '', Validators.required],
       Date_of_Birth: [data.Date_of_Birth || '', [Validators.required, this.yearEarlierThanCurrentValidator]],
       Telephone_No: [data.Telephone_No || '', Validators.required],
-      Fees_Commission_Allowance: [data.Fees_Commission_Allowance || '']
+      Fees_Commission_Allowance: [data.Fees_Commission_Allowance || 0]
     });
   }
 
@@ -748,6 +770,16 @@ export class FormComponent implements OnInit {
     fields.forEach(name => {
       const control = this.le1Form.get(name);
       if (!control) return;
+
+      // Robustness: If project is completed, do not re-enable fields logic
+      if (this.projectStatus === 2 && shouldEnable) {
+        // If we are trying to enable, but it's read-only, DO NOT Enable.
+        // However, if we are disabling (e.g. logic dictates it should be hidden/cleared), 
+        // we might still want to respect that? 
+        // Actually, if it's read-only, the entire form is disabled. 
+        // We generally shouldn't be changing individual control states.
+        return;
+      }
 
       if (shouldEnable) {
         control.enable();
@@ -916,6 +948,7 @@ export class FormComponent implements OnInit {
     });
 
     this.le1Form.get('C10_Has_Subsidiary_Outside_Labuan')?.valueChanges.subscribe(value => {
+      if (this.projectStatus === 2) return; // Read-only check
       value === '1' ? this.c10Rows.enable() : this.c10Rows.disable();
       //make sure the c10 validation is disabled if the value is not 1
       if (value !== '1') {
@@ -938,6 +971,7 @@ export class FormComponent implements OnInit {
 
 
     this.le1Form.get('C11_Received_Payments_from_Malaysian_Resident')?.valueChanges.subscribe(value => {
+      if (this.projectStatus === 2) return; // Read-only check
       value === '1' ? this.c11Rows.enable() : this.c11Rows.disable();
 
       this.c11Rows.controls.forEach(row => {
@@ -997,8 +1031,9 @@ export class FormComponent implements OnInit {
     this.isLoading = true;
     this.http.get<any>(`${this.apiUrl}/getProjectDetails/${projectId}`).subscribe({
       next: (response) => {
-        if (response && response[0].data) {
+        if (response && response[0]) {
           const data = response[0].data;
+          this.projectStatus = response[0].status || 1;
 
 
 
@@ -1050,14 +1085,31 @@ export class FormComponent implements OnInit {
           // 4. Post-load logic
           this.updateBusinessActivityDescription(data.Business_Activity_Code);
           this.updateFpLabuanEntityType(data.Type_of_Labuan_entity);
-          this.checkAllSectionsCompletion();
+
+
+          // Handle Read-Only state
+          if (this.projectStatus === 2) {
+            this.le1Form.disable();
+          } else {
+            this.le1Form.enable();
+          }
         }
       },
       error: (err) => {
         console.error('Error fetching project details:', err);
         this.isLoading = false;
       },
-      complete: () => { setTimeout(() => this.isLoading = false, 500); }
+      complete: () => {
+        setTimeout(() => {
+          this.isLoading = false;
+          this.checkAllSectionsCompletion();
+
+          // Ensure form stays disabled after all async operations complete
+          if (this.projectStatus === 2) {
+            this.le1Form.disable();
+          }
+        }, 500);
+      }
     });
   }
 
@@ -1483,6 +1535,45 @@ export class FormComponent implements OnInit {
     }, { emitEvent: false });
   }
 
+  // --- Revert Status Logic ---
+  revertToInProgress(): void {
+    if (!this.projectId) return;
+
+    this.dialogService.confirm({
+      title: 'Edit Project?',
+      message: 'This project is currently marked as Completed. Editing will revert the status to "In Progress". Do you want to continue?',
+      confirmText: 'Yes, Edit',
+      cancelText: 'Cancel'
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        this.isLoading = true;
+        this.http.patch(`${this.apiUrl}/api/projects/status/${this.projectId}`, { status: 1 }).subscribe({
+          next: () => {
+            this.isLoading = false;
+            this.projectStatus = 1;
+            this.le1Form.enable();
+
+            // Re-trigger logic to ensure correct field states (optional, but good practice)
+            // However, enable() might just enable everything. 
+            // We might need to re-run specific logic if start-up logic was skipped.
+            // For now, let's assume the subscriptions will handle changes if any, 
+            // or we might want to reload data to be safe? 
+            // Reloading is safer to reset dynamic disables.
+            this.loadProjectData(this.projectId);
+
+            this.dialogService.alert('Project status reverted to "In Progress". You can now edit.').subscribe();
+          },
+          error: (err) => {
+            console.error('Error reverting project status:', err);
+            this.isLoading = false;
+            this.dialogService.alert('Failed to update project status. Please try again.').subscribe();
+          }
+        });
+      }
+    });
+
+  }
+
   // --- Submit / Save / PDF ---
 
   saveProject(): void {
@@ -1818,6 +1909,35 @@ export class FormComponent implements OnInit {
     navigator.clipboard.writeText(this.jsonDataForExtension).then(() => {
       this.copyButtonText = 'Copied!';
       setTimeout(() => this.copyButtonText = 'Copy JSON', 2000);
+    });
+  }
+  markAsComplete(): void {
+    if (!this.projectId) return;
+
+    this.closeInstructionModal();
+    this.dialogService.confirm({
+      title: 'Confirm Completion',
+      message: 'Are you sure you want to mark this project as complete? This will finalize the report status.',
+      confirmText: 'Mark as Complete',
+      cancelText: 'Cancel'
+    }).subscribe(confirm => {
+      if (confirm) {
+        this.isLoading = true;
+        this.http.patch(`${this.apiUrl}/api/projects/status/${this.projectId}`, { status: 2 }).subscribe({
+          next: () => {
+            this.isLoading = false;
+            this.isInstructionModalVisible = false;
+            this.projectStatus = 2;
+            this.le1Form.disable();
+            this.router.navigate(['/reports']);
+          },
+          error: (err) => {
+            console.error('Error updating project status:', err);
+            this.isLoading = false;
+            alert('Failed to update project status. Please try again.');
+          }
+        });
+      }
     });
   }
 }

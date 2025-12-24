@@ -367,6 +367,9 @@ export class HomeComponent {
         // Use the service to set the ID
         this.auth.setProjectId(projectId);
 
+        // Deduct 1 credit for successful report generation
+        this.deductCredit(projectId);
+
         // Navigate without passing state in the URL
         this.router.navigate(['/form']);
       }),
@@ -380,5 +383,20 @@ export class HomeComponent {
         this.isLoading = false; // Always turn off loader when the process is complete
       })
     );
+  }
+
+  deductCredit(projectId: number): void {
+    const deductionBody = {
+      userId: this.userID,
+      amount: 1,
+      description: `Report Generation - ID: ${projectId}`,
+      referenceType: 'PROJECT',
+      referenceId: projectId
+    };
+
+    this.http.post(`${this.apiUrl}/api/credits/deduct`, deductionBody).subscribe({
+      next: (res) => console.log('Credit deducted successfully:', res),
+      error: (err) => console.error('Failed to deduct credit:', err)
+    });
   }
 }

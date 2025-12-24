@@ -593,7 +593,7 @@ app.get('/getProjectDetails/:Id', async (req, res) => {
 
   try {
     // Step 1: Retrieve the main invoice details
-    const query = 'SELECT data FROM le_project where ID = ?';
+    const query = 'SELECT data, status FROM le_project where ID = ?';
     db.query(query, [Id], (err, results) => {
       if (err) throw err;
       res.json(results);
@@ -693,6 +693,24 @@ app.put('/updateProjectDetails/:Id', async (req, res) => {
     console.error('General error during project update:', err);
     res.status(500).send('An internal error occurred while updating the project data');
   }
+});
+
+app.patch('/api/projects/status/:Id', async (req, res) => {
+  const { Id } = req.params;
+  const { status } = req.body;
+
+  if (status === undefined) {
+    return res.status(400).json({ message: 'Status is required' });
+  }
+
+  const query = 'UPDATE le_project SET status = ?, updated_on = NOW() WHERE ID = ?';
+  db.query(query, [status, Id], (err, results) => {
+    if (err) {
+      console.error('Error updating status:', err);
+      return res.status(500).json({ message: 'Error updating project status' });
+    }
+    res.json({ success: true, message: 'Project status updated' });
+  });
 });
 
 app.post('/createProject', async (req, res) => {
@@ -2576,6 +2594,77 @@ app.patch('/api/discount-codes/:id/toggle-active', (req, res) => {
       is_active: !!is_active
     });
   });
+});
+
+
+// 12. Get Dashboard Statistics (Usage Rate, Distribution, Trends)
+app.get('/api/credits/stats/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    // 1. Distribution (Group by description for DEDUCTION)
+    const distributionQuery = `
+      SELECT description as name, SUM(amount) as value, transaction_type as type 
+      FROM le_credit_ledger 
+      WHERE user_id = ? 
+      GROUP BY description, transaction_type
+    `;
+
+    // 2. Weekly Usage Trends (Last 7 days)
+    const trendsQuery = `
+      SELECT DATE_FORMAT(created_at, '%Y-%m-%d') as date, SUM(amount) as value , transaction_type as type 
+      FROM le_credit_ledger 
+      WHERE user_id = ?  and transaction_type = 'DEDUCTION'
+      AND created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) 
+      GROUP BY DATE_FORMAT(created_at, '%Y-%m-%d'), transaction_type 
+      ORDER BY date ASC
+    `;
+
+    // 3. Overall Totals for Usage Rate
+    const totalsQuery = `
+      SELECT 
+        SUM(CASE WHEN transaction_type = 'DEDUCTION' THEN amount ELSE 0 END) as total_spent,
+        SUM(CASE WHEN transaction_type IN ('PURCHASE', 'BONUS') THEN amount ELSE 0 END) as total_earned
+      FROM le_credit_ledger 
+      WHERE user_id = ?
+    `;
+
+    const [distribution, trends, totals] = await Promise.all([
+      new Promise((resolve, reject) => {
+        db.query(distributionQuery, [userId], (err, results) => {
+          if (err) reject(err);
+          else resolve(results);
+        });
+      }),
+      new Promise((resolve, reject) => {
+        db.query(trendsQuery, [userId], (err, results) => {
+          if (err) reject(err);
+          else resolve(results);
+        });
+      }),
+      new Promise((resolve, reject) => {
+        db.query(totalsQuery, [userId], (err, results) => {
+          if (err) reject(err);
+          else resolve(results[0]);
+        });
+      })
+    ]);
+
+    // Calculate Usage Rate
+    const totalSpent = parseFloat(totals.total_spent || 0);
+    const totalEarned = parseFloat(totals.total_earned || 0);
+    const usageRate = totalEarned > 0 ? ((totalSpent / totalEarned) * 100) : 0;
+
+    res.json({
+      distribution: distribution.map(d => ({ name: d.name || 'Other', value: parseFloat(d.value) })),
+      trends: trends.map(t => ({ date: t.date, value: parseFloat(t.value) })),
+      usageRate: parseFloat(usageRate.toFixed(1))
+    });
+
+  } catch (err) {
+    console.error('Error fetching dashboard stats:', err);
+    res.status(500).json({ message: 'Error fetching dashboard statistics' });
+  }
 });
 
 
