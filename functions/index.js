@@ -121,7 +121,7 @@ app.post('/api/payment/stripe/create-payment-intent', async (req, res) => {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // Stripe expects cents
       currency: 'usd', // Adjust as needed
-      payment_method_types: ['card', 'google_pay', 'apple_pay'],
+      automatic_payment_methods: { enabled: true },
       metadata: {
         userId: userId.toString(),
         tokens: tokens.toString(),

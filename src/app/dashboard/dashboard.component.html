@@ -1,39 +1,121 @@
 <div class="dashboard-container">
   <div class="dashboard-content">
     <div class="dashboard-header">
-      <h1>Dashboard</h1>
+      <div class="header-main">
+        <h1>Welcome Back</h1>
+        <p class="subtitle">Here's what's happening with your account today.</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" (click)="createNewReport()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          New Report
+        </button>
+      </div>
     </div>
 
     <!-- KPI Cards -->
-    <!-- <div class="kpi-cards">
-      <div class="kpi-card">
-        <div class="kpi-value">{{ kpis.totalRevenue | currency }}</div>
-        <div class="kpi-label">Total Revenue</div>
+    <div class="kpi-grid">
+      <div class="kpi-card balance-card">
+        <div class="kpi-info">
+          <span style="color: rgb(229, 229, 229);" class="label">Available Credits</span>
+          <span style="color: white;" class="value">{{ creditBalance.toFixed(2) }}</span>
+        </div>
+        <button class="topup-btn" (click)="openTopUpModal()">Top Up</button>
       </div>
       <div class="kpi-card">
-        <div class="kpi-value">{{ kpis.netProfit | currency }}</div>
-        <div class="kpi-label">Net Profit</div>
+        <div class="kpi-info">
+          <span class="label">Total Reports</span>
+          <span class="value">{{ totalProjects }}</span>
+        </div>
+        <div class="kpi-icon reports">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+        </div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-value">{{ kpis.newCustomers }}</div>
-        <div class="kpi-label">New Customers</div>
+        <div class="kpi-info">
+          <span class="label">Usage Rate</span>
+          <span class="value">92%</span>
+        </div>
+        <div class="kpi-icon usage">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
       </div>
-      <div class="kpi-card">
-        <div class="kpi-value">{{ kpis.conversionRate }}%</div>
-        <div class="kpi-label">Conversion Rate</div>
-      </div>
-    </div> -->
+    </div>
 
-    <!-- Charts Grid -->
-    <!-- <div class="charts-grid">
-      <div class="card">
-        <h3>Cash Flow Sources</h3>
-        <div id="cash-flow-chart" style="width: 100%; height: 500px;"></div>
+    <!-- Main Grid -->
+    <div class="dashboard-grid">
+      <!-- Recent Reports -->
+      <div class="grid-card recent-reports">
+        <div class="card-header">
+          <h3>Recent Reports</h3>
+          <button class="view-all" (click)="viewAllReports()">View All</button>
+        </div>
+        <div class="report-list">
+          <div class="report-item" *ngFor="let project of recentProjects" (click)="editReport(project)">
+            <div class="report-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#667eea" stroke-width="2">
+                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                <polyline points="13 2 13 9 20 9"></polyline>
+              </svg>
+            </div>
+            <div class="report-details">
+              <span class="name">{{ project.name }}</span>
+              <span class="date">Updated {{ formatDate(project.created_on) }}</span>
+            </div>
+            <!-- <div class="report-status" [class]="project.status.toLowerCase()">
+              {{ project.status }}
+            </div> -->
+          </div>
+          <div class="empty-state" *ngIf="recentProjects.length === 0">
+            No recent reports found.
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <h3>Income vs. Expense</h3>
-        <div id="income-expense-chart" style="width: 100%; height: 500px;"></div>
+
+      <!-- Recent Transactions -->
+      <div class="grid-card recent-transactions">
+        <div class="card-header">
+          <h3>Recent Transactions</h3>
+        </div>
+        <div class="transaction-list">
+          <div class="transaction-item" *ngFor="let tx of recentTransactions">
+            <div class="tx-indicator" [class]="tx.type.toLowerCase()"></div>
+            <div class="tx-details">
+              <span class="desc">{{ tx.description }}</span>
+              <span class="date">{{ formatDate(tx.createdAt) }}</span>
+            </div>
+            <div class="tx-amount" [class.negative]="tx.type === 'DEDUCTION'">
+              {{ tx.type === 'DEDUCTION' ? '-' : '+' }}{{ tx.amount }}
+            </div>
+          </div>
+          <div class="empty-state" *ngIf="recentTransactions.length === 0">
+            No recent transactions.
+          </div>
+        </div>
       </div>
-    </div> -->
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+      <div class="chart-card">
+        <h3>Distribution</h3>
+        <div id="cash-flow-chart" style="width: 100%; height: 300px;"></div>
+      </div>
+      <div class="chart-card">
+        <h3>Usage Trends</h3>
+        <div id="income-expense-chart" style="width: 100%; height: 300px;"></div>
+      </div>
+    </div>
   </div>
 </div>
