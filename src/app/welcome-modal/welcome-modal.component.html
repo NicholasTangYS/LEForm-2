@@ -1,0 +1,33 @@
+<div class="welcome-container">
+    <div class="header">
+        <mat-icon color="primary">celebration</mat-icon>
+        <h1>Welcome to Altomate!</h1>
+    </div>
+
+    <div mat-dialog-content class="content">
+        <p>We're thrilled to have you on board. Altomate is your all-in-one platform for managing payroll, accounting,
+            and more with ease.</p>
+
+        <div class="gift-box">
+            <mat-icon>card_giftcard</mat-icon>
+            <div class="gift-text">
+                <h3>Special Bonus for You!</h3>
+                <p>We've credited your account with <strong>5.00 FREE CREDITS</strong> to help you get started with your
+                    first project.</p>
+            </div>
+        </div>
+
+        <div class="brief">
+            <h3>What you can do:</h3>
+            <ul>
+                <li><mat-icon>description</mat-icon> Generate LHDN-compliant payroll reports</li>
+                <li><mat-icon>account_balance</mat-icon> Manage accounting and bank reconciliations</li>
+                <li><mat-icon>group</mat-icon> Streamline employee management</li>
+            </ul>
+        </div>
+    </div>
+
+    <div mat-dialog-actions align="end">
+        <button mat-flat-button color="primary" (click)="close()">Get Started</button>
+    </div>
+</div>

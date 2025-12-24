@@ -1,17 +1,17 @@
 import {
-  Directionality,
-  MatCommonModule,
-  ObserversModule,
-  Platform,
-  coerceBooleanProperty
-} from "./chunk-7DPR74FI.js";
-import {
   animate,
   state,
   style,
   transition,
   trigger
 } from "./chunk-DRZUF2FT.js";
+import {
+  Directionality,
+  MatCommonModule,
+  ObserversModule,
+  Platform,
+  coerceBooleanProperty
+} from "./chunk-BYITIYYE.js";
 import {
   CommonModule,
   DOCUMENT,
@@ -1646,4 +1646,4 @@ export {
   MatFormField,
   MatFormFieldModule
 };
-//# sourceMappingURL=chunk-OI2OSVXJ.js.map
+//# sourceMappingURL=chunk-B6TBACEA.js.map

@@ -1,0 +1,94 @@
+.welcome-container {
+    padding: 24px;
+    max-width: 500px;
+    text-align: center;
+
+    .header {
+        margin-bottom: 20px;
+
+        mat-icon {
+            font-size: 48px;
+            width: 48px;
+            height: 48px;
+            margin-bottom: 8px;
+            color: #1976d2;
+        }
+
+        h1 {
+            margin: 0;
+            color: #333;
+            font-weight: 600;
+        }
+    }
+
+    .content {
+        line-height: 1.6;
+        color: #666;
+    }
+
+    .gift-box {
+        display: flex;
+        align-items: center;
+        background: #e8f5e9;
+        padding: 16px;
+        border-radius: 12px;
+        margin: 20px 0;
+        text-align: left;
+        border: 1px dashed #4caf50;
+
+        mat-icon {
+            font-size: 32px;
+            width: 32px;
+            height: 32px;
+            color: #4caf50;
+            margin-right: 16px;
+        }
+
+        .gift-text {
+            h3 {
+                margin: 0 0 4px 0;
+                color: #2e7d32;
+            }
+
+            p {
+                margin: 0;
+                font-size: 14px;
+            }
+        }
+    }
+
+    .brief {
+        text-align: left;
+        margin-top: 20px;
+
+        h3 {
+            margin-bottom: 12px;
+            font-size: 16px;
+            color: #444;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+
+            li {
+                display: flex;
+                align-items: center;
+                margin-bottom: 8px;
+                font-size: 14px;
+
+                mat-icon {
+                    font-size: 18px;
+                    width: 18px;
+                    height: 18px;
+                    margin-right: 8px;
+                    color: #1976d2;
+                }
+            }
+        }
+    }
+
+    ::ng-deep .mat-mdc-dialog-actions {
+        padding: 16px 0 0 0 !important;
+    }
+}

@@ -4,7 +4,8 @@
   <h2 *ngIf="isResettingPassword">Reset Password</h2>
 
   <!-- Registration Form -->
-  <form *ngIf="isRegister && !isForgotPassword && !isResettingPassword" (ngSubmit)="onSubmit()" [formGroup]="registerForm">
+  <form *ngIf="isRegister && !isForgotPassword && !isResettingPassword" (ngSubmit)="onSubmit()"
+    [formGroup]="registerForm">
     <div>
       <label>Name</label>
       <input type="text" formControlName="name" />
@@ -15,14 +16,14 @@
     <div>
       <label>Contact Number</label>
       <input type="text" formControlName="contact" />
-       <div *ngIf="registerForm.get('contact')?.invalid && registerForm.get('contact')?.touched" class="error">
+      <div *ngIf="registerForm.get('contact')?.invalid && registerForm.get('contact')?.touched" class="error">
         <p>Contact number is required.</p>
       </div>
     </div>
     <div>
       <label>Email</label>
       <input type="email" formControlName="email" />
-       <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="error">
+      <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="error">
         <p *ngIf="registerForm.get('email')?.errors?.['required']">Email is required.</p>
         <p *ngIf="registerForm.get('email')?.errors?.['email']">Please enter a valid email.</p>
       </div>
@@ -30,7 +31,7 @@
     <div>
       <label>Password</label>
       <input type="password" formControlName="password" />
-       <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="error">
+      <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="error">
         <p *ngIf="registerForm.get('password')?.errors?.['required']">Password is required.</p>
         <p *ngIf="registerForm.get('password')?.errors?.['minlength']">Password must be at least 8 characters.</p>
       </div>
@@ -39,24 +40,31 @@
       <label>Confirm Password</label>
       <input type="password" formControlName="confirmPassword" />
       <!-- Specific error for the required validator -->
-      <div *ngIf="registerForm.get('confirmPassword')?.hasError('required') && registerForm.get('confirmPassword')?.touched" class="error">
-          <p>Confirming your password is required.</p>
+      <div
+        *ngIf="registerForm.get('confirmPassword')?.hasError('required') && registerForm.get('confirmPassword')?.touched"
+        class="error">
+        <p>Confirming your password is required.</p>
       </div>
       <!-- Specific error for the mismatch validator on the form group -->
-      <div *ngIf="registerForm.hasError('passwordsMismatch') && registerForm.get('confirmPassword')?.touched" class="error">
-         <p>Passwords do not match.</p>
+      <div *ngIf="registerForm.hasError('passwordsMismatch') && registerForm.get('confirmPassword')?.touched"
+        class="error">
+        <p>Passwords do not match.</p>
       </div>
+    </div>
+    <div style="margin-bottom: 15px;">
+      <asl-google-signin-button></asl-google-signin-button>
     </div>
     <button type="submit" [disabled]="registerForm.invalid">Register</button>
     <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
   </form>
 
   <!-- Login Form -->
-  <form *ngIf="!isRegister && !isForgotPassword && !isResettingPassword" (ngSubmit)="onSubmit()" [formGroup]="loginForm">
+  <form *ngIf="!isRegister && !isForgotPassword && !isResettingPassword" (ngSubmit)="onSubmit()"
+    [formGroup]="loginForm">
     <div>
       <label>Email</label>
       <input type="email" formControlName="email" />
-       <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="error">
+      <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="error">
         <p *ngIf="loginForm.get('email')?.errors?.['required']">Email is required.</p>
         <p *ngIf="loginForm.get('email')?.errors?.['email']">Please enter a valid email.</p>
       </div>
@@ -64,9 +72,12 @@
     <div>
       <label>Password</label>
       <input type="password" formControlName="password" />
-       <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error">
+      <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error">
         <p>Password is required.</p>
       </div>
+    </div>
+    <div style="margin-bottom: 15px;">
+      <asl-google-signin-button></asl-google-signin-button>
     </div>
     <button type="submit" [disabled]="loginForm.invalid">Login</button>
     <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>

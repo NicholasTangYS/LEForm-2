@@ -12,7 +12,7 @@ export class AuthService {
   private apiUrl = baseUrl; // change to your backend
   userId = signal<string | null>(localStorage.getItem('user_id'));
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) { }
 
   login(email: string, password: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, { email, password }).pipe(
@@ -20,20 +20,34 @@ export class AuthService {
         this.userId.set(res.userID);
         this.setTokens(res.accessToken, res.refreshToken);
         if (res.userID) {
-            localStorage.setItem('user_id', res.userID);
+          localStorage.setItem('user_id', res.userID);
         }
       })
     );
   }
 
-    register(name: string, contact: string, email: string, password: string): Observable<any> {
+  googleLogin(idToken: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/google-login`, { idToken }).pipe(
+      tap((res: any) => {
+        this.userId.set(res.userID);
+        this.setTokens(res.accessToken, res.refreshToken);
+        if (res.userID) {
+          localStorage.setItem('user_id', res.userID);
+        }
+      })
+    );
+  }
+
+  register(name: string, contact: string, email: string, password: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, { name, contact, email, password }).pipe(
       tap((res: any) => {
-        //show success message and redirect to login
-        // alert('Registration successful! Please log in.');
-        
-        this.router.navigate(['/login']);
-        // this.setTokens(res.accessToken, res.refreshToken);
+        if (res.accessToken) {
+          this.userId.set(res.userID);
+          this.setTokens(res.accessToken, res.refreshToken);
+          if (res.userID) {
+            localStorage.setItem('user_id', res.userID);
+          }
+        }
       })
     );
   }
@@ -86,7 +100,7 @@ export class AuthService {
       // Assuming your backend stores the User ID in the token payload 
       // under a key like 'userId', 'sub' (subject), or '_id'.
       // You must check your backend's token structure. Let's assume 'userId'.
-      if (decoded.userId) { 
+      if (decoded.userId) {
         localStorage.setItem('id', decoded.id);
       }
     } catch (e) {

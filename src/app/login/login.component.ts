@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
+import { SocialAuthService, GoogleSigninButtonModule, SocialUser } from '@abacritt/angularx-social-login';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { WelcomeModalComponent } from '../welcome-modal/welcome-modal.component';
 
 /**
  * Custom validator to check that two fields match.
@@ -26,9 +29,9 @@ export function passwordsMatchValidator(control: AbstractControl): ValidationErr
   templateUrl: './login.component.html',
   standalone: true,
   styleUrls: ['./login.component.scss'],
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, HttpClientModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, HttpClientModule, GoogleSigninButtonModule, MatDialogModule],
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   registerForm: FormGroup;
   errorMessage = '';
@@ -42,7 +45,9 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
-    private router: Router
+    private router: Router,
+    private socialAuthService: SocialAuthService,
+    private dialog: MatDialog
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -64,6 +69,32 @@ export class LoginComponent {
     });
   }
 
+  ngOnInit() {
+    this.socialAuthService.authState.subscribe((user: SocialUser) => {
+      if (user && user.idToken) {
+        this.auth.googleLogin(user.idToken).subscribe({
+          next: (res) => {
+            if (res.isNewUser) {
+              const dialogRef = this.dialog.open(WelcomeModalComponent, {
+                width: '500px',
+                disableClose: true
+              });
+              dialogRef.afterClosed().subscribe(() => {
+                this.router.navigate(['/dashboard']);
+              });
+            } else {
+              this.router.navigate(['/dashboard']);
+            }
+          },
+          error: (err) => {
+            console.error('Google login failed', err);
+            this.errorMessage = 'Google Login failed. Please try again.';
+          }
+        });
+      }
+    });
+  }
+
   /**
    * Toggles the form between Login and Register modes.
    * Resets the form and manages validators for each mode.
@@ -76,7 +107,7 @@ export class LoginComponent {
     this.isResettingPassword = false;
     this.loginForm.reset();
     this.registerForm.reset();
-}
+  }
 
   showForgotPassword() {
     this.isForgotPassword = true;
@@ -96,7 +127,7 @@ export class LoginComponent {
     this.forgotPasswordEmail.reset();
   }
 
-   getInvalidControls() {
+  getInvalidControls() {
     const invalidControls: string[] = [];
     const controls = this.loginForm.controls;
 
@@ -104,7 +135,7 @@ export class LoginComponent {
       if (controls[name].invalid) {
         // Push the name of the control (e.g., 'email', 'password')
         invalidControls.push(name);
-        
+
         // Optional: Log the specific error object for debugging
         // console.log(`Control ${name} errors:`, controls[name].errors);
       }
@@ -121,11 +152,17 @@ export class LoginComponent {
       // Registration Logic
       this.auth.register(name, contact, email, password).subscribe({
         next: (response) => {
-          // On successful registration:
-          // 1. Show the success message from the auth service's tap operator.
-          // 2. Switch the form back to login mode.
-          alert('Registration successful! You may now log in.');
-          this.toggleForm();
+          if (response.isNewUser) {
+            const dialogRef = this.dialog.open(WelcomeModalComponent, {
+              width: '500px',
+              disableClose: true
+            });
+            dialogRef.afterClosed().subscribe(() => {
+              this.router.navigate(['/dashboard']);
+            });
+          } else {
+            this.router.navigate(['/dashboard']);
+          }
         },
         error: (err) => {
           this.errorMessage = err.error?.message || err.error || 'Registration failed. Please try again.';
@@ -148,7 +185,7 @@ export class LoginComponent {
   }
 
   onForgotPassword() {
-   
+
     if (this.forgotPasswordEmail.invalid) {
       this.forgotPasswordEmail.markAsTouched();
       return;

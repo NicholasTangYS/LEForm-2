@@ -30,6 +30,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 // We'll use a specific route for the webhook that handles raw body.
 const crypto = require('crypto');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { OAuth2Client } = require('google-auth-library');
 const JWT_SECRET = process.env.JWT_SECRET;
 // const chromium = require('chromium');
 const bcrypt = require('bcrypt');
@@ -232,14 +233,31 @@ app.post('/register', async (req, res) => {
 
       // Step 4: Insert the new user into the database with the hashed password
       const insertQuery = 'INSERT INTO le_user (Name, email, contact_no, password) VALUES (?, ?, ?, ?)';
-      db.query(insertQuery, [name, email, contact, hashedPassword], (insertErr, insertResult) => {
+      db.query(insertQuery, [name, email, contact, hashedPassword], async (insertErr, insertResult) => {
         if (insertErr) {
           console.error('Database error during registration:', insertErr);
           return res.status(500).send('An error occurred during user registration.');
         }
 
-        // Step 5: Respond with success message
-        res.status(201).json({ message: 'User registered successfully!' });
+        const userId = insertResult.insertId;
+        try {
+          await grantFreeCredits(userId, 5, 'Welcome Bonus');
+        } catch (creditErr) {
+          console.error('Failed to grant welcome credits:', creditErr);
+        }
+
+        // Generate JWTs for auto-login
+        const accessToken = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        const refreshToken = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+        // Step 5: Respond with success message and tokens
+        res.status(201).json({
+          message: 'User registered successfully!',
+          isNewUser: true,
+          accessToken,
+          refreshToken,
+          userID: userId
+        });
       });
     });
 
@@ -294,6 +312,88 @@ app.post('/login', async (req, res) => {
   } catch (err) {
     console.error('General error during login:', err);
     res.status(500).send('An error occurred during the login process.');
+  }
+});
+
+app.post('/google-login', async (req, res) => {
+  const { idToken } = req.body;
+  const client = new OAuth2Client('167207020456-fpm4bkh744rak7jto3h7689m84ees3mk.apps.googleusercontent.com');
+
+  if (!idToken) {
+    return res.status(400).json({ message: 'Google ID Token is required.' });
+  }
+
+  try {
+    // 1. Verify the Google ID Token
+    const ticket = await client.verifyIdToken({
+      idToken: idToken,
+      audience: '167207020456-fpm4bkh744rak7jto3h7689m84ees3mk.apps.googleusercontent.com',
+    });
+    const payload = ticket.getPayload();
+    const { sub: googleId, email, name, picture } = payload;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Google account must have an email.' });
+    }
+
+    // 2. Check if user exists in DB
+    const query = 'SELECT * FROM le_user WHERE email = ?';
+    db.query(query, [email], async (err, results) => {
+      if (err) {
+        console.error('Database error during Google login:', err);
+        return res.status(500).json({ message: 'Internal server error.' });
+      }
+
+      let user = results[0];
+      let userId;
+      let isNewUser = false;
+
+      if (!user) {
+        // 3. New User: Create account
+        // Password and contact are nullable now, so we can skip them
+        const insertPromise = new Promise((resolve, reject) => {
+          db.query('INSERT INTO le_user (Name, email, google_id) VALUES (?, ?, ?)',
+            [name, email, googleId],
+            (err, result) => {
+              if (err) reject(err);
+              else resolve(result);
+            }
+          );
+        });
+
+        try {
+          const result = await insertPromise;
+          userId = result.insertId;
+          isNewUser = true;
+          // Grant welcome credits
+          await grantFreeCredits(userId, 5, 'Welcome Bonus');
+        } catch (insertErr) {
+          console.error('Error creating Google user:', insertErr);
+          return res.status(500).json({ message: 'Failed to create user.' });
+        }
+
+      } else {
+        // 4. Existing User
+        userId = user.ID;
+        isNewUser = false;
+        // Optionally update google_id if it wasn't there
+        if (!user.google_id) {
+          db.query('UPDATE le_user SET google_id = ? WHERE ID = ?', [googleId, userId], (err) => {
+            if (err) console.error('Failed to link google_id', err);
+          });
+        }
+      }
+
+      // 5. Generate JWTs (Same as normal login)
+      const accessToken = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '1d' });
+      const refreshToken = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+      res.json({ accessToken, refreshToken, userID: userId, isNewUser });
+    });
+
+  } catch (error) {
+    console.error('Google login error:', error);
+    res.status(401).json({ message: 'Invalid Google Token.' });
   }
 });
 
@@ -1970,6 +2070,34 @@ async function getUserBalance(userId) {
       }
     });
   });
+}
+
+/**
+ * Grants free credits to a user (e.g., for new registration).
+ * @param {number} userId 
+ * @param {number} amount 
+ * @param {string} description 
+ */
+async function grantFreeCredits(userId, amount, description) {
+  try {
+    const currentBalance = await getUserBalance(userId);
+    const newBalance = parseFloat(currentBalance || 0) + amount;
+
+    return new Promise((resolve, reject) => {
+      const query = `
+        INSERT INTO le_credit_ledger 
+        (user_id, transaction_type, amount, balance_after, description, payment_method)
+        VALUES (?, 'BONUS', ?, ?, ?, 'SYSTEM')
+      `;
+      db.query(query, [userId, amount, newBalance, description], (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
+  } catch (error) {
+    console.error(`Failed to grant free credits to user ${userId}:`, error);
+    throw error;
+  }
 }
 
 // 1. Get User Credit Balance
