@@ -3,6 +3,8 @@ import * as echarts from 'echarts';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { forkJoin, Observable, of } from 'rxjs';
+import { catchError, finalize, tap } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 import { baseUrl } from '../../environments/environment';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -68,49 +70,72 @@ export class DashboardComponent implements OnInit {
     if (!this.userID) return;
     this.isLoading = true;
 
-    this.loadCreditBalance();
-    this.getRecentProjects();
-    this.getRecentTransactions();
-    this.loadDashboardStats();
-  }
-
-  loadCreditBalance(): void {
-    this.http.get<any>(`${this.apiUrl}/api/credits/balance/${this.userID}`).subscribe({
-      next: (res) => this.creditBalance = parseFloat(res.balance),
-      error: (err) => console.error('Error balance:', err)
+    forkJoin({
+      balance: this.loadCreditBalance(),
+      projects: this.getRecentProjects(),
+      transactions: this.getRecentTransactions(),
+      stats: this.loadDashboardStats()
+    }).pipe(
+      finalize(() => {
+        this.isLoading = false;
+      })
+    ).subscribe({
+      next: (res) => {
+        // Data is already handled by tap/subscribe in individual methods or here
+      },
+      error: (err) => {
+        console.error('Error loading dashboard data:', err);
+      }
     });
   }
 
-  getRecentProjects(): void {
-    this.http.get<Project[]>(`${this.apiUrl}/getProjectByUser/${this.userID}`).subscribe({
-      next: (data) => {
+  loadCreditBalance(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/api/credits/balance/${this.userID}`).pipe(
+      tap((res) => this.creditBalance = parseFloat(res.balance)),
+      catchError((err) => {
+        console.error('Error balance:', err);
+        return of(null);
+      })
+    );
+  }
+
+  getRecentProjects(): Observable<any> {
+    return this.http.get<Project[]>(`${this.apiUrl}/getProjectByUser/${this.userID}`).pipe(
+      tap((data) => {
         this.totalProjects = data.length;
         this.recentProjects = data.slice(0, 3); // Top 3
-      },
-      error: (err) => console.error('Error projects:', err)
-    });
+      }),
+      catchError((err) => {
+        console.error('Error projects:', err);
+        return of([]);
+      })
+    );
   }
 
-  getRecentTransactions(): void {
-    this.http.get<any>(`${this.apiUrl}/api/credits/transactions/${this.userID}?limit=5`).subscribe({
-      next: (res) => this.recentTransactions = res.transactions,
-      error: (err) => console.error('Error transactions:', err)
-    });
+  getRecentTransactions(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/api/credits/transactions/${this.userID}?limit=5`).pipe(
+      tap((res) => this.recentTransactions = res.transactions),
+      catchError((err) => {
+        console.error('Error transactions:', err);
+        return of({ transactions: [] });
+      })
+    );
   }
 
-  loadDashboardStats(): void {
-    this.http.get<any>(`${this.apiUrl}/api/credits/stats/${this.userID}`).subscribe({
-      next: (stats) => {
+  loadDashboardStats(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/api/credits/stats/${this.userID}`).pipe(
+      tap((stats) => {
         this.usageRate = stats.usageRate;
         this.initCashFlowChart(stats.distribution);
         this.initIncomeExpenseChart(stats.trends);
-      },
-      error: (err) => {
+      }),
+      catchError((err) => {
         console.error('Error stats:', err);
         this.initCashFlowChart([]);
         this.initIncomeExpenseChart([]);
-      }
-    });
+        return of(null);
+      })
+    );
   }
 
   openTopUpModal(): void {

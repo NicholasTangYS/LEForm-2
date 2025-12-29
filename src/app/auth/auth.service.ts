@@ -6,13 +6,18 @@ import { tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import { baseUrl } from '../../environments/environment';
+import { SocialAuthService } from '@abacritt/angularx-social-login';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private apiUrl = baseUrl; // change to your backend
   userId = signal<string | null>(localStorage.getItem('user_id'));
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private socialAuthService: SocialAuthService
+  ) { }
 
   login(email: string, password: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, { email, password }).pipe(
@@ -85,6 +90,12 @@ export class AuthService {
     localStorage.removeItem('user_id');
     localStorage.removeItem('id'); // Also clear the 'id' from token decoding
     this.userId.set(null);
+
+    // Sign out from Google if applicable
+    this.socialAuthService.signOut().catch(() => {
+      // Ignore error if not signed in with social provider
+    });
+
     this.router.navigate(['/login']);
   }
 

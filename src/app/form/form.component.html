@@ -570,13 +570,12 @@
                                         </div>
                                         <div class="field-group">
                                             <label>Net Loss (RM)</label>
-                                            <input  appThousandSeparator type="text"
+                                            <input appThousandSeparator type="text"
                                                 formControlName="Amount_of_Net_Loss">
                                         </div>
                                         <div class="field-group">
                                             <label>Net Profit (RM)</label>
-                                            <input  appThousandSeparator type="text"
-                                                formControlName="Net_Profits_ex_IP">
+                                            <input appThousandSeparator type="text" formControlName="Net_Profits_ex_IP">
                                         </div>
                                     </div>
                                 </div>
@@ -591,13 +590,12 @@
 
                     <div style="margin: 10px;"></div>
                     <h3>B2: Total Net Profits (RM):</h3>
-                    <input  readonly type="text" appThousandSeparator id="B2_Total_Net_Profits"
+                    <input readonly type="text" appThousandSeparator id="B2_Total_Net_Profits"
                         formControlName="B2_Total_Net_Profits">
 
                     <!-- B5 Zakat paid -->
                     <label>B5: Zakat paid (RM):</label>
-                    <input  readonly type="text" appThousandSeparator id="B5_Zakat_Paid"
-                        formControlName="B5_Zakat_Paid">
+                    <input readonly type="text" appThousandSeparator id="B5_Zakat_Paid" formControlName="B5_Zakat_Paid">
                 </fieldset>
 
                 <!-- Part C, D, etc. -->
@@ -797,7 +795,7 @@
                                     </select>
                                 </td>
                                 <td style="padding: 8px; border: 1px solid #ddd;">
-                                    <input  type="text" id="C12_Row1_Amount_Claimed" appThousandSeparator
+                                    <input type="text" id="C12_Row1_Amount_Claimed" appThousandSeparator
                                         formControlName="C12_Row1_Amount_Claimed" style="width: 100%;">
                                 </td>
                             </tr>
@@ -813,7 +811,7 @@
                                     </select>
                                 </td>
                                 <td style="padding: 8px; border: 1px solid #ddd;">
-                                    <input  appThousandSeparator type="text" id="C12_Row2_Amount_Claimed"
+                                    <input appThousandSeparator type="text" id="C12_Row2_Amount_Claimed"
                                         formControlName="C12_Row2_Amount_Claimed" style="width: 100%;">
                                 </td>
                             </tr>
@@ -829,7 +827,7 @@
                                     </select>
                                 </td>
                                 <td style="padding: 8px; border: 1px solid #ddd;">
-                                    <input  type="text" id="C12_Row3_Amount_Claimed" appThousandSeparator
+                                    <input type="text" id="C12_Row3_Amount_Claimed" appThousandSeparator
                                         formControlName="C12_Row3_Amount_Claimed" style="width: 100%;">
                                 </td>
                             </tr>
@@ -1099,6 +1097,8 @@ margin-bottom: 10px;">
                         </div>
                         <div style="flex:1;">
                             <label for="Auditor_TIN">Auditor TIN:</label>
+                            <div *ngIf="le1Form.get('Auditor_TIN')?.errors?.['invalidTin']" class="text-danger small"
+                                style="margin-bottom: 2px;">TIN must be 10 digits</div>
                             <input type="text" id="Auditor_TIN" formControlName="Auditor_TIN">
                         </div>
                     </div>
@@ -1314,6 +1314,9 @@ margin-bottom: 10px;">
                                     <div class="details-column">
                                         <div class="field-group">
                                             <label>TIN</label>
+                                            <div *ngIf="row.get('TIN')?.errors?.['invalidTin']"
+                                                class="text-danger small" style="margin-bottom: 2px;">TIN must be 10
+                                                digits</div>
                                             <input type="text" class="form-control" formControlName="TIN">
                                         </div>
                                         <div class="field-group">
@@ -1322,12 +1325,12 @@ margin-bottom: 10px;">
                                         </div>
                                         <div class="field-group">
                                             <label>Salary/Bonus (RM)</label>
-                                            <input  class="form-control" appThousandSeparator type="text"
+                                            <input class="form-control" appThousandSeparator type="text"
                                                 formControlName="Salary_Bonus">
                                         </div>
                                         <div class="field-group">
                                             <label>Fees/Commission (RM)</label>
-                                            <input  class="form-control" appThousandSeparator type="text"
+                                            <input class="form-control" appThousandSeparator type="text"
                                                 formControlName="Fees_Commission_Allowances">
                                         </div>
                                     </div>
@@ -1423,6 +1426,9 @@ margin-bottom: 10px;">
                                         </div>
                                         <div class="field-group">
                                             <label>TIN</label>
+                                            <div *ngIf="row.get('TIN')?.errors?.['invalidTin']"
+                                                class="text-danger small" style="margin-bottom: 2px;">TIN must be 10
+                                                digits</div>
                                             <input type="text" class="form-control" formControlName="TIN">
                                         </div>
                                         <div class="field-group">
@@ -1432,7 +1438,7 @@ margin-bottom: 10px;">
                                         </div>
                                         <div class="field-group">
                                             <label>Dividends (RM)</label>
-                                            <input  class="form-control" appThousandSeparator type="text"
+                                            <input class="form-control" appThousandSeparator type="text"
                                                 formControlName="Dividends_Received_in_Basis_Period">
                                         </div>
                                     </div>
@@ -1518,6 +1524,9 @@ margin-bottom: 10px;">
                                         </div>
                                         <div class="field-group">
                                             <label>TIN</label>
+                                            <div *ngIf="row.get('TIN')?.errors?.['invalidTin']"
+                                                class="text-danger small" style="margin-bottom: 2px;">TIN must be 10
+                                                digits</div>
                                             <input type="text" class="form-control" formControlName="TIN">
                                         </div>
                                         <div class="field-group">
@@ -1529,27 +1538,27 @@ margin-bottom: 10px;">
                                     <div class="details-column">
                                         <div class="field-group">
                                             <label>Salary/Bonus (RM)</label>
-                                            <input  class="form-control" appThousandSeparator type="text"
+                                            <input class="form-control" appThousandSeparator type="text"
                                                 formControlName="Salary_Bonus">
                                         </div>
                                         <div class="field-group">
                                             <label>Fees/Commission (RM)</label>
-                                            <input  class="form-control" appThousandSeparator type="text"
+                                            <input class="form-control" appThousandSeparator type="text"
                                                 formControlName="Fees_Commission_Allowance">
                                         </div>
                                         <div class="field-group">
                                             <label>Loan to Owner (RM)</label>
-                                            <input  class="form-control" appThousandSeparator type="text"
+                                            <input class="form-control" appThousandSeparator type="text"
                                                 formControlName="Total_Loan_to_Owner">
                                         </div>
                                         <div class="field-group">
                                             <label>Loan from Owner (RM)</label>
-                                            <input  class="form-control" appThousandSeparator type="text"
+                                            <input class="form-control" appThousandSeparator type="text"
                                                 formControlName="Total_Loan_from_Owner">
                                         </div>
                                         <div class="field-group">
                                             <label>Dividends (RM)</label>
-                                            <input  class="form-control" appThousandSeparator type="text"
+                                            <input class="form-control" appThousandSeparator type="text"
                                                 formControlName="Dividends_Received_in_Basis_Period">
                                         </div>
                                     </div>
@@ -1593,8 +1602,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Sales / Turnover <span *ngIf="isForeignCurrency">(Foreign)</span>:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Pnl_Sales_Turnover">
+                                    <input appThousandSeparator type="text" formControlName="Pnl_Sales_Turnover">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Sales / Turnover (MYR):</label>
@@ -1607,8 +1615,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Opening Inventory:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Pnl_Opening_Inventory">
+                                    <input appThousandSeparator type="text" formControlName="Pnl_Opening_Inventory">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Opening Inventory (MYR):</label>
@@ -1621,8 +1628,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Cost of Purchases:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Pnl_Cost_of_Purchases">
+                                    <input appThousandSeparator type="text" formControlName="Pnl_Cost_of_Purchases">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Cost of Purchases (MYR):</label>
@@ -1635,8 +1641,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Cost of Production:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Pnl_Cost_of_Production">
+                                    <input appThousandSeparator type="text" formControlName="Pnl_Cost_of_Production">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Cost of Production (MYR):</label>
@@ -1649,8 +1654,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Closing Inventory:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Pnl_Closing_Inventory">
+                                    <input appThousandSeparator type="text" formControlName="Pnl_Closing_Inventory">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Closing Inventory (MYR):</label>
@@ -1663,7 +1667,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Cost of Sales:</label>
-                                    <input  readonly appThousandSeparator type="text"
+                                    <input readonly appThousandSeparator type="text"
                                         formControlName="Pnl_Cost_of_Sales">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
@@ -1677,7 +1681,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Gross Profit/Loss:</label>
-                                    <input  appThousandSeparator type="text"
+                                    <input readonly appThousandSeparator type="text"
                                         formControlName="Pnl_Gross_Profit_Loss">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
@@ -1691,7 +1695,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Foreign Currency Exchange Gain:</label>
-                                    <input  appThousandSeparator type="text"
+                                    <input appThousandSeparator type="text"
                                         formControlName="Pnl_Foreign_Currency_Exchange_Gain">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
@@ -1705,8 +1709,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Other Business Income:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Pnl_Other_Business_Income">
+                                    <input appThousandSeparator type="text" formControlName="Pnl_Other_Business_Income">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Other Biz Income (MYR):</label>
@@ -1719,8 +1722,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Other Income:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Pnl_Other_Income">
+                                    <input appThousandSeparator type="text" formControlName="Pnl_Other_Income">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Other Income (MYR):</label>
@@ -1733,8 +1735,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Non-Taxable Profits:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Pnl_Non_Taxable_Profits">
+                                    <input appThousandSeparator type="text" formControlName="Pnl_Non_Taxable_Profits">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Non-Taxable Profits (MYR):</label>
@@ -1747,8 +1748,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Interest Expenditure:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Pnl_Interest_Expenditure">
+                                    <input appThousandSeparator type="text" formControlName="Pnl_Interest_Expenditure">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Interest Exp (MYR):</label>
@@ -1761,8 +1761,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Professional Fees:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Pnl_Professional_Fees">
+                                    <input appThousandSeparator type="text" formControlName="Pnl_Professional_Fees">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Professional Fees (MYR):</label>
@@ -1775,7 +1774,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Technical Fees to Non-Residents:</label>
-                                    <input  appThousandSeparator type="text"
+                                    <input appThousandSeparator type="text"
                                         formControlName="Pnl_Technical_Fees_to_Non_Residents">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
@@ -1789,8 +1788,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Contract Payments:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Pnl_Contract_Payments">
+                                    <input appThousandSeparator type="text" formControlName="Pnl_Contract_Payments">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Contract Payments (MYR):</label>
@@ -1803,8 +1801,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Management Fee:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Pnl_Management_Fee">
+                                    <input appThousandSeparator type="text" formControlName="Pnl_Management_Fee">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Management Fee (MYR):</label>
@@ -1817,8 +1814,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Salaries & Wages:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Pnl_Salaries_Wages">
+                                    <input appThousandSeparator type="text" formControlName="Pnl_Salaries_Wages">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Salaries & Wages (MYR):</label>
@@ -1831,7 +1827,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Cost of Employee Share Options:</label>
-                                    <input  appThousandSeparator type="text"
+                                    <input appThousandSeparator type="text"
                                         formControlName="Pnl_Cost_of_Employee_Share_Options">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
@@ -1845,8 +1841,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Royalties:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Pnl_Royalties">
+                                    <input appThousandSeparator type="text" formControlName="Pnl_Royalties">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Royalties (MYR):</label>
@@ -1858,8 +1853,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Rental / Lease:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Pnl_Rental_Lease">
+                                    <input appThousandSeparator type="text" formControlName="Pnl_Rental_Lease">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Rental / Lease (MYR):</label>
@@ -1872,8 +1866,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Maintenance & Repairs:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Pnl_Maintenance_Repairs">
+                                    <input appThousandSeparator type="text" formControlName="Pnl_Maintenance_Repairs">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Maint & Repairs (MYR):</label>
@@ -1886,8 +1879,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Research & Development:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Pnl_Research_Development">
+                                    <input appThousandSeparator type="text" formControlName="Pnl_Research_Development">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>R & D (MYR):</label>
@@ -1900,7 +1892,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Promotion & Advertisement:</label>
-                                    <input  appThousandSeparator type="text"
+                                    <input appThousandSeparator type="text"
                                         formControlName="Pnl_Promotion_Advertisement">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
@@ -1914,7 +1906,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Travelling & Accommodation:</label>
-                                    <input  appThousandSeparator type="text"
+                                    <input appThousandSeparator type="text"
                                         formControlName="Pnl_Travelling_Accommodation">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
@@ -1928,7 +1920,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Foreign Currency Exchange Loss:</label>
-                                    <input  appThousandSeparator type="text"
+                                    <input appThousandSeparator type="text"
                                         formControlName="Pnl_Foreign_Currency_Exchange_Loss">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
@@ -1942,8 +1934,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Other Expenditure:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Pnl_Other_Expenditure">
+                                    <input appThousandSeparator type="text" formControlName="Pnl_Other_Expenditure">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Other Exp (MYR):</label>
@@ -1956,7 +1947,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Total Expenditure:</label>
-                                    <input  readonly appThousandSeparator type="text"
+                                    <input readonly appThousandSeparator type="text"
                                         formControlName="Pnl_Total_Expenditure">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
@@ -1970,7 +1961,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Net Profit/Loss:</label>
-                                    <input  appThousandSeparator type="text"
+                                    <input readonly appThousandSeparator type="text"
                                         formControlName="Pnl_Net_Profit_Loss">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
@@ -1989,8 +1980,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Motor Vehicles:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Fp_Motor_Vehicles">
+                                    <input appThousandSeparator type="text" formControlName="Fp_Motor_Vehicles">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Motor Vehicles (MYR):</label>
@@ -2003,8 +1993,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Plant & Equipment:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Fp_Plant_Equipment">
+                                    <input appThousandSeparator type="text" formControlName="Fp_Plant_Equipment">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Plant & Equip (MYR):</label>
@@ -2017,8 +2006,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Land & Buildings:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Fp_Land_Buildings">
+                                    <input appThousandSeparator type="text" formControlName="Fp_Land_Buildings">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Land & Buildings (MYR):</label>
@@ -2031,7 +2019,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Other Non-Current Assets:</label>
-                                    <input  appThousandSeparator type="text"
+                                    <input appThousandSeparator type="text"
                                         formControlName="Fp_Other_Non_Current_Assets">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
@@ -2045,8 +2033,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Investments:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Fp_Investments">
+                                    <input appThousandSeparator type="text" formControlName="Fp_Investments">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Investments (MYR):</label>
@@ -2058,7 +2045,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Total Non-Current Assets:</label>
-                                    <input  readonly appThousandSeparator type="text"
+                                    <input readonly appThousandSeparator type="text"
                                         formControlName="Fp_Total_Non_Current_Assets">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
@@ -2072,8 +2059,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Cost of NCA Acquired:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Fp_Cost_of_NCA_Acquired">
+                                    <input appThousandSeparator type="text" formControlName="Fp_Cost_of_NCA_Acquired">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Cost of NCA (MYR):</label>
@@ -2086,8 +2072,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Trade Debtors:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Fp_Trade_Debtors">
+                                    <input appThousandSeparator type="text" formControlName="Fp_Trade_Debtors">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Trade Debtors (MYR):</label>
@@ -2100,8 +2085,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Other Debtors:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Fp_Other_Debtors">
+                                    <input appThousandSeparator type="text" formControlName="Fp_Other_Debtors">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Other Debtors (MYR):</label>
@@ -2114,8 +2098,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Inventory:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Fp_Inventory">
+                                    <input appThousandSeparator type="text" formControlName="Fp_Inventory">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Inventory (MYR):</label>
@@ -2127,7 +2110,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Loans to Related Entities:</label>
-                                    <input  appThousandSeparator type="text"
+                                    <input appThousandSeparator type="text"
                                         formControlName="Fp_Loans_to_Related_Entities">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
@@ -2141,8 +2124,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Cash in Hand & Bank:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Fp_Cash_in_Hand_Bank">
+                                    <input appThousandSeparator type="text" formControlName="Fp_Cash_in_Hand_Bank">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Cash (MYR):</label>
@@ -2155,8 +2137,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Other Current Assets:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Fp_Other_Current_Assets">
+                                    <input appThousandSeparator type="text" formControlName="Fp_Other_Current_Assets">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Other CA (MYR):</label>
@@ -2169,7 +2150,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Total Current Assets:</label>
-                                    <input  readonly appThousandSeparator type="text"
+                                    <input readonly appThousandSeparator type="text"
                                         formControlName="Fp_Total_Current_Assets">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
@@ -2183,8 +2164,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Total Assets:</label>
-                                    <input  readonly appThousandSeparator type="text"
-                                        formControlName="Fp_Total_Assets">
+                                    <input readonly appThousandSeparator type="text" formControlName="Fp_Total_Assets">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Total Assets (MYR):</label>
@@ -2200,8 +2180,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Loans & Bank Overdrafts:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Fp_Loans_Bank_Overdrafts">
+                                    <input appThousandSeparator type="text" formControlName="Fp_Loans_Bank_Overdrafts">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Loans/Overdrafts (MYR):</label>
@@ -2214,8 +2193,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Trade Creditors:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Fp_Trade_Creditors">
+                                    <input appThousandSeparator type="text" formControlName="Fp_Trade_Creditors">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Trade Creditors (MYR):</label>
@@ -2228,8 +2206,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Other Creditors:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Fp_Other_Creditors">
+                                    <input appThousandSeparator type="text" formControlName="Fp_Other_Creditors">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Other Creditors (MYR):</label>
@@ -2242,7 +2219,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Loans from Related Entities:</label>
-                                    <input  appThousandSeparator type="text"
+                                    <input appThousandSeparator type="text"
                                         formControlName="Fp_Loans_from_Related_Entities">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
@@ -2256,7 +2233,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Other Current Liabilities:</label>
-                                    <input  appThousandSeparator type="text"
+                                    <input appThousandSeparator type="text"
                                         formControlName="Fp_Other_Current_Liabilities">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
@@ -2270,7 +2247,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Total Current Liabilities:</label>
-                                    <input  appThousandSeparator type="text" readonly
+                                    <input appThousandSeparator type="text" readonly
                                         formControlName="Fp_Total_Current_Liabilities">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
@@ -2284,7 +2261,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Non-Current Liabilities:</label>
-                                    <input  readonly appThousandSeparator type="text"
+                                    <input readonly appThousandSeparator type="text"
                                         formControlName="Fp_Non_Current_Liabilities">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
@@ -2298,7 +2275,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Total Liabilities:</label>
-                                    <input  readonly appThousandSeparator type="text"
+                                    <input readonly appThousandSeparator type="text"
                                         formControlName="Fp_Total_Liabilities">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
@@ -2312,8 +2289,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Issued & Paid-Up Capital:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Fp_Issued_Paid_Up_Capital">
+                                    <input appThousandSeparator type="text" formControlName="Fp_Issued_Paid_Up_Capital">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Paid-Up Capital (MYR):</label>
@@ -2326,7 +2302,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Profit & Loss Appropriation:</label>
-                                    <input  appThousandSeparator type="text"
+                                    <input appThousandSeparator type="text"
                                         formControlName="Fp_Profit_Loss_Appropriation">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
@@ -2340,8 +2316,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Reserve Account:</label>
-                                    <input  appThousandSeparator type="text"
-                                        formControlName="Fp_Reserve_Account">
+                                    <input appThousandSeparator type="text" formControlName="Fp_Reserve_Account">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Reserve Acc (MYR):</label>
@@ -2354,8 +2329,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Total Equity:</label>
-                                    <input  readonly appThousandSeparator type="text"
-                                        formControlName="Fp_Total_Equity">
+                                    <input readonly appThousandSeparator type="text" formControlName="Fp_Total_Equity">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
                                     <label>Total Equity (MYR):</label>
@@ -2368,7 +2342,7 @@ margin-bottom: 10px;">
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
                                     <label>Total Liabilities & Equity:</label>
-                                    <input  appThousandSeparator type="text" readonly
+                                    <input appThousandSeparator type="text" readonly
                                         formControlName="Fp_Total_Liabilities_and_Equity">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
@@ -2414,6 +2388,9 @@ margin-bottom: 10px;">
                                     <div class="details-column">
                                         <div class="field-group">
                                             <label>TIN</label>
+                                            <div *ngIf="row.get('TIN')?.errors?.['invalidTin']"
+                                                class="text-danger small" style="margin-bottom: 2px;">TIN must be 10
+                                                digits</div>
                                             <input type="text" class="form-control" formControlName="TIN">
                                         </div>
                                         <div class="field-group">
@@ -2485,7 +2462,7 @@ margin-bottom: 10px;">
                                         </div>
                                         <div class="field-group">
                                             <label>Amount (RM)</label>
-                                            <input  class="form-control" appThousandSeparator type="text"
+                                            <input class="form-control" appThousandSeparator type="text"
                                                 formControlName="Amount">
                                         </div>
                                     </div>

@@ -2501,9 +2501,12 @@ app.get('/api/credits/transactions/:userId', async (req, res) => {
         cl.reference_id,
         cl.payment_method,
         cl.created_at,
-        dc.code as discount_code
+        dc.code as discount_code,
+        p.name as project_name,
+        p.year_end as project_year_end
       FROM le_credit_ledger cl
       LEFT JOIN le_discount_codes dc ON cl.discount_code_id = dc.id
+      LEFT JOIN le_project p ON cl.reference_id = p.ID AND cl.reference_type = 'PROJECT'
       WHERE cl.user_id = ?
       ORDER BY cl.created_at DESC
       LIMIT ? OFFSET ?
@@ -2522,7 +2525,9 @@ app.get('/api/credits/transactions/:userId', async (req, res) => {
           type: t.transaction_type,
           amount: parseFloat(t.amount).toFixed(2),
           balanceAfter: parseFloat(t.balance_after).toFixed(2),
-          description: t.description,
+          description: (t.reference_type === 'PROJECT' && t.project_name)
+            ? `Report Generation - ${t.project_name} ${t.project_year_end ? new Date(t.project_year_end).getFullYear() : ''}`
+            : t.description,
           referenceType: t.reference_type,
           referenceId: t.reference_id,
           paymentMethod: t.payment_method,

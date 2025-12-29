@@ -416,7 +416,7 @@ export class FormComponent implements OnInit {
       Auditor_City: ['', Validators.required],
       Auditor_Email: ['', [Validators.required, Validators.email]],
       Auditor_Telephone_no: ['', Validators.required],
-      Auditor_TIN: ['', Validators.required],
+      Auditor_TIN: ['', [Validators.required, this.tinValidator]],
 
       // Part E & F (Conditionals)
       E1_MNE_Group_Name: ['', Validators.required],
@@ -559,7 +559,14 @@ export class FormComponent implements OnInit {
   getMyrValue(controlName: string): number {
     const controlVal = this.le1Form.get(controlName)?.value;
     const val = controlVal ? parseFloat(String(controlVal).replace(/,/g, '')) : 0;
-    return val * this.currentExchangeRate;
+    return Math.round(val * this.currentExchangeRate);
+  }
+
+  getNumericValue(controlName: string): number {
+    const valStr = this.le1Form.get(controlName)?.value;
+    const val = valStr ? parseFloat(String(valStr).replace(/,/g, '')) : 0;
+    // If not foreign currency (i.e. MYR), round to nearest integer
+    return this.isForeignCurrency ? val : Math.round(val);
   }
 
   // Validator: Ensure Year is earlier than current year
@@ -574,6 +581,19 @@ export class FormComponent implements OnInit {
     }
     return null;
   }
+
+  // Validator: Ensure TIN is 10 valid digits
+  tinValidator = (control: AbstractControl): { [key: string]: any } | null => {
+    const value = control.value;
+    // Allow empty values (use Validators.required for mandatory checks)
+    if (!value) {
+      return null;
+    }
+    // Check if value is exactly 10 digits
+    const isValid = /^\d{10}$/.test(value);
+    return isValid ? null : { invalidTin: true };
+  }
+
   // --- Row Creators & Logic ---
   createB1Row(data: any = {}): FormGroup {
 
@@ -691,7 +711,7 @@ export class FormComponent implements OnInit {
       ID_type: [data.ID_type || '', Validators.required],
       ID_Passport_No: [data.ID_Passport_No || '', Validators.required],
       Date_of_Birth: [data.Date_of_Birth || '', [Validators.required, this.yearEarlierThanCurrentValidator]],
-      TIN: [data.TIN || '', Validators.required],
+      TIN: [data.TIN || '', [Validators.required, this.tinValidator]],
       Telephone_No: [data.Telephone_No || '', Validators.required],
       Salary_Bonus: [data.Salary_Bonus || 0],
       Fees_Commission_Allowances: [data.Fees_Commission_Allowances || 0],
@@ -712,7 +732,7 @@ export class FormComponent implements OnInit {
       ID_Passport_Reg_No: [data.ID_Passport_Reg_No || '', Validators.required],
       Date_of_Birth: [data.Date_of_Birth || '', [Validators.required, this.yearEarlierThanCurrentValidator]],
       Country_of_Origin: [data.Country_of_Origin || '', Validators.required],
-      TIN: [data.TIN || '', Validators.required],
+      TIN: [data.TIN || '', [Validators.required, this.tinValidator]],
       Direct_Shareholding_Percentage: [data.Direct_Shareholding_Percentage || 0],
       Dividends_Received_in_Basis_Period: [data.Dividends_Received_in_Basis_Period || 0]
     });
@@ -721,7 +741,7 @@ export class FormComponent implements OnInit {
   createC5Row(data: any = {}): FormGroup {
     return this.fb.group({
       Name: [data.Name || '', Validators.required],
-      TIN: [data.TIN || '', Validators.required],
+      TIN: [data.TIN || '', [Validators.required, this.tinValidator]],
       Shareholding_Percentage: [data.Shareholding_Percentage || 0],
       Salary_Bonus: [data.Salary_Bonus || 0],
       Dividends_Received_in_Basis_Period: [data.Dividends_Received_in_Basis_Period || 0],
@@ -746,7 +766,7 @@ export class FormComponent implements OnInit {
     return this.fb.group({
       Name: [data.Name || '', isRequired ? Validators.required : null],
       Registration_No: [data.Registration_No || ''],
-      TIN: [data.TIN || ''],
+      TIN: [data.TIN || '', isRequired ? [this.tinValidator] : [this.tinValidator]], // Always validate format if filled
       Have_Transactions: [data.Have_Transactions || '', isRequired ? Validators.required : null],
     });
   }
@@ -1021,7 +1041,20 @@ export class FormComponent implements OnInit {
     ];
 
     c9FieldsToWatch.forEach(fieldName => {
-      this.le1Form.get(fieldName)?.valueChanges.subscribe(() => this.updateC9());
+      this.le1Form.get(fieldName)?.valueChanges.subscribe((val) => {
+        // Auto-correct to integer if MYR mode (remove decimals immediately)
+        if (!this.isForeignCurrency && val) {
+          const strVal = String(val).replace(/,/g, '');
+          const numeric = parseFloat(strVal);
+          // Check if it has decimals (and is not just "1200.", which is integer-like)
+          if (!isNaN(numeric) && numeric % 1 !== 0) {
+            const rounded = Math.round(numeric);
+            // Update UI immediately, suppress event to avoid loop
+            this.le1Form.get(fieldName)?.setValue(rounded, { emitEvent: false });
+          }
+        }
+        this.updateC9();
+      });
     });
   }
 
@@ -1488,9 +1521,7 @@ export class FormComponent implements OnInit {
 
 
   updateC9() {
-    // [Keep existing calculation logic]
-    const controls = this.le1Form.controls;
-    const getNumber = (controlName: string) => Number(controls[controlName].value) || 0;
+    const getNumber = (controlName: string) => this.getNumericValue(controlName);
 
     const costOfSales = getNumber('Pnl_Opening_Inventory') + getNumber('Pnl_Cost_of_Purchases') + getNumber('Pnl_Cost_of_Production') - getNumber('Pnl_Closing_Inventory');
     const grossProfitLoss = getNumber('Pnl_Sales_Turnover') - costOfSales;
@@ -1669,102 +1700,104 @@ export class FormComponent implements OnInit {
   }
 
   runValidations(): boolean {
+    const getNumber = (controlName: string) => this.getNumericValue(controlName);
+
     //validate if Pnl_Cost_of_Sales =  Pnl_Opening_Inventory + Pnl_Cost_of_Purchases + Pnl_Cost_of_Production - Pnl_Closing_Inventory
     // PNL Statement Fields
-    const pnl_Cost_of_Sales = Number(this.le1Form.get('Pnl_Cost_of_Sales')?.value) || 0;
-    const pnl_Opening_Inventory = Number(this.le1Form.get('Pnl_Opening_Inventory')?.value) || 0;
-    const pnl_Cost_of_Purchases = Number(this.le1Form.get('Pnl_Cost_of_Purchases')?.value) || 0;
-    const pnl_Cost_of_Production = Number(this.le1Form.get('Pnl_Cost_of_Production')?.value) || 0;
-    const pnl_Closing_Inventory = Number(this.le1Form.get('Pnl_Closing_Inventory')?.value) || 0;
+    const pnl_Cost_of_Sales = getNumber('Pnl_Cost_of_Sales');
+    const pnl_Opening_Inventory = getNumber('Pnl_Opening_Inventory');
+    const pnl_Cost_of_Purchases = getNumber('Pnl_Cost_of_Purchases');
+    const pnl_Cost_of_Production = getNumber('Pnl_Cost_of_Production');
+    const pnl_Closing_Inventory = getNumber('Pnl_Closing_Inventory');
 
     const calculated_Cost_of_Sales = pnl_Opening_Inventory + pnl_Cost_of_Purchases + pnl_Cost_of_Production - pnl_Closing_Inventory;
 
     // validate if Pnl_Gross_Profit_Loss = Pnl_Sales_Turnover - cost of sales
-    const pnl_Sales_Turnover = Number(this.le1Form.get('Pnl_Sales_Turnover')?.value) || 0;
-    const pnl_Gross_Profit_Loss = Number(this.le1Form.get('Pnl_Gross_Profit_Loss')?.value) || 0;
+    const pnl_Sales_Turnover = getNumber('Pnl_Sales_Turnover');
+    const pnl_Gross_Profit_Loss = getNumber('Pnl_Gross_Profit_Loss');
     const calculated_Gross_Profit_Loss = pnl_Sales_Turnover - calculated_Cost_of_Sales;
 
     // validate if Pnl_Net_Profit_Loss = Pnl_Gross_Profit_Loss + other income - total expenditure
-    const pnl_Foreign_Currency_Exchange_Gain = Number(this.le1Form.get('Pnl_Foreign_Currency_Exchange_Gain')?.value) || 0;
-    const pnl_Other_Business_Income = Number(this.le1Form.get('Pnl_Other_Business_Income')?.value) || 0;
-    const pnl_Other_Income = Number(this.le1Form.get('Pnl_Other_Income')?.value) || 0;
-    const pnl_Non_Taxable_Profits = Number(this.le1Form.get('Pnl_Non_Taxable_Profits')?.value) || 0;
-    const Pnl_Net_Profit_Loss = Number(this.le1Form.get('Pnl_Net_Profit_Loss')?.value) || 0;
+    const pnl_Foreign_Currency_Exchange_Gain = getNumber('Pnl_Foreign_Currency_Exchange_Gain');
+    const pnl_Other_Business_Income = getNumber('Pnl_Other_Business_Income');
+    const pnl_Other_Income = getNumber('Pnl_Other_Income');
+    const pnl_Non_Taxable_Profits = getNumber('Pnl_Non_Taxable_Profits');
+    const Pnl_Net_Profit_Loss = getNumber('Pnl_Net_Profit_Loss');
 
     const total_Other_Income = pnl_Foreign_Currency_Exchange_Gain + pnl_Other_Business_Income + pnl_Other_Income + pnl_Non_Taxable_Profits;
-    const calculated_Net_Profit_Loss = calculated_Gross_Profit_Loss + total_Other_Income - (Number(this.le1Form.get('Pnl_Total_Expenditure')?.value) || 0);
+    const pnl_Total_Expenditure = getNumber('Pnl_Total_Expenditure');
+    const calculated_Net_Profit_Loss = calculated_Gross_Profit_Loss + total_Other_Income - pnl_Total_Expenditure;
 
     // validate if Pnl_Total_Expenditure = sum of all expenditure fields
-    const pnl_Interest_Expenditure = Number(this.le1Form.get('Pnl_Interest_Expenditure')?.value) || 0;
-    const pnl_Professional_Fees = Number(this.le1Form.get('Pnl_Professional_Fees')?.value) || 0;
-    const pnl_Technical_Fees_to_Non_Residents = Number(this.le1Form.get('Pnl_Technical_Fees_to_Non_Residents')?.value) || 0;
-    const pnl_Contract_Payments = Number(this.le1Form.get('Pnl_Contract_Payments')?.value) || 0;
-    const pnl_Management_Fee = Number(this.le1Form.get('Pnl_Management_Fee')?.value) || 0;
-    const pnl_Salaries_Wages = Number(this.le1Form.get('Pnl_Salaries_Wages')?.value) || 0;
-    const pnl_Cost_of_Employee_Share_Options = Number(this.le1Form.get('Pnl_Cost_of_Employee_Share_Options')?.value) || 0;
-    const pnl_Royalties = Number(this.le1Form.get('Pnl_Royalties')?.value) || 0;
-    const pnl_Rental_Lease = Number(this.le1Form.get('Pnl_Rental_Lease')?.value) || 0;
-    const pnl_Maintenance_Repairs = Number(this.le1Form.get('Pnl_Maintenance_Repairs')?.value) || 0;
-    const pnl_Research_Development = Number(this.le1Form.get('Pnl_Research_Development')?.value) || 0;
-    const pnl_Promotion_Advertisement = Number(this.le1Form.get('Pnl_Promotion_Advertisement')?.value) || 0;
-    const pnl_Travelling_Accommodation = Number(this.le1Form.get('Pnl_Travelling_Accommodation')?.value) || 0;
-    const pnl_Foreign_Currency_Exchange_Loss = Number(this.le1Form.get('Pnl_Foreign_Currency_Exchange_Loss')?.value) || 0;
-    const pnl_Other_Expenditure = Number(this.le1Form.get('Pnl_Other_Expenditure')?.value) || 0;
-    const pnl_Total_Expenditure = Number(this.le1Form.get('Pnl_Total_Expenditure')?.value) || 0;
+    const pnl_Interest_Expenditure = getNumber('Pnl_Interest_Expenditure');
+    const pnl_Professional_Fees = getNumber('Pnl_Professional_Fees');
+    const pnl_Technical_Fees_to_Non_Residents = getNumber('Pnl_Technical_Fees_to_Non_Residents');
+    const pnl_Contract_Payments = getNumber('Pnl_Contract_Payments');
+    const pnl_Management_Fee = getNumber('Pnl_Management_Fee');
+    const pnl_Salaries_Wages = getNumber('Pnl_Salaries_Wages');
+    const pnl_Cost_of_Employee_Share_Options = getNumber('Pnl_Cost_of_Employee_Share_Options');
+    const pnl_Royalties = getNumber('Pnl_Royalties');
+    const pnl_Rental_Lease = getNumber('Pnl_Rental_Lease');
+    const pnl_Maintenance_Repairs = getNumber('Pnl_Maintenance_Repairs');
+    const pnl_Research_Development = getNumber('Pnl_Research_Development');
+    const pnl_Promotion_Advertisement = getNumber('Pnl_Promotion_Advertisement');
+    const pnl_Travelling_Accommodation = getNumber('Pnl_Travelling_Accommodation');
+    const pnl_Foreign_Currency_Exchange_Loss = getNumber('Pnl_Foreign_Currency_Exchange_Loss');
+    const pnl_Other_Expenditure = getNumber('Pnl_Other_Expenditure');
 
     const calculated_Total_Expenditure = pnl_Interest_Expenditure + pnl_Professional_Fees + pnl_Technical_Fees_to_Non_Residents + pnl_Contract_Payments + pnl_Management_Fee + pnl_Salaries_Wages + pnl_Cost_of_Employee_Share_Options + pnl_Royalties + pnl_Rental_Lease + pnl_Maintenance_Repairs + pnl_Research_Development + pnl_Promotion_Advertisement + pnl_Travelling_Accommodation + pnl_Foreign_Currency_Exchange_Loss + pnl_Other_Expenditure;
 
     // Financial Position (FP) - Assets
-    const fp_Motor_Vehicles = Number(this.le1Form.get('Fp_Motor_Vehicles')?.value) || 0;
-    const fp_Plant_Equipment = Number(this.le1Form.get('Fp_Plant_Equipment')?.value) || 0;
-    const fp_Land_Buildings = Number(this.le1Form.get('Fp_Land_Buildings')?.value) || 0;
-    const fp_Other_Non_Current_Assets = Number(this.le1Form.get('Fp_Other_Non_Current_Assets')?.value) || 0;
-    const fp_Investments = Number(this.le1Form.get('Fp_Investments')?.value) || 0;
-    const fp_Total_Non_Current_Assets = Number(this.le1Form.get('Fp_Total_Non_Current_Assets')?.value) || 0;
+    const fp_Motor_Vehicles = getNumber('Fp_Motor_Vehicles');
+    const fp_Plant_Equipment = getNumber('Fp_Plant_Equipment');
+    const fp_Land_Buildings = getNumber('Fp_Land_Buildings');
+    const fp_Other_Non_Current_Assets = getNumber('Fp_Other_Non_Current_Assets');
+    const fp_Investments = getNumber('Fp_Investments');
+    const fp_Total_Non_Current_Assets = getNumber('Fp_Total_Non_Current_Assets');
 
     const calculated_Total_Non_Current_Assets = fp_Motor_Vehicles + fp_Plant_Equipment + fp_Land_Buildings + fp_Other_Non_Current_Assets + fp_Investments;
 
     // Current Assets
-    const fp_Trade_Debtors = Number(this.le1Form.get('Fp_Trade_Debtors')?.value) || 0;
-    const fp_Other_Debtors = Number(this.le1Form.get('Fp_Other_Debtors')?.value) || 0;
-    const fp_Inventory = Number(this.le1Form.get('Fp_Inventory')?.value) || 0;
-    const fp_Loans_to_Related_Entities = Number(this.le1Form.get('Fp_Loans_to_Related_Entities')?.value) || 0;
-    const fp_Cash_in_Hand_Bank = Number(this.le1Form.get('Fp_Cash_in_Hand_Bank')?.value) || 0;
-    const fp_Other_Current_Assets = Number(this.le1Form.get('Fp_Other_Current_Assets')?.value) || 0;
-    const fp_Total_Current_Assets = Number(this.le1Form.get('Fp_Total_Current_Assets')?.value) || 0;
+    const fp_Trade_Debtors = getNumber('Fp_Trade_Debtors');
+    const fp_Other_Debtors = getNumber('Fp_Other_Debtors');
+    const fp_Inventory = getNumber('Fp_Inventory');
+    const fp_Loans_to_Related_Entities = getNumber('Fp_Loans_to_Related_Entities');
+    const fp_Cash_in_Hand_Bank = getNumber('Fp_Cash_in_Hand_Bank');
+    const fp_Other_Current_Assets = getNumber('Fp_Other_Current_Assets');
+    const fp_Total_Current_Assets = getNumber('Fp_Total_Current_Assets');
     const calculated_Total_Current_Assets = fp_Trade_Debtors + fp_Other_Debtors + fp_Inventory + fp_Loans_to_Related_Entities + fp_Cash_in_Hand_Bank + fp_Other_Current_Assets;
 
     // Total Assets
-    const fp_Total_Assets = Number(this.le1Form.get('Fp_Total_Assets')?.value) || 0;
+    const fp_Total_Assets = getNumber('Fp_Total_Assets');
     const calculated_Total_Assets = calculated_Total_Current_Assets + calculated_Total_Non_Current_Assets;
 
     // Financial Position (FP) - Liabilities
     // Current Liabilities
-    const fp_Loans_Bank_Overdrafts = Number(this.le1Form.get('Fp_Loans_Bank_Overdrafts')?.value) || 0;
-    const fp_Trade_Creditors = Number(this.le1Form.get('Fp_Trade_Creditors')?.value) || 0;
-    const fp_Other_Creditors = Number(this.le1Form.get('Fp_Other_Creditors')?.value) || 0;
-    const fp_Loans_from_Related_Entities = Number(this.le1Form.get('Fp_Loans_from_Related_Entities')?.value) || 0;
-    const fp_Other_Current_Liabilities = Number(this.le1Form.get('Fp_Other_Current_Liabilities')?.value) || 0;
-    const fp_Total_Current_Liabilities = Number(this.le1Form.get('Fp_Total_Current_Liabilities')?.value) || 0;
+    const fp_Loans_Bank_Overdrafts = getNumber('Fp_Loans_Bank_Overdrafts');
+    const fp_Trade_Creditors = getNumber('Fp_Trade_Creditors');
+    const fp_Other_Creditors = getNumber('Fp_Other_Creditors');
+    const fp_Loans_from_Related_Entities = getNumber('Fp_Loans_from_Related_Entities');
+    const fp_Other_Current_Liabilities = getNumber('Fp_Other_Current_Liabilities');
+    const fp_Total_Current_Liabilities = getNumber('Fp_Total_Current_Liabilities');
 
     const calculated_Total_Current_Liabilities = fp_Loans_Bank_Overdrafts + fp_Trade_Creditors + fp_Other_Creditors + fp_Loans_from_Related_Entities + fp_Other_Current_Liabilities;
 
     // Total Liabilities
-    const fp_Non_Current_Liabilities = Number(this.le1Form.get('Fp_Non_Current_Liabilities')?.value) || 0;
-    const fp_Total_Liabilities = Number(this.le1Form.get('Fp_Total_Liabilities')?.value) || 0;
+    const fp_Non_Current_Liabilities = getNumber('Fp_Non_Current_Liabilities');
+    const fp_Total_Liabilities = getNumber('Fp_Total_Liabilities');
 
     const calculated_Total_Liabilities = calculated_Total_Current_Liabilities + fp_Non_Current_Liabilities;
 
     // Financial Position (FP) - Equity
-    const fp_Issued_Paid_Up_Capital = Number(this.le1Form.get('Fp_Issued_Paid_Up_Capital')?.value) || 0;
-    const fp_Profit_Loss_Appropriation = Number(this.le1Form.get('Fp_Profit_Loss_Appropriation')?.value) || 0;
-    const fp_Reserve_Account = Number(this.le1Form.get('Fp_Reserve_Account')?.value) || 0;
-    const fp_Total_Equity = Number(this.le1Form.get('Fp_Total_Equity')?.value) || 0;
+    const fp_Issued_Paid_Up_Capital = getNumber('Fp_Issued_Paid_Up_Capital');
+    const fp_Profit_Loss_Appropriation = getNumber('Fp_Profit_Loss_Appropriation');
+    const fp_Reserve_Account = getNumber('Fp_Reserve_Account');
+    const fp_Total_Equity = getNumber('Fp_Total_Equity');
 
     const calculated_Total_Equity = fp_Issued_Paid_Up_Capital + fp_Profit_Loss_Appropriation + fp_Reserve_Account;
 
     // Total Liabilities and Equity
-    const fp_Total_Liabilities_and_Equity = Number(this.le1Form.get('Fp_Total_Liabilities_and_Equity')?.value) || 0;
+    const fp_Total_Liabilities_and_Equity = getNumber('Fp_Total_Liabilities_and_Equity');
     const calculated_Total_Liabilities_and_Equity = calculated_Total_Liabilities + calculated_Total_Equity;
 
     // Perform validations

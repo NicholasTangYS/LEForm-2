@@ -368,7 +368,7 @@ export class HomeComponent {
         this.auth.setProjectId(projectId);
 
         // Deduct 1 credit for successful report generation
-        this.deductCredit(projectId);
+        this.deductCredit(projectId, body.name, body.year_end);
 
         // Navigate without passing state in the URL
         this.router.navigate(['/form']);
@@ -385,11 +385,12 @@ export class HomeComponent {
     );
   }
 
-  deductCredit(projectId: number): void {
+  deductCredit(projectId: number, companyName: string, yearEnd: string): void {
+    const year = yearEnd ? new Date(yearEnd).getFullYear() : '';
     const deductionBody = {
       userId: this.userID,
       amount: 1,
-      description: `Report Generation - ID: ${projectId}`,
+      description: `Report Generation - ${companyName} ${year}`,
       referenceType: 'PROJECT',
       referenceId: projectId
     };
