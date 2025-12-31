@@ -532,7 +532,7 @@
                                     <div class="details-column">
                                         <div class="field-group">
                                             <label>No. of Employees (Labuan)</label>
-                                            <input type="number" formControlName="No_of_Employees">
+                                            <input min="0" type="number" formControlName="No_of_Employees">
                                         </div>
                                         <div class="field-group">
                                             <label>OpEx in Labuan (RM)</label>
@@ -1098,7 +1098,7 @@ margin-bottom: 10px;">
                         <div style="flex:1;">
                             <label for="Auditor_TIN">Auditor TIN:</label>
                             <div *ngIf="le1Form.get('Auditor_TIN')?.errors?.['invalidTin']" class="text-danger small"
-                                style="margin-bottom: 2px;">TIN must be 10 digits</div>
+                                style="margin-bottom: 2px;">TIN must be 10-11 digits</div>
                             <input type="text" id="Auditor_TIN" formControlName="Auditor_TIN">
                         </div>
                     </div>
@@ -1315,7 +1315,7 @@ margin-bottom: 10px;">
                                         <div class="field-group">
                                             <label>TIN</label>
                                             <div *ngIf="row.get('TIN')?.errors?.['invalidTin']"
-                                                class="text-danger small" style="margin-bottom: 2px;">TIN must be 10
+                                                class="text-danger small" style="margin-bottom: 2px;">TIN must be 10-11
                                                 digits</div>
                                             <input type="text" class="form-control" formControlName="TIN">
                                         </div>
@@ -1427,7 +1427,7 @@ margin-bottom: 10px;">
                                         <div class="field-group">
                                             <label>TIN</label>
                                             <div *ngIf="row.get('TIN')?.errors?.['invalidTin']"
-                                                class="text-danger small" style="margin-bottom: 2px;">TIN must be 10
+                                                class="text-danger small" style="margin-bottom: 2px;">TIN must be 10-11
                                                 digits</div>
                                             <input type="text" class="form-control" formControlName="TIN">
                                         </div>
@@ -1525,7 +1525,7 @@ margin-bottom: 10px;">
                                         <div class="field-group">
                                             <label>TIN</label>
                                             <div *ngIf="row.get('TIN')?.errors?.['invalidTin']"
-                                                class="text-danger small" style="margin-bottom: 2px;">TIN must be 10
+                                                class="text-danger small" style="margin-bottom: 2px;">TIN must be 10-11
                                                 digits</div>
                                             <input type="text" class="form-control" formControlName="TIN">
                                         </div>
@@ -2389,7 +2389,7 @@ margin-bottom: 10px;">
                                         <div class="field-group">
                                             <label>TIN</label>
                                             <div *ngIf="row.get('TIN')?.errors?.['invalidTin']"
-                                                class="text-danger small" style="margin-bottom: 2px;">TIN must be 10
+                                                class="text-danger small" style="margin-bottom: 2px;">TIN must be 10-11
                                                 digits</div>
                                             <input type="text" class="form-control" formControlName="TIN">
                                         </div>
@@ -2534,65 +2534,84 @@ margin-bottom: 10px;">
 
             <hr>
 
-            <h4>Step 2: Prepare the Automation Tool (One-Time Setup)</h4>
-            <ol>
-                <li>
-                    <strong>Download the extension:</strong>
-                    <!-- 
-            ACTION REQUIRED: You need to zip your extension folder (containing manifest.json, popup.js, etc.)
-            and host it. A simple way is to place it in your Angular project's 'src/assets' folder.
-          -->
-                    <a href="assets/lhdn-form-filler.zip" download="lhdn-extension.zip">
-                        Click here to download the LHDN Filler Extension (.zip)
-                    </a>
-                </li>
-                <li><strong>Unzip the file</strong> on your computer. You will have a folder named `lhdn-extension`.
-                </li>
-                <li>
-                    <strong>Open your browser's extensions page:</strong>
-                    <ul>
-                        <li>For Chrome, go to: <code>chrome://extensions</code></li>
-                        <li>For Edge, go to: <code>edge://extensions</code></li>
-                    </ul>
-                </li>
-                <li>
-                    <strong>Enable "Developer mode"</strong>. This is usually a toggle switch in the top-right corner of
-                    the
-                    extensions page.
-                </li>
-                <li>
-                    Click the <strong>"Load unpacked"</strong> button and select the `lhdn-extension` folder you
-                    unzipped.
-                    The extension icon (🚀) will now appear in your browser toolbar.
-                </li>
-            </ol>
+            <!-- Step 2 Accordion -->
+            <div class="instruction-accordion" [class.open]="instructionStep2Open">
+                <div class="accordion-header" (click)="toggleInstructionStep(2)">
+                    <h4 style="margin: 0;">Step 2: Prepare the Automation Tool</h4>
+                    <span class="accordion-icon">{{ instructionStep2Open ? '−' : '+' }}</span>
+                </div>
+                <div class="accordion-body-content" *ngIf="instructionStep2Open">
+                    <ol>
+                        <li>
+                            <strong>Download the extension:</strong>
+                            <a href="assets/lhdn-form-filler.zip" download="lhdn-extension.zip">
+                                Click here to download the LHDN Filler Extension (.zip)
+                            </a>
+                        </li>
+                        <li><strong>Unzip the file</strong> on your computer. You will have a folder named
+                            `lhdn-extension`.
+                        </li>
+                        <li>
+                            <strong>Open your browser's extensions page:</strong>
+                            <ul>
+                                <li>For Chrome, go to: <code>chrome://extensions</code></li>
+                                <li>For Edge, go to: <code>edge://extensions</code></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Enable "Developer mode"</strong>. This is usually a toggle switch in the top-right
+                            corner of
+                            the
+                            extensions page.
+                        </li>
+                        <li>
+                            Click the <strong>"Load unpacked"</strong> button and select the `lhdn-extension` folder you
+                            unzipped.
+                            The extension icon (🚀) will now appear in your browser toolbar.
+                        </li>
+                    </ol>
+                </div>
+            </div>
 
             <hr>
 
-            <h4>Step 3: Run the Automation</h4>
-            <ol>
-                <li>
-                    <strong>Log in to the LHDN portal:</strong>
-                    <a href="https://mytax.hasil.gov.my/" target="_blank" rel="noopener noreferrer">
-                        Open MyTax Portal in a new tab
-                    </a>
-                </li>
-                <li>Navigate manually through the portal until you are on the <strong>very first page</strong> of the
-                    LE1 form
-                    (the "Maklumat Asas" / "Basic Information" page).</li>
-                <li>Click the LHDN Filler Extension icon (🚀) in your toolbar. A popup will appear.</li>
-                <li><strong>Paste your copied data</strong> into the text box.</li>
-                <li>Click the <strong>"Start Full Automation"</strong> button and the extension will fill and navigate
-                    through
-                    the pages for you.</li>
-            </ol>
+            <!-- Step 3 Accordion -->
+            <div class="instruction-accordion" [class.open]="instructionStep3Open">
+                <div class="accordion-header" (click)="toggleInstructionStep(3)">
+                    <h4 style="margin: 0;">Step 3: Run the Automation</h4>
+                    <span class="accordion-icon">{{ instructionStep3Open ? '−' : '+' }}</span>
+                </div>
+                <div class="accordion-body-content" *ngIf="instructionStep3Open">
+                    <ol>
+                        <li>
+                            <strong>Log in to the LHDN portal:</strong>
+                            <a href="https://mytax.hasil.gov.my/" target="_blank" rel="noopener noreferrer">
+                                Open MyTax Portal in a new tab
+                            </a>
+                        </li>
+                        <li>Navigate manually through the portal until you are on the <strong>very first page</strong>
+                            of the
+                            LE1 form
+                            (the "Maklumat Asas" / "Basic Information" page).</li>
+                        <li>Click the LHDN Filler Extension icon (🚀) in your toolbar. A popup will appear.</li>
+                        <li><strong>Paste your copied data</strong> into the text box.</li>
+                        <li>Click the <strong>"Start Full Automation"</strong> button and the extension will fill and
+                            navigate
+                            through
+                            the pages for you.</li>
+                    </ol>
+                </div>
+            </div>
 
-            <hr>
-            <h4>Step 4: Finalize Project</h4>
-            <p>Once you've verified the automation results, mark this project as complete to finalize its status.</p>
-            <button class="success-btn" (click)="markAsComplete()">Mark as
-                Complete</button>
+        </div>
 
+        <div class="modal-footer">
+            <div class="footer-content">
+                <p>Once you've verified the automation results, mark this project as complete.</p>
+                <button class="success-btn catchy" (click)="markAsComplete()">
+                    Mark as Complete
+                </button>
+            </div>
         </div>
     </div>
 </ng-container>

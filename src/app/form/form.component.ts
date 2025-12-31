@@ -42,6 +42,9 @@ export class FormComponent implements OnInit {
   private apiUrl = baseUrl;
   projectId: any;
   projectStatus: number = 1; // 1: In Progress, 2: Complete
+  instructionStep2Open = false;
+  instructionStep3Open = false;
+
 
   // Section completion tracking
   sectionStatus: { [key: string]: boolean } = {};
@@ -582,15 +585,20 @@ export class FormComponent implements OnInit {
     return null;
   }
 
-  // Validator: Ensure TIN is 10 valid digits
+  toggleInstructionStep(step: number) {
+    if (step === 2) this.instructionStep2Open = !this.instructionStep2Open;
+    if (step === 3) this.instructionStep3Open = !this.instructionStep3Open;
+  }
+
+  // Validator: Ensure TIN is 10 to 11 valid digits
   tinValidator = (control: AbstractControl): { [key: string]: any } | null => {
     const value = control.value;
     // Allow empty values (use Validators.required for mandatory checks)
     if (!value) {
       return null;
     }
-    // Check if value is exactly 10 digits
-    const isValid = /^\d{10}$/.test(value);
+    // Check if value is 10 to 11 digits
+    const isValid = /^\d{10,11}$/.test(value);
     return isValid ? null : { invalidTin: true };
   }
 
@@ -604,13 +612,13 @@ export class FormComponent implements OnInit {
       Business_Activity_Status_Active: [data.Business_Activity_Status_Active || '', Validators.required],
 
       // Conditional fields initialized as Required
-      No_of_Employees: [data.No_of_Employees || '', Validators.required],
-      Annual_Operating_Expenditure: [data.Annual_Operating_Expenditure || '', Validators.required],
-      Annual_Operating_Expenditure_MAS: [data.Annual_Operating_Expenditure_MAS || '', Validators.required],
+      No_of_Employees: [data.No_of_Employees || 0, Validators.required],
+      Annual_Operating_Expenditure: [data.Annual_Operating_Expenditure || 0, Validators.required],
+      Annual_Operating_Expenditure_MAS: [data.Annual_Operating_Expenditure_MAS || 0, Validators.required],
       Compliance_with_FPEC: [data.Compliance_with_FPEC || '', Validators.required],
       Compliance_with_CML: [data.Compliance_with_CML || '', Validators.required],
-      No_of_Employees_Malaysia: [data.No_of_Employees_Malaysia || '', Validators.required],
-      No_of_Related_Company: [data.No_of_Related_Company || '', Validators.required],
+      No_of_Employees_Malaysia: [data.No_of_Employees_Malaysia || 0, Validators.required],
+      No_of_Related_Company: [data.No_of_Related_Company || 0, Validators.required],
 
       // Standard fields
       Comply_Substantive_Yes: [data.Comply_Substantive_Yes || ''],
@@ -1258,20 +1266,19 @@ export class FormComponent implements OnInit {
     if (formData.c4Rows) formData.c4Rows.forEach((row: any) => row.Date_of_Birth = this.formatDate(row.Date_of_Birth));
     if (formData.c5Rows) formData.c5Rows.forEach((row: any) => row.Date_of_Birth = this.formatDate(row.Date_of_Birth));
 
-    // 2. Handle Currency Conversion for Submission
-    if (this.isForeignCurrency) {
-      const rate = this.currentExchangeRate;
-      this.c9FinancialFields.forEach(field => {
-        const rawVal = formData[field];
-        // Remove commas, parse to float, multiply by rate
-        const numericVal = rawVal ? parseFloat(String(rawVal).replace(/,/g, '')) : 0;
-        const convertedVal = numericVal * rate;
+    // 2. Handle Currency Conversion and Rounding for Submission
+    const rate = this.isForeignCurrency ? this.currentExchangeRate : 1;
+    this.c9FinancialFields.forEach(field => {
+      const rawVal = formData[field];
+      // Remove commas, parse to float
+      const numericVal = rawVal ? parseFloat(String(rawVal).replace(/,/g, '')) : 0;
 
-        // Update the data object with the MYR value
-        // formatting it back to string/number as expected by your backend/extension
-        formData[field] = convertedVal.toFixed(2);
-      });
-    }
+      // Calculate MYR value (rate is 1 if already in MYR) and round to nearest whole number
+      const roundedVal = Math.round(numericVal * rate);
+
+      // Update the data object with the rounded MYR value
+      formData[field] = roundedVal.toString();
+    });
 
     return formData;
   }

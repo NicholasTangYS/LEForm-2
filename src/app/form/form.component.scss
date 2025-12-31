@@ -749,6 +749,104 @@ button[type="submit"]:hover {
     }
 }
 
+.instruction-accordion {
+    border: 1px solid #e0e0e0;
+    margin: 1rem 0;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+
+    &.open {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border-color: #007bff;
+    }
+
+    .accordion-header {
+        padding: 1rem 1.5rem;
+        background-color: #f8f9fa;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: #f0f2f5;
+        }
+
+        h4 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #0056b3;
+        }
+
+        .accordion-icon {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+    }
+
+    .accordion-body-content {
+        padding: 1rem 1.5rem;
+        background-color: #fff;
+        border-top: 1px solid #e0e0e0;
+    }
+}
+
+.modal-footer {
+    padding: 1.5rem;
+    border-top: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    position: sticky;
+    justify-content: center;
+    // bottom: 0;
+    z-index: 10;
+
+    .footer-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        text-align: center;
+
+        p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #495057;
+            font-weight: 500;
+        }
+    }
+}
+
+.success-btn.catchy {
+    animation: pulse-green 2s infinite;
+    width: auto;
+    min-width: 200px;
+    padding: 12px 32px;
+    font-size: 1.1rem;
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+}
+
+@keyframes pulse-green {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4);
+    }
+
+    70% {
+        transform: scale(1.03);
+        box-shadow: 0 0 0 15px rgba(46, 204, 113, 0);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(46, 204, 113, 0);
+    }
+}
+
 .json-container {
     position: relative;
 
