@@ -31,7 +31,7 @@ export interface TopUpDialogData {
     styleUrls: ['./topup-modal.component.scss']
 })
 export class TopupModalComponent {
-    tokens: number = 1;
+    tokens: number = 10;
     pricePerToken: number = 20; // USD per token
     discountCode: string = '';
     isProcessing: boolean = false;
@@ -247,17 +247,20 @@ export class TopupModalComponent {
 
     increaseTokens(): void {
         this.tokens++;
-        if (this.discountCode) {
-            this.validateDiscountCode();
+        this.validateDiscountCode();
+    }
+
+    onTokenChange(): void {
+        if (this.tokens < 10) {
+            this.tokens = 10;
         }
+        this.validateDiscountCode();
     }
 
     decreaseTokens(): void {
-        if (this.tokens > 1) {
+        if (this.tokens > 10) {
             this.tokens--;
-            if (this.discountCode) {
-                this.validateDiscountCode();
-            }
+            this.validateDiscountCode();
         }
     }
 }

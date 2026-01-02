@@ -11,16 +11,16 @@
                 </div>
 
                 <div class="token-selector">
-                    <label>Number of Tokens</label>
+                    <label>Number of Tokens(min: 10)</label>
                     <div class="token-controls">
-                        <button type="button" class="token-btn" (click)="decreaseTokens()" [disabled]="tokens <= 1">
+                        <button type="button" class="token-btn" (click)="decreaseTokens()" [disabled]="tokens <= 10">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                             </svg>
                         </button>
-                        <input type="number" [(ngModel)]="tokens" min="1" class="token-input"
-                            (change)="validateDiscountCode()">
+                        <input type="number" [(ngModel)]="tokens" min="10" class="token-input"
+                            (ngModelChange)="onTokenChange()">
                         <button type="button" class="token-btn" (click)="increaseTokens()">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
@@ -138,7 +138,7 @@
 
         <!-- Logic for "Proceed to Payment" vs "Confirm Payment" -->
         <button mat-raised-button color="primary" *ngIf="!showStripeElement" (click)="initiateStripeCheckout()"
-            [disabled]="isProcessing || tokens < 1 || isValidatingCode">
+            [disabled]="isProcessing || tokens < 10 || isValidatingCode">
             {{ isProcessing ? 'Preparing...' : 'Proceed to Checkout ($' + finalAmount.toFixed(2) + ')' }}
         </button>
 
