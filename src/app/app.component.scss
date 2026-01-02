@@ -11,47 +11,38 @@
   min-width: 150px;
   width: 15vw;
   z-index: 3;
-  /* 1. Ensure a smooth transition for the width property */
   transition: width 0.3s ease;
-  padding: 1rem;
   height: 100vh;
   top: 0;
   left: 0;
   position: fixed;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  box-sizing: border-box;
 
   &.collapsed {
     width: 4vw;
-    min-width: 60px;
+    min-width: 64px;
   }
 
-  /* --- New Styles for Smooth Text Transition --- */
-
-  /* 2. Style the header div for consistent alignment */
-  &>div:first-child {
+  .sidebar-header {
+    height: 70px;
     display: flex;
     align-items: center;
-    justify-content: space-around;
-    height: 70px;
-  }
+    justify-content: flex-start;
+    padding: 0 1rem;
+    flex-shrink: 0;
+    gap: 10px;
 
-  /* 3. Smooth transition for the main title (LE Form.ai) */
-  h2 {
-    font-size: 1.5rem;
-    white-space: nowrap;
-    /* Prevents wrapping during collapse */
-    overflow: hidden;
-    /* Hides content beyond the width */
-    /* Add transition for opacity for smooth fade in/out */
-    transition: opacity 0.3s ease;
-  }
-
-  /* 4. Hide title text with opacity and width when collapsed */
-  &.collapsed h2 {
-    opacity: 0;
-    /* Fade out */
-    width: 0;
-    padding: 0;
-    margin: 0;
+    h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: opacity 0.3s ease;
+    }
   }
 
   .toggle-btn {
@@ -59,119 +50,177 @@
     border: none;
     color: white;
     cursor: pointer;
-    font-size: medium;
+    font-size: 1.2rem;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
   }
 
-  nav a {
+  .sidebar-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 0.5rem;
     display: flex;
-    /* Use flex for icon/text alignment */
+    flex-direction: column;
+
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+
+    a {
+      display: flex;
+      align-items: center;
+      color: #fff;
+      padding: 0.75rem 1rem;
+      text-decoration: none;
+      margin-bottom: 4px;
+      transition: background 0.2s ease;
+      border-radius: 8px;
+      gap: 12px;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      span {
+        transition: opacity 0.3s ease;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+    }
+  }
+
+  &.collapsed .sidebar-nav a span,
+  &.collapsed .sidebar-header h2 {
+    opacity: 0;
+    width: 0;
+    pointer-events: none;
+  }
+
+  .sidebar-footer {
+    padding: 1rem 0.5rem;
+    flex-shrink: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  .support-section {
+    margin-bottom: 0.5rem;
+  }
+
+  .support-link {
+    display: flex;
     align-items: center;
     color: #fff;
-    padding: 0.5rem;
+    padding: 0.75rem 1rem;
     text-decoration: none;
-    margin-bottom: 5px;
-    transition: all ease 0.3s;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    border-radius: 8px;
+    gap: 12px;
 
     &:hover {
       background: rgba(255, 255, 255, 0.1);
     }
 
-    /* 5. Style the navigation span (Dashboard, Reports, Settings) */
     span {
-      /* Add transition for opacity */
       transition: opacity 0.3s ease;
       white-space: nowrap;
       overflow: hidden;
     }
   }
 
-  /* 6. Hide navigation text when collapsed */
-  &.collapsed nav a span {
+  &.collapsed .support-link span {
     opacity: 0;
     width: 0;
-    /* Ensures the hidden text doesn't take up space */
+    pointer-events: none;
   }
 
-  // .user-info {
-  //     padding-top: 1rem;
-  //     border-top: 1px solid rgba(255, 255, 255, 0.1);
-  //     position: absolute;
-  //     bottom: 20px;
-  //     left: 1rem;
-  //     right: 1rem;
-  // }
+  .user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+  }
 
-  // .user-details {
-  //   display: flex;
-  //   align-items: center;
-  //   padding-bottom: 10px;
+  &.collapsed .user-info {
+    padding: 0.5rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
 
-  //   .user-icon {
-  //       /* Keep existing icon styles */
-  //       transition: margin-right 0.3s ease;
-  //   }
+  .user-details {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    overflow: hidden;
 
-  //   /* 7. Style the username text */
-  //   span:last-child { 
-  //     transition: opacity 0.3s ease;
-  //     white-space: nowrap;
-  //     overflow: hidden;
-  //   }
-  // }
-
-  // /* 8. Hide username text when collapsed */
-  // &.collapsed .user-details span:last-child {
-  //   opacity: 0;
-  //   width: 0;
-  //   padding: 0;
-  //   margin: 0;
-  // }
-
-  .logout-button {
-    // width: 100%;
-    // text-align: left;
-    transition: opacity 0.3s ease;
-
-    /* 9. Ensure Mat-Button is styled correctly in the collapsed state */
-    &.mat-button {
-      padding: 0;
-      min-width: 0;
+    .username-text {
+      font-size: 0.9rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: opacity 0.3s ease;
     }
   }
 
-  /* 10. Hide logout button text when collapsed (handled by *ngIf, but this adds opacity transition) */
+  &.collapsed .user-details .username-text {
+    opacity: 0;
+    width: 0;
+    pointer-events: none;
+  }
+
+  .user-icon {
+    width: 28px;
+    height: 28px;
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+
+  .logout-button {
+    width: 100%;
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 0.6rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: background 0.2s ease, opacity 0.3s ease;
+
+    &:hover {
+      background: #cc0000;
+    }
+  }
+
   &.collapsed .logout-button {
     opacity: 0;
-    /* Fade it out */
+    pointer-events: none;
+    height: 0;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
   }
-}
-
-.user-icon {
-  /* Set the size of the icon container */
-  width: 30px;
-  height: 30px;
-
-  /* Make it a circle */
-  border-radius: 50%;
-
-  /* Center the text inside */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  /* Appearance */
-  background-color: #007bff;
-  /* Example background color */
-  color: black;
-  /* Text color */
-  font-weight: bold;
-  font-size: 14px;
-
-  /* Ensure it aligns well with the username text */
-  margin-right: 8px;
-
-  /* If the user-details div is also flex/grid, you may need: */
-  flex-shrink: 0;
 }
 
 .main-content {
@@ -192,70 +241,20 @@
   }
 }
 
-.support-section {
-  position: absolute;
-  bottom: 4.5rem;
-  width: calc(100% - 2rem);
-}
+@media (max-width: 1200px) {
+  .sidebar {
+    width: 200px;
 
-.support-link {
-  display: flex;
-  align-items: center;
-  color: #fff;
-  padding: 0.5rem;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all ease 0.3s;
-  border-radius: 5px;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    &.collapsed {
+      width: 64px;
+    }
   }
 
-  span {
-    transition: opacity 0.3s ease;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-}
+  .main-content {
+    margin-left: 200px;
 
-.sidebar.collapsed .support-link span {
-  opacity: 0;
-  width: 0;
-}
-
-.user-info {
-  position: absolute;
-  bottom: 1rem;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: calc(100% - 2rem);
-}
-
-.user-details {
-  display: flex;
-  align-items: center;
-}
-
-.user-icon {
-  width: 24px;
-  height: 24px;
-  background-color: #fff;
-  border-radius: 50%;
-  margin-right: 0.5rem;
-}
-
-.logout-button {
-  background: #ff4d4d;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  cursor: pointer;
-
-  &:hover {
-    background: #cc0000;
+    &.expanded {
+      margin-left: 64px;
+    }
   }
 }
