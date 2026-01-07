@@ -536,21 +536,23 @@
                                         </div>
                                         <div class="field-group">
                                             <label>OpEx in Labuan (RM)</label>
-                                            <input type="number" formControlName="Annual_Operating_Expenditure">
+                                            <input appThousandSeparator type="text"
+                                                formControlName="Annual_Operating_Expenditure">
                                         </div>
                                         <div class="field-group">
                                             <label>OpEx in Malaysia (RM)</label>
-                                            <input type="text" formControlName="Annual_Operating_Expenditure_MAS">
+                                            <input appThousandSeparator type="text"
+                                                formControlName="Annual_Operating_Expenditure_MAS">
                                         </div>
                                         <div class="field-group">
-                                            <label>Compliance with FPEC</label>
+                                            <label>Compliance with Fit & Proper Employment Conditions</label>
                                             <select class="form-select" formControlName="Compliance_with_FPEC">
                                                 <option value="1">Yes</option>
                                                 <option value="2">No</option>
                                             </select>
                                         </div>
                                         <div class="field-group">
-                                            <label>Compliance with CML</label>
+                                            <label>Compliance with Control and Management in Labuan</label>
                                             <select class="form-select" formControlName="Compliance_with_CML">
                                                 <option value="1">Yes</option>
                                                 <option value="2">No</option>

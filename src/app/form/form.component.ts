@@ -626,9 +626,25 @@ export class FormComponent implements OnInit {
       Net_Profits_ex_IP: [data.Net_Profits_ex_IP || 0]
     });
 
+    // Mutual Exclusion Logic
+    group.get('Amount_of_Net_Loss')?.valueChanges.subscribe(val => {
+      const numVal = typeof val === 'string' ? parseFloat(val.replace(/,/g, '')) : val;
+      if (numVal > 0) {
+        group.get('Net_Profits_ex_IP')?.setValue(0, { emitEvent: false });
+        this.calculateB2Total();
+      }
+    });
+
+    group.get('Net_Profits_ex_IP')?.valueChanges.subscribe(val => {
+      const numVal = typeof val === 'string' ? parseFloat(val.replace(/,/g, '')) : val;
+      if (numVal > 0) {
+        group.get('Amount_of_Net_Loss')?.setValue(0, { emitEvent: false });
+      }
+      this.calculateB2Total();
+    });
+
     // Attach Listeners
     this.setupB1RowLogic(group);
-    group.get('Net_Profits_ex_IP')?.valueChanges.subscribe(() => this.calculateB2Total());
 
     return group;
   }
@@ -822,6 +838,39 @@ export class FormComponent implements OnInit {
       }
       control.updateValueAndValidity(); // Triggers the CSS update
     });
+  }
+
+  /**
+   * Triggers the initial conditional logic for top-level fields.
+   * This is useful on initialization or after patching values.
+   */
+  triggerInitialConditionalLogic() {
+    this.updateFieldStatus('Types_of_exchange_of_accounting_periods', this.le1Form.get('Change_of_Accounting_Period_No')?.value === '1');
+    this.updateFieldStatus(['Currency_Reported', 'Currency_Exchange_Rate'], this.le1Form.get('FS_in_Foreign_Currency_Yes')?.value === '1');
+    this.updateFieldStatus('C6b_Number_of_Related_Companies_Qualifying_Activity', this.le1Form.get('C6a_Has_Related_Company')?.value === '1');
+    this.updateFieldStatus('C7b_Total_Income_from_Non_Labuan_Activity', this.le1Form.get('C7a_Derived_Income_from_Non_Labuan_Activity')?.value === '1');
+    this.updateFieldStatus('C8b_Total_Income_from_IP', this.le1Form.get('C8a_Derived_Income_from_IP')?.value === '1');
+    this.updateFieldStatus('D1_Subject_as', this.le1Form.get('D1_Subject_to_CbCR')?.value === '1');
+
+    const subjectAs = this.le1Form.get('D1_Subject_as')?.value;
+    const p_E = ['E1_MNE_Group_Name', 'E2_Accounting_Period_From', 'E2_Accounting_Period_To', 'E3_Constituent_Entities_in_Malaysia', 'E4_Constituent_Entities_outside_Malaysia'];
+    const p_F = ['F1_Reporting_Entity_Name', 'F2_TIN', 'F3_Country_of_Residence', 'F4_Accounting_Period_From', 'F4_Accounting_Period_To', 'F5_MNE_Group_Name', 'F6_Status_of_Reporting_Entity', 'F7a_Ultimate_Holding_Entity_Name', 'F7b_Country_of_Residence_UHE'];
+
+    if (subjectAs === '1') {
+      this.updateFieldStatus(p_E, true);
+      this.updateFieldStatus(p_F, false);
+    } else if (subjectAs === '2') {
+      this.updateFieldStatus(p_E, false);
+      this.updateFieldStatus(p_F, true);
+    } else {
+      this.updateFieldStatus(p_E, false);
+      this.updateFieldStatus(p_F, false);
+    }
+
+    const hasSub = this.le1Form.get('C10_Has_Subsidiary_Outside_Labuan')?.value;
+    if (this.projectStatus !== 2) {
+      hasSub === '1' ? this.c10Rows.enable() : this.c10Rows.disable();
+    }
   }
 
   // --- Add / Remove Methods ---
@@ -1031,6 +1080,9 @@ export class FormComponent implements OnInit {
       this.updateFieldStatus(targetFields, value === '1');
     });
 
+    // Run initial logic for all conditional fields
+    this.triggerInitialConditionalLogic();
+
     // C9 Calculations Watcher
     const c9FieldsToWatch = [
       'Pnl_Sales_Turnover', 'Pnl_Opening_Inventory', 'Pnl_Cost_of_Purchases', 'Pnl_Cost_of_Production',
@@ -1132,7 +1184,8 @@ export class FormComponent implements OnInit {
           if (this.projectStatus === 2) {
             this.le1Form.disable();
           } else {
-            this.le1Form.enable();
+            // Trigger initial logic after patchValue to ensure fields are disabled/enabled correctly
+            this.triggerInitialConditionalLogic();
           }
         }
       },

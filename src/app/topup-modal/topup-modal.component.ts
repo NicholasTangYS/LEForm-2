@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { HttpClient } from '@angular/common/http';
-import { baseUrl } from '../../environments/environment';
+import { environment, baseUrl } from '../../environments/environment';
 
 import { DialogService } from '../dialog.service';
 import { loadStripe, Stripe, StripeElements, StripePaymentElement } from '@stripe/stripe-js';
@@ -46,7 +46,7 @@ export class TopupModalComponent {
     showStripeElement: boolean = false;
     stripeReady: boolean = false;
     stripeErrorMessage: string = '';
-    private stripePublishableKey: string = 'pk_test_51ShR2sBcm1adiidou21v8SKd4LP9heo4LqMgui06iwNH7eGOsF49GLETUJ3jKhE6jWZtFmR7Dnf7Cmo7xzqH9DJK00hcLM0rGh';
+    private stripePublishableKey: string = environment.stripePublishableKey;
 
     constructor(
         public dialogRef: MatDialogRef<TopupModalComponent>,
@@ -105,7 +105,13 @@ export class TopupModalComponent {
             const clientSecret = response.clientSecret;
 
             // Step 2: Initialize Stripe
-            this.stripe = await loadStripe(this.stripePublishableKey);
+            this.stripe = await loadStripe(this.stripePublishableKey, {
+                developerTools: {
+                    assistant: {
+                        enabled: false
+                    }
+                }
+            } as any);
             if (!this.stripe) throw new Error('Failed to load Stripe SDK');
 
             const appearance = { theme: 'stripe' as const };

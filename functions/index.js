@@ -120,12 +120,27 @@ app.post('/api/payment/stripe/create-payment-intent', async (req, res) => {
   }
 
   try {
+    // Fetch user email for description and receipt
+    const userEmail = await new Promise((resolve, reject) => {
+      db.query('SELECT email FROM le_user WHERE ID = ?', [userId], (err, results) => {
+        if (err) {
+          logger.error(`Database error fetching user email: ${err.message}`);
+          resolve('unknown@example.com'); // Fallback
+        } else {
+          resolve(results[0]?.email || 'unknown@example.com');
+        }
+      });
+    });
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // Stripe expects cents
       currency: 'usd', // Adjust as needed
+      description: `LE Token Topup - ${userEmail}`,
+      receipt_email: userEmail !== 'unknown@example.com' ? userEmail : undefined,
       automatic_payment_methods: { enabled: true },
       metadata: {
         userId: userId.toString(),
+        userEmail: userEmail,
         tokens: tokens.toString(),
         discountCode: discountCode || ''
       },

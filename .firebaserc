@@ -1,5 +1,9 @@
 {
   "projects": {
-    "default": "fusioneta-test"
-  }
+    "default": "fusioneta-test",
+    "test": "fusioneta-test",
+    "prod": "cwceng-entitymanagement"
+  },
+  "targets": {},
+  "etags": {}
 }
