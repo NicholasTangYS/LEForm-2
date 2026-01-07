@@ -1179,6 +1179,7 @@ async function pushLeadToBitrix24(leadData) {
     const bitrixFields = {
       TITLE: `[Altomate Website Form] Company Name Check - ${leadData.name || 'Unknown'}`,
       ASSIGNED_BY_ID: 3807,
+      SOURCE_ID: 36,
       NAME: firstName,
       LAST_NAME: lastName,
       UF_CRM_LEAD_1714097932490: leadData.email || '',
