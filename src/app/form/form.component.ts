@@ -888,6 +888,7 @@ export class FormComponent implements OnInit {
       const formArray = this.le1Form.get(section + 'Rows') as FormArray;
       formArray.push(sectionMap[section]());
       this.accordionStates[section].push(true); // Open the new row
+      if (section === 'b1') this.calculateB2Total();
       this.checkAllSectionsCompletion();
     }
   }
@@ -1171,6 +1172,9 @@ export class FormComponent implements OnInit {
           this.populateFormArray(this.c5Rows, data.c5Rows, (d) => this.createC5Row(d));
           this.populateFormArray(this.c10Rows, data.c10Rows, (d) => this.createC10Row(d));
           this.populateFormArray(this.c11Rows, data.c11Rows, (d) => this.createC11Row(d));
+
+          this.calculateB2Total();
+          this.updateC9();
 
           // 3. Initialize Accordion States based on array length
           this.resetAccordionStates();

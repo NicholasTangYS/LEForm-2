@@ -2298,6 +2298,15 @@ const processCreditPurchase = async (userId, amount, tokens, paymentMethod, paym
 
       try {
         const currentBalance = await getUserBalance(userId);
+
+        // Fetch user email for receipt
+        const userEmail = await new Promise((resolve) => {
+          db.query('SELECT email FROM le_user WHERE ID = ?', [userId], (err, results) => {
+            if (err || !results || results.length === 0) resolve(null);
+            else resolve(results[0].email);
+          });
+        });
+
         let creditsToAdd = parseFloat(tokens || amount);
         let discountCodeId = null;
         let discountApplied = null;
@@ -2377,12 +2386,86 @@ const processCreditPurchase = async (userId, amount, tokens, paymentMethod, paym
           });
         }
 
-        db.commit((commitErr) => {
+        db.commit(async (commitErr) => {
           if (commitErr) {
             return db.rollback(() => {
               reject(commitErr);
             });
           }
+
+          // Send Receipt Email (Fire and Forget)
+          if (userEmail) {
+            try {
+              const subject = "Receipt: Altomate Token Top-up";
+              const date = new Date().toLocaleString("en-MY", { timeZone: "Asia/Kuala_Lumpur" });
+              const body = `
+                <div style="font-family: sans-serif; padding: 20px; color: #333;">
+                  <h2 style="color: #6366f1;">Thank you for your purchase!</h2>
+                  <p>Your tokens have been successfully added to your account.</p>
+                  
+                  <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                    <tr style="border-bottom: 1px solid #eee;">
+                      <td style="padding: 10px 0; color: #666;">Transaction ID</td>
+                      <td style="padding: 10px 0; font-weight: bold; text-align: right;">${paymentTransactionId || insertResult.insertId}</td>
+                    </tr>
+                     <tr style="border-bottom: 1px solid #eee;">
+                      <td style="padding: 10px 0; color: #666;">Date</td>
+                      <td style="padding: 10px 0; font-weight: bold; text-align: right;">${date}</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee;">
+                      <td style="padding: 10px 0; color: #666;">Payment Method</td>
+                      <td style="padding: 10px 0; font-weight: bold; text-align: right;">${paymentMethod}</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee;">
+                      <td style="padding: 10px 0; color: #666;">Tokens Purchased</td>
+                      <td style="padding: 10px 0; font-weight: bold; text-align: right;">${parseFloat(tokens || amount)}</td>
+                    </tr>
+                    ${discountApplied ? `
+                    <tr style="border-bottom: 1px solid #eee;">
+                      <td style="padding: 10px 0; color: #666;">Bonus Credits (Code: ${discountApplied.code})</td>
+                      <td style="padding: 10px 0; font-weight: bold; text-align: right;">+${discountApplied.bonusCredits}</td>
+                    </tr>
+                    ` : ''}
+                    <tr style="border-bottom: 1px solid #eee;">
+                      <td style="padding: 10px 0; color: #666;">Total Credits Added</td>
+                      <td style="padding: 10px 0; font-weight: bold; text-align: right; color: #10b981;">${parseFloat(creditsToAdd).toFixed(2)}</td>
+                    </tr>
+                  </table>
+
+                  <p style="margin-top: 30px; font-size: 12px; color: #999;">
+                    If you have any questions, please contact support at <a href="mailto:info@altomate.io">info@altomate.io</a>.
+                  </p>
+                </div>
+              `;
+
+              const sendMailData = JSON.stringify({
+                "ToEmail": userEmail,
+                "Subject": subject,
+                "SenderEmail": "info@altomate.io",
+                "SubmittedContent": body,
+                "SenderName": "Altomate Support"
+              });
+
+              const config = {
+                method: 'post',
+                url: 'https://api.enginemailer.com/RESTAPI/V2/Submission/SendEmail',
+                headers: {
+                  'APIKey': process.env.ENGINE_MAILER_KEY,
+                  'Content-Type': 'application/json',
+                },
+                data: sendMailData
+              };
+
+              // Don't await this to keep response fast, but handle errors
+              axios.request(config)
+                .then(() => logger.info(`Receipt email sent to ${userEmail}`))
+                .catch(e => logger.error(`Failed to send receipt email: ${e.message}`));
+
+            } catch (emailErr) {
+              logger.error(`Error constructing receipt email: ${emailErr.message}`);
+            }
+          }
+
           resolve({
             success: true,
             newBalance: parseFloat(newBalance).toFixed(2),
