@@ -44,7 +44,10 @@ export class SettingsComponent implements OnInit {
       Name: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       contact_no: ['', [Validators.required]],
-      address: ['', [Validators.required]]
+      address: ['', [Validators.required]],
+      legal_entity_name: [''],
+      co_reg_no: [''],
+      tin_no: ['']
     });
 
     // New form for changing the password

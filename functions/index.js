@@ -433,30 +433,24 @@ app.put('/updateUserDetails/:Id', async (req, res) => {
   const { Id } = req.params;
 
   // 2. Extract the new data payload from the request body
-  //    We assume the client sends the new 'data' value in the request body.
+  const { contact_no, address, legal_entity_name, co_reg_no, tin_no } = req.body;
 
-  const contact_no = req.body.contact_no;
-  const address = req.body.address;
-
-  // Check if the data is present
+  // Check if the required data is present (optional: decide which fields are mandatory)
   if (contact_no === undefined || address === undefined) {
     return res.status(400).json({
-      message: 'Missing required field: "data" in request body.'
+      message: 'Missing required field: "contact_no" or "address" in request body.'
     });
   }
 
   try {
-    // SQL query to update the 'data' column in the 'le_project' table
-    // We use placeholders (?) for security to prevent SQL Injection.
-    const query = 'UPDATE le_user SET contact_no =?, address=?  WHERE ID = ?';
+    // SQL query to update the user details in the 'le_user' table
+    const query = 'UPDATE le_user SET contact_no =?, address=?, legal_entity_name=?, co_reg_no=?, tin_no=? WHERE ID = ?';
 
-    // The first placeholder takes newData, the second takes the Id
-    db.query(query, [contact_no, address, Id], (err, results) => {
+    db.query(query, [contact_no, address, legal_entity_name, co_reg_no, tin_no, Id], (err, results) => {
       if (err) {
         console.error('Database error during update:', err);
-        // Return a specific error status code for database issues
         return res.status(500).json({
-          message: 'Database error occurred during project update.',
+          message: 'Database error occurred during user update.',
           error: err.message
         });
       }
@@ -464,7 +458,7 @@ app.put('/updateUserDetails/:Id', async (req, res) => {
       // Check if any rows were actually updated
       if (results.affectedRows === 0) {
         return res.status(404).json({
-          message: `Project with ID ${Id} not found or no changes were made.`
+          message: `User with ID ${Id} not found or no changes were made.`
         });
       }
 
@@ -475,9 +469,8 @@ app.put('/updateUserDetails/:Id', async (req, res) => {
       });
     });
   } catch (err) {
-    // Catch any non-database errors (e.g., JSON parsing failure, internal server issues)
-    console.error('General error during project update:', err);
-    res.status(500).send('An internal error occurred while updating the project data');
+    console.error('General error during user update:', err);
+    res.status(500).send('An internal error occurred while updating the user data');
   }
 });
 

@@ -29,6 +29,7 @@ export class AppComponent {
   title = 'ng';
   userID: any;
   username: any;
+  isAdmin = false;
   isLoginPage = false;
   constructor(private idle: IdleService,
     private router: Router,
@@ -50,6 +51,7 @@ export class AppComponent {
       } else {
         // Clear user data on logout
         this.username = null;
+        this.isAdmin = false;
       }
     });
   }
@@ -60,9 +62,9 @@ export class AppComponent {
     this.http.get<any>(`${this.apiUrl}/getUserDetails/${this.userID}`).subscribe({
       next: (userData) => {
         if (userData.length > 0) {
-          this.username = userData[0].Name
+          this.username = userData[0].Name;
+          this.isAdmin = userData[0].admin === 1;
         }
-        // this.settingsForm.patchValue(userData[0]);
       },
       error: (err) => {
         console.error('Failed to load user data:', err);
