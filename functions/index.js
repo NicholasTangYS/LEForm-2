@@ -597,9 +597,9 @@ app.post('/request-password-reset', (req, res) => {
         const sendMailData = JSON.stringify({
           "ToEmail": email,
           "Subject": subject,
-          "SenderEmail": "info@altomate.io",
+          "SenderEmail": "info@softon.io",
           "SubmittedContent": body,
-          "SenderName": "Altomate Support"
+          "SenderName": "Softon Support"
         });
 
         const config = {
@@ -2434,9 +2434,9 @@ const processCreditPurchase = async (userId, amount, tokens, paymentMethod, paym
               const sendMailData = JSON.stringify({
                 "ToEmail": userEmail,
                 "Subject": subject,
-                "SenderEmail": "info@altomate.io",
+                "SenderEmail": "info@softon.io",
                 "SubmittedContent": body,
-                "SenderName": "Altomate Support"
+                "SenderName": "Softon Support"
               });
 
               const config = {
