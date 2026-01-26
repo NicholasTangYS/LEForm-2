@@ -13,10 +13,12 @@ import { DialogService } from '../dialog.service';
 import { ThousandSeparatorDirective } from '../thousand-separator.directive';
 import { AutoResizeDirective } from '../auto-resize.directive';
 
+import { MatTooltipModule } from '@angular/material/tooltip';
+
 @Component({
   selector: 'app-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, HttpClientModule, ThousandSeparatorDirective, AutoResizeDirective],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, HttpClientModule, ThousandSeparatorDirective, AutoResizeDirective, MatTooltipModule],
   templateUrl: './form.component.html',
   styleUrls: ['./form.component.scss']
 })
@@ -76,8 +78,10 @@ export class FormComponent implements OnInit {
     { code: '00023', description: 'Labuan entity that carries out administrative services, accounting services, legal services, backroom processing services, payroll services, talent management services, agency services, insolvency related services and management services other than Labuan company management under code 00018', mark: '' }
   ];
 
-  incentiveCodes: { code: string }[] = [
-    { code: '801' }, { code: '802' }, { code: '803' },
+  incentiveCodes: { code: string, description: string }[] = [
+    { code: '801', description: 'Exemption of income derived from qualifying activity (Labuan International Commodity Trading Company)' },
+    { code: '802', description: 'Exemption of income derived from qualifying activity (Labuan Banks, Labuan Credit token companies, Labuan Fund Manager etc.)' },
+    { code: '803', description: 'Exemption in respect of chargeabls income from dividends/interest/royalties/distributions/amount received' },
   ];
 
   countries: { code: string, name: string }[] = [

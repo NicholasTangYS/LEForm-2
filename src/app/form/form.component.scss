@@ -491,6 +491,28 @@ button[type="submit"]:hover {
     &:last-child {
         margin-bottom: 0;
     }
+
+    .label-with-tooltip {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 6px;
+
+        label {
+            margin-bottom: 0;
+        }
+
+        .info-icon {
+            display: flex;
+            align-items: center;
+            color: #007bff;
+            cursor: help;
+
+            svg {
+                display: block;
+            }
+        }
+    }
 }
 
 // A field with multiple inputs (e.g., ID type + number)

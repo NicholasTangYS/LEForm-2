@@ -727,7 +727,8 @@
                                 formControlName="C7b_Total_Income_from_Non_Labuan_Activity">
                         </div>
                         <div>
-                            <label for="C8a_Derived_Income_from_IP">Derived Income from IP:</label>
+                            <label for="C8a_Derived_Income_from_IP">Derived Income from royalty and other income derived
+                                from the commercial exploitation of an intellectual property right:</label>
                             <div class="btn-group mb-3" role="group">
                                 <input type="radio" class="btn-check" id="C8a_Yes" value="1"
                                     formControlName="C8a_Derived_Income_from_IP" name="C8a_Derived_Income_from_IP">
@@ -739,7 +740,8 @@
                             </div>
                         </div>
                         <div>
-                            <label for="C8b_Total_Income_from_IP">Total Income from IP:</label>
+                            <label for="C8b_Total_Income_from_IP">Total Income from royalty and other income derived
+                                from the commercial exploitation of an intellectual property right:</label>
                             <input type="number" min="0" id="C8b_Total_Income_from_IP"
                                 formControlName="C8b_Total_Income_from_IP">
                         </div>
@@ -776,7 +778,7 @@
 
                     <hr>
 
-                    <h3>Incentive Details</h3>
+                    <h3>Tax Incentive Details</h3>
                     <table style="width: 100%; border-collapse: collapse;">
                         <thead>
                             <tr style="background-color: #f2f2f2;">
@@ -792,7 +794,7 @@
                                     <select formControlName="C12_Row1_Incentive_Code" class="form-select">
                                         <option value="" disabled>-- Select --</option>
                                         <option *ngFor="let activity of incentiveCodes" [value]="activity.code">
-                                            {{ activity.code }}
+                                            {{ activity.code }} - {{ activity.description }}
                                         </option>
                                     </select>
                                 </td>
@@ -1265,7 +1267,19 @@ margin-bottom: 10px;">
                                             </select>
                                         </div>
                                         <div class="field-group">
-                                            <label>Claim P.U.(A) 419/2011</label>
+                                            <div class="label-with-tooltip">
+                                                <label>Claim P.U.(A) 419/2011</label>
+                                                <span class="info-icon"
+                                                    matTooltip="100% Tax Exemption for non-citizen directors on Directors' fees (P.U. (A) 419/2011). Valid until Year of Assessment (YA) 2025">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                        stroke-linejoin="round">
+                                                        <circle cx="12" cy="12" r="10"></circle>
+                                                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                                                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                                    </svg>
+                                                </span>
+                                            </div>
                                             <select class="form-select" formControlName="Claim_PUA_419_2011">
                                                 <option value="" disabled>-- Select --</option>
                                                 <option value="1">Yes</option>
@@ -2111,12 +2125,12 @@ margin-bottom: 10px;">
 
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
-                                    <label>Loans to Related Entities:</label>
+                                    <label>Loans to directors:</label>
                                     <input appThousandSeparator type="text"
                                         formControlName="Fp_Loans_to_Related_Entities">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
-                                    <label>Loans to Related (MYR):</label>
+                                    <label>Loans to directors (MYR):</label>
                                     <input type="text" class="myr-readonly"
                                         [value]="getMyrValue('Fp_Loans_to_Related_Entities') | number:'1.2-2'" readonly
                                         tabindex="-1">
@@ -2220,12 +2234,12 @@ margin-bottom: 10px;">
 
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
-                                    <label>Loans from Related Entities:</label>
+                                    <label>Loans from directors:</label>
                                     <input appThousandSeparator type="text"
                                         formControlName="Fp_Loans_from_Related_Entities">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
-                                    <label>Loans from Related (MYR):</label>
+                                    <label>Loans from directors (MYR):</label>
                                     <input type="text" class="myr-readonly"
                                         [value]="getMyrValue('Fp_Loans_from_Related_Entities') | number:'1.2-2'"
                                         readonly tabindex="-1">
@@ -2360,7 +2374,7 @@ margin-bottom: 10px;">
 
                 <!-- Attachment C10: Subsidiaries or Related Entities -->
                 <fieldset id="attachment-c10" *ngIf="le1Form.get('C10_Has_Subsidiary_Outside_Labuan')?.value === '1'">
-                    <legend>Attachment C10: Subsidiaries or Related Entities</legend>
+                    <legend>Attachment C10: Subsidiaries or Related Entities(Outside Labuan)</legend>
                     <div class="accordion-container" formArrayName="c10Rows">
                         <div *ngFor="let row of c10Rows.controls; let i = index" [formGroupName]="i"
                             class="accordion-item" [class.open]="accordionStates['c10'][i]">
