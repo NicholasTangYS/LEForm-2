@@ -55,7 +55,8 @@ const allowedOrigins = [
   'http://localhost:5001',
   'https://www.altomate.io',
   'https://altomate.io/my/free-company-name-check',
-  'https://crm.eta-co.com.my'
+  'https://crm.eta-co.com.my',
+  'https://le-form.softon.io'
 ];
 const corsOptions = {
   origin: allowedOrigins, // ⬅️ ONLY allow your deployed Angular app
