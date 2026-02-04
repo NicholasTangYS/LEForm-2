@@ -102,7 +102,7 @@ export class AppComponent {
 
   openSupport() {
     this.dialogService.alert(
-      'Need help? Contact our support team at support@altomate.io or call +6012-3456789. We are available Mon-Fri, 9 AM - 6 PM.',
+      'Need help? Contact our support team at support@softon.io or call +6012-3456789. We are available Mon-Fri, 9 AM - 6 PM.',
       'Customer Support'
     ).subscribe();
   }

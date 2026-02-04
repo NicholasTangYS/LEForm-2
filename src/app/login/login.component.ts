@@ -6,6 +6,11 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { SocialAuthService, GoogleSigninButtonModule, SocialUser } from '@abacritt/angularx-social-login';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
 import { WelcomeModalComponent } from '../welcome-modal/welcome-modal.component';
 
 /**
@@ -29,7 +34,19 @@ export function passwordsMatchValidator(control: AbstractControl): ValidationErr
   templateUrl: './login.component.html',
   standalone: true,
   styleUrls: ['./login.component.scss'],
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, HttpClientModule, GoogleSigninButtonModule, MatDialogModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule,
+    HttpClientModule,
+    GoogleSigninButtonModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule
+  ],
 })
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;

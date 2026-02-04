@@ -580,18 +580,18 @@ app.post('/request-password-reset', (req, res) => {
 
       // 4. Send the email using EngineMailer
       try {
-        const subject = "Password Reset Code - Altomate Support";
+        const subject = "Password Reset Code - Softon Support";
         const body = `
           <div style="font-family: sans-serif; padding: 20px; color: #333;">
             <h2>Password Reset Request</h2>
-            <p>You requested a password reset for your Altomate account.</p>
+            <p>You requested a password reset for your Softon account.</p>
             <p>Your 6-digit reset code is:</p>
             <div style="font-size: 32px; font-weight: bold; color: #7a5af8; padding: 10px; background: #f4f4f4; border-radius: 8px; display: inline-block;">
               ${resetCode}
             </div>
             <p>This code is valid for 1 hour. If you did not request this, please ignore this email.</p>
             <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-            <p style="font-size: 12px; color: #777;">Altomate Support Team</p>
+            <p style="font-size: 12px; color: #777;">Softon Support Team</p>
           </div>
         `;
 
@@ -2390,7 +2390,7 @@ const processCreditPurchase = async (userId, amount, tokens, paymentMethod, paym
           // Send Receipt Email (Fire and Forget)
           if (userEmail) {
             try {
-              const subject = "Receipt: Altomate Token Top-up";
+              const subject = "Receipt: Softon Token Top-up";
               const date = new Date().toLocaleString("en-MY", { timeZone: "Asia/Kuala_Lumpur" });
               const body = `
                 <div style="font-family: sans-serif; padding: 20px; color: #333;">
@@ -2427,7 +2427,7 @@ const processCreditPurchase = async (userId, amount, tokens, paymentMethod, paym
                   </table>
 
                   <p style="margin-top: 30px; font-size: 12px; color: #999;">
-                    If you have any questions, please contact support at <a href="mailto:info@altomate.io">info@altomate.io</a>.
+                    If you have any questions, please contact support at <a href="mailto:info@softon.io">info@softon.io</a>.
                   </p>
                 </div>
               `;
