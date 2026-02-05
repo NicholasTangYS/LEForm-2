@@ -30,6 +30,10 @@
     </nav>
 
     <div class="sidebar-footer">
+      <div class="legal-links" *ngIf="!isCollapsed">
+        <a routerLink="/terms" class="legal-link">Terms & Conditions</a>
+        <a routerLink="/privacy" class="legal-link">Privacy Policy</a>
+      </div>
       <div class="support-section">
         <a class="support-link" (click)="openSupport()">
           <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -54,6 +58,21 @@
 
   <!-- Main Content -->
   <main class="main-content" [class.expanded]="isCollapsed && !isLoginPage" [class.hide]="isLoginPage">
-    <router-outlet></router-outlet>
+    <div class="page-content">
+      <router-outlet></router-outlet>
+    </div>
+
+    <footer class="app-footer" *ngIf="!isLoginPage">
+      <div class="footer-content">
+        <div class="logo-section">
+          <img src="assets/Softon Logo.png" alt="Company Logo" class="footer-logo">
+          <span class="slogan">Simplifying Your Tax Filling</span>
+        </div>
+        <div class="company-info">
+          <p>Innoda Technology Sdn. Bhd.</p>
+          <p>Co Reg No: 202301049093</p>
+        </div>
+      </div>
+    </footer>
   </main>
 </div>

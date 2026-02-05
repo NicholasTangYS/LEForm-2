@@ -15,6 +15,8 @@ import { AutoResizeDirective } from '../auto-resize.directive';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
 
+import { CanComponentDeactivate } from '../auth/can-deactivate.guard';
+
 @Component({
   selector: 'app-form',
   standalone: true,
@@ -22,7 +24,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   templateUrl: './form.component.html',
   styleUrls: ['./form.component.scss']
 })
-export class FormComponent implements OnInit {
+export class FormComponent implements OnInit, CanComponentDeactivate {
   le1Form: FormGroup;
 
   // Dynamic accordion states for each section
@@ -1979,30 +1981,25 @@ export class FormComponent implements OnInit {
 
 
 
-  back(event: any) { this.unloadNotification(event); }
+  back(event: any) {
+    // If used as a specialized back button
+    this.router.navigate(['/reports']);
+  }
 
   @HostListener('window:beforeunload', ['$event'])
   unloadNotification($event: any): void {
-    if (this.le1Form.dirty) {
+    // Browser native unload prompt logic
+    if (this.le1Form.dirty && this.projectStatus !== 2) {
       $event.returnValue = true;
-      const dialogData = {
-        title: 'Confirmation',
-        message: `Unsaved changes will be lost. Are you sure you want to leave?`,
-        confirmText: 'Yes',
-        cancelText: 'No, stay here'
-      };
-
-      this.dialogService.confirm(dialogData)
-        .subscribe(result => {
-          if (result) {
-            this.router.navigate(['/reports']);
-          } else {
-            console.log('Leave canceled.');
-          }
-        });
-    } else {
-      this.router.navigate(['/reports']);
     }
+  }
+
+  // Router Guard check
+  canDeactivate(): boolean {
+    if (this.le1Form.dirty && this.projectStatus !== 2) {
+      return confirm('You have unsaved changes! If you leave, your changes will be lost.');
+    }
+    return true;
   }
 
   closeInstructionModal() { this.isInstructionModalVisible = false; }

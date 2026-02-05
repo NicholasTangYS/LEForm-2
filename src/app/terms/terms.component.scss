@@ -1,0 +1,88 @@
+.legal-container {
+    padding: 3rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #333;
+    line-height: 1.6;
+
+    .header-actions {
+        margin-bottom: 2rem;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        color: #666;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: color 0.2s ease;
+
+        &:hover {
+            color: #1a1a1a;
+        }
+    }
+
+    h1 {
+        font-size: 2.25rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: #1a1a1a;
+    }
+
+    .last-updated {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 3rem;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 1rem;
+    }
+
+    section {
+        margin-bottom: 2.5rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #2c3e50;
+    }
+
+    h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 1.5rem 0 0.5rem;
+        color: #34495e;
+    }
+
+    p {
+        margin-bottom: 1rem;
+        color: #4a4a4a;
+    }
+
+    ul {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+
+        li {
+            margin-bottom: 0.5rem;
+            color: #4a4a4a;
+        }
+    }
+
+    address {
+        font-style: normal;
+        background: #f9f9f9;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid #eee;
+
+        strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+    }
+}
