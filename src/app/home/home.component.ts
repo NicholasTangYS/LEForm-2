@@ -41,6 +41,7 @@ export class HomeComponent {
   showFailureModal = false;
   failedRequests: (ProcessingJob & { reason: string })[] = [];
   successfulResponses: any[] = [];
+  isDragging: { [key: string]: boolean } = {};
 
   readonly API_BASE_URL = 'https://asia-southeast1-fusioneta-test.cloudfunctions.net/AI-Invoice-Parser/';
   readonly ENDPOINTS = {
@@ -78,26 +79,58 @@ export class HomeComponent {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      if (fileType === 'tax') {
-        this.taxFile = file;
-        this.taxFileName = file.name;
-      } else if (fileType === 'shareholder') {
-        this.shareholderFile = file;
-        this.shareholderFileName = file.name;
-      } else if (fileType === 'financials') {
-        this.financialsFile = file;
-        this.financialsFileName = file.name;
-      } else if (fileType === 'c5') {
-        this.c5File = file;
-        this.c5FileName = file.name;
-      } else if (fileType === 'sr') {
-        this.SRFile = file;
-        this.SRFileName = file.name;
-      }
-      else if (fileType === 'le') {
-        this.LEFile = file;
-        this.LEFileName = file.name;
-      }
+      this.handleFileSelection(file, fileType);
+    }
+  }
+
+  onDragOver(event: DragEvent, fileType: string): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging[fileType] = true;
+  }
+
+  onDragLeave(event: DragEvent, fileType: string): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging[fileType] = false;
+  }
+
+  onDrop(event: DragEvent, fileType: string): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging[fileType] = false;
+
+    if (event.dataTransfer && event.dataTransfer.files.length > 0) {
+      const file = event.dataTransfer.files[0];
+      this.handleFileSelection(file, fileType);
+    }
+  }
+
+  private handleFileSelection(file: File, fileType: string): void {
+    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+      alert('Please upload a PDF file.');
+      return;
+    }
+
+    if (fileType === 'tax') {
+      this.taxFile = file;
+      this.taxFileName = file.name;
+    } else if (fileType === 'shareholder') {
+      this.shareholderFile = file;
+      this.shareholderFileName = file.name;
+    } else if (fileType === 'financials') {
+      this.financialsFile = file;
+      this.financialsFileName = file.name;
+    } else if (fileType === 'c5') {
+      this.c5File = file;
+      this.c5FileName = file.name;
+    } else if (fileType === 'sr') {
+      this.SRFile = file;
+      this.SRFileName = file.name;
+    }
+    else if (fileType === 'le') {
+      this.LEFile = file;
+      this.LEFileName = file.name;
     }
   }
 

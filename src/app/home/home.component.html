@@ -1,4 +1,3 @@
-
 <div class="container" id="upload-container" *ngIf="!isLoading">
     <div style="display: flex;">
         <button (click)="cancel()" style="padding: 10px;
@@ -7,10 +6,11 @@
     border: 1px;
     background: #d9d9d9;">Cancel</button>
     </div>
-    
+
     <h1>LE1 Form Document Upload</h1>
     <h3>Upload Your Documents</h3>
     <p>Please upload the relevant files. The system will extract the data and pre-fill the form for you.</p>
+    <p>(All files must be in PDF format)</p>
 
     <!-- <div class="upload-area" [class.file-selected]="taxFileName" (click)="taxFileInp.click()">
         <div *ngIf="!taxFileName; else taxFileSelected">
@@ -34,7 +34,9 @@
         <input type="file" accept="image/*, .pdf" #shareholderFileInp (change)="onFileSelected($event, 'shareholder')" hidden>
     </div> -->
 
-    <div class="upload-area" [class.file-selected]="financialsFileName" (click)="financialsFileInp.click()">
+    <div class="upload-area" [class.file-selected]="financialsFileName" [class.drag-over]="isDragging['financials']"
+        (click)="financialsFileInp.click()" (dragover)="onDragOver($event, 'financials')"
+        (dragleave)="onDragLeave($event, 'financials')" (drop)="onDrop($event, 'financials')">
         <div *ngIf="!financialsFileName; else financialsFileSelected">
             <label>Financial Statements (Part A)</label>
         </div>
@@ -42,10 +44,12 @@
             <span class="file-name">{{ financialsFileName }}</span>
             <button class="remove-btn" (click)="removeFile('financials'); $event.stopPropagation()">&times;</button>
         </ng-template>
-        <input type="file" accept="image/*, .pdf" #financialsFileInp (change)="onFileSelected($event, 'financials')" hidden>
+        <input type="file" accept=".pdf" #financialsFileInp (change)="onFileSelected($event, 'financials')" hidden>
     </div>
 
-    <div class="upload-area" [class.file-selected]="shareholderFileName" (click)="shareholderFileInp.click()">
+    <div class="upload-area" [class.file-selected]="shareholderFileName" [class.drag-over]="isDragging['shareholder']"
+        (click)="shareholderFileInp.click()" (dragover)="onDragOver($event, 'shareholder')"
+        (dragleave)="onDragLeave($event, 'shareholder')" (drop)="onDrop($event, 'shareholder')">
         <div *ngIf="!shareholderFileName; else shareholderFileSelected">
             <label>Annual Return (Attachments C3, C4)</label>
         </div>
@@ -53,7 +57,7 @@
             <span class="file-name">{{ shareholderFileName }}</span>
             <button class="remove-btn" (click)="removeFile('shareholder'); $event.stopPropagation()">&times;</button>
         </ng-template>
-        <input type="file" accept="image/*, .pdf" #shareholderFileInp (change)="onFileSelected($event, 'shareholder')" hidden>
+        <input type="file" accept=".pdf" #shareholderFileInp (change)="onFileSelected($event, 'shareholder')" hidden>
     </div>
 
     <!-- <div class="upload-area" [class.file-selected]="c5FileName" (click)="c5FileInp.click()">
@@ -67,7 +71,9 @@
         <input type="file" accept="image/*, .pdf" #c5FileInp (change)="onFileSelected($event, 'c5')" hidden>
     </div> -->
 
-     <div class="upload-area" [class.file-selected]="SRFileName" (click)="SRFileInp.click()">
+    <div class="upload-area" [class.file-selected]="SRFileName" [class.drag-over]="isDragging['sr']"
+        (click)="SRFileInp.click()" (dragover)="onDragOver($event, 'sr')" (dragleave)="onDragLeave($event, 'sr')"
+        (drop)="onDrop($event, 'sr')">
         <div *ngIf="!SRFileName; else SRFileSelected">
             <label>SR Confirmation</label>
         </div>
@@ -75,9 +81,12 @@
             <span class="file-name">{{ SRFileName }}</span>
             <button class="remove-btn" (click)="removeFile('sr'); $event.stopPropagation()">&times;</button>
         </ng-template>
-        <input type="file" accept="image/*, .pdf" #SRFileInp (change)="onFileSelected($event, 'sr')" hidden>
+        <input type="file" accept=".pdf" #SRFileInp (change)="onFileSelected($event, 'sr')" hidden>
     </div>
-     <div class="upload-area" [class.file-selected]="LEFileName" (click)="LEFileInp.click()">
+
+    <div class="upload-area" [class.file-selected]="LEFileName" [class.drag-over]="isDragging['le']"
+        (click)="LEFileInp.click()" (dragover)="onDragOver($event, 'le')" (dragleave)="onDragLeave($event, 'le')"
+        (drop)="onDrop($event, 'le')">
         <div *ngIf="!LEFileName; else LEFileSelected">
             <label>Last Year LE</label>
         </div>
@@ -85,7 +94,7 @@
             <span class="file-name">{{ LEFileName }}</span>
             <button class="remove-btn" (click)="removeFile('le'); $event.stopPropagation()">&times;</button>
         </ng-template>
-        <input type="file" accept="image/*, .pdf" #LEFileInp (change)="onFileSelected($event, 'le')" hidden>
+        <input type="file" accept=".pdf" #LEFileInp (change)="onFileSelected($event, 'le')" hidden>
     </div>
 
     <button class="btn" (click)="processFiles()">Process Documents</button>
@@ -98,22 +107,23 @@
 </div>
 
 <div class="modal-overlay" *ngIf="showFailureModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>Processing Issues Detected</h2>
-      <p>The following documents could not be processed. You can retry them or proceed with only the successful files.</p>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Processing Issues Detected</h2>
+            <p>The following documents could not be processed. You can retry them or proceed with only the successful
+                files.</p>
+        </div>
+        <div class="modal-body">
+            <ul class="failed-list">
+                <li *ngFor="let failed of failedRequests">
+                    <strong>{{ failed.name }}</strong>
+                    <span class="error-reason">{{ failed.reason }}</span>
+                </li>
+            </ul>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" (click)="retryFailedRequests()">Retry Failed</button>
+            <button class="btn" (click)="proceedIgnoringFailures()">Proceed Anyway</button>
+        </div>
     </div>
-    <div class="modal-body">
-      <ul class="failed-list">
-        <li *ngFor="let failed of failedRequests">
-          <strong>{{ failed.name }}</strong>
-          <span class="error-reason">{{ failed.reason }}</span>
-        </li>
-      </ul>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" (click)="retryFailedRequests()">Retry Failed</button>
-      <button class="btn" (click)="proceedIgnoringFailures()">Proceed Anyway</button>
-    </div>
-  </div>
 </div>
