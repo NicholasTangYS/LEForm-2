@@ -55,6 +55,7 @@
                 class="status-filter-select">
                 <option value="all">All</option>
                 <option value="1">In Progress</option>
+                <option value="3">Draft</option>
                 <option value="2">Complete</option>
             </select>
         </div>
@@ -83,16 +84,16 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let project of paginatedProjects">
+                <tr *ngFor="let project of paginatedProjects; trackBy: trackByProject">
                     <td data-label="Name">{{ project.name }}</td>
                     <td data-label="Status">
                         <span class="status-badge" [ngClass]="getStatusClass(project.status)">
                             {{ getStatusLabel(project.status) }}
                         </span>
                     </td>
-                    <td data-label="Year End">{{ project.year_end }}</td>
-                    <td data-label="Created On">{{ project.created_on | date:'short' }}</td>
-                    <td data-label="Updated On">{{ project.updated_on | date:'short' }}</td>
+                    <td data-label="Year End">{{ project.year_end | date:'dd/MM/yyyy h:mma' }}</td>
+                    <td data-label="Created On">{{ project.created_on | date:'dd/MM/yyyy h:mma' }}</td>
+                    <td data-label="Updated On">{{ project.updated_on | date:'dd/MM/yyyy h:mma' }}</td>
                     <td data-label="Actions">
                         <button (click)="editReport(project)" class="btn btn-secondary">Edit</button>
                     </td>

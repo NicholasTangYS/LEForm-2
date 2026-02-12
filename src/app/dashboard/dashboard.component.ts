@@ -173,6 +173,10 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/reports']);
   }
 
+  viewAllTransactions(): void {
+    this.router.navigate(['/transactions']);
+  }
+
   editReport(project: Project): void {
     this.auth.setProjectId(project.ID);
     this.router.navigate(['/form']);

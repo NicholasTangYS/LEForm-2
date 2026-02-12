@@ -718,7 +718,7 @@ app.put('/updateProjectDetails/:Id', async (req, res) => {
   const { Id } = req.params;
 
   // 2. Extract the new data payload from the request body
-  const newData = req.body.data;
+  const { data: newData, status: newStatus } = req.body;
 
   // Check if the data is present
   if (newData === undefined) {
@@ -739,6 +739,11 @@ app.put('/updateProjectDetails/:Id', async (req, res) => {
 
   // Also include updated_on timestamp
   setClauses.push('updated_on = NOW()');
+
+  if (newStatus !== undefined) {
+    setClauses.push('status = ?');
+    values.push(newStatus);
+  }
 
   // --- 3. Conditional Updates for Mapped Columns ---
 

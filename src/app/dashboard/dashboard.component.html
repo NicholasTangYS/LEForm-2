@@ -98,6 +98,7 @@
       <div class="grid-card recent-transactions">
         <div class="card-header">
           <h3>Recent Transactions</h3>
+          <button class="view-all" (click)="viewAllTransactions()">View All</button>
         </div>
         <div class="transaction-list">
           <div class="transaction-item" *ngFor="let tx of recentTransactions">

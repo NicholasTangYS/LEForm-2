@@ -9,6 +9,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { SettingsComponent } from './settings/settings.component';
 import { DiscountComponent } from './discount/discount.component';
 import { CanDeactivateGuard } from './auth/can-deactivate.guard';
+import { TransactionComponent } from './transactions/transaction.component';
 import { TermsComponent } from './terms/terms.component';
 import { PrivacyComponent } from './privacy/privacy.component';
 
@@ -17,6 +18,7 @@ export const routes: Routes = [
   { path: 'form', component: FormComponent, canActivate: [AuthGuard], canDeactivate: [CanDeactivateGuard] },
   { path: 'login', component: LoginComponent },
   { path: 'reports', component: ReportsComponent, canActivate: [AuthGuard], canDeactivate: [CanDeactivateGuard] },
+  { path: 'transactions', component: TransactionComponent, canActivate: [AuthGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'settings', component: SettingsComponent, canActivate: [AuthGuard] },
   { path: 'discount', component: DiscountComponent, canActivate: [AuthGuard] },

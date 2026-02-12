@@ -1,0 +1,108 @@
+<div class="transactions-container">
+    <div class="transactions-header">
+        <div class="header-left">
+            <button class="back-btn" (click)="goBack()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+            </button>
+            <h1>Credit Transactions</h1>
+        </div>
+    </div>
+
+    <div class="controls-container">
+        <div class="search-container">
+            <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="onSearch()"
+                placeholder="Search by description or project..." class="search-input">
+        </div>
+
+        <div class="filters-container">
+            <div class="filter-group">
+                <label>Filter by Type:</label>
+                <select [(ngModel)]="typeFilter" (change)="onFilterChange()" class="filter-select">
+                    <option value="all">All Types</option>
+                    <option value="DEDUCTION">Deduction</option>
+                    <option value="PURCHASE">Top-up</option>
+                    <option value="REFUND">Refund</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Show:</label>
+                <select [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange()" class="filter-select">
+                    <option value="10">10 entries</option>
+                    <option value="25">25 entries</option>
+                    <option value="50">50 entries</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="isLoading">
+        <div class="spinner"></div>
+        <p>Loading transactions...</p>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card" *ngIf="!isLoading">
+        <table class="transactions-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Balance</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let tx of paginatedTransactions; trackBy: trackByTx">
+                    <td data-label="Date" class="date-cell">{{ formatDate(tx.createdAt) }}</td>
+                    <td data-label="Description">
+                        <div class="desc-wrapper">
+                            <span class="desc-text">{{ tx.description }}</span>
+                            <span class="project-tag" *ngIf="tx.project_name">
+                                {{ tx.project_name }} ({{ tx.project_year_end }})
+                            </span>
+                        </div>
+                    </td>
+                    <td data-label="Type">
+                        <span class="type-badge" [class]="tx.type.toLowerCase()">
+                            {{ getTypeLabel(tx.type) }}
+                        </span>
+                    </td>
+                    <td data-label="Amount" [class]="getAmountClass(tx)">
+                        {{ tx.type === 'DEDUCTION' ? '-' : '+' }}{{ tx.amount }}
+                    </td>
+                    <td data-label="Balance" class="balance-cell">
+                        {{ tx.balanceAfter }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Empty State -->
+        <div class="no-results" *ngIf="paginatedTransactions.length === 0">
+            <p>No transactions found matching your criteria.</p>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-footer" *ngIf="!isLoading && filteredTransactions.length > 0">
+        <div class="pagination-info">
+            Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage,
+            filteredTransactions.length) }} of {{ filteredTransactions.length }} entries
+        </div>
+        <div class="pagination-controls">
+            <button class="page-btn" [disabled]="currentPage === 1" (click)="onPageChange(currentPage - 1)">
+                Previous
+            </button>
+            <span class="page-numbers">Page {{ currentPage }} of {{ totalPages }}</span>
+            <button class="page-btn" [disabled]="currentPage === totalPages" (click)="onPageChange(currentPage + 1)">
+                Next
+            </button>
+        </div>
+    </div>
+</div>

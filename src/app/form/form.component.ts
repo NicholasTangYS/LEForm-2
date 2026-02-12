@@ -1688,9 +1688,19 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
     // Get the nested JSON data
     const nestedData = this.getFormattedData();
 
-    this.http.put(`${this.apiUrl}/updateProjectDetails/${this.projectId}`, { data: nestedData }).subscribe({
-      next: (response) => {
+    // Check section completion
+    this.checkAllSectionsCompletion();
+    const allSectionsComplete = Object.values(this.sectionStatus).every(status => status === true);
+
+    let newStatus = this.projectStatus;
+    if (this.projectStatus !== 2) { // Don't auto-downgrade completed projects
+      newStatus = allSectionsComplete ? 3 : 1;
+    }
+
+    this.http.put(`${this.apiUrl}/updateProjectDetails/${this.projectId}`, { data: nestedData, status: newStatus }).subscribe({
+      next: (response: any) => {
         console.log('Project update successful', response);
+        this.projectStatus = newStatus;
         this.dialogService.alert('Project data has been saved successfully!').subscribe();
       },
       error: (err) => {

@@ -87,9 +87,14 @@ export class ReportsComponent implements OnInit {
     });
 
     // Paginate the filtered projects
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
+    const itemsPerPage = Number(this.itemsPerPage); // Force numeric conversion to prevent string concatenation
+    const startIndex = (this.currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
     this.paginatedProjects = this.filteredProjects.slice(startIndex, endIndex);
+  }
+
+  trackByProject(index: number, project: Project): number {
+    return project.ID;
   }
 
   onSearch(): void {
@@ -121,6 +126,7 @@ export class ReportsComponent implements OnInit {
 
   getStatusLabel(status: any): string {
     const s = status.toString();
+    if (s === '3') return 'Draft';
     if (s === '2') return 'Complete';
     if (s === '1') return 'In Progress';
     return s;
@@ -128,6 +134,7 @@ export class ReportsComponent implements OnInit {
 
   getStatusClass(status: any): string {
     const s = status.toString();
+    if (s === '3') return 'status-draft';
     if (s === '2') return 'status-complete';
     if (s === '1') return 'status-in-progress';
     return 'status-unknown';
