@@ -59,11 +59,47 @@
   // width: 80%;
 
   .header-main {
+    .title-with-action {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      @media (max-width: 640px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+    }
+
     h1 {
       margin: 0;
       font-size: 28px;
       font-weight: 700;
       color: #0f172a;
+    }
+
+    .how-it-works-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: #eef2ff;
+      color: #6366f1;
+      border: 1px solid #e0e7ff;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        background: #e0e7ff;
+        transform: translateY(-1px);
+      }
+
+      svg {
+        flex-shrink: 0;
+      }
     }
 
     .subtitle {
@@ -234,6 +270,7 @@
       }
     }
   }
+
 }
 
 .report-list {

@@ -1,0 +1,53 @@
+<div class="modal-container">
+    <div class="modal-header">
+        <h3>How is our Auto filling work?</h3>
+        <button class="close-btn" (click)="close()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+    </div>
+
+    <div class="modal-content">
+        <div class="carousel">
+            <div class="carousel-track" [style.transform]="'translateX(-' + (currentStep * 100) + '%)'">
+                <div class="carousel-slide" *ngFor="let step of steps; let i = index">
+                    <div class="step-layout">
+                        <div class="step-image">
+                            <div class="image-placeholder">
+                                <span class="step-num">{{ i + 1 }}</span>
+                                <img [src]="step.image" [alt]="step.title">
+                            </div>
+                        </div>
+                        <div class="step-info">
+                            <h4>{{ step.title }}</h4>
+                            <p>{{ step.description }}</p>
+                            <a *ngIf="step.link" [href]="step.link" target="_blank" class="extension-link">
+                                Install Extension
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                    <polyline points="15 3 21 3 21 9"></polyline>
+                                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <div class="step-indicators">
+            <span *ngFor="let dot of steps; let i = index" class="dot" [class.active]="i === currentStep"
+                (click)="goToStep(i)"></span>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-outline" (click)="prevStep()" [disabled]="currentStep === 0">Previous</button>
+            <button class="btn btn-primary" (click)="nextStep()" *ngIf="currentStep < steps.length - 1">Next</button>
+            <button class="btn btn-primary" (click)="close()" *ngIf="currentStep === steps.length - 1">Got it!</button>
+        </div>
+    </div>
+</div>

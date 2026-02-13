@@ -10,6 +10,7 @@ import { baseUrl } from '../../environments/environment';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TopupModalComponent } from '../topup-modal/topup-modal.component';
 import { DialogService } from '../dialog.service';
+import { HowItWorksModalComponent } from '../how-it-works-modal/how-it-works-modal.component';
 
 interface Project {
   ID: number;
@@ -180,6 +181,14 @@ export class DashboardComponent implements OnInit {
   editReport(project: Project): void {
     this.auth.setProjectId(project.ID);
     this.router.navigate(['/form']);
+  }
+
+  openHowItWorks(): void {
+    this.dialog.open(HowItWorksModalComponent, {
+      width: '800px',
+      maxWidth: '90vw',
+      panelClass: 'custom-modal-panel'
+    });
   }
 
   formatDate(dateStr: string): string {
