@@ -741,7 +741,7 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
       ID_type: [data.ID_type || '', Validators.required],
       ID_Passport_No: [data.ID_Passport_No || '', Validators.required],
       Date_of_Birth: [data.Date_of_Birth || '', [Validators.required, this.yearEarlierThanCurrentValidator]],
-      TIN: [data.TIN || '', [Validators.required, this.tinValidator]],
+      TIN: [data.TIN || ''],
       Telephone_No: [data.Telephone_No || '', Validators.required],
       Salary_Bonus: [data.Salary_Bonus || 0],
       Fees_Commission_Allowances: [data.Fees_Commission_Allowances || 0],
@@ -762,7 +762,7 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
       ID_Passport_Reg_No: [data.ID_Passport_Reg_No || '', Validators.required],
       Date_of_Birth: [data.Date_of_Birth || '', [Validators.required, this.yearEarlierThanCurrentValidator]],
       Country_of_Origin: [data.Country_of_Origin || '', Validators.required],
-      TIN: [data.TIN || '', [Validators.required, this.tinValidator]],
+      TIN: [data.TIN || ''],
       Direct_Shareholding_Percentage: [data.Direct_Shareholding_Percentage || 0],
       Dividends_Received_in_Basis_Period: [data.Dividends_Received_in_Basis_Period || 0]
     });
@@ -771,7 +771,7 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
   createC5Row(data: any = {}): FormGroup {
     return this.fb.group({
       Name: [data.Name || '', Validators.required],
-      TIN: [data.TIN || '', [Validators.required, this.tinValidator]],
+      TIN: [data.TIN || ''],
       Shareholding_Percentage: [data.Shareholding_Percentage || 0],
       Salary_Bonus: [data.Salary_Bonus || 0],
       Dividends_Received_in_Basis_Period: [data.Dividends_Received_in_Basis_Period || 0],

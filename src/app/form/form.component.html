@@ -1330,9 +1330,6 @@ margin-bottom: 10px;">
                                     <div class="details-column">
                                         <div class="field-group">
                                             <label>TIN</label>
-                                            <div *ngIf="row.get('TIN')?.errors?.['invalidTin']"
-                                                class="text-danger small" style="margin-bottom: 2px;">TIN must be 10-11
-                                                digits</div>
                                             <input type="text" class="form-control" formControlName="TIN">
                                         </div>
                                         <div class="field-group">
@@ -1348,6 +1345,16 @@ margin-bottom: 10px;">
                                             <label>Fees/Commission (RM)</label>
                                             <input class="form-control" appThousandSeparator type="text"
                                                 formControlName="Fees_Commission_Allowances">
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Loan to Director (RM)</label>
+                                            <input class="form-control" appThousandSeparator type="text"
+                                                formControlName="Total_Loan_to_Officer">
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Loan from Director (RM)</label>
+                                            <input class="form-control" appThousandSeparator type="text"
+                                                formControlName="Total_Loan_from_Officer">
                                         </div>
                                     </div>
                                 </div>
@@ -1442,9 +1449,6 @@ margin-bottom: 10px;">
                                         </div>
                                         <div class="field-group">
                                             <label>TIN</label>
-                                            <div *ngIf="row.get('TIN')?.errors?.['invalidTin']"
-                                                class="text-danger small" style="margin-bottom: 2px;">TIN must be 10-11
-                                                digits</div>
                                             <input type="text" class="form-control" formControlName="TIN">
                                         </div>
                                         <div class="field-group">
@@ -1540,9 +1544,6 @@ margin-bottom: 10px;">
                                         </div>
                                         <div class="field-group">
                                             <label>TIN</label>
-                                            <div *ngIf="row.get('TIN')?.errors?.['invalidTin']"
-                                                class="text-danger small" style="margin-bottom: 2px;">TIN must be 10-11
-                                                digits</div>
                                             <input type="text" class="form-control" formControlName="TIN">
                                         </div>
                                         <div class="field-group">
