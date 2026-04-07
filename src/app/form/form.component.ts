@@ -26,6 +26,18 @@ import { CanComponentDeactivate } from '../auth/can-deactivate.guard';
 })
 export class FormComponent implements OnInit, CanComponentDeactivate {
   le1Form: FormGroup;
+  readonly registeredPostcodeOptions = ['87000', '87008'];
+  private readonly auditorFields = [
+    'Auditor_Name',
+    'Auditor_Country',
+    'Auditor_Address_line1',
+    'Auditor_Address_line2',
+    'Auditor_Postcode',
+    'Auditor_City',
+    'Auditor_Email',
+    'Auditor_Telephone_no',
+    'Auditor_TIN'
+  ];
 
   // Dynamic accordion states for each section
   accordionStates: { [key: string]: boolean[] } = {
@@ -387,6 +399,7 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
       // Part C: Entity Details
       C1_Registered_Address_line1: ['', Validators.required],
       C1_Registered_Address_line2: [''], // Often optional
+      C1_Registered_Postcode: ['87000', Validators.required],
       C1_Correspondence_Address_line1: ['', Validators.required],
       C1_Correspondence_Address_line2: [''],
       C1_Postcode: ['', Validators.required],
@@ -417,15 +430,16 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
       D3_Has_Financial_Account_Outside_Malaysia: ['', Validators.required],
       D4_Subject_to_AEOI: ['', Validators.required],
 
-      Auditor_Name: ['', Validators.required],
-      Auditor_Country: ['', Validators.required],
-      Auditor_Address_line1: ['', Validators.required],
+      Auditor_Validation_Enabled: [true],
+      Auditor_Name: [''],
+      Auditor_Country: [''],
+      Auditor_Address_line1: [''],
       Auditor_Address_line2: [''],
-      Auditor_Postcode: ['', Validators.required],
-      Auditor_City: ['', Validators.required],
-      Auditor_Email: ['', [Validators.required, Validators.email]],
-      Auditor_Telephone_no: ['', Validators.required],
-      Auditor_TIN: ['', [Validators.required, this.tinValidator]],
+      Auditor_Postcode: [''],
+      Auditor_City: [''],
+      Auditor_Email: [''],
+      Auditor_Telephone_no: [''],
+      Auditor_TIN: [''],
 
       // Part E & F (Conditionals)
       E1_MNE_Group_Name: ['', Validators.required],
@@ -1031,6 +1045,10 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
       }
     });
 
+    this.le1Form.get('Auditor_Validation_Enabled')?.valueChanges.subscribe(value => {
+      this.applyAuditorSectionValidators(value !== false);
+    });
+
     this.le1Form.get('C10_Has_Subsidiary_Outside_Labuan')?.valueChanges.subscribe(value => {
       if (this.projectStatus === 2) return; // Read-only check
       value === '1' ? this.c10Rows.enable() : this.c10Rows.disable();
@@ -1086,6 +1104,8 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
       const targetFields = ['Declarant_Address_line1', 'Declarant_Address_line2', 'Declarant_Postcode', 'Declarant_Telephone_no', 'Declarant_Email'];
       this.updateFieldStatus(targetFields, value === '1');
     });
+
+    this.applyAuditorSectionValidators(this.isAuditorValidationEnabled());
 
     // Run initial logic for all conditional fields
     this.triggerInitialConditionalLogic();
@@ -1172,6 +1192,7 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
             });
           }
           this.le1Form.patchValue(data);
+          this.applyAuditorSectionValidators(this.isAuditorValidationEnabled());
           this.populateFormArray(this.b1Rows, data.b1Rows, (d) => this.createB1Row(d));
           this.populateFormArray(this.c3Rows, data.c3Rows, (d) => this.createC3Row(d));
           this.populateFormArray(this.c4Rows, data.c4Rows, (d) => this.createC4Row(d));
@@ -1397,6 +1418,38 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
 
   // --- Helper Methods ---
 
+  private isAuditorValidationEnabled(): boolean {
+    return this.le1Form.get('Auditor_Validation_Enabled')?.value !== false;
+  }
+
+  private applyAuditorSectionValidators(isEnabled: boolean): void {
+    this.auditorFields.forEach(field => {
+      const control = this.le1Form.get(field);
+      if (!control) return;
+
+      if (isEnabled) {
+        control.setValidators(this.getAuditorValidators(field));
+      } else {
+        control.clearValidators();
+      }
+
+      control.updateValueAndValidity({ emitEvent: false });
+    });
+  }
+
+  private getAuditorValidators(field: string) {
+    switch (field) {
+      case 'Auditor_Address_line2':
+        return [];
+      case 'Auditor_Email':
+        return [Validators.required, Validators.email];
+      case 'Auditor_TIN':
+        return [Validators.required, this.tinValidator];
+      default:
+        return [Validators.required];
+    }
+  }
+
   updateBusinessActivityDescription(code: string | null): void {
     const activity = this.businessActivities.find(a => a.code === code);
     this.le1Form.get('Type_of_business_activity')?.setValue(activity ? activity.description : '', { emitEvent: false });
@@ -1436,7 +1489,7 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
     }) && (this.isFieldComplete(this.le1Form.get('B2_Total_Net_Profits')) || this.le1Form.get('B2_Total_Net_Profits')?.value !== null && this.le1Form.get('B2_Total_Net_Profits')?.value !== '');
 
     // Part C
-    this.sectionStatus['part-c'] = ['C1_Registered_Address_line1', 'C1_Correspondence_Address_line1', 'C1_Postcode', 'C1_City', 'C2_Address_Is_Tax_Agent_or_Trust_Co', 'C6a_Has_Related_Company', 'C7a_Derived_Income_from_Non_Labuan_Activity', 'C8a_Derived_Income_from_IP', 'C10_Has_Subsidiary_Outside_Labuan', 'C11_Received_Payments_from_Malaysian_Resident'].every(f => this.isFieldComplete(this.le1Form.get(f)));
+    this.sectionStatus['part-c'] = ['C1_Registered_Address_line1', 'C1_Registered_Postcode', 'C1_Correspondence_Address_line1', 'C1_Postcode', 'C1_City', 'C2_Address_Is_Tax_Agent_or_Trust_Co', 'C6a_Has_Related_Company', 'C7a_Derived_Income_from_Non_Labuan_Activity', 'C8a_Derived_Income_from_IP', 'C10_Has_Subsidiary_Outside_Labuan', 'C11_Received_Payments_from_Malaysian_Resident'].every(f => this.isFieldComplete(this.le1Form.get(f)));
 
     // Part D
     let partD = this.isFieldComplete(this.le1Form.get('D1_Subject_to_CbCR'));
@@ -1463,7 +1516,16 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
 
 
     // Auditor & Declaration
-    this.sectionStatus['auditor'] = this.isFieldComplete(this.le1Form.get('Auditor_Name')) && this.isFieldComplete(this.le1Form.get('Auditor_Country')) && this.isFieldComplete(this.le1Form.get('Auditor_Address_line1')) && this.isFieldComplete(this.le1Form.get('Auditor_Postcode')) && this.isFieldComplete(this.le1Form.get('Auditor_City')) && this.isFieldComplete(this.le1Form.get('Auditor_Email')) && this.isFieldComplete(this.le1Form.get('Auditor_Telephone_no')) && this.isFieldComplete(this.le1Form.get('Auditor_TIN'));
+    this.sectionStatus['auditor'] = !this.isAuditorValidationEnabled() || (
+      this.isFieldComplete(this.le1Form.get('Auditor_Name'))
+      && this.isFieldComplete(this.le1Form.get('Auditor_Country'))
+      && this.isFieldComplete(this.le1Form.get('Auditor_Address_line1'))
+      && this.isFieldComplete(this.le1Form.get('Auditor_Postcode'))
+      && this.isFieldComplete(this.le1Form.get('Auditor_City'))
+      && this.isFieldComplete(this.le1Form.get('Auditor_Email'))
+      && this.isFieldComplete(this.le1Form.get('Auditor_Telephone_no'))
+      && this.isFieldComplete(this.le1Form.get('Auditor_TIN'))
+    );
     const declarationFields = ['Declarant_Designation'];
     if (this.le1Form.get('Declarant_Designation')?.value === '1') {
       declarationFields.push('Declarant_Address_line1', 'Declarant_Address_line2', 'Declarant_Postcode');
