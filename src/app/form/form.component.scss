@@ -219,13 +219,10 @@ fieldset {
     border: none;
     background-color: #ffffff;
     margin-bottom: 30px;
-    padding: 0;
-    /* Reset padding */
+    padding: 0 25px 25px 25px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     /* Soft shadow */
     border-radius: 12px;
-    overflow: hidden;
-    /* Keeps content inside rounded corners */
 }
 
 legend {
@@ -236,15 +233,13 @@ legend {
     color: #2c3e50;
     border-bottom: 1px solid #eaeaea;
     display: block;
-    width: 100%;
+    margin-left: -25px;
+    margin-right: -25px;
+    width: calc(100% + 50px);
+    box-sizing: border-box;
     margin-bottom: 20px;
-}
-
-/* Add padding to the content inside the fieldset, not the legend */
-fieldset>div,
-fieldset>.form-grid,
-fieldset>.accordion-container {
-    padding: 0 25px 25px 25px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
 }
 
 label {
@@ -258,7 +253,8 @@ label {
 input[type='text'],
 input[type='email'],
 input[type='number'],
-textarea {
+textarea,
+.form-control {
     width: 100%;
     box-sizing: border-box;
     padding: 8px 10px;
@@ -486,7 +482,14 @@ button[type="submit"]:hover {
 
 // A group for a label and its input
 .field-group {
-    margin-bottom: 1rem;
+    margin-bottom: 15px;
+
+    input,
+    select,
+    textarea,
+    .form-control {
+        margin-bottom: 0 !important;
+    }
 
     &:last-child {
         margin-bottom: 0;

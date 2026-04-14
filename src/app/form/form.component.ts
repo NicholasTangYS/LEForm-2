@@ -765,7 +765,7 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
   }
 
   createC4Row(data: any = {}): FormGroup {
-    return this.fb.group({
+    const group = this.fb.group({
       Name_of_Shareholder_Partner: [data.Name_of_Shareholder_Partner || '', Validators.required],
       Country: [data.Country || '', Validators.required],
       Address1: [data.Address1 || '', Validators.required],
@@ -780,6 +780,24 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
       Direct_Shareholding_Percentage: [data.Direct_Shareholding_Percentage || 0],
       Dividends_Received_in_Basis_Period: [data.Dividends_Received_in_Basis_Period || 0]
     });
+
+    group.get('ID_type')?.valueChanges.subscribe(val => {
+      const dobControl = group.get('Date_of_Birth');
+      if (val === '3' || val === 3) {
+        dobControl?.clearValidators();
+      } else {
+        dobControl?.setValidators([Validators.required, this.yearEarlierThanCurrentValidator]);
+      }
+      dobControl?.updateValueAndValidity({ emitEvent: false });
+    });
+
+    if (group.get('ID_type')?.value === '3' || group.get('ID_type')?.value === 3) {
+      const dobControl = group.get('Date_of_Birth');
+      dobControl?.clearValidators();
+      dobControl?.updateValueAndValidity({ emitEvent: false });
+    }
+
+    return group;
   }
 
   createC5Row(data: any = {}): FormGroup {
@@ -1538,11 +1556,15 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
     this.sectionStatus['attachment-c3'] = this.c3Rows.controls.every(g => c3fields.every(f => this.isFieldComplete(g.get(f))));
     // this.sectionStatus['attachment-c3'] = this.c3Rows.controls.every(g => this.isFieldComplete(g.get('Name')));
 
-    const c4fields = ['Name_of_Shareholder_Partner', 'Country', 'Address1', 'Postcode', 'Town', 'ID_type', 'ID_Passport_Reg_No', 'Date_of_Birth', 'Country_of_Origin', 'Direct_Shareholding_Percentage', 'TIN'];
-    // this.sectionStatus['attachment-c4'] = this.c4Rows.controls.every(g => this.isFieldComplete(g.get('Name_of_Shareholder_Partner')));
-    this.sectionStatus['attachment-c4'] = this.c4Rows.controls.every(g => c4fields.every(f => this.isFieldComplete(g.get(f))));
-    const c5fields = ['Name', 'Shareholding_Percentage', 'Country', 'Address1', 'Postcode', 'Town', 'ID_type', 'ID_Passport_No', 'Date_of_Birth', 'Telephone_No', 'TIN'];
-    // this.sectionStatus['attachment-c5'] = this.c5Rows.controls.every(g => this.isFieldComplete(g.get('Name')));
+    const c4fields = ['Name_of_Shareholder_Partner', 'Country', 'Address1', 'Postcode', 'Town', 'ID_type', 'ID_Passport_Reg_No', 'Country_of_Origin'];
+    this.sectionStatus['attachment-c4'] = this.c4Rows.controls.every(g => {
+      const baseComplete = c4fields.every(f => this.isFieldComplete(g.get(f)));
+      const idType = g.get('ID_type')?.value;
+      const dobComplete = (idType === '3' || idType === 3) ? true : this.isFieldComplete(g.get('Date_of_Birth'));
+      return baseComplete && dobComplete;
+    });
+
+    const c5fields = ['Name', 'Country', 'Address1', 'Postcode', 'Town', 'ID_type', 'ID_Passport_No', 'Date_of_Birth', 'Telephone_No'];
     this.sectionStatus['attachment-c5'] = this.c5Rows.controls.every(g => c5fields.every(f => this.isFieldComplete(g.get(f))));
 
     // Conditional Arrays
