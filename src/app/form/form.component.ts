@@ -1462,10 +1462,26 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
       case 'Auditor_Email':
         return [Validators.required, Validators.email];
       case 'Auditor_TIN':
-        return [Validators.required, this.tinValidator];
+        return [Validators.required, this.auditorTinValidator];
       default:
         return [Validators.required];
     }
+  }
+
+  // Validator: Allow auditor TIN to be "0" (no auditor) or a valid 10–11 digit TIN
+  auditorTinValidator = (control: AbstractControl): { [key: string]: any } | null => {
+    const value = control.value;
+    // Allow empty values (use Validators.required for mandatory checks)
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+    // Allow "0" as a valid placeholder value
+    if (String(value).trim() === '0') {
+      return null;
+    }
+    // Otherwise, must be 10 to 11 digits
+    const isValid = /^\d{10,11}$/.test(value);
+    return isValid ? null : { invalidTin: true };
   }
 
   updateBusinessActivityDescription(code: string | null): void {

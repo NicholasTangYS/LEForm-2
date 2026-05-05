@@ -1135,6 +1135,9 @@ async function pushLeadToBitrix24(leadData) {
   }
 
   try {
+    // 1. Grab the ID sent straight from the frontend (e.g., "4071", "4073")
+    const bitrixDateId = leadData.incorporationDate;
+
     let formattedPhone = '';
     if (leadData.phone) {
       let clean = leadData.phone.toString().replace(/\D/g, '');
@@ -1153,13 +1156,12 @@ async function pushLeadToBitrix24(leadData) {
       .join('\n');
 
     let aiSuggestedNamesBlock = '';
-
     if (Array.isArray(leadData.aiFinalSuggestions) && leadData.aiFinalSuggestions.length > 0) {
       aiSuggestedNamesBlock = leadData.aiFinalSuggestions
         .map(s => s.name)
         .join(', ');
-
     }
+
     let firstName = '', lastName = '';
     if (leadData.name) {
       const nameParts = leadData.name.trim().split(' ');
@@ -1178,7 +1180,6 @@ async function pushLeadToBitrix24(leadData) {
     const bitrixFields = {
       TITLE: `[Altomate Website Form] Company Name Check - ${leadData.name || 'Unknown'}`,
       ASSIGNED_BY_ID: 3807,
-      SOURCE_ID: 36,
       NAME: firstName,
       LAST_NAME: lastName,
       UF_CRM_LEAD_1714097932490: leadData.email || '',
@@ -1193,6 +1194,10 @@ async function pushLeadToBitrix24(leadData) {
       UTM_CAMPAIGN: leadData.utm_campaign || null,
       UTM_TERM: leadData.utm_term || null,
       UF_CRM_1764817428: aiSuggestedNamesBlock,
+
+      // 2. Inject the ID into the payload (wrapped in array for Bitrix <isMultiple>1</isMultiple>)
+      ...(bitrixDateId ? { UF_CRM_LEAD_1674717814769: [bitrixDateId] } : {}),
+
       COMMENTS: `Company Names Checked:\n${companyNamesText}`
     };
 
