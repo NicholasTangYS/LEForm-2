@@ -1,0 +1,149 @@
+<div class="manual-topup-page">
+    <header class="page-header">
+        <h1>Manual Token Grant</h1>
+        <p class="subtitle">
+            For users who paid via bank transfer, DuitNow, cash, or any non-Stripe method.
+            Every grant is audit-logged.
+        </p>
+    </header>
+
+    <div class="content-grid">
+        <!-- ============ GRANT FORM ============ -->
+        <section class="card grant-card">
+            <h2>New Grant</h2>
+
+            <!-- Step 1: Find user -->
+            <div class="form-section">
+                <label class="section-label">1. Find user (email or user ID)</label>
+                <div class="search-row" *ngIf="!targetUser">
+                    <input type="text"
+                           class="search-input"
+                           [(ngModel)]="searchQuery"
+                           (keyup.enter)="searchUser()"
+                           placeholder="user@example.com or 123"
+                           [disabled]="isSearching">
+                    <button class="primary-btn"
+                            (click)="searchUser()"
+                            [disabled]="!searchQuery.trim() || isSearching">
+                        {{ isSearching ? 'Searching…' : 'Search' }}
+                    </button>
+                </div>
+
+                <div class="search-error" *ngIf="searchError">{{ searchError }}</div>
+
+                <div class="target-user-card" *ngIf="targetUser">
+                    <div class="target-row">
+                        <span class="user-avatar">{{ targetUser.name?.[0] }}</span>
+                        <div class="user-meta">
+                            <div class="user-name">{{ targetUser.name }}</div>
+                            <div class="user-email">{{ targetUser.email }}</div>
+                            <div class="user-id">ID: {{ targetUser.id }}</div>
+                        </div>
+                        <div class="user-balance">
+                            <span class="label">Current</span>
+                            <span class="value">{{ targetUser.balance }} credits</span>
+                        </div>
+                        <button class="link-btn" (click)="clearTarget()">Change</button>
+                    </div>
+                </div>
+            </div>
+
+            <ng-container *ngIf="targetUser">
+                <!-- Step 2: Amount -->
+                <div class="form-section">
+                    <label class="section-label">2. Tokens to grant</label>
+                    <div class="token-controls">
+                        <button type="button" class="token-btn" (click)="decreaseTokens()" [disabled]="tokens <= 1">−</button>
+                        <input type="number" min="1" class="token-input" [(ngModel)]="tokens">
+                        <button type="button" class="token-btn" (click)="increaseTokens()">+</button>
+                    </div>
+                    <div class="balance-preview">
+                        New balance: <strong>{{ newBalancePreview }}</strong> credits
+                    </div>
+                </div>
+
+                <!-- Step 3: Payment method -->
+                <div class="form-section">
+                    <label class="section-label">3. Payment method received</label>
+                    <mat-form-field appearance="outline" class="full-width">
+                        <mat-select [(ngModel)]="paymentMethod">
+                            <mat-option *ngFor="let m of paymentMethods" [value]="m.value">
+                                {{ m.label }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+
+                <!-- Step 4: Reference number -->
+                <div class="form-section">
+                    <label class="section-label">4. Reference number <span class="required">*</span></label>
+                    <mat-form-field appearance="outline" class="full-width">
+                        <input matInput
+                               [(ngModel)]="referenceNo"
+                               placeholder="e.g. MBB-20260514-001, DuitNow ref, receipt #">
+                    </mat-form-field>
+                    <small class="hint">Required for audit. Use the bank slip number, DuitNow reference, or receipt #.</small>
+                </div>
+
+                <!-- Step 5: Notes -->
+                <div class="form-section">
+                    <label class="section-label">5. Internal notes (optional)</label>
+                    <mat-form-field appearance="outline" class="full-width">
+                        <textarea matInput rows="3" [(ngModel)]="notes"
+                                  placeholder="Anything future-you would want to know about this grant"></textarea>
+                    </mat-form-field>
+                </div>
+
+                <!-- Step 6: Receipt -->
+                <div class="form-section">
+                    <mat-checkbox [(ngModel)]="sendReceipt">
+                        Send receipt email to user
+                    </mat-checkbox>
+                    <small class="hint">
+                        Off by default — most manual grants are reconciliation actions and don't need a "Receipt: Softon Token Top-up" email.
+                    </small>
+                </div>
+
+                <div class="submit-error" *ngIf="submitError">{{ submitError }}</div>
+
+                <div class="actions">
+                    <button class="primary-btn large"
+                            (click)="submitGrant()"
+                            [disabled]="!canSubmit">
+                        {{ isSubmitting ? 'Granting…' : 'Grant ' + tokens + ' tokens' }}
+                    </button>
+                </div>
+            </ng-container>
+        </section>
+
+        <!-- ============ AUDIT LOG ============ -->
+        <section class="card audit-card">
+            <div class="audit-header">
+                <h2>Recent manual grants</h2>
+                <button class="link-btn" (click)="loadRecentGrants()" [disabled]="isLoadingGrants">
+                    {{ isLoadingGrants ? 'Loading…' : 'Refresh' }}
+                </button>
+            </div>
+
+            <div class="audit-empty" *ngIf="!isLoadingGrants && recentGrants.length === 0">
+                No manual grants yet.
+            </div>
+
+            <div class="audit-list" *ngIf="recentGrants.length > 0">
+                <div class="audit-row" *ngFor="let g of recentGrants">
+                    <div class="audit-line-1">
+                        <strong>{{ g.tokens }} tokens</strong>
+                        → {{ g.target_name }} <span class="muted">({{ g.target_email }})</span>
+                    </div>
+                    <div class="audit-line-2">
+                        <span class="chip">{{ g.payment_method }}</span>
+                        <span class="muted">Ref: {{ g.reference_no }}</span>
+                        <span class="muted">by {{ g.granter_email }}</span>
+                        <span class="muted">{{ g.created_at | date:'short' }}</span>
+                    </div>
+                    <div class="audit-notes" *ngIf="g.notes">{{ g.notes }}</div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>

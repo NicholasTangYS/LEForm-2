@@ -2270,7 +2270,7 @@ app.post('/api/discount-codes/validate', (req, res) => {
   });
 });
 
-const processCreditPurchase = async (userId, amount, tokens, paymentMethod, paymentTransactionId, discountCode) => {
+const processCreditPurchase = async (userId, amount, tokens, paymentMethod, paymentTransactionId, discountCode, skipEmail = false) => {
   // 1. Idempotency Check: Check if this transaction has already been processed
   if (paymentTransactionId) {
     const existingTx = await new Promise((resolve, reject) => {
@@ -2397,8 +2397,8 @@ const processCreditPurchase = async (userId, amount, tokens, paymentMethod, paym
             });
           }
 
-          // Send Receipt Email (Fire and Forget)
-          if (userEmail) {
+          // Send Receipt Email (Fire and Forget) — skipped for silent admin grants
+          if (userEmail && !skipEmail) {
             try {
               const subject = "Receipt: Softon Token Top-up";
               const date = new Date().toLocaleString("en-MY", { timeZone: "Asia/Kuala_Lumpur" });
@@ -2502,6 +2502,215 @@ app.post('/api/credits/purchase', async (req, res) => {
   } catch (err) {
     console.error('Purchase error:', err);
     res.status(500).json({ message: err.message || 'Error processing purchase' });
+  }
+});
+
+// 4a. Admin user lookup — resolve email → user id (admin only)
+app.get('/api/admin/users/lookup', async (req, res) => {
+  const { email, grantedByUserId } = req.query;
+  if (!email || !grantedByUserId) {
+    return res.status(400).json({ message: 'email and grantedByUserId are required' });
+  }
+  try {
+    const granter = await new Promise((resolve, reject) => {
+      db.query('SELECT admin FROM le_user WHERE ID = ?', [grantedByUserId], (err, results) => {
+        if (err) reject(err);
+        else resolve(results && results[0]);
+      });
+    });
+    if (!granter || granter.admin !== 1) {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+    const rows = await new Promise((resolve, reject) => {
+      db.query(
+        'SELECT ID, email, Name FROM le_user WHERE email = ? LIMIT 1',
+        [email],
+        (err, results) => {
+          if (err) reject(err);
+          else resolve(results);
+        }
+      );
+    });
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    return res.json({ userID: rows[0].ID, email: rows[0].email, name: rows[0].Name });
+  } catch (err) {
+    logger.error('User lookup error:', err);
+    return res.status(500).json({ message: 'Lookup failed' });
+  }
+});
+
+// 4b. Admin Manual Grant — credit a user without going through Stripe.
+// Caller must be a user whose le_user.admin = 1. The granter ID is in the body
+// (grantedByUserId) for audit logging. The endpoint inserts a row into
+// le_credit_ledger (via processCreditPurchase) AND a row into
+// le_credit_manual_grants linking the ledger entry to the admin who issued it.
+app.post('/api/admin/credits/grant', async (req, res) => {
+  const {
+    targetUserId,
+    tokens,
+    paymentMethod,
+    referenceNo,
+    notes,
+    sendReceipt,
+    grantedByUserId
+  } = req.body;
+
+  // ---- Required field validation ----
+  if (!targetUserId || !tokens || !paymentMethod || !referenceNo || !grantedByUserId) {
+    return res.status(400).json({
+      message: 'Missing required fields: targetUserId, tokens, paymentMethod, referenceNo, grantedByUserId'
+    });
+  }
+  if (parseFloat(tokens) <= 0) {
+    return res.status(400).json({ message: 'tokens must be greater than 0' });
+  }
+
+  // ---- Whitelist allowed offline payment methods ----
+  const allowedMethods = ['BANK_TRANSFER', 'DUITNOW', 'CASH', 'FPX_OFFLINE', 'CHEQUE', 'OTHER'];
+  if (!allowedMethods.includes(paymentMethod)) {
+    return res.status(400).json({
+      message: `Invalid paymentMethod. Allowed: ${allowedMethods.join(', ')}`
+    });
+  }
+
+  try {
+    // ---- Verify granter is admin (re-uses le_user.admin = 1 flag) ----
+    const granter = await new Promise((resolve, reject) => {
+      db.query(
+        'SELECT ID, admin FROM le_user WHERE ID = ?',
+        [grantedByUserId],
+        (err, results) => {
+          if (err) reject(err);
+          else resolve(results && results[0]);
+        }
+      );
+    });
+
+    if (!granter) {
+      return res.status(403).json({ message: 'Granter user not found' });
+    }
+    if (granter.admin !== 1) {
+      return res.status(403).json({ message: 'Only admin users can issue manual grants' });
+    }
+
+    // ---- Verify target user exists ----
+    const targetUser = await new Promise((resolve, reject) => {
+      db.query(
+        'SELECT ID, email, Name FROM le_user WHERE ID = ?',
+        [targetUserId],
+        (err, results) => {
+          if (err) reject(err);
+          else resolve(results && results[0]);
+        }
+      );
+    });
+    if (!targetUser) {
+      return res.status(404).json({ message: 'Target user not found' });
+    }
+
+    // ---- Build a unique idempotency-safe transaction id ----
+    const paymentTransactionId =
+      `MANUAL_${grantedByUserId}_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+
+    // ---- Process the credit purchase (re-uses existing ledger logic) ----
+    const result = await processCreditPurchase(
+      targetUserId,
+      tokens,
+      tokens,
+      paymentMethod,
+      paymentTransactionId,
+      null,                 // no discount code on manual grants
+      !sendReceipt          // skipEmail = true unless admin opted in
+    );
+
+    // ---- Audit insert ----
+    await new Promise((resolve, reject) => {
+      db.query(
+        `INSERT INTO le_credit_manual_grants
+          (credit_ledger_id, target_user_id, granted_by_user_id, tokens, payment_method, reference_no, notes, send_receipt)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          result.transactionId,
+          targetUserId,
+          grantedByUserId,
+          tokens,
+          paymentMethod,
+          referenceNo,
+          notes || null,
+          sendReceipt ? 1 : 0
+        ],
+        (err) => {
+          if (err) reject(err);
+          else resolve();
+        }
+      );
+    });
+
+    logger.info(`✅ Manual grant: ${tokens} tokens → user ${targetUserId} by admin ${grantedByUserId} (ref: ${referenceNo})`);
+
+    return res.json({
+      success: true,
+      newBalance: result.newBalance,
+      creditsAdded: result.creditsAdded,
+      ledgerId: result.transactionId,
+      targetUser: { id: targetUser.ID, email: targetUser.email, name: targetUser.Name },
+      paymentTransactionId
+    });
+  } catch (err) {
+    logger.error('Manual grant error:', err);
+    return res.status(500).json({ message: err.message || 'Error processing manual grant' });
+  }
+});
+
+// 4c. Admin — list recent manual grants (for audit log view)
+app.get('/api/admin/credits/manual-grants', async (req, res) => {
+  const { grantedByUserId } = req.query;
+  const limit = parseInt(req.query.limit) || 50;
+  const offset = parseInt(req.query.offset) || 0;
+
+  if (!grantedByUserId) {
+    return res.status(400).json({ message: 'grantedByUserId is required' });
+  }
+
+  try {
+    // Verify caller is admin
+    const granter = await new Promise((resolve, reject) => {
+      db.query(
+        'SELECT admin FROM le_user WHERE ID = ?',
+        [grantedByUserId],
+        (err, results) => {
+          if (err) reject(err);
+          else resolve(results && results[0]);
+        }
+      );
+    });
+    if (!granter || granter.admin !== 1) {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+
+    const rows = await new Promise((resolve, reject) => {
+      db.query(
+        `SELECT mg.*, u.email AS target_email, u.Name AS target_name,
+                a.email AS granter_email, a.Name AS granter_name
+           FROM le_credit_manual_grants mg
+           JOIN le_user u ON u.ID = mg.target_user_id
+           JOIN le_user a ON a.ID = mg.granted_by_user_id
+          ORDER BY mg.created_at DESC
+          LIMIT ? OFFSET ?`,
+        [limit, offset],
+        (err, results) => {
+          if (err) reject(err);
+          else resolve(results);
+        }
+      );
+    });
+
+    return res.json({ grants: rows, limit, offset });
+  } catch (err) {
+    logger.error('List manual grants error:', err);
+    return res.status(500).json({ message: 'Error fetching manual grants' });
   }
 });
 

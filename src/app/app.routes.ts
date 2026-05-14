@@ -4,6 +4,7 @@ import { HomeComponent } from './home/home.component';
 import { NgModule } from '@angular/core';
 import { LoginComponent } from './login/login.component';
 import { AuthGuard } from './auth/auth.guard';
+import { AdminGuard } from './auth/admin.guard';
 import { ReportsComponent } from './reports/reports.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { SettingsComponent } from './settings/settings.component';
@@ -12,6 +13,7 @@ import { CanDeactivateGuard } from './auth/can-deactivate.guard';
 import { TransactionComponent } from './transactions/transaction.component';
 import { TermsComponent } from './terms/terms.component';
 import { PrivacyComponent } from './privacy/privacy.component';
+import { ManualTopupComponent } from './admin/manual-topup/manual-topup.component';
 
 export const routes: Routes = [
   { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
@@ -22,6 +24,7 @@ export const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'settings', component: SettingsComponent, canActivate: [AuthGuard] },
   { path: 'discount', component: DiscountComponent, canActivate: [AuthGuard] },
+  { path: 'admin/manual-topup', component: ManualTopupComponent, canActivate: [AuthGuard, AdminGuard] },
   { path: 'terms', component: TermsComponent },
   { path: 'privacy', component: PrivacyComponent },
   { path: '', redirectTo: '/login', pathMatch: 'full' } // Default route

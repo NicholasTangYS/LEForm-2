@@ -11,6 +11,9 @@ import {
   TemplatePortal
 } from "./chunk-JTJ2KQEQ.js";
 import {
+  CdkScrollable
+} from "./chunk-5NGIQXVL.js";
+import {
   animate,
   animateChild,
   group,
@@ -20,9 +23,6 @@ import {
   transition,
   trigger
 } from "./chunk-DRZUF2FT.js";
-import {
-  CdkScrollable
-} from "./chunk-5NGIQXVL.js";
 import {
   A11yModule,
   Directionality,
@@ -86,11 +86,11 @@ import {
   ɵɵtemplate,
   ɵɵviewQuery
 } from "./chunk-D3KDM3YL.js";
-import "./chunk-PEBH6BBU.js";
 import {
   defer,
   merge
 } from "./chunk-WPM5VTLQ.js";
+import "./chunk-PEBH6BBU.js";
 import {
   Subject,
   filter,
