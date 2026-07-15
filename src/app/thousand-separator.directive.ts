@@ -57,21 +57,23 @@ export class ThousandSeparatorDirective implements ControlValueAccessor, OnInit 
     this._onTouched();
     const value = this.el.nativeElement.value;
     const rawValue = this.unformat(value);
-    this._onChange(rawValue === '' ? null : Number(rawValue));
-    this.el.nativeElement.value = this.format(rawValue);
+    // Whole numbers only (RM): round away any decimals (e.g. from pasted values)
+    const numericValue = rawValue === '' ? null : Math.round(Number(rawValue));
+    this._onChange(numericValue);
+    this.el.nativeElement.value = this.format(numericValue);
   }
 
   @HostListener('input', ['$event.target.value'])
   onInput(value: string): void {
     // During input, we only update the model but don't format the view to avoid cursor jumps
     const rawValue = this.unformat(value);
-    this._onChange(rawValue === '' ? null : Number(rawValue));
+    this._onChange(rawValue === '' ? null : Math.round(Number(rawValue)));
   }
 
   @HostListener('keydown', ['$event'])
   onKeyDown(event: KeyboardEvent): void {
-    // Allow: Delete, Backspace, Tab, Escape, Enter, .
-    if ([46, 8, 9, 27, 13, 110, 190].indexOf(event.keyCode) !== -1 ||
+    // Allow: Delete, Backspace, Tab, Escape, Enter (decimal point blocked: RM whole numbers only)
+    if ([46, 8, 9, 27, 13].indexOf(event.keyCode) !== -1 ||
       // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
       (event.keyCode === 65 && (event.ctrlKey || event.metaKey)) ||
       (event.keyCode === 67 && (event.ctrlKey || event.metaKey)) ||
@@ -79,13 +81,6 @@ export class ThousandSeparatorDirective implements ControlValueAccessor, OnInit 
       (event.keyCode === 88 && (event.ctrlKey || event.metaKey)) ||
       // Allow: home, end, left, right
       (event.keyCode >= 35 && event.keyCode <= 39)) {
-      // Allow if it's a dot and there isn't one already
-      if (event.keyCode === 190 || event.keyCode === 110) {
-        if (this.el.nativeElement.value.indexOf('.') !== -1) {
-          event.preventDefault();
-        }
-        return;
-      }
       return;
     }
     // Ensure that it is a number and stop the keypress
@@ -102,10 +97,11 @@ export class ThousandSeparatorDirective implements ControlValueAccessor, OnInit 
     if (isNaN(num)) {
       return '';
     }
+    // Whole numbers only (RM): no decimal places
     return new Intl.NumberFormat('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(num);
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(Math.round(num));
   }
 
   private unformat(value: string): string {

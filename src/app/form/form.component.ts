@@ -32,6 +32,7 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
     'Auditor_Country',
     'Auditor_Address_line1',
     'Auditor_Address_line2',
+    'Auditor_Address_line3',
     'Auditor_Postcode',
     'Auditor_City',
     'Auditor_Email',
@@ -435,6 +436,7 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
       Auditor_Country: [''],
       Auditor_Address_line1: [''],
       Auditor_Address_line2: [''],
+      Auditor_Address_line3: [''],
       Auditor_Postcode: [''],
       Auditor_City: [''],
       Auditor_Email: [''],
@@ -460,6 +462,7 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
       // Declaration
       Declarant_Address_line1: [''],
       Declarant_Address_line2: [''],
+      Declarant_Address_line3: [''],
       Declarant_Postcode: [''],
       Declarant_Telephone_no: [''],
       Declarant_Email: [''],
@@ -748,8 +751,10 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
       Claim_PUA_419_2011: [data.Claim_PUA_419_2011 || '', Validators.required],
       Designation: [data.Designation || ''],
       Country: [data.Country || '', Validators.required],
-      Address1: [data.Address1 || '', Validators.required],
-      Address2: [data.Address2 || ''],
+      Address1: [data.Address1 || '', [Validators.required, Validators.maxLength(40)]],
+      Address2: [data.Address2 || '', Validators.maxLength(40)],
+      Address3: [data.Address3 || '', Validators.maxLength(40)],
+      Address4: [data.Address4 || '', Validators.maxLength(40)],
       Postcode: [data.Postcode || '', Validators.required],
       Town: [data.Town || '', Validators.required],
       ID_type: [data.ID_type || '', Validators.required],
@@ -768,8 +773,10 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
     const group = this.fb.group({
       Name_of_Shareholder_Partner: [data.Name_of_Shareholder_Partner || '', Validators.required],
       Country: [data.Country || '', Validators.required],
-      Address1: [data.Address1 || '', Validators.required],
-      Address2: [data.Address2 || ''],
+      Address1: [data.Address1 || '', [Validators.required, Validators.maxLength(40)]],
+      Address2: [data.Address2 || '', Validators.maxLength(40)],
+      Address3: [data.Address3 || '', Validators.maxLength(40)],
+      Address4: [data.Address4 || '', Validators.maxLength(40)],
       Postcode: [data.Postcode || '', Validators.required],
       Town: [data.Town || '', Validators.required],
       ID_type: [data.ID_type || '', Validators.required],
@@ -810,8 +817,10 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
       Total_Loan_from_Owner: [data.Total_Loan_from_Owner || 0],
       Total_Loan_to_Owner: [data.Total_Loan_to_Owner || 0],
       Country: [data.Country || '', Validators.required],
-      Address1: [data.Address1 || '', Validators.required],
-      Address2: [data.Address2 || ''],
+      Address1: [data.Address1 || '', [Validators.required, Validators.maxLength(40)]],
+      Address2: [data.Address2 || '', Validators.maxLength(40)],
+      Address3: [data.Address3 || '', Validators.maxLength(40)],
+      Address4: [data.Address4 || '', Validators.maxLength(40)],
       Postcode: [data.Postcode || '', Validators.required],
       Town: [data.Town || '', Validators.required],
       ID_type: [data.ID_type || '', Validators.required],
@@ -946,6 +955,8 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
       Country: data.Country,
       Address1: data.Address1,
       Address2: data.Address2,
+      Address3: data.Address3,
+      Address4: data.Address4,
       Postcode: data.Postcode,
       Town: data.Town,
       TIN: data.TIN,
@@ -1121,6 +1132,17 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
     this.le1Form.get('Declarant_Designation')?.valueChanges.subscribe(value => {
       const targetFields = ['Declarant_Address_line1', 'Declarant_Address_line2', 'Declarant_Postcode', 'Declarant_Telephone_no', 'Declarant_Email'];
       this.updateFieldStatus(targetFields, value === '1');
+
+      // Address line 3 is optional: enable/disable with the section but without the required validator
+      const line3 = this.le1Form.get('Declarant_Address_line3');
+      if (line3 && this.projectStatus !== 2) {
+        if (value === '1') {
+          line3.enable();
+        } else {
+          line3.disable();
+          line3.setValue('');
+        }
+      }
     });
 
     this.applyAuditorSectionValidators(this.isAuditorValidationEnabled());
@@ -1382,6 +1404,32 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
       formData[field] = roundedVal.toString();
     });
 
+    // 3. Round all other RM fields to whole numbers.
+    // MyTax import treats decimals as whole digits (123.45 -> 12345), so no decimals may reach the JSON.
+    const roundRm = (val: any) => {
+      if (val === null || val === undefined || val === '') return val;
+      const num = parseFloat(String(val).replace(/,/g, ''));
+      return isNaN(num) ? val : Math.round(num);
+    };
+
+    const topLevelRmFields = [
+      'B2_Total_Net_Profits', 'B3a_Chargeable_Profit_0_Percent', 'B3b_Chargeable_Profit_3_Percent',
+      'B3c_Chargeable_Profit_24_Percent', 'B4_Tax_Charged', 'B5_Zakat_Paid', 'B6_Tax_Payable',
+      'C7b_Total_Income_from_Non_Labuan_Activity', 'C8b_Total_Income_from_IP',
+      'C12_Row1_Amount_Claimed', 'C12_Row2_Amount_Claimed', 'C12_Row3_Amount_Claimed'
+    ];
+    topLevelRmFields.forEach(field => formData[field] = roundRm(formData[field]));
+
+    const roundRowFields = (rows: any[], fields: string[]) => {
+      if (!Array.isArray(rows)) return;
+      rows.forEach(row => fields.forEach(f => row[f] = roundRm(row[f])));
+    };
+    roundRowFields(formData.b1Rows, ['Annual_Operating_Expenditure', 'Annual_Operating_Expenditure_MAS', 'Amount_of_Net_Loss', 'Net_Profits_ex_IP']);
+    roundRowFields(formData.c3Rows, ['Salary_Bonus', 'Fees_Commission_Allowances', 'Total_Loan_to_Officer', 'Total_Loan_from_Officer']);
+    roundRowFields(formData.c4Rows, ['Dividends_Received_in_Basis_Period']);
+    roundRowFields(formData.c5Rows, ['Salary_Bonus', 'Fees_Commission_Allowance', 'Total_Loan_from_Owner', 'Total_Loan_to_Owner', 'Dividends_Received_in_Basis_Period']);
+    roundRowFields(formData.c11Rows, ['Amount']);
+
     return formData;
   }
 
@@ -1457,8 +1505,11 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
 
   private getAuditorValidators(field: string) {
     switch (field) {
+      case 'Auditor_Address_line1':
+        return [Validators.required, Validators.maxLength(40)];
       case 'Auditor_Address_line2':
-        return [];
+      case 'Auditor_Address_line3':
+        return [Validators.maxLength(40)];
       case 'Auditor_Email':
         return [Validators.required, Validators.email];
       case 'Auditor_TIN':

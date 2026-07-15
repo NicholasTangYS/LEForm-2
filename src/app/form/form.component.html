@@ -1078,10 +1078,16 @@ margin-bottom: 10px;">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <div>
                             <label for="Auditor_Address_line1">Auditor Firm Address Line 1:</label>
-                            <input type="text" id="Auditor_Address_line1" formControlName="Auditor_Address_line1">
+                            <input type="text" id="Auditor_Address_line1" maxlength="40"
+                                formControlName="Auditor_Address_line1">
 
                             <label for="Auditor_Address_line2">Auditor Firm Address Line 2:</label>
-                            <input type="text" id="Auditor_Address_line2" formControlName="Auditor_Address_line2">
+                            <input type="text" id="Auditor_Address_line2" maxlength="40"
+                                formControlName="Auditor_Address_line2">
+
+                            <label for="Auditor_Address_line3">Auditor Firm Address Line 3:</label>
+                            <input type="text" id="Auditor_Address_line3" maxlength="40"
+                                formControlName="Auditor_Address_line3">
                         </div>
 
                     </div>
@@ -1137,8 +1143,12 @@ margin-bottom: 10px;">
                     <ng-container *ngIf="le1Form.get('Declarant_Designation')?.value === '1'">
 
                         <label for="Declarant_Address_line1">Address of firm:</label>
-                        <input type="text" id="Declarant_Address_line1" formControlName="Declarant_Address_line1">
-                        <input type="text" id="Declarant_Address_line2" formControlName="Declarant_Address_line2">
+                        <input type="text" id="Declarant_Address_line1" maxlength="40"
+                            formControlName="Declarant_Address_line1">
+                        <input type="text" id="Declarant_Address_line2" maxlength="40"
+                            formControlName="Declarant_Address_line2">
+                        <input type="text" id="Declarant_Address_line3" maxlength="40"
+                            formControlName="Declarant_Address_line3">
 
                         <label for="Declarant_Postcode">Postcode:</label>
                         <input style="width: 30%;" type="text" id="Declarant_Postcode"
@@ -1329,10 +1339,14 @@ margin-bottom: 10px;">
                                                     <option *ngFor="let country of countries" [value]="country.code">{{
                                                         country.name }}</option>
                                                 </select>
-                                                <textarea class="form-control" appAutoResize placeholder="Line 1"
-                                                    formControlName="Address1"></textarea>
-                                                <textarea class="form-control" appAutoResize placeholder="Line 2"
-                                                    formControlName="Address2"></textarea>
+                                                <textarea class="form-control" appAutoResize maxlength="40"
+                                                    placeholder="Line 1" formControlName="Address1"></textarea>
+                                                <textarea class="form-control" appAutoResize maxlength="40"
+                                                    placeholder="Line 2" formControlName="Address2"></textarea>
+                                                <textarea class="form-control" appAutoResize maxlength="40"
+                                                    placeholder="Line 3" formControlName="Address3"></textarea>
+                                                <textarea class="form-control" appAutoResize maxlength="40"
+                                                    placeholder="Line 4" formControlName="Address4"></textarea>
                                                 <input type="text" class="form-control" placeholder="Postcode"
                                                     formControlName="Postcode">
                                                 <input type="text" class="form-control" placeholder="Town"
@@ -1449,10 +1463,14 @@ margin-bottom: 10px;">
                                                     <option *ngFor="let country of countries" [value]="country.code">{{
                                                         country.name }}</option>
                                                 </select>
-                                                <textarea class="form-control" appAutoResize placeholder="Line 1"
-                                                    formControlName="Address1"></textarea>
-                                                <textarea class="form-control" appAutoResize placeholder="Line 2"
-                                                    formControlName="Address2"></textarea>
+                                                <textarea class="form-control" appAutoResize maxlength="40"
+                                                    placeholder="Line 1" formControlName="Address1"></textarea>
+                                                <textarea class="form-control" appAutoResize maxlength="40"
+                                                    placeholder="Line 2" formControlName="Address2"></textarea>
+                                                <textarea class="form-control" appAutoResize maxlength="40"
+                                                    placeholder="Line 3" formControlName="Address3"></textarea>
+                                                <textarea class="form-control" appAutoResize maxlength="40"
+                                                    placeholder="Line 4" formControlName="Address4"></textarea>
                                                 <input type="text" class="form-control" placeholder="Postcode"
                                                     formControlName="Postcode">
                                                 <input type="text" class="form-control" placeholder="Town"
@@ -1544,10 +1562,14 @@ margin-bottom: 10px;">
                                                     <option *ngFor="let country of countries" [value]="country.code">{{
                                                         country.name }}</option>
                                                 </select>
-                                                <textarea class="form-control" appAutoResize placeholder="Line 1"
-                                                    formControlName="Address1"></textarea>
-                                                <textarea class="form-control" appAutoResize placeholder="Line 2"
-                                                    formControlName="Address2"></textarea>
+                                                <textarea class="form-control" appAutoResize maxlength="40"
+                                                    placeholder="Line 1" formControlName="Address1"></textarea>
+                                                <textarea class="form-control" appAutoResize maxlength="40"
+                                                    placeholder="Line 2" formControlName="Address2"></textarea>
+                                                <textarea class="form-control" appAutoResize maxlength="40"
+                                                    placeholder="Line 3" formControlName="Address3"></textarea>
+                                                <textarea class="form-control" appAutoResize maxlength="40"
+                                                    placeholder="Line 4" formControlName="Address4"></textarea>
                                                 <input type="text" class="form-control" placeholder="Postcode"
                                                     formControlName="Postcode">
                                                 <input type="text" class="form-control" placeholder="Town"
