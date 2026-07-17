@@ -727,13 +727,17 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
         return;
       }
 
-      if (code === '00006') setStatus([fieldMap.cml], false);
-
-      if (code === '00022') {
-        setStatus([fieldMap.employees, fieldMap.employeesMY, fieldMap.opex, fieldMap.fpec, fieldMap.relatedCo], false);
-      }
-
-      if (code !== '00006' && code !== '00022') {
+      if (code === '00006') {
+        // LITC: disable No. of Employees (Malaysia), Compliance with CML
+        setStatus([fieldMap.employeesMY, fieldMap.cml], false);
+      } else if (code === '00009') {
+        // Leasing: disable No. of Employees (Malaysia), Compliance with CML, OpEx in Malaysia
+        setStatus([fieldMap.employeesMY, fieldMap.cml, fieldMap.opexMY], false);
+      } else if (code === '00022') {
+        // Pure equity holding: disable No. of Employees (Labuan & Malaysia), OpEx in Malaysia, FPEC, No. of Related Companies
+        setStatus([fieldMap.employees, fieldMap.employeesMY, fieldMap.opexMY, fieldMap.fpec, fieldMap.relatedCo], false);
+      } else {
+        // All other codes
         setStatus([fieldMap.employeesMY, fieldMap.opexMY, fieldMap.relatedCo, fieldMap.cml], false);
       }
     };
