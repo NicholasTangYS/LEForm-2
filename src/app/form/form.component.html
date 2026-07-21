@@ -1851,11 +1851,11 @@ margin-bottom: 10px;">
 
                             <div class="currency-pair-row">
                                 <div class="input-wrapper">
-                                    <label>Management Fee:</label>
+                                    <label>Directors' Fee:</label>
                                     <input appThousandSeparator type="text" formControlName="Pnl_Management_Fee">
                                 </div>
                                 <div class="input-wrapper" *ngIf="isForeignCurrency">
-                                    <label>Management Fee (MYR):</label>
+                                    <label>Directors' Fee (MYR):</label>
                                     <input type="text" class="myr-readonly"
                                         [value]="getMyrValue('Pnl_Management_Fee') | number:'1.2-2'" readonly
                                         tabindex="-1">
