@@ -398,11 +398,13 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
       B6_Tax_Payable: [''],
 
       // Part C: Entity Details
-      C1_Registered_Address_line1: ['', Validators.required],
-      C1_Registered_Address_line2: [''], // Often optional
+      C1_Registered_Address_line1: ['', [Validators.required, Validators.maxLength(40)]],
+      C1_Registered_Address_line2: ['', Validators.maxLength(40)], // Often optional
+      C1_Registered_Address_line3: ['', Validators.maxLength(40)],
       C1_Registered_Postcode: ['87000', Validators.required],
-      C1_Correspondence_Address_line1: ['', Validators.required],
-      C1_Correspondence_Address_line2: [''],
+      C1_Correspondence_Address_line1: ['', [Validators.required, Validators.maxLength(40)]],
+      C1_Correspondence_Address_line2: ['', Validators.maxLength(40)],
+      C1_Correspondence_Address_line3: ['', Validators.maxLength(40)],
       C1_Postcode: ['', Validators.required],
       C1_City: ['', Validators.required],
       C1_State: ['', Validators.required],
@@ -944,17 +946,19 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
     }
   }
 
-  copyToBeneficialOwner(index: number): void {
-    const c4Row = this.c4Rows.at(index);
-    if (!c4Row) return;
+  // --- Cross-section copy (C3 Compliance Officers / C4 Major Shareholders / C5 Beneficial Owners) ---
 
-    const data = c4Row.value;
+  // Name + ID control names used to detect an existing person in each section
+  private readonly copyKeyFields: { [key: string]: { name: string, id: string } } = {
+    'c3': { name: 'Name', id: 'ID_Passport_No' },
+    'c4': { name: 'Name_of_Shareholder_Partner', id: 'ID_Passport_Reg_No' },
+    'c5': { name: 'Name', id: 'ID_Passport_No' }
+  };
 
-    // Map C4 fields to C5 fields
-    const c5Data = {
-      Name: data.Name_of_Shareholder_Partner,
+  // Fields that carry over unchanged between all three sections
+  private commonPersonFields(data: any): any {
+    return {
       ID_type: data.ID_type,
-      ID_Passport_No: data.ID_Passport_Reg_No,
       Date_of_Birth: data.Date_of_Birth,
       Country: data.Country,
       Address1: data.Address1,
@@ -963,27 +967,124 @@ export class FormComponent implements OnInit, CanComponentDeactivate {
       Address4: data.Address4,
       Postcode: data.Postcode,
       Town: data.Town,
-      TIN: data.TIN,
+      TIN: data.TIN
+    };
+  }
+
+  private pushCopiedRow(target: 'c3' | 'c4' | 'c5', data: any, label: string): void {
+    const formArray = this.le1Form.get(target + 'Rows') as FormArray;
+    const keys = this.copyKeyFields[target];
+    const norm = (v: any) => String(v ?? '').trim().toLowerCase();
+
+    const alreadyExists = formArray.controls.some(g =>
+      norm(g.get(keys.name)?.value) === norm(data[keys.name]) &&
+      norm(g.get(keys.id)?.value) === norm(data[keys.id])
+    );
+
+    if (alreadyExists) {
+      this.dialogService.alert(`This person already exists in ${label}.`).subscribe();
+      return;
+    }
+
+    const rowFactory = {
+      'c3': (d: any) => this.createC3Row(d),
+      'c4': (d: any) => this.createC4Row(d),
+      'c5': (d: any) => this.createC5Row(d)
+    }[target];
+
+    formArray.push(rowFactory(data));
+    this.accordionStates[target].push(true); // Open the new row
+    this.checkAllSectionsCompletion();
+  }
+
+  // C3 -> C4
+  copyOfficerToShareholder(index: number): void {
+    const data = this.c3Rows.at(index)?.value;
+    if (!data) return;
+
+    this.pushCopiedRow('c4', {
+      ...this.commonPersonFields(data),
+      Name_of_Shareholder_Partner: data.Name,
+      ID_Passport_Reg_No: data.ID_Passport_No
+      // Country_of_Origin, shareholding % and dividends have no C3 equivalent
+    }, 'Major Shareholders');
+  }
+
+  // C3 -> C5
+  copyOfficerToBeneficialOwner(index: number): void {
+    const data = this.c3Rows.at(index)?.value;
+    if (!data) return;
+
+    this.pushCopiedRow('c5', {
+      ...this.commonPersonFields(data),
+      Name: data.Name,
+      ID_Passport_No: data.ID_Passport_No,
+      Telephone_No: data.Telephone_No,
+      Salary_Bonus: data.Salary_Bonus,
+      Fees_Commission_Allowance: data.Fees_Commission_Allowances,
+      Total_Loan_to_Owner: data.Total_Loan_to_Officer,
+      Total_Loan_from_Owner: data.Total_Loan_from_Officer
+    }, 'Beneficial Owners');
+  }
+
+  // C4 -> C3
+  copyShareholderToOfficer(index: number): void {
+    const data = this.c4Rows.at(index)?.value;
+    if (!data) return;
+
+    this.pushCopiedRow('c3', {
+      ...this.commonPersonFields(data),
+      Name: data.Name_of_Shareholder_Partner,
+      ID_Passport_No: data.ID_Passport_Reg_No
+      // Telephone_No is required in C3 but has no C4 equivalent, so it stays empty
+    }, 'Compliance Officers');
+  }
+
+  // C4 -> C5
+  copyToBeneficialOwner(index: number): void {
+    const data = this.c4Rows.at(index)?.value;
+    if (!data) return;
+
+    this.pushCopiedRow('c5', {
+      ...this.commonPersonFields(data),
+      Name: data.Name_of_Shareholder_Partner,
+      ID_Passport_No: data.ID_Passport_Reg_No,
       Shareholding_Percentage: data.Direct_Shareholding_Percentage,
       Dividends_Received_in_Basis_Period: data.Dividends_Received_in_Basis_Period,
       // Telephone_No is required in C5 but not in C4, so it will be empty
       Telephone_No: ''
-    };
+    }, 'Beneficial Owners');
+  }
 
-    // Create a new C5 row with the mapped data
-    const newRow = this.createC5Row(c5Data);
+  // C5 -> C3
+  copyBeneficialOwnerToOfficer(index: number): void {
+    const data = this.c5Rows.at(index)?.value;
+    if (!data) return;
 
-    // Add to C5 rows
-    this.c5Rows.push(newRow);
+    this.pushCopiedRow('c3', {
+      ...this.commonPersonFields(data),
+      Name: data.Name,
+      ID_Passport_No: data.ID_Passport_No,
+      Telephone_No: data.Telephone_No,
+      Salary_Bonus: data.Salary_Bonus,
+      Fees_Commission_Allowances: data.Fees_Commission_Allowance,
+      Total_Loan_to_Officer: data.Total_Loan_to_Owner,
+      Total_Loan_from_Officer: data.Total_Loan_from_Owner
+    }, 'Compliance Officers');
+  }
 
-    // Open the new row
-    this.accordionStates['c5'].push(true);
+  // C5 -> C4
+  copyBeneficialOwnerToShareholder(index: number): void {
+    const data = this.c5Rows.at(index)?.value;
+    if (!data) return;
 
-    // Check completion status
-    this.checkAllSectionsCompletion();
-
-    // Optional: Scroll to the new row or show a notification
-    // this.dialogService.alert('Copied to Beneficial Owner successfully. Please fill in the missing Telephone No.').subscribe();
+    this.pushCopiedRow('c4', {
+      ...this.commonPersonFields(data),
+      Name_of_Shareholder_Partner: data.Name,
+      ID_Passport_Reg_No: data.ID_Passport_No,
+      Direct_Shareholding_Percentage: data.Shareholding_Percentage,
+      Dividends_Received_in_Basis_Period: data.Dividends_Received_in_Basis_Period
+    }, 'Major Shareholders');
   }
 
   removeRow(section: 'b1' | 'c3' | 'c4' | 'c5' | 'c10' | 'c11', index: number): void {
